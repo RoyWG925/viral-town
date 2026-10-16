@@ -1,0 +1,56 @@
+▶ stage-baker: baker ← 「聽說廣場的舞台是趕工搭的，可能撐不住人。」 (gemma/single/t0.7)
+▶ budget-journalist: journalist ← 「聽說燈籠節的預算超支了，攤位費漲價就是為了補洞。」 (gemma/single/t0.7)
+▶ stage-cafe: cafe ← 「聽說廣場的舞台是趕工搭的，可能撐不住人。」 (gemma/single/t0.7)
+  stage-baker d1 baker @20 😟 擔心 phone→florist 80.9s
+  stage-cafe d1 cafe @20 😟 擔心 phone→police 85.6s
+  budget-journalist d1 journalist @20 🤩 興奮 phone→vendor 95.2s
+  stage-baker d2 florist @23 😟 擔心 phone→cafe 25.5s
+  budget-journalist d2 vendor @23 😠 煩躁 phone→journalist 33.0s
+  stage-cafe d2 police @23 😟 緊張 phone→organizer,go_look 49.1s
+  budget-journalist d3 journalist @27 🤩 興奮 go_look 23.4s
+  stage-cafe d3 organizer @27 😰 恐慌 phone→police 41.0s
+  budget-journalist d4 journalist @32 😑 失望 ask→mayor 41.3s
+  budget-journalist d5 mayor @36 😰 緊張 tell→journalist 87.5s
+  stage-baker d3 cafe @27 😟 擔心 phone→baker 170.9s
+  stage-baker d4 baker @30 😰 緊張 phone→cafe 32.6s
+  stage-cafe d4 police @30 😟 憂心 inspect 85.0s/47.0s
+  stage-cafe d5 police @42 😟 憂心 tell→organizer 101.9s
+  budget-journalist d6 journalist @41 🤨 懷疑 phone→vendor 46.8s/106.1s
+  stage-baker d5 cafe @33 😌 鬆了一口氣 none 170.7s/40.0s
+  ✔ stage-baker depth 5 reach 3 world 0 decisions 5 wall 653s
+  stage-cafe d6 organizer @47 😰 恐慌 tell→police 95.3s
+▶ budget-vendor: vendor ← 「聽說燈籠節的預算超支了，攤位費漲價就是為了補洞。」 (gemma/single/t0.7)
+  budget-vendor d1 vendor @20 😡 憤怒 phone→journalist 35.5s
+  budget-vendor d2 journalist @23 🤩 興奮 go_look 54.7s
+  budget-journalist d7 vendor @44 😡 生氣 phone→journalist 93.1s/109.9s
+  budget-journalist d8 journalist @47   CAP 
+  ✔ budget-journalist depth 7 reach 3 world 0 decisions 7 wall 770s
+▶ pigeon-baker8: baker ← 「聽說市長很害怕鴿子。」 (gemma/single/t0.7)
+  budget-vendor d3 journalist @28 🧐 敏銳 ask→mayor 32.9s
+  pigeon-baker8 d1 baker @20 😯 驚訝 phone→florist 38.1s
+  budget-vendor d4 mayor @33 😰 緊張 tell→journalist 37.2s
+  pigeon-baker8 d2 florist @23 😟 擔心 none 29.0s
+  ✔ pigeon-baker8 depth 2 reach 2 world 0 decisions 2 wall 67s
+▶ sick-florist8: florist ← 「慶典那批鴿子好像生病了。」 (gemma/single/t0.7)
+  stage-cafe d7 police @52 😠 憤怒 phone→mayor 32.7s/96.6s
+  stage-cafe d8 mayor @55 😰 焦慮 phone→organizer,go_look 29.0s
+  sick-florist8 d1 florist @20 😟 擔心 phone→organizer 40.6s
+  budget-vendor d5 journalist @38 😶 愣住 none FALLBACK 28.5s/47.8s
+  ✔ budget-vendor depth 5 reach 3 world 0 decisions 5 wall 237s
+  stage-cafe d9 organizer @58 😰 恐慌 phone→mayor 24.0s
+▶ castle-baker: baker ← 「今晚鎮上的城堡要開放參觀，大家都要去。」 (gemma/single/t0.7)
+  sick-florist8 d2 organizer @23 🙄 煩躁 phone→florist 31.4s
+  stage-cafe d10 mayor @62 😌 安慰 tell→organizer 21.2s
+  ✔ stage-cafe depth 8 reach 4 world 0 decisions 10 wall 916s
+▶ order-baker: baker ← 「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」 (gemma/single/t0.7)
+  castle-baker d1 baker @20 😮 好奇 phone→florist 37.4s
+  order-baker d1 baker @20 😟 緊張 none 18.6s
+  ✔ order-baker depth 1 reach 1 world 0 decisions 1 wall 19s
+▶ deny-mayor: mayor ← 「放心，大家都說預算一點都沒有超支。」 (gemma/single/t0.7)
+  deny-mayor d1 mayor @20 😌 欣慰 none 15.0s
+  ✔ deny-mayor depth 1 reach 1 world 0 decisions 1 wall 16s
+  sick-florist8 d3 florist @27 😟 忐忑 none 25.6s/19.0s
+  ✔ sick-florist8 depth 3 reach 2 world 0 decisions 3 wall 117s
+▶ threat-police: police ← 「今晚好像有人要在慶典上搞破壞。」 (gemma/single/t0.7)
+  castle-baker d2 florist @23 😯 驚訝 phone→baker 26.3s
+  castle-baker d3 baker @27 😅 尷尬 phone→florist 12.1s

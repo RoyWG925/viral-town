@@ -1,0 +1,785 @@
+{
+ "case": {
+  "id": "sick-journalist",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "journalist",
+  "seedText": "慶典那批鴿子好像生病了。",
+  "seed": 1,
+  "maxDecisions": 12,
+  "policy": "gemma",
+  "tags": [
+   "sick"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 12,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "sick-journalist",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "journalist",
+   "seedText": "慶典那批鴿子好像生病了。",
+   "tags": [
+    "sick"
+   ],
+   "temperature": 0.7,
+   "label": "sick-journalist"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "慶典那批鴿子好像生病了。"
+    },
+    "zh": "一個念頭被植入小雯耳中：「慶典那批鴿子好像生病了。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "慶典那批鴿子好像生病了。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "小雯聽到一位陌生客人說：「慶典那批鴿子好像生病了。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人說慶典的鴿子生病了，這可能是個大新聞。",
+     "thought": "如果鴿子真的生病，這標題絕對能爆流量！",
+     "feeling": "🤩 興奮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：如果鴿子真的生病，這標題絕對能爆流量！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 11209
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4525,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "只是路人隨口說的"
+    },
+    "zh": "小雯對「慶典那批鴿子好像生病了」的信心：0.00 → 0.45（doubt）",
+    "actor": "journalist",
+    "w": 11209
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🤩 興奮"
+    },
+    "zh": "小雯 🤩 興奮",
+    "actor": "journalist",
+    "place": "news",
+    "w": 11209
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "move",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "from": "news",
+     "to": "townhall",
+     "arrive": 21.7,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向鎮公所",
+    "actor": "journalist",
+    "place": "news",
+    "w": 11209
+   },
+   {
+    "id": "e7",
+    "t": 21.7,
+    "type": "arrive",
+    "causes": [
+     "e6"
+    ],
+    "data": {},
+    "zh": "小雯到了鎮公所",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 11209
+   },
+   {
+    "id": "e8",
+    "t": 21.7,
+    "type": "look",
+    "causes": [
+     "e3"
+    ],
+    "data": {},
+    "zh": "小雯在鎮公所到處看看",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 11209
+   },
+   {
+    "id": "e9",
+    "t": 24.7,
+    "type": "look",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "found": "鎮公所看起來一切如常，沒看到什麼特別的。",
+     "learned": []
+    },
+    "zh": "小雯看到：鎮公所看起來一切如常，沒看到什麼特別的。",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 11209
+   },
+   {
+    "id": "e10",
+    "t": 24.7,
+    "type": "deliver",
+    "causes": [
+     "e9"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "鎮公所看起來一切如常，沒看到什麼特別的。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：鎮公所看起來一切如常，沒看到什麼特別的。",
+    "target": "journalist",
+    "place": "townhall",
+    "w": 11209
+   },
+   {
+    "id": "e11",
+    "t": 24.7,
+    "type": "move",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "from": "townhall",
+     "to": "news",
+     "arrive": 25.2,
+     "home": true
+    },
+    "zh": "小雯從鎮公所走回霧港新聞社",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 11209
+   },
+   {
+    "id": "e12",
+    "t": 25.2,
+    "type": "arrive",
+    "causes": [
+     "e11"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 11209
+   },
+   {
+    "id": "e13",
+    "t": 25.2,
+    "type": "decide",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "去鎮公所沒發現異樣，鴿子生病的事沒線索。",
+     "thought": "沒發現任何破綻，這樣怎麼寫出爆款文章？",
+     "feeling": "😑 失望",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：沒發現任何破綻，這樣怎麼寫出爆款文章？",
+    "actor": "journalist",
+    "place": "news",
+    "w": 24989
+   },
+   {
+    "id": "e14",
+    "t": 25.3,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😑 失望"
+    },
+    "zh": "小雯 😑 失望",
+    "actor": "journalist",
+    "place": "news",
+    "w": 24989
+   },
+   {
+    "id": "e15",
+    "t": 26.2,
+    "type": "move",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "from": "news",
+     "to": "stage",
+     "arrive": 26.7,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向慶典舞台",
+    "actor": "journalist",
+    "place": "news",
+    "w": 24989
+   },
+   {
+    "id": "e16",
+    "t": 26.7,
+    "type": "arrive",
+    "causes": [
+     "e15"
+    ],
+    "data": {},
+    "zh": "小雯到了慶典舞台",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 24989
+   },
+   {
+    "id": "e17",
+    "t": 26.7,
+    "type": "look",
+    "causes": [
+     "e13"
+    ],
+    "data": {},
+    "zh": "小雯在慶典舞台到處看看",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 24989
+   },
+   {
+    "id": "e18",
+    "t": 29.7,
+    "type": "look",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "found": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "learned": [
+      "pigeons",
+      "pigeons_sick",
+      "lanterns_unsafe"
+     ]
+    },
+    "zh": "小雯看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 24989
+   },
+   {
+    "id": "e19",
+    "t": 29.7,
+    "type": "deliver",
+    "causes": [
+     "e18"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "target": "journalist",
+    "place": "stage",
+    "w": 24989
+   },
+   {
+    "id": "e20",
+    "t": 29.7,
+    "type": "move",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "news",
+     "arrive": 30.2,
+     "home": true
+    },
+    "zh": "小雯從慶典舞台走回霧港新聞社",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 24989
+   },
+   {
+    "id": "e21",
+    "t": 30.2,
+    "type": "arrive",
+    "causes": [
+     "e20"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 24989
+   },
+   {
+    "id": "e22",
+    "t": 30.2,
+    "type": "decide",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "親眼確認鴿子健康且燈籠合格，之前的傳聞是假的。",
+     "thought": "沒料可以寫，這條線斷了，得找別的爆料點來救流量。",
+     "feeling": "😑 失望",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "小雯：沒料可以寫，這條線斷了，得找別的爆料點來救流量。",
+    "actor": "journalist",
+    "place": "news",
+    "w": 70413
+   },
+   {
+    "id": "e23",
+    "t": 30.3,
+    "type": "react",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "feeling": "😑 失望"
+    },
+    "zh": "小雯 😑 失望",
+    "actor": "journalist",
+    "place": "news",
+    "w": 70413
+   },
+   {
+    "id": "e24",
+    "t": 30.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 70413
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "journalist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人說慶典的鴿子生病了，這可能是個大新聞。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "慶典那批鴿子好像生病了",
+       "topic": "pigeons_sick",
+       "says": "yes",
+       "category": "health"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "只是路人隨口說的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "🤩 興奮",
+     "thought": "如果鴿子真的生病，這標題絕對能爆流量！",
+     "actions": [
+      {
+       "type": "go_look",
+       "target": null,
+       "place": "townhall",
+       "intent": "ask",
+       "message": "我去鎮公所打聽一下鴿子的狀況",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 11209,
+      "latencyMs": 11209,
+      "attempts": 1,
+      "promptTokens": 1595,
+      "completionTokens": 203,
+      "platformCost": 0.0000698978,
+      "estCost": 0.0014065,
+      "status": 200,
+      "raw": "{\"understanding\": \"有人說慶典的鴿子生病了，這可能是個大新聞。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"慶典那批鴿子好像生病了\", \"topic\": \"pigeons_sick\", \"says\": \"yes\", \"category\": \"health\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.5, \"why\": \"只是路人隨口說的\", \"cites\": [\"m1\"]}], \"feeling\": \"🤩 興奮\", \"thought\": \"如果鴿子真的生病，這標題絕對能爆流量！\", \"actions\": [{\"type\": \"go_look\", \"target\": null, \"place\": \"townhall\", \"intent\": \"ask\", \"message\": \"我去鎮公所打聽一下鴿子的狀況\", \"cites\": [\"c0\"]}]}",
+      "promptChars": 2637
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "journalist",
+    "t": 25.2,
+    "triggers": [
+     "e10",
+     "e10"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "去鎮公所沒發現異樣，鴿子生病的事沒線索。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😑 失望",
+     "thought": "沒發現任何破綻，這樣怎麼寫出爆款文章？",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "stage",
+       "intent": "inform",
+       "message": "",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "stance for unknown claim 0 dropped"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 11209,
+      "wallEndMs": 24989,
+      "latencyMs": 13780,
+      "attempts": 1,
+      "promptTokens": 1655,
+      "completionTokens": 184,
+      "platformCost": 0.0000339668,
+      "estCost": 0.0013795,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"去鎮公所沒發現異樣，鴿子生病的事沒線索。\",\n  \"claims\": [],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.3,\n      \"why\": \"鎮公所看起來很正常\",\n      \"cites\": [\"m2\"]\n    }\n  ],\n  \"feeling\": \"😑 失望\",\n  \"thought\": \"沒發現任何破綻，這樣怎麼寫出爆款文章？\",\n  \"actions\": [\n    {\n      \"type\": \"go_look\",\n      \"place\": \"stage\",\n      \"intent\": \"inform\",\n      \"message\": \"\",\n      \"cites\": []\n    }\n  ]\n}",
+      "promptChars": 2714
+     }
+    ],
+    "applied": [
+     "e13",
+     "e14"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "journalist",
+    "t": 30.2,
+    "triggers": [
+     "e19",
+     "e19"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "親眼確認鴿子健康且燈籠合格，之前的傳聞是假的。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😑 失望",
+     "thought": "沒料可以寫，這條線斷了，得找別的爆料點來救流量。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "目前沒有可信的爆料，發文會沒流量。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "inverted confidence 1 → 0.00 (disbelieve)",
+       "stance for unknown claim 0 dropped"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 24989,
+      "wallEndMs": 70413,
+      "latencyMs": 20490,
+      "attempts": 1,
+      "promptTokens": 1793,
+      "completionTokens": 185,
+      "platformCost": 0.0000310464,
+      "estCost": 0.0014515,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"親眼確認鴿子健康且燈籠合格，之前的傳聞是假的。\",\n  \"claims\": [],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"disbelieve\",\n      \"confidence\": 1,\n      \"why\": \"親眼看到鴿子精神很好\",\n      \"cites\": [\n        \"m3\"\n      ]\n    }\n  ],\n  \"feeling\": \"😑 失望\",\n  \"thought\": \"沒料可以寫，這條線斷了，得找別的爆料點來救流量。\",\n  \"actions\": [\n    {\n      \"type\": \"none\",\n      \"why\": \"目前沒有可信的爆料，發文會沒流量。\"\n    }\n  ]\n}",
+      "promptChars": 2912
+     }
+    ],
+    "applied": [
+     "e22",
+     "e23"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "慶典那批鴿子好像生病了",
+    "topic": "pigeons_sick",
+    "says": "yes",
+    "category": "health",
+    "fact": "pigeons_sick",
+    "asserts": true,
+    "origin": "e2",
+    "by": "journalist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4525,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "只是路人隨口說的"
+     }
+    ],
+    "learned": [
+     [
+      "pigeons",
+      true
+     ],
+     [
+      "pigeons_sick",
+      false
+     ],
+     [
+      "lanterns_unsafe",
+      false
+     ]
+    ],
+    "memory": [
+     "15:20 一位陌生客人說：「慶典那批鴿子好像生病了。」",
+     "15:20 你決定：去鎮公所看看",
+     "15:25 你親眼看到：「鎮公所看起來一切如常，沒看到什麼特別的。」",
+     "15:25 你決定：去慶典舞台看看",
+     "15:30 你親眼看到：「舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質」",
+     "15:30 你決定先不做什麼。"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 30.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:37:14.741Z",
+   "ms": 70413
+  },
+  "llm": {
+   "calls": 3,
+   "attempts": 3,
+   "promptTokens": 5043,
+   "completionTokens": 572,
+   "platformCost": 0.00013491099999999998,
+   "estCost": 0.0042375,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 3,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 3,
+  "noneDecisions": 1,
+  "actionsDone": {
+   "look": 4
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "pigeons_sick"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 15,
+  "gameMinutes": 10.3,
+  "llmCalls": 3,
+  "llmSeconds": 45.5,
+  "tokens": 5615,
+  "estCost": 0.004237,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

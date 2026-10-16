@@ -1,0 +1,1196 @@
+{
+ "case": {
+  "maxDecisions": 16,
+  "maxPerNpc": 4,
+  "id": "stage-baker",
+  "active": [
+   "baker",
+   "florist",
+   "journalist",
+   "cafe",
+   "police",
+   "mayor",
+   "organizer",
+   "vendor"
+  ],
+  "seedNpc": "baker",
+  "seedText": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+  "tags": [
+   "truth-discovery"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 16,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "stage-baker",
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "baker",
+   "seedText": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+   "tags": [
+    "truth-discovery"
+   ],
+   "temperature": 0.7,
+   "label": "stage-baker"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人說慶典舞台不安全，可能會塌。",
+     "thought": "要是舞台塌了就糟了，得問問美玲有沒有聽說。",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：要是舞台塌了就糟了，得問問美玲有沒有聽說。",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 83059
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4,
+     "proposed": 0.4,
+     "verdict": "doubt",
+     "why": "不認識的客人說的，不能全信"
+    },
+    "zh": "阿德對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.00 → 0.40（doubt）",
+    "actor": "baker",
+    "w": 83059
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "阿德 😟 擔心",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 83059
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "美玲！妳有沒有聽說今晚慶典舞台的問題？剛有個客人說舞台是趕工的，怕會撐不住人，妳那邊有聽到什麼風聲嗎？",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「美玲！妳有沒有聽說今晚慶典舞台的問題？剛有個客人說舞台是趕工的，怕會撐不住人，妳那邊有聽到什麼風聲嗎？」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 83060
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "美玲！妳有沒有聽說今晚慶典舞台的問題？剛有個客人說舞台是趕工的，怕會撐不住人，妳那邊有聽到什麼風聲嗎？",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「美玲！妳有沒有聽說今晚慶典舞台的問題？剛有個客人說舞台是趕工的，怕會撐不住人，妳那邊有聽到什麼風聲嗎？」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 83060
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "阿德告訴我慶典舞台可能不穩，擔心會出意外。",
+     "thought": "如果舞台塌了怎麼辦？美咲的女兒今晚還要表演啊！",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：如果舞台塌了怎麼辦？美咲的女兒今晚還要表演啊！",
+    "actor": "florist",
+    "place": "flower",
+    "w": 147805
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.55,
+     "proposed": 0.8,
+     "verdict": "believe",
+     "why": "阿德是我非常信任的鄰居"
+    },
+    "zh": "美玲對「慶典舞台是趕工的，可能撐不住人」的信心：0.00 → 0.55（believe）",
+    "actor": "florist",
+    "w": 147805
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "美玲 😟 擔心",
+    "actor": "florist",
+    "place": "flower",
+    "w": 147805
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "phone",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "text": "美咲，不好意思打擾了。我剛聽阿德說，今晚的舞台好像有安全問題，聽說是趕工的。妳女兒今晚要在上面表演，妳要不要確認一下情況？",
+     "intent": "warn",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "美玲打電話給美咲：「美咲，不好意思打擾了。我剛聽阿德說，今晚的舞台好像有安全問題，聽說是趕工的。妳女兒今晚要在上面表演，妳要不要確認一下情況？」",
+    "actor": "florist",
+    "target": "cafe",
+    "place": "flower",
+    "w": 147805
+   },
+   {
+    "id": "e12",
+    "t": 26.4,
+    "type": "deliver",
+    "causes": [
+     "e11"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "phone",
+     "intent": "warn",
+     "text": "美咲，不好意思打擾了。我剛聽阿德說，今晚的舞台好像有安全問題，聽說是趕工的。妳女兒今晚要在上面表演，妳要不要確認一下情況？",
+     "claims": [
+      "c2"
+     ],
+     "from": "florist"
+    },
+    "zh": "美咲在電話裡聽美玲說：「美咲，不好意思打擾了。我剛聽阿德說，今晚的舞台好像有安全問題，聽說是趕工的。妳女兒今晚要在上面表演，妳要不要確認一下情況？」",
+    "target": "cafe",
+    "actor": "florist",
+    "place": "cafe",
+    "w": 147805
+   },
+   {
+    "id": "e13",
+    "t": 26.599999999999998,
+    "type": "decide",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "美玲提醒我舞台可能有安全問題，會影響我女兒表演。",
+     "thought": "天啊！舞台要是塌了怎麼辦？我得趕快弄清楚！",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美咲：天啊！舞台要是塌了怎麼辦？我得趕快弄清楚！",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 399996
+   },
+   {
+    "id": "e14",
+    "t": 26.599999999999998,
+    "type": "belief",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "claim": "c3",
+     "from": 0,
+     "to": 0.63,
+     "proposed": 0.8,
+     "verdict": "believe",
+     "why": "美玲和阿德都是我信任的朋友"
+    },
+    "zh": "美咲對「今晚的慶典舞台因為趕工而有安全問題」的信心：0.00 → 0.63（believe）",
+    "actor": "cafe",
+    "w": 399997
+   },
+   {
+    "id": "e15",
+    "t": 26.7,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "美咲 😟 擔心",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 399997
+   },
+   {
+    "id": "e16",
+    "t": 27.599999999999998,
+    "type": "phone",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "text": "阿德！美玲說你提到舞台有安全問題？快跟我說實話，到底發生什麼事了？我女兒今晚要在上面表演啊！",
+     "intent": "ask",
+     "claims": [
+      "c3"
+     ]
+    },
+    "zh": "美咲打電話給阿德：「阿德！美玲說你提到舞台有安全問題？快跟我說實話，到底發生什麼事了？我女兒今晚要在上面表演啊！」",
+    "actor": "cafe",
+    "target": "baker",
+    "place": "cafe",
+    "w": 399997
+   },
+   {
+    "id": "e17",
+    "t": 29.599999999999998,
+    "type": "deliver",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "phone",
+     "intent": "ask",
+     "text": "阿德！美玲說你提到舞台有安全問題？快跟我說實話，到底發生什麼事了？我女兒今晚要在上面表演啊！",
+     "claims": [
+      "c3"
+     ],
+     "from": "cafe"
+    },
+    "zh": "阿德在電話裡聽美咲說：「阿德！美玲說你提到舞台有安全問題？快跟我說實話，到底發生什麼事了？我女兒今晚要在上面表演啊！」",
+    "target": "baker",
+    "actor": "cafe",
+    "place": "bakery",
+    "w": 399997
+   },
+   {
+    "id": "e18",
+    "t": 29.799999999999997,
+    "type": "decide",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "美咲聽到我跟美玲聊舞台安全，很擔心女兒表演，來問我詳情。",
+     "thought": "糟糕，我只是隨口問美玲，沒想到美咲會這麼激動！",
+     "feeling": "😰 緊張",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：糟糕，我只是隨口問美玲，沒想到美咲會這麼激動！",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 436702
+   },
+   {
+    "id": "e19",
+    "t": 29.9,
+    "type": "react",
+    "causes": [
+     "e18"
+    ],
+    "data": {
+     "feeling": "😰 緊張"
+    },
+    "zh": "阿德 😰 緊張",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 436702
+   },
+   {
+    "id": "e20",
+    "t": 30.799999999999997,
+    "type": "phone",
+    "causes": [
+     "e18"
+    ],
+    "data": {
+     "text": "美咲！妳別緊張，我真的不知道！我剛才只是聽到一個客人隨口說舞台是趕工的，我也沒確認是不是真的，就好奇問了美玲一句，真的只是聽說而已！",
+     "intent": "answer",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美咲：「美咲！妳別緊張，我真的不知道！我剛才只是聽到一個客人隨口說舞台是趕工的，我也沒確認是不是真的，就好奇問了美玲一句，真的只是聽說而已！」",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "bakery",
+    "w": 436702
+   },
+   {
+    "id": "e21",
+    "t": 32.8,
+    "type": "deliver",
+    "causes": [
+     "e20"
+    ],
+    "data": {
+     "message": "m5",
+     "via": "phone",
+     "intent": "answer",
+     "text": "美咲！妳別緊張，我真的不知道！我剛才只是聽到一個客人隨口說舞台是趕工的，我也沒確認是不是真的，就好奇問了美玲一句，真的只是聽說而已！",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美咲在電話裡聽阿德說：「美咲！妳別緊張，我真的不知道！我剛才只是聽到一個客人隨口說舞台是趕工的，我也沒確認是不是真的，就好奇問了美玲一句，真的只是聽說而已！」",
+    "target": "cafe",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 436702
+   },
+   {
+    "id": "e22",
+    "t": 33,
+    "type": "decide",
+    "causes": [
+     "e21"
+    ],
+    "data": {
+     "decision": "d5",
+     "understanding": "阿德解釋舞台趕工只是他聽客人的隨口之言，並非確定事實。",
+     "thought": "原來只是傳聞，虛驚一場，但我還是得留意女兒的安全。",
+     "feeling": "😌 鬆了一口氣",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美咲：原來只是傳聞，虛驚一場，但我還是得留意女兒的安全。",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 653444
+   },
+   {
+    "id": "e23",
+    "t": 33,
+    "type": "belief",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "claim": "c4",
+     "from": 0,
+     "to": 0.55,
+     "proposed": 0.8,
+     "verdict": "believe",
+     "why": "阿德跟我說實話了"
+    },
+    "zh": "美咲對「舞台趕工只是客人的隨口之言，並非經確認的事實」的信心：0.00 → 0.55（believe）",
+    "actor": "cafe",
+    "w": 653444
+   },
+   {
+    "id": "e24",
+    "t": 33.1,
+    "type": "react",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "feeling": "😌 鬆了一口氣"
+    },
+    "zh": "美咲 😌 鬆了一口氣",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 653444
+   },
+   {
+    "id": "e25",
+    "t": 33.1,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 653444
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人說慶典舞台不安全，可能會塌。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.4,
+       "why": "不認識的客人說的，不能全信",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "要是舞台塌了就糟了，得問問美玲有沒有聽說。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "message": "美玲！妳有沒有聽說今晚慶典舞台的問題？剛有個客人說舞台是趕工的，怕會撐不住人，妳那邊有聽到什麼風聲嗎？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 8,
+      "wallEndMs": 83056,
+      "latencyMs": 80879,
+      "attempts": 2,
+      "promptTokens": 1803,
+      "completionTokens": 220,
+      "platformCost": 0.0000166964,
+      "estCost": 0.0015615,
+      "status": 200,
+      "raw": "{\"understanding\": \"有客人說慶典舞台不安全，可能會塌。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"廣場的舞台是趕工搭的，可能撐不住人。\", \"topic\": \"stage_unsafe\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.4, \"why\": \"不認識的客人說的，不能全信\", \"cites\": [\"m1\"]}], \"feeling\": \"😟 擔心\", \"thought\": \"要是舞台塌了就糟了，得問問美玲有沒有聽說。\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"message\": \"美玲！妳有沒有聽說今晚慶典舞台的問題？剛有個客人說舞台是趕工的，怕會撐不住人，妳那邊有聽到什麼風聲嗎？\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 2936
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德告訴我慶典舞台可能不穩，擔心會出意外。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "慶典舞台是趕工的，可能撐不住人",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.8,
+       "why": "阿德是我非常信任的鄰居",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "如果舞台塌了怎麼辦？美咲的女兒今晚還要表演啊！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "cafe",
+       "intent": "warn",
+       "message": "美咲，不好意思打擾了。我剛聽阿德說，今晚的舞台好像有安全問題，聽說是趕工的。妳女兒今晚要在上面表演，妳要不要確認一下情況？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 83061,
+      "wallEndMs": 147804,
+      "latencyMs": 25548,
+      "attempts": 1,
+      "promptTokens": 1871,
+      "completionTokens": 233,
+      "platformCost": 0.0000448539,
+      "estCost": 0.0016345,
+      "status": 200,
+      "raw": "{\"understanding\": \"阿德告訴我慶典舞台可能不穩，擔心會出意外。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m2\", \"statement\": \"慶典舞台是趕工的，可能撐不住人\", \"topic\": \"stage_unsafe\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 0.8, \"why\": \"阿德是我非常信任的鄰居\", \"cites\": [\"m2\"]}], \"feeling\": \"😟 擔心\", \"thought\": \"如果舞台塌了怎麼辦？美咲的女兒今晚還要表演啊！\", \"actions\": [{\"type\": \"phone\", \"target\": \"cafe\", \"intent\": \"warn\", \"message\": \"美咲，不好意思打擾了。我剛聽阿德說，今晚的舞台好像有安全問題，聽說是趕工的。妳女兒今晚要在上面表演，妳要不要確認一下情況？\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 3041
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "cafe",
+    "t": 26.599999999999998,
+    "triggers": [
+     "e12"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美玲提醒我舞台可能有安全問題，會影響我女兒表演。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m3",
+       "statement": "今晚的慶典舞台因為趕工而有安全問題",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.8,
+       "why": "美玲和阿德都是我信任的朋友",
+       "cites": [
+        "m3"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "天啊！舞台要是塌了怎麼辦？我得趕快弄清楚！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "baker",
+       "intent": "ask",
+       "message": "阿德！美玲說你提到舞台有安全問題？快跟我說實話，到底發生什麼事了？我女兒今晚要在上面表演啊！",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "cafe",
+      "stage": "single",
+      "wallStartMs": 147805,
+      "wallEndMs": 399996,
+      "latencyMs": 170905,
+      "attempts": 6,
+      "promptTokens": 1797,
+      "completionTokens": 308,
+      "platformCost": 0.0000228522,
+      "estCost": 0.0018225,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"美玲提醒我舞台可能有安全問題，會影響我女兒表演。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m3\",\n      \"statement\": \"今晚的慶典舞台因為趕工而有安全問題\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"yes\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.8,\n      \"why\": \"美玲和阿德都是我信任的朋友\",\n      \"cites\": [\n        \"m3\"\n      ]\n    }\n  ],\n  \"feeling\": \"😟 擔心\",\n  \"thought\": \"天啊！舞台要是塌了怎麼辦？我得趕快弄清楚！\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"baker\",\n      \"intent\": \"ask\",\n      \"message\": \"阿德！美玲說你提到舞台有安全問題？快跟我說實話，到底發生什麼事了？我女兒今晚要在上面表演啊！\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2928
+     }
+    ],
+    "applied": [
+     "e13",
+     "e14",
+     "e15"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "baker",
+    "t": 29.799999999999997,
+    "triggers": [
+     "e17"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美咲聽到我跟美玲聊舞台安全，很擔心女兒表演，來問我詳情。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😰 緊張",
+     "thought": "糟糕，我只是隨口問美玲，沒想到美咲會這麼激動！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "cafe",
+       "intent": "answer",
+       "message": "美咲！妳別緊張，我真的不知道！我剛才只是聽到一個客人隨口說舞台是趕工的，我也沒確認是不是真的，就好奇問了美玲一句，真的只是聽說而已！",
+       "cites": [
+        "c1",
+        "m4"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d4",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 399997,
+      "wallEndMs": 436702,
+      "latencyMs": 32646,
+      "attempts": 1,
+      "promptTokens": 1928,
+      "completionTokens": 153,
+      "platformCost": 0.0000412489,
+      "estCost": 0.001423,
+      "status": 200,
+      "raw": "{\"understanding\": \"美咲聽到我跟美玲聊舞台安全，很擔心女兒表演，來問我詳情。\", \"claims\": [], \"stances\": [], \"feeling\": \"😰 緊張\", \"thought\": \"糟糕，我只是隨口問美玲，沒想到美咲會這麼激動！\", \"actions\": [{\"type\": \"phone\", \"target\": \"cafe\", \"intent\": \"answer\", \"message\": \"美咲！妳別緊張，我真的不知道！我剛才只是聽到一個客人隨口說舞台是趕工的，我也沒確認是不是真的，就好奇問了美玲一句，真的只是聽說而已！\", \"cites\": [\"c1\", \"m4\"]}]}",
+      "promptChars": 3104
+     }
+    ],
+    "applied": [
+     "e18",
+     "e19"
+    ]
+   },
+   {
+    "id": "d5",
+    "npc": "cafe",
+    "t": 33,
+    "triggers": [
+     "e21"
+    ],
+    "inbox": [
+     "m5"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德解釋舞台趕工只是他聽客人的隨口之言，並非確定事實。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m5",
+       "statement": "舞台趕工只是客人的隨口之言，並非經確認的事實",
+       "topic": "stage_unsafe",
+       "says": "unclear",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.8,
+       "why": "阿德跟我說實話了",
+       "cites": [
+        "m5"
+       ]
+      }
+     ],
+     "feeling": "😌 鬆了一口氣",
+     "thought": "原來只是傳聞，虛驚一場，但我還是得留意女兒的安全。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "目前看來只是誤會，先繼續經營店裡",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "validator",
+      "errors": [
+       "stances[0].claim 要對應 claims 的索引",
+       "stances[1].claim 要對應 claims 的索引"
+      ],
+      "notes": [
+       "claim ref c4 → new"
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c4 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d5",
+      "npc": "cafe",
+      "stage": "single",
+      "wallStartMs": 436702,
+      "wallEndMs": 613445,
+      "latencyMs": 170668,
+      "attempts": 3,
+      "promptTokens": 1934,
+      "completionTokens": 233,
+      "platformCost": 0.0000176981,
+      "estCost": 0.001666,
+      "status": 200,
+      "raw": "{\"understanding\": \"阿德說他只是聽客人隨口提到舞台趕工，並非確定事實。\", \"claims\": [{\"ref\": \"c4\", \"source\": \"m5\", \"statement\": \"舞台趕工只是客人的隨口之言，並非經確認的事實\", \"topic\": \"stage_unsafe\", \"says\": \"unclear\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 3, \"verdict\": \"doubt\", \"confidence\": 0.3, \"why\": \"來源是客人的隨口之言\", \"cites\": [\"m5\"]}, {\"claim\": 4, \"verdict\": \"believe\", \"confidence\": 0.8, \"why\": \"阿德對我很誠實\", \"cites\": [\"m5\"]}], \"feeling\": \"😌 鬆了一口氣\", \"thought\": \"原來只是傳聞，虛驚一場，但我還是得確保女兒安全。\", \"actions\": [{\"type\": \"none\", \"why\": \"目前沒有確切證據證明危險，先繼續經營咖啡廳\"}]}",
+      "promptChars": 3113
+     },
+     {
+      "decision": "d5",
+      "npc": "cafe",
+      "stage": "single",
+      "wallStartMs": 613445,
+      "wallEndMs": 653444,
+      "latencyMs": 39999,
+      "attempts": 1,
+      "promptTokens": 2215,
+      "completionTokens": 265,
+      "platformCost": 0.000029876,
+      "estCost": 0.0019025,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"阿德解釋舞台趕工只是他聽客人的隨口之言，並非確定事實。\",\n  \"claims\": [\n    {\n      \"ref\": \"c4\",\n      \"source\": \"m5\",\n      \"statement\": \"舞台趕工只是客人的隨口之言，並非經確認的事實\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"unclear\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.8,\n      \"why\": \"阿德跟我說實話了\",\n      \"cites\": [\n        \"m5\"\n      ]\n    }\n  ],\n  \"feeling\": \"😌 鬆了一口氣\",\n  \"thought\": \"原來只是傳聞，虛驚一場，但我還是得留意女兒的安全。\",\n  \"actions\": [\n    {\n      \"type\": \"none\",\n      \"why\": \"目前看來只是誤會，先繼續經營店裡\"\n    }\n  ]\n}",
+      "promptChars": 3718
+     }
+    ],
+    "applied": [
+     "e22",
+     "e23",
+     "e24"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   },
+   {
+    "id": "c2",
+    "statement": "慶典舞台是趕工的，可能撐不住人",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e7",
+    "by": "florist"
+   },
+   {
+    "id": "c3",
+    "statement": "今晚的慶典舞台因為趕工而有安全問題",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e12",
+    "by": "cafe"
+   },
+   {
+    "id": "c4",
+    "statement": "舞台趕工只是客人的隨口之言，並非經確認的事實",
+    "topic": "stage_unsafe",
+    "says": "unclear",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": null,
+    "origin": "e21",
+    "by": "cafe"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "不認識的客人說的，不能全信"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "15:20 你決定：打電話給美玲說「美玲！妳有沒有聽說今晚慶典舞台的問題？剛有個客人說舞台是趕工的，怕會撐不住人，妳那邊有聽到什麼風聲嗎？」",
+     "15:30 美咲打電話說：「阿德！美玲說你提到舞台有安全問題？快跟我說實話，到底發生什麼事了？我女兒今晚要在上面表演啊！」",
+     "15:30 你決定：打電話給美咲說「美咲！妳別緊張，我真的不知道！我剛才只是聽到一個客人隨口說舞台是趕工的，我也沒確認是不是真的，就好奇問了美玲一句，真的只是聽說而已！」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.55,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 23.4,
+      "why": "阿德是我非常信任的鄰居"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:23 阿德打電話說：「美玲！妳有沒有聽說今晚慶典舞台的問題？剛有個客人說舞台是趕工的，怕會撐不住人，妳那邊有聽到什麼風聲嗎？」",
+     "15:23 你決定：打電話給美咲說「美咲，不好意思打擾了。我剛聽阿德說，今晚的舞台好像有安全問題，聽說是趕工的。妳女兒今晚要在上面表演，妳要不要確認一下情況？」"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [
+     {
+      "claim": "c3",
+      "confidence": 0.63,
+      "sources": [
+       "florist"
+      ],
+      "updatedAt": 26.599999999999998,
+      "why": "美玲和阿德都是我信任的朋友"
+     },
+     {
+      "claim": "c4",
+      "confidence": 0.55,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 33,
+      "why": "阿德跟我說實話了"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:26 美玲打電話說：「美咲，不好意思打擾了。我剛聽阿德說，今晚的舞台好像有安全問題，聽說是趕工的。妳女兒今晚要在上面表演，妳要不要確認一下情況」",
+     "15:27 你決定：打電話給阿德說「阿德！美玲說你提到舞台有安全問題？快跟我說實話，到底發生什麼事了？我女兒今晚要在上面表演啊！」",
+     "15:33 阿德打電話說：「美咲！妳別緊張，我真的不知道！我剛才只是聽到一個客人隨口說舞台是趕工的，我也沒確認是不是真的，就好奇問了美玲一句，真的只」",
+     "15:33 你決定先不做什麼。"
+    ]
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 33.1
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:09:49.708Z",
+   "ms": 653445
+  },
+  "llm": {
+   "calls": 6,
+   "attempts": 14,
+   "promptTokens": 11548,
+   "completionTokens": 1412,
+   "platformCost": 0.0001732255,
+   "estCost": 0.01001,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 5,
+  "reach": 3,
+  "believers": 2,
+  "decisions": 5,
+  "noneDecisions": 1,
+  "actionsDone": {
+   "phone": 4
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "stage_unsafe"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "美玲！妳有沒有聽說今晚慶典舞台的問題？剛有個客人說舞台是趕工的，怕會撐不住人，妳那邊有聽到什麼風聲嗎？",
+    "similarity": 0.15
+   },
+   {
+    "from": "florist",
+    "to": "cafe",
+    "text": "美咲，不好意思打擾了。我剛聽阿德說，今晚的舞台好像有安全問題，聽說是趕工的。妳女兒今晚要在上面表演，妳要不要確認一下情況？",
+    "similarity": 0.08
+   },
+   {
+    "from": "cafe",
+    "to": "baker",
+    "text": "阿德！美玲說你提到舞台有安全問題？快跟我說實話，到底發生什麼事了？我女兒今晚要在上面表演啊！",
+    "similarity": 0.02
+   },
+   {
+    "from": "baker",
+    "to": "cafe",
+    "text": "美咲！妳別緊張，我真的不知道！我剛才只是聽到一個客人隨口說舞台是趕工的，我也沒確認是不是真的，就好奇問了美玲一句，真的只是聽說而已！",
+    "similarity": 0.08
+   }
+  ],
+  "meanSimilarity": 0.08,
+  "explained": 1,
+  "visualEvents": 9,
+  "gameMinutes": 13.1,
+  "llmCalls": 6,
+  "llmSeconds": 520.6,
+  "tokens": 12960,
+  "estCost": 0.01001,
+  "validatorRetries": 1,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

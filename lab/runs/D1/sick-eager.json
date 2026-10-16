@@ -1,0 +1,1646 @@
+{
+ "case": {
+  "id": "sick-eager",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "florist",
+  "seedText": "慶典那批鴿子好像生病了。",
+  "variant": "eager",
+  "temperature": 0.7,
+  "maxDecisions": 12,
+  "tags": [
+   "sick",
+   "eager"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 12,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "eager",
+   "id": "sick-eager",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "florist",
+   "seedText": "慶典那批鴿子好像生病了。",
+   "temperature": 0.7,
+   "tags": [
+    "sick",
+    "eager"
+   ],
+   "label": "sick-eager"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "慶典那批鴿子好像生病了。"
+    },
+    "zh": "一個念頭被植入美玲耳中：「慶典那批鴿子好像生病了。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "慶典那批鴿子好像生病了。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "美玲聽到一位陌生客人說：「慶典那批鴿子好像生病了。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人說慶典的鴿子生病了，這對動物很危險。",
+     "thought": "如果鴿子真的生病了，放飛牠們太殘忍了，我不能坐視不管。",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：如果鴿子真的生病了，放飛牠們太殘忍了，我不能坐視不管。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 24034
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.1,
+     "proposed": 0.7,
+     "verdict": "believe",
+     "why": "動物生病很嚴重，不能掉以輕心"
+    },
+    "zh": "美玲對「慶典那批鴿子好像生病了」的信心：0.00 → 0.10（believe）",
+    "actor": "florist",
+    "w": 24034
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "美玲 😟 擔心",
+    "actor": "florist",
+    "place": "flower",
+    "w": 24034
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "小雯，不好意思打擾了。我剛聽到有客人說慶典的鴿子好像生病了，妳在新聞社有沒有聽到類似的消息？我很擔心那些小傢伙。",
+     "intent": "ask",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "美玲打電話給小雯：「小雯，不好意思打擾了。我剛聽到有客人說慶典的鴿子好像生病了，妳在新聞社有沒有聽到類似的消息？我很擔心那些小傢伙。」",
+    "actor": "florist",
+    "target": "journalist",
+    "place": "flower",
+    "w": 24035
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "ask",
+     "text": "小雯，不好意思打擾了。我剛聽到有客人說慶典的鴿子好像生病了，妳在新聞社有沒有聽到類似的消息？我很擔心那些小傢伙。",
+     "claims": [
+      "c1"
+     ],
+     "from": "florist"
+    },
+    "zh": "小雯在電話裡聽美玲說：「小雯，不好意思打擾了。我剛聽到有客人說慶典的鴿子好像生病了，妳在新聞社有沒有聽到類似的消息？我很擔心那些小傢伙。」",
+    "target": "journalist",
+    "actor": "florist",
+    "place": "news",
+    "w": 24035
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "美玲說慶典的鴿子可能生病了，在詢問我是否知道。",
+     "thought": "如果鴿子真的生病還要放飛，這絕對是大新聞！",
+     "feeling": "🤩 興奮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "小雯：如果鴿子真的生病還要放飛，這絕對是大新聞！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 47075
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.25,
+     "proposed": 0.7,
+     "verdict": "believe",
+     "why": "美玲是我信任的同學"
+    },
+    "zh": "小雯對「慶典要放飛的鴿子可能生病了」的信心：0.00 → 0.25（believe）",
+    "actor": "journalist",
+    "w": 47075
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "🤩 興奮"
+    },
+    "zh": "小雯 🤩 興奮",
+    "actor": "journalist",
+    "place": "news",
+    "w": 47075
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "phone",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "text": "美玲！我這邊還沒聽到，但這太驚人了！妳那個客人是怎麼說的？有具體症狀嗎？快告訴我細節！",
+     "intent": "ask",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "小雯打電話給美玲：「美玲！我這邊還沒聽到，但這太驚人了！妳那個客人是怎麼說的？有具體症狀嗎？快告訴我細節！」",
+    "actor": "journalist",
+    "target": "florist",
+    "place": "news",
+    "w": 47075
+   },
+   {
+    "id": "e12",
+    "t": 26.4,
+    "type": "deliver",
+    "causes": [
+     "e11"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "phone",
+     "intent": "ask",
+     "text": "美玲！我這邊還沒聽到，但這太驚人了！妳那個客人是怎麼說的？有具體症狀嗎？快告訴我細節！",
+     "claims": [
+      "c2"
+     ],
+     "from": "journalist"
+    },
+    "zh": "美玲在電話裡聽小雯說：「美玲！我這邊還沒聽到，但這太驚人了！妳那個客人是怎麼說的？有具體症狀嗎？快告訴我細節！」",
+    "target": "florist",
+    "actor": "journalist",
+    "place": "flower",
+    "w": 47075
+   },
+   {
+    "id": "e13",
+    "t": 26.599999999999998,
+    "type": "decide",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "小雯沒收到消息但很感興趣，想知道鴿子生病的細節。",
+     "thought": "我也不知道細節，但萬一真的生病了，那些鴿子太可憐了。",
+     "feeling": "😟 焦慮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：我也不知道細節，但萬一真的生病了，那些鴿子太可憐了。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 57123
+   },
+   {
+    "id": "e14",
+    "t": 26.7,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😟 焦慮"
+    },
+    "zh": "美玲 😟 焦慮",
+    "actor": "florist",
+    "place": "flower",
+    "w": 57123
+   },
+   {
+    "id": "e15",
+    "t": 27.599999999999998,
+    "type": "phone",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "text": "小雯，我也很想知道！那個客人就只隨口說了一句『好像生病了』就離開了，沒有說具體症狀。但我真的很擔心，如果鴿子不舒服還要被強行放飛，太殘忍了...",
+     "intent": "answer",
+     "claims": []
+    },
+    "zh": "美玲打電話給小雯：「小雯，我也很想知道！那個客人就只隨口說了一句『好像生病了』就離開了，沒有說具體症狀。但我真的很擔心，如果鴿子不舒服還要被強行放飛，太殘忍了...」",
+    "actor": "florist",
+    "target": "journalist",
+    "place": "flower",
+    "w": 57123
+   },
+   {
+    "id": "e16",
+    "t": 29.599999999999998,
+    "type": "deliver",
+    "causes": [
+     "e15"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "phone",
+     "intent": "answer",
+     "text": "小雯，我也很想知道！那個客人就只隨口說了一句『好像生病了』就離開了，沒有說具體症狀。但我真的很擔心，如果鴿子不舒服還要被強行放飛，太殘忍了...",
+     "claims": [],
+     "from": "florist"
+    },
+    "zh": "小雯在電話裡聽美玲說：「小雯，我也很想知道！那個客人就只隨口說了一句『好像生病了』就離開了，沒有說具體症狀。但我真的很擔心，如果鴿子不舒服還要被強行放飛，太殘忍了...」",
+    "target": "journalist",
+    "actor": "florist",
+    "place": "news",
+    "w": 57123
+   },
+   {
+    "id": "e17",
+    "t": 29.799999999999997,
+    "type": "decide",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "美玲沒拿到具體症狀，只是客人的隨口一句話。",
+     "thought": "沒細節怎麼寫新聞？這線索太薄了，得找別的突破口。",
+     "feeling": "😑 失望",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：沒細節怎麼寫新聞？這線索太薄了，得找別的突破口。",
+    "actor": "journalist",
+    "place": "news",
+    "w": 78266
+   },
+   {
+    "id": "e18",
+    "t": 29.9,
+    "type": "react",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "feeling": "😑 失望"
+    },
+    "zh": "小雯 😑 失望",
+    "actor": "journalist",
+    "place": "news",
+    "w": 78266
+   },
+   {
+    "id": "e19",
+    "t": 30.799999999999997,
+    "type": "move",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "from": "news",
+     "to": "townhall",
+     "arrive": 31.299999999999997,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向鎮公所",
+    "actor": "journalist",
+    "place": "news",
+    "w": 78266
+   },
+   {
+    "id": "e20",
+    "t": 31.299999999999997,
+    "type": "arrive",
+    "causes": [
+     "e19"
+    ],
+    "data": {},
+    "zh": "小雯到了鎮公所",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 78266
+   },
+   {
+    "id": "e21",
+    "t": 31.299999999999997,
+    "type": "look",
+    "causes": [
+     "e17"
+    ],
+    "data": {},
+    "zh": "小雯在鎮公所到處看看",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 78266
+   },
+   {
+    "id": "e22",
+    "t": 34.3,
+    "type": "look",
+    "causes": [
+     "e21"
+    ],
+    "data": {
+     "found": "鎮公所看起來一切如常，沒看到什麼特別的。",
+     "learned": []
+    },
+    "zh": "小雯看到：鎮公所看起來一切如常，沒看到什麼特別的。",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 78266
+   },
+   {
+    "id": "e23",
+    "t": 34.3,
+    "type": "deliver",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "message": "m5",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "鎮公所看起來一切如常，沒看到什麼特別的。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：鎮公所看起來一切如常，沒看到什麼特別的。",
+    "target": "journalist",
+    "place": "townhall",
+    "w": 78266
+   },
+   {
+    "id": "e24",
+    "t": 34.3,
+    "type": "move",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "from": "townhall",
+     "to": "news",
+     "arrive": 34.8,
+     "home": true
+    },
+    "zh": "小雯從鎮公所走回霧港新聞社",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 78266
+   },
+   {
+    "id": "e25",
+    "t": 34.8,
+    "type": "arrive",
+    "causes": [
+     "e24"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 78266
+   },
+   {
+    "id": "e26",
+    "t": 34.8,
+    "type": "decide",
+    "causes": [
+     "e23"
+    ],
+    "data": {
+     "decision": "d5",
+     "understanding": "鎮公所表面平靜，但沒發現鴿子生病的證據。",
+     "thought": "鎮公所沒動靜，這沒什麼好寫的，得找更有料的線索。",
+     "feeling": "😑 失望",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：鎮公所沒動靜，這沒什麼好寫的，得找更有料的線索。",
+    "actor": "journalist",
+    "place": "news",
+    "w": 113174
+   },
+   {
+    "id": "e27",
+    "t": 34.9,
+    "type": "react",
+    "causes": [
+     "e26"
+    ],
+    "data": {
+     "feeling": "😑 失望"
+    },
+    "zh": "小雯 😑 失望",
+    "actor": "journalist",
+    "place": "news",
+    "w": 113174
+   },
+   {
+    "id": "e28",
+    "t": 35.8,
+    "type": "move",
+    "causes": [
+     "e26"
+    ],
+    "data": {
+     "from": "news",
+     "to": "stage",
+     "arrive": 36.3,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向慶典舞台",
+    "actor": "journalist",
+    "place": "news",
+    "w": 113174
+   },
+   {
+    "id": "e29",
+    "t": 36.3,
+    "type": "arrive",
+    "causes": [
+     "e28"
+    ],
+    "data": {},
+    "zh": "小雯到了慶典舞台",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 113174
+   },
+   {
+    "id": "e30",
+    "t": 36.3,
+    "type": "look",
+    "causes": [
+     "e26"
+    ],
+    "data": {},
+    "zh": "小雯在慶典舞台到處看看",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 113174
+   },
+   {
+    "id": "e31",
+    "t": 39.3,
+    "type": "look",
+    "causes": [
+     "e30"
+    ],
+    "data": {
+     "found": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "learned": [
+      "pigeons",
+      "pigeons_sick",
+      "lanterns_unsafe"
+     ]
+    },
+    "zh": "小雯看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 113174
+   },
+   {
+    "id": "e32",
+    "t": 39.3,
+    "type": "deliver",
+    "causes": [
+     "e31"
+    ],
+    "data": {
+     "message": "m6",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "target": "journalist",
+    "place": "stage",
+    "w": 113174
+   },
+   {
+    "id": "e33",
+    "t": 39.3,
+    "type": "move",
+    "causes": [
+     "e26"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "news",
+     "arrive": 39.8,
+     "home": true
+    },
+    "zh": "小雯從慶典舞台走回霧港新聞社",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 113174
+   },
+   {
+    "id": "e34",
+    "t": 39.8,
+    "type": "arrive",
+    "causes": [
+     "e33"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 113174
+   },
+   {
+    "id": "e35",
+    "t": 39.8,
+    "type": "decide",
+    "causes": [
+     "e32"
+    ],
+    "data": {
+     "decision": "d6",
+     "understanding": "親眼確認鴿子健康且燈籠合格，美玲提到的傳聞是假的。",
+     "thought": "沒料啊，這怎麼寫成大新聞？流量要完蛋了。",
+     "feeling": "😑 失望",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "小雯：沒料啊，這怎麼寫成大新聞？流量要完蛋了。",
+    "actor": "journalist",
+    "place": "news",
+    "w": 128758
+   },
+   {
+    "id": "e36",
+    "t": 39.9,
+    "type": "react",
+    "causes": [
+     "e35"
+    ],
+    "data": {
+     "feeling": "😑 失望"
+    },
+    "zh": "小雯 😑 失望",
+    "actor": "journalist",
+    "place": "news",
+    "w": 128758
+   },
+   {
+    "id": "e37",
+    "t": 40.8,
+    "type": "phone",
+    "causes": [
+     "e35"
+    ],
+    "data": {
+     "text": "美玲，我剛去舞台看過了，鴿子們看起來精神好得不得了，完全沒生病的樣子。妳那個客人可能看錯了啦！",
+     "intent": "inform",
+     "claims": []
+    },
+    "zh": "小雯打電話給美玲：「美玲，我剛去舞台看過了，鴿子們看起來精神好得不得了，完全沒生病的樣子。妳那個客人可能看錯了啦！」",
+    "actor": "journalist",
+    "target": "florist",
+    "place": "news",
+    "w": 128758
+   },
+   {
+    "id": "e38",
+    "t": 42.8,
+    "type": "deliver",
+    "causes": [
+     "e37"
+    ],
+    "data": {
+     "message": "m7",
+     "via": "phone",
+     "intent": "inform",
+     "text": "美玲，我剛去舞台看過了，鴿子們看起來精神好得不得了，完全沒生病的樣子。妳那個客人可能看錯了啦！",
+     "claims": [],
+     "from": "journalist"
+    },
+    "zh": "美玲在電話裡聽小雯說：「美玲，我剛去舞台看過了，鴿子們看起來精神好得不得了，完全沒生病的樣子。妳那個客人可能看錯了啦！」",
+    "target": "florist",
+    "actor": "journalist",
+    "place": "flower",
+    "w": 128758
+   },
+   {
+    "id": "e39",
+    "t": 43,
+    "type": "decide",
+    "causes": [
+     "e38"
+    ],
+    "data": {
+     "decision": "d7",
+     "understanding": "小雯親自去看過鴿子了，說鴿子們很健康，沒生病。",
+     "thought": "太好了，那些小傢伙沒事就好，我不用這麼擔心了。",
+     "feeling": "😌 寬心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：太好了，那些小傢伙沒事就好，我不用這麼擔心了。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 163788
+   },
+   {
+    "id": "e40",
+    "t": 43,
+    "type": "belief",
+    "causes": [
+     "e39"
+    ],
+    "data": {
+     "claim": "c3",
+     "from": 0,
+     "to": 0.9,
+     "proposed": 0.9,
+     "verdict": "believe",
+     "why": "小雯親眼看到了，而且我很信任她"
+    },
+    "zh": "美玲對「慶典的鴿子看起來精神很好，沒有生病的樣子」的信心：0.00 → 0.90（believe）",
+    "actor": "florist",
+    "w": 163789
+   },
+   {
+    "id": "e41",
+    "t": 43,
+    "type": "belief",
+    "causes": [
+     "e39"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0.1,
+     "to": 0.1,
+     "proposed": 0.1,
+     "verdict": "doubt",
+     "why": "小雯的觀察比陌生客人的隨口一句更可靠"
+    },
+    "zh": "美玲對「慶典那批鴿子好像生病了」的信心：0.10 → 0.10（doubt）",
+    "actor": "florist",
+    "w": 163789
+   },
+   {
+    "id": "e42",
+    "t": 43.1,
+    "type": "react",
+    "causes": [
+     "e39"
+    ],
+    "data": {
+     "feeling": "😌 寬心"
+    },
+    "zh": "美玲 😌 寬心",
+    "actor": "florist",
+    "place": "flower",
+    "w": 163789
+   },
+   {
+    "id": "e43",
+    "t": 44,
+    "type": "phone",
+    "causes": [
+     "e39"
+    ],
+    "data": {
+     "text": "小雯，太感謝妳特地幫我去看啦！聽到鴿子們沒事我就放心了，妳真是個好朋友！",
+     "intent": "inform",
+     "claims": [
+      "c3",
+      "c1"
+     ]
+    },
+    "zh": "美玲打電話給小雯：「小雯，太感謝妳特地幫我去看啦！聽到鴿子們沒事我就放心了，妳真是個好朋友！」",
+    "actor": "florist",
+    "target": "journalist",
+    "place": "flower",
+    "w": 163789
+   },
+   {
+    "id": "e44",
+    "t": 46,
+    "type": "deliver",
+    "causes": [
+     "e43"
+    ],
+    "data": {
+     "message": "m8",
+     "via": "phone",
+     "intent": "inform",
+     "text": "小雯，太感謝妳特地幫我去看啦！聽到鴿子們沒事我就放心了，妳真是個好朋友！",
+     "claims": [
+      "c3",
+      "c1"
+     ],
+     "from": "florist"
+    },
+    "zh": "小雯在電話裡聽美玲說：「小雯，太感謝妳特地幫我去看啦！聽到鴿子們沒事我就放心了，妳真是個好朋友！」",
+    "target": "journalist",
+    "actor": "florist",
+    "place": "news",
+    "w": 163789
+   },
+   {
+    "id": "e45",
+    "t": 46.2,
+    "type": "decide",
+    "causes": [
+     "e44"
+    ],
+    "data": {
+     "decision": "d8",
+     "budget": true
+    },
+    "zh": "小雯聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "journalist",
+    "place": "news",
+    "w": 163789
+   },
+   {
+    "id": "e46",
+    "t": 46.2,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 163789
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "florist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人說慶典的鴿子生病了，這對動物很危險。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "慶典那批鴿子好像生病了",
+       "topic": "pigeons_sick",
+       "says": "yes",
+       "category": "health"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.7,
+       "why": "動物生病很嚴重，不能掉以輕心",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "如果鴿子真的生病了，放飛牠們太殘忍了，我不能坐視不管。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "intent": "ask",
+       "message": "小雯，不好意思打擾了。我剛聽到有客人說慶典的鴿子好像生病了，妳在新聞社有沒有聽到類似的消息？我很擔心那些小傢伙。",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 24034,
+      "latencyMs": 14428,
+      "attempts": 1,
+      "promptTokens": 1695,
+      "completionTokens": 322,
+      "platformCost": 0.0000435519,
+      "estCost": 0.0018135,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"有客人說慶典的鴿子生病了，這對動物很危險。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"慶典那批鴿子好像生病了\",\n      \"topic\": \"pigeons_sick\",\n      \"says\": \"yes\",\n      \"category\": \"health\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.7,\n      \"why\": \"動物生病很嚴重，不能掉以輕心\",\n      \"cites\": [\n        \"m1\"\n      ]\n    }\n  ],\n  \"feeling\": \"😟 擔心\",\n  \"thought\": \"如果鴿子真的生病了，放飛牠們太殘忍了，我不能坐視不管。\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"journalist\",\n      \"intent\": \"ask\",\n      \"message\": \"小雯，不好意思打擾了。我剛聽到有客人說慶典的鴿子好像生病了，妳在新聞社有沒有聽到類似的消息？我很擔心那些小傢伙。\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2790
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "journalist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美玲說慶典的鴿子可能生病了，在詢問我是否知道。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "慶典要放飛的鴿子可能生病了",
+       "topic": "pigeons_sick",
+       "says": "yes",
+       "category": "health"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.7,
+       "why": "美玲是我信任的同學",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "🤩 興奮",
+     "thought": "如果鴿子真的生病還要放飛，這絕對是大新聞！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "intent": "ask",
+       "message": "美玲！我這邊還沒聽到，但這太驚人了！妳那個客人是怎麼說的？有具體症狀嗎？快告訴我細節！",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 24035,
+      "wallEndMs": 47075,
+      "latencyMs": 20816,
+      "attempts": 1,
+      "promptTokens": 1662,
+      "completionTokens": 301,
+      "platformCost": 0.0000409269,
+      "estCost": 0.001734,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"美玲說慶典的鴿子可能生病了，在詢問我是否知道。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m2\",\n      \"statement\": \"慶典要放飛的鴿子可能生病了\",\n      \"topic\": \"pigeons_sick\",\n      \"says\": \"yes\",\n      \"category\": \"health\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.7,\n      \"why\": \"美玲是我信任的同學\",\n      \"cites\": [\"m2\"]\n    }\n  ],\n  \"feeling\": \"🤩 興奮\",\n  \"thought\": \"如果鴿子真的生病還要放飛，這絕對是大新聞！\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"florist\",\n      \"intent\": \"ask\",\n      \"message\": \"美玲！我這邊還沒聽到，但這太驚人了！妳那個客人是怎麼說的？有具體症狀嗎？快告訴我細節！\",\n      \"cites\": [\"#0\"]\n    }\n  ]\n}",
+      "promptChars": 2737
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "florist",
+    "t": 26.599999999999998,
+    "triggers": [
+     "e12"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯沒收到消息但很感興趣，想知道鴿子生病的細節。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😟 焦慮",
+     "thought": "我也不知道細節，但萬一真的生病了，那些鴿子太可憐了。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "intent": "answer",
+       "message": "小雯，我也很想知道！那個客人就只隨口說了一句『好像生病了』就離開了，沒有說具體症狀。但我真的很擔心，如果鴿子不舒服還要被強行放飛，太殘忍了...",
+       "cites": [
+        "m3"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 47075,
+      "wallEndMs": 57123,
+      "latencyMs": 6748,
+      "attempts": 1,
+      "promptTokens": 1821,
+      "completionTokens": 189,
+      "platformCost": 0.000038549,
+      "estCost": 0.0014775,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"小雯沒收到消息但很感興趣，想知道鴿子生病的細節。\",\n  \"claims\": [],\n  \"stances\": [],\n  \"feeling\": \"😟 焦慮\",\n  \"thought\": \"我也不知道細節，但萬一真的生病了，那些鴿子太可憐了。\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"journalist\",\n      \"intent\": \"answer\",\n      \"message\": \"小雯，我也很想知道！那個客人就只隨口說了一句『好像生病了』就離開了，沒有說具體症狀。但我真的很擔心，如果鴿子不舒服還要被強行放飛，太殘忍了...\",\n      \"cites\": [\"m3\"]\n    }\n  ]\n}",
+      "promptChars": 2954
+     }
+    ],
+    "applied": [
+     "e13",
+     "e14"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "journalist",
+    "t": 29.799999999999997,
+    "triggers": [
+     "e16"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美玲沒拿到具體症狀，只是客人的隨口一句話。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😑 失望",
+     "thought": "沒細節怎麼寫新聞？這線索太薄了，得找別的突破口。",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "townhall",
+       "intent": "ask",
+       "message": "去鎮公所打聽一下關於鴿子或慶典準備的情況",
+       "cites": [
+        "c2"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "stance for unknown claim 0 dropped"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d4",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 57123,
+      "wallEndMs": 78266,
+      "latencyMs": 8603,
+      "attempts": 1,
+      "promptTokens": 1810,
+      "completionTokens": 161,
+      "platformCost": 0.0000363069,
+      "estCost": 0.001388,
+      "status": 200,
+      "raw": "{\"understanding\": \"美玲沒拿到具體症狀，只是客人的隨口一句話。\", \"claims\": [], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.1, \"why\": \"沒有具體症狀，只是隨口一說\", \"cites\": [\"m4\"]}], \"feeling\": \"😑 失望\", \"thought\": \"沒細節怎麼寫新聞？這線索太薄了，得找別的突破口。\", \"actions\": [{\"type\": \"go_look\", \"place\": \"townhall\", \"intent\": \"ask\", \"message\": \"去鎮公所打聽一下關於鴿子或慶典準備的情況\", \"cites\": [\"c2\"]}]}",
+      "promptChars": 2923
+     }
+    ],
+    "applied": [
+     "e17",
+     "e18"
+    ]
+   },
+   {
+    "id": "d5",
+    "npc": "journalist",
+    "t": 34.8,
+    "triggers": [
+     "e23",
+     "e23"
+    ],
+    "inbox": [
+     "m5"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "鎮公所表面平靜，但沒發現鴿子生病的證據。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😑 失望",
+     "thought": "鎮公所沒動靜，這沒什麼好寫的，得找更有料的線索。",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "stage",
+       "intent": "inform",
+       "message": "",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "stance for unknown claim 0 dropped"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d5",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 78266,
+      "wallEndMs": 113174,
+      "latencyMs": 9124,
+      "attempts": 1,
+      "promptTokens": 1843,
+      "completionTokens": 200,
+      "platformCost": 0.0000401919,
+      "estCost": 0.0015215,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"鎮公所表面平靜，但沒發現鴿子生病的證據。\",\n  \"claims\": [],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.2,\n      \"why\": \"缺乏具體證據，僅是隨口傳聞\",\n      \"cites\": [\n        \"m5\"\n      ]\n    }\n  ],\n  \"feeling\": \"😑 失望\",\n  \"thought\": \"鎮公所沒動靜，這沒什麼好寫的，得找更有料的線索。\",\n  \"actions\": [\n    {\n      \"type\": \"go_look\",\n      \"place\": \"stage\",\n      \"intent\": \"inform\",\n      \"message\": \"\",\n      \"cites\": []\n    }\n  ]\n}",
+      "promptChars": 2961
+     }
+    ],
+    "applied": [
+     "e26",
+     "e27"
+    ]
+   },
+   {
+    "id": "d6",
+    "npc": "journalist",
+    "t": 39.8,
+    "triggers": [
+     "e32",
+     "e32"
+    ],
+    "inbox": [
+     "m6"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "親眼確認鴿子健康且燈籠合格，美玲提到的傳聞是假的。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😑 失望",
+     "thought": "沒料啊，這怎麼寫成大新聞？流量要完蛋了。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "message": "美玲，我剛去舞台看過了，鴿子們看起來精神好得不得了，完全沒生病的樣子。妳那個客人可能看錯了啦！",
+       "cites": [
+        "m6"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "inverted confidence 1 → 0.00 (disbelieve)",
+       "stance for unknown claim 0 dropped"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d6",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 113174,
+      "wallEndMs": 128758,
+      "latencyMs": 5951,
+      "attempts": 1,
+      "promptTokens": 1981,
+      "completionTokens": 166,
+      "platformCost": 0.0000426762,
+      "estCost": 0.0014885,
+      "status": 200,
+      "raw": "{\"understanding\": \"親眼確認鴿子健康且燈籠合格，美玲提到的傳聞是假的。\", \"claims\": [], \"stances\": [{\"claim\": 0, \"verdict\": \"disbelieve\", \"confidence\": 1, \"why\": \"親眼看到鴿子精神很好\", \"cites\": [\"m6\"]}], \"feeling\": \"😑 失望\", \"thought\": \"沒料啊，這怎麼寫成大新聞？流量要完蛋了。\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"message\": \"美玲，我剛去舞台看過了，鴿子們看起來精神好得不得了，完全沒生病的樣子。妳那個客人可能看錯了啦！\", \"cites\": [\"m6\"]}]}",
+      "promptChars": 3159
+     }
+    ],
+    "applied": [
+     "e35",
+     "e36"
+    ]
+   },
+   {
+    "id": "d7",
+    "npc": "florist",
+    "t": 43,
+    "triggers": [
+     "e38"
+    ],
+    "inbox": [
+     "m7"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯親自去看過鴿子了，說鴿子們很健康，沒生病。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m7",
+       "statement": "慶典的鴿子看起來精神很好，沒有生病的樣子",
+       "topic": "pigeons_sick",
+       "says": "no",
+       "category": "health"
+      },
+      {
+       "ref": "c1",
+       "statement": "慶典那批鴿子好像生病了",
+       "topic": "pigeons_sick",
+       "says": "yes",
+       "category": "health"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.9,
+       "why": "小雯親眼看到了，而且我很信任她",
+       "cites": [
+        "m7"
+       ]
+      },
+      {
+       "claim": 1,
+       "verdict": "doubt",
+       "confidence": 0.1,
+       "why": "小雯的觀察比陌生客人的隨口一句更可靠",
+       "cites": [
+        "m7"
+       ]
+      }
+     ],
+     "feeling": "😌 寬心",
+     "thought": "太好了，那些小傢伙沒事就好，我不用這麼擔心了。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "message": "小雯，太感謝妳特地幫我去看啦！聽到鴿子們沒事我就放心了，妳真是個好朋友！",
+       "cites": [
+        "m7"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c2 → new",
+       "stance claim 1 → index 1"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d7",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 128758,
+      "wallEndMs": 163788,
+      "latencyMs": 17416,
+      "attempts": 1,
+      "promptTokens": 1944,
+      "completionTokens": 354,
+      "platformCost": 0.0000545069,
+      "estCost": 0.002034,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"小雯親自去看過鴿子了，說鴿子們很健康，沒生病。\",\n  \"claims\": [\n    {\n      \"ref\": \"c2\",\n      \"source\": \"m7\",\n      \"statement\": \"慶典的鴿子看起來精神很好，沒有生病的樣子\",\n      \"topic\": \"pigeons_sick\",\n      \"says\": \"no\",\n      \"category\": \"health\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.9,\n      \"why\": \"小雯親眼看到了，而且我很信任她\",\n      \"cites\": [\"m7\"]\n    },\n    {\n      \"claim\": 1,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.1,\n      \"why\": \"小雯的觀察比陌生客人的隨口一句更可靠\",\n      \"cites\": [\"m7\"]\n    }\n  ],\n  \"feeling\": \"😌 寬心\",\n  \"thought\": \"太好了，那些小傢伙沒事就好，我不用這麼擔心了。\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"journalist\",\n      \"message\": \"小雯，太感謝妳特地幫我去看啦！聽到鴿子們沒事我就放心了，妳真是個好朋友！\",\n      \"cites\": [\"m7\"]\n    }\n  ]\n}",
+      "promptChars": 3116
+     }
+    ],
+    "applied": [
+     "e39",
+     "e40",
+     "e41",
+     "e42"
+    ]
+   },
+   {
+    "id": "d8",
+    "npc": "journalist",
+    "t": 46.2,
+    "triggers": [
+     "e44"
+    ],
+    "inbox": [
+     "m8"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e45"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "慶典那批鴿子好像生病了",
+    "topic": "pigeons_sick",
+    "says": "yes",
+    "category": "health",
+    "fact": "pigeons_sick",
+    "asserts": true,
+    "origin": "e2",
+    "by": "florist"
+   },
+   {
+    "id": "c2",
+    "statement": "慶典要放飛的鴿子可能生病了",
+    "topic": "pigeons_sick",
+    "says": "yes",
+    "category": "health",
+    "fact": "pigeons_sick",
+    "asserts": true,
+    "origin": "e7",
+    "by": "journalist"
+   },
+   {
+    "id": "c3",
+    "statement": "慶典的鴿子看起來精神很好，沒有生病的樣子",
+    "topic": "pigeons_sick",
+    "says": "no",
+    "category": "health",
+    "fact": "pigeons_sick",
+    "asserts": false,
+    "origin": "e38",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.1,
+      "sources": [
+       "unknown",
+       "journalist"
+      ],
+      "updatedAt": 43,
+      "why": "小雯的觀察比陌生客人的隨口一句更可靠"
+     },
+     {
+      "claim": "c3",
+      "confidence": 0.9,
+      "sources": [
+       "journalist"
+      ],
+      "updatedAt": 43,
+      "why": "小雯親眼看到了，而且我很信任她"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「慶典那批鴿子好像生病了。」",
+     "15:20 你決定：打電話給小雯說「小雯，不好意思打擾了。我剛聽到有客人說慶典的鴿子好像生病了，妳在新聞社有沒有聽到類似的消息？我很擔心那些小傢伙。」",
+     "15:26 小雯打電話說：「美玲！我這邊還沒聽到，但這太驚人了！妳那個客人是怎麼說的？有具體症狀嗎？快告訴我細節！」",
+     "15:27 你決定：打電話給小雯說「小雯，我也很想知道！那個客人就只隨口說了一句『好像生病了』就離開了，沒有說具體症狀。但我真的很擔心，如果鴿子不舒服還要被強行放飛，太殘忍了...」",
+     "15:43 小雯打電話說：「美玲，我剛去舞台看過了，鴿子們看起來精神好得不得了，完全沒生病的樣子。妳那個客人可能看錯了啦！」",
+     "15:43 你決定：打電話給小雯說「小雯，太感謝妳特地幫我去看啦！聽到鴿子們沒事我就放心了，妳真是個好朋友！」"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.25,
+      "sources": [
+       "florist"
+      ],
+      "updatedAt": 23.4,
+      "why": "美玲是我信任的同學"
+     }
+    ],
+    "learned": [
+     [
+      "pigeons",
+      true
+     ],
+     [
+      "pigeons_sick",
+      false
+     ],
+     [
+      "lanterns_unsafe",
+      false
+     ]
+    ],
+    "memory": [
+     "15:23 美玲打電話說：「小雯，不好意思打擾了。我剛聽到有客人說慶典的鴿子好像生病了，妳在新聞社有沒有聽到類似的消息？我很擔心那些小傢伙。」",
+     "15:23 你決定：打電話給美玲說「美玲！我這邊還沒聽到，但這太驚人了！妳那個客人是怎麼說的？有具體症狀嗎？快告訴我細節！」",
+     "15:30 美玲打電話說：「小雯，我也很想知道！那個客人就只隨口說了一句『好像生病了』就離開了，沒有說具體症狀。但我真的很擔心，如果鴿子不舒服還要被」",
+     "15:30 你決定：去鎮公所看看",
+     "15:34 你親眼看到：「鎮公所看起來一切如常，沒看到什麼特別的。」",
+     "15:35 你決定：去慶典舞台看看",
+     "15:39 你親眼看到：「舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質」",
+     "15:40 你決定：打電話給美玲說「美玲，我剛去舞台看過了，鴿子們看起來精神好得不得了，完全沒生病的樣子。妳那個客人可能看錯了啦！」",
+     "15:46 美玲說：「小雯，太感謝妳特地幫我去看啦！聽到鴿子們沒事我就放心了，妳真是個好朋友！」（你沒有多想）"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 46.2
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:38:40.357Z",
+   "ms": 163789
+  },
+  "llm": {
+   "calls": 7,
+   "attempts": 7,
+   "promptTokens": 12756,
+   "completionTokens": 1693,
+   "platformCost": 0.0002967097,
+   "estCost": 0.011457,
+   "errors": 0,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 7,
+  "reach": 2,
+  "believers": 1,
+  "decisions": 7,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "phone": 5,
+   "look": 4
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "pigeons_sick"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "florist",
+    "to": "journalist",
+    "text": "小雯，不好意思打擾了。我剛聽到有客人說慶典的鴿子好像生病了，妳在新聞社有沒有聽到類似的消息？我很擔心那些小傢伙。",
+    "similarity": 0.13
+   },
+   {
+    "from": "journalist",
+    "to": "florist",
+    "text": "美玲！我這邊還沒聽到，但這太驚人了！妳那個客人是怎麼說的？有具體症狀嗎？快告訴我細節！",
+    "similarity": 0
+   },
+   {
+    "from": "florist",
+    "to": "journalist",
+    "text": "小雯，我也很想知道！那個客人就只隨口說了一句『好像生病了』就離開了，沒有說具體症狀。但我真的很擔心，如果鴿子不舒服還要被強行放飛，太殘忍了...",
+    "similarity": 0.08
+   },
+   {
+    "from": "journalist",
+    "to": "florist",
+    "text": "美玲，我剛去舞台看過了，鴿子們看起來精神好得不得了，完全沒生病的樣子。妳那個客人可能看錯了啦！",
+    "similarity": 0.04
+   },
+   {
+    "from": "florist",
+    "to": "journalist",
+    "text": "小雯，太感謝妳特地幫我去看啦！聽到鴿子們沒事我就放心了，妳真是個好朋友！",
+    "similarity": 0.03
+   }
+  ],
+  "meanSimilarity": 0.06,
+  "explained": 1,
+  "visualEvents": 24,
+  "gameMinutes": 26.2,
+  "llmCalls": 7,
+  "llmSeconds": 83.1,
+  "tokens": 14449,
+  "estCost": 0.011457,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

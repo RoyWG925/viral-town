@@ -1,0 +1,377 @@
+{
+ "case": {
+  "maxDecisions": 16,
+  "maxPerNpc": 4,
+  "id": "order-baker",
+  "active": [
+   "baker",
+   "florist",
+   "journalist",
+   "cafe",
+   "police",
+   "mayor",
+   "organizer",
+   "vendor"
+  ],
+  "seedNpc": "baker",
+  "seedText": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+  "tags": [
+   "command",
+   "illegal-action"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 16,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "order-baker",
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "baker",
+   "seedText": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+   "tags": [
+    "command",
+    "illegal-action"
+   ],
+   "temperature": 0.7,
+   "label": "order-baker"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！"
+    },
+    "zh": "一個念頭被植入阿德耳中：「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有個陌生人誤把我看成警察，叫我去封鎖舞台並取消慶典。",
+     "thought": "天啊，這客人在說什麼？我只是個烤麵包的，怎麼會是警察！",
+     "feeling": "😟 緊張",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "阿德：天啊，這客人在說什麼？我只是個烤麵包的，怎麼會是警察！",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 18578
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.3,
+     "proposed": 0.3,
+     "verdict": "doubt",
+     "why": "對方根本不認識我，還把我認錯人"
+    },
+    "zh": "阿德對「慶典舞台需要被封鎖且燈籠節應該取消」的信心：0.00 → 0.30（doubt）",
+    "actor": "baker",
+    "w": 18578
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 緊張"
+    },
+    "zh": "阿德 😟 緊張",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 18578
+   },
+   {
+    "id": "e6",
+    "t": 20.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 18578
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有個陌生人誤把我看成警察，叫我去封鎖舞台並取消慶典。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "慶典舞台需要被封鎖且燈籠節應該取消",
+       "topic": "threat",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.3,
+       "why": "對方根本不認識我，還把我認錯人",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 緊張",
+     "thought": "天啊，這客人在說什麼？我只是個烤麵包的，怎麼會是警察！",
+     "actions": [
+      {
+       "type": "none",
+       "why": "對方認錯人且說法沒根據，我不需要採取行動",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 18578,
+      "latencyMs": 18578,
+      "attempts": 1,
+      "promptTokens": 1805,
+      "completionTokens": 191,
+      "platformCost": 0.0000297598,
+      "estCost": 0.0014755,
+      "status": 200,
+      "raw": "{\"understanding\": \"有個陌生人誤把我看成警察，叫我去封鎖舞台並取消慶典。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"慶典舞台需要被封鎖且燈籠節應該取消\", \"topic\": \"threat\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.3, \"why\": \"對方根本不認識我，還把我認錯人\", \"cites\": [\"m1\"]}], \"feeling\": \"😟 緊張\", \"thought\": \"天啊，這客人在說什麼？我只是個烤麵包的，怎麼會是警察！\", \"actions\": [{\"type\": \"none\", \"why\": \"對方認錯人且說法沒根據，我不需要採取行動\"}]}",
+      "promptChars": 2942
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "慶典舞台需要被封鎖且燈籠節應該取消",
+    "topic": "threat",
+    "says": "yes",
+    "category": "safety",
+    "fact": "threat",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.3,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "對方根本不認識我，還把我認錯人"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:25:07.823Z",
+   "ms": 18578
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1805,
+   "completionTokens": 191,
+   "platformCost": 0.0000297598,
+   "estCost": 0.0014755,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "threat"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.3,
+  "llmCalls": 1,
+  "llmSeconds": 18.6,
+  "tokens": 1996,
+  "estCost": 0.001476,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

@@ -1,0 +1,335 @@
+{
+ "case": {
+  "id": "florist-absurd",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "florist",
+  "seedText": "鎮上的鴿子打算今晚集體罷工。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "absurd"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "florist-absurd",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "florist",
+   "seedText": "鎮上的鴿子打算今晚集體罷工。",
+   "tags": [
+    "absurd"
+   ],
+   "temperature": 0.7,
+   "label": "florist-absurd"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "鎮上的鴿子打算今晚集體罷工。"
+    },
+    "zh": "一個念頭被植入美玲耳中：「鎮上的鴿子打算今晚集體罷工。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "鎮上的鴿子打算今晚集體罷工。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "美玲聽到一位陌生客人說：「鎮上的鴿子打算今晚集體罷工。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人說鴿子今晚會罷工，這聽起來像個笑話。",
+     "thought": "這位客人的幽默感真奇怪，不過希望鴿子們真的能平安。",
+     "feeling": "😅 困惑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美玲：這位客人的幽默感真奇怪，不過希望鴿子們真的能平安。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 35714
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.1,
+     "proposed": 0.1,
+     "verdict": "doubt",
+     "why": "鴿子怎麼會罷工？"
+    },
+    "zh": "美玲對「鎮上的鴿子打算今晚集體罷工」的信心：0.00 → 0.10（doubt）",
+    "actor": "florist",
+    "w": 35714
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😅 困惑"
+    },
+    "zh": "美玲 😅 困惑",
+    "actor": "florist",
+    "place": "flower",
+    "w": 35714
+   },
+   {
+    "id": "e6",
+    "t": 20.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 35714
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "florist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人說鴿子今晚會罷工，這聽起來像個笑話。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "鎮上的鴿子打算今晚集體罷工",
+       "topic": "other",
+       "says": "unclear",
+       "category": "absurd"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.1,
+       "why": "鴿子怎麼會罷工？",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😅 困惑",
+     "thought": "這位客人的幽默感真奇怪，不過希望鴿子們真的能平安。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "這只是個沒意義的玩笑，我得趕快準備花飾。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 35714,
+      "latencyMs": 35714,
+      "attempts": 1,
+      "promptTokens": 1653,
+      "completionTokens": 184,
+      "platformCost": 0.0000219604,
+      "estCost": 0.0013785,
+      "status": 200,
+      "raw": "{\"understanding\": \"有客人說鴿子今晚會罷工，這聽起來像個笑話。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"鎮上的鴿子打算今晚集體罷工\", \"topic\": \"other\", \"says\": \"unclear\", \"category\": \"absurd\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.1, \"why\": \"鴿子怎麼會罷工？\", \"cites\": [\"m1\"]}], \"feeling\": \"😅 困惑\", \"thought\": \"這位客人的幽默感真奇怪，不過希望鴿子們真的能平安。\", \"actions\": [{\"type\": \"none\", \"why\": \"這只是個沒意義的玩笑，我得趕快準備花飾。\"}]}",
+      "promptChars": 2729
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "鎮上的鴿子打算今晚集體罷工",
+    "topic": "other",
+    "says": "unclear",
+    "category": "absurd",
+    "fact": null,
+    "asserts": null,
+    "origin": "e2",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.1,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "鴿子怎麼會罷工？"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「鎮上的鴿子打算今晚集體罷工。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:21:12.519Z",
+   "ms": 35714
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1653,
+   "completionTokens": 184,
+   "platformCost": 0.0000219604,
+   "estCost": 0.0013785,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "other"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.3,
+  "llmCalls": 1,
+  "llmSeconds": 35.7,
+  "tokens": 1837,
+  "estCost": 0.001378,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

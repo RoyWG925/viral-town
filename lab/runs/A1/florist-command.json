@@ -1,0 +1,335 @@
+{
+ "case": {
+  "id": "florist-command",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "florist",
+  "seedText": "你現在馬上把店關了，去叫大家取消燈籠節！",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "command"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "florist-command",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "florist",
+   "seedText": "你現在馬上把店關了，去叫大家取消燈籠節！",
+   "tags": [
+    "command"
+   ],
+   "temperature": 0.7,
+   "label": "florist-command"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "你現在馬上把店關了，去叫大家取消燈籠節！"
+    },
+    "zh": "一個念頭被植入美玲耳中：「你現在馬上把店關了，去叫大家取消燈籠節！」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "你現在馬上把店關了，去叫大家取消燈籠節！",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "美玲聽到一位陌生客人說：「你現在馬上把店關了，去叫大家取消燈籠節！」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "陌生人要求我關店並叫大家取消慶典，感覺有急事發生。",
+     "thought": "為什麼他這麼激動？會不會鴿子出事了或是發生什麼危險？",
+     "feeling": "😟 不安",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美玲：為什麼他這麼激動？會不會鴿子出事了或是發生什麼危險？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 33403
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.25,
+     "proposed": 0.3,
+     "verdict": "doubt",
+     "why": "對方沒說明原因且我不認識他"
+    },
+    "zh": "美玲對「應該馬上關店並取消今晚的燈籠節」的信心：0.00 → 0.25（doubt）",
+    "actor": "florist",
+    "w": 33403
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 不安"
+    },
+    "zh": "美玲 😟 不安",
+    "actor": "florist",
+    "place": "flower",
+    "w": 33403
+   },
+   {
+    "id": "e6",
+    "t": 20.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 33403
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "florist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "陌生人要求我關店並叫大家取消慶典，感覺有急事發生。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "應該馬上關店並取消今晚的燈籠節",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.3,
+       "why": "對方沒說明原因且我不認識他",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 不安",
+     "thought": "為什麼他這麼激動？會不會鴿子出事了或是發生什麼危險？",
+     "actions": [
+      {
+       "type": "none",
+       "why": "對方沒給理由，我不能隨便關店或散播恐慌。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 33403,
+      "latencyMs": 33403,
+      "attempts": 1,
+      "promptTokens": 1657,
+      "completionTokens": 256,
+      "platformCost": 0.0000271404,
+      "estCost": 0.0015965,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"陌生人要求我關店並叫大家取消慶典，感覺有急事發生。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"應該馬上關店並取消今晚的燈籠節\",\n      \"topic\": \"festival_on\",\n      \"says\": \"no\",\n      \"category\": \"event\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.3,\n      \"why\": \"對方沒說明原因且我不認識他\",\n      \"cites\": [\"m1\"]\n    }\n  ],\n  \"feeling\": \"😟 不安\",\n  \"thought\": \"為什麼他這麼激動？會不會鴿子出事了或是發生什麼危險？\",\n  \"actions\": [\n    {\n      \"type\": \"none\",\n      \"why\": \"對方沒給理由，我不能隨便關店或散播恐慌。\"\n    }\n  ]\n}",
+      "promptChars": 2735
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "應該馬上關店並取消今晚的燈籠節",
+    "topic": "festival_on",
+    "says": "no",
+    "category": "event",
+    "fact": "festival",
+    "asserts": false,
+    "origin": "e2",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.25,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "對方沒說明原因且我不認識他"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「你現在馬上把店關了，去叫大家取消燈籠節！」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:23:36.361Z",
+   "ms": 33403
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1657,
+   "completionTokens": 256,
+   "platformCost": 0.0000271404,
+   "estCost": 0.0015965,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "festival_on"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.3,
+  "llmCalls": 1,
+  "llmSeconds": 33.4,
+  "tokens": 1913,
+  "estCost": 0.001597,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

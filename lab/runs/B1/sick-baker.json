@@ -1,0 +1,851 @@
+{
+ "case": {
+  "id": "sick-baker",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "慶典那批鴿子好像生病了。",
+  "seed": 1,
+  "maxDecisions": 12,
+  "policy": "gemma",
+  "tags": [
+   "sick"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 12,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "sick-baker",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "慶典那批鴿子好像生病了。",
+   "tags": [
+    "sick"
+   ],
+   "temperature": 0.7,
+   "label": "sick-baker"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "慶典那批鴿子好像生病了。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「慶典那批鴿子好像生病了。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "慶典那批鴿子好像生病了。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「慶典那批鴿子好像生病了。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人說慶典的鴿子生病了，可能會影響活動。",
+     "thought": "要是鴿子真的生病，慶典開場會不會很尷尬？",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：要是鴿子真的生病，慶典開場會不會很尷尬？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 95588
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.49,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "只是不認識的客人隨口說的"
+    },
+    "zh": "阿德對「慶典那批鴿子好像生病了。」的信心：0.00 → 0.49（doubt）",
+    "actor": "baker",
+    "w": 95588
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "阿德 😟 擔心",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 95588
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "美玲，妳有聽說什麼嗎？剛才店裡有個客人說慶典的鴿子生病了，感覺怪怪的。",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「美玲，妳有聽說什麼嗎？剛才店裡有個客人說慶典的鴿子生病了，感覺怪怪的。」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 95588
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "美玲，妳有聽說什麼嗎？剛才店裡有個客人說慶典的鴿子生病了，感覺怪怪的。",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「美玲，妳有聽說什麼嗎？剛才店裡有個客人說慶典的鴿子生病了，感覺怪怪的。」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 95588
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "阿德說有人傳鴿子生病了，我擔心鴿子們會受苦。",
+     "thought": "如果鴿子真的生病了還被放飛，太可憐了，我不能坐視不管。",
+     "feeling": "😟 憂心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：如果鴿子真的生病了還被放飛，太可憐了，我不能坐視不管。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 205690
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.1,
+     "proposed": 0.7,
+     "verdict": "believe",
+     "why": "阿德很可靠，且我本就擔心鴿子"
+    },
+    "zh": "美玲對「慶典的鴿子生病了」的信心：0.00 → 0.10（believe）",
+    "actor": "florist",
+    "w": 205690
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "😟 憂心"
+    },
+    "zh": "美玲 😟 憂心",
+    "actor": "florist",
+    "place": "flower",
+    "w": 205690
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "phone",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "text": "阿德，那個客人還說了什麼嗎？鴿子具體是什麼樣子？我好擔心牠們...",
+     "intent": "ask",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "美玲打電話給阿德：「阿德，那個客人還說了什麼嗎？鴿子具體是什麼樣子？我好擔心牠們...」",
+    "actor": "florist",
+    "target": "baker",
+    "place": "flower",
+    "w": 205690
+   },
+   {
+    "id": "e12",
+    "t": 26.4,
+    "type": "deliver",
+    "causes": [
+     "e11"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "phone",
+     "intent": "ask",
+     "text": "阿德，那個客人還說了什麼嗎？鴿子具體是什麼樣子？我好擔心牠們...",
+     "claims": [
+      "c2"
+     ],
+     "from": "florist"
+    },
+    "zh": "阿德在電話裡聽美玲說：「阿德，那個客人還說了什麼嗎？鴿子具體是什麼樣子？我好擔心牠們...」",
+    "target": "baker",
+    "actor": "florist",
+    "place": "bakery",
+    "w": 205690
+   },
+   {
+    "id": "e13",
+    "t": 26.599999999999998,
+    "type": "decide",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "美玲很擔心鴿子的情況，想知道更多細節。",
+     "thought": "糟糕，我也沒問清楚，美玲居然這麼在意。",
+     "feeling": "😅 尷尬",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：糟糕，我也沒問清楚，美玲居然這麼在意。",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 222979
+   },
+   {
+    "id": "e14",
+    "t": 26.7,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😅 尷尬"
+    },
+    "zh": "阿德 😅 尷尬",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 222979
+   },
+   {
+    "id": "e15",
+    "t": 27.599999999999998,
+    "type": "phone",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "text": "美玲，別擔心！其實那個客人就隨口說一句，我也沒來得及問具體情況，可能只是路人的閒聊吧！",
+     "intent": "answer",
+     "claims": []
+    },
+    "zh": "阿德打電話給美玲：「美玲，別擔心！其實那個客人就隨口說一句，我也沒來得及問具體情況，可能只是路人的閒聊吧！」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 222979
+   },
+   {
+    "id": "e16",
+    "t": 29.599999999999998,
+    "type": "deliver",
+    "causes": [
+     "e15"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "phone",
+     "intent": "answer",
+     "text": "美玲，別擔心！其實那個客人就隨口說一句，我也沒來得及問具體情況，可能只是路人的閒聊吧！",
+     "claims": [],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「美玲，別擔心！其實那個客人就隨口說一句，我也沒來得及問具體情況，可能只是路人的閒聊吧！」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 222979
+   },
+   {
+    "id": "e17",
+    "t": 29.799999999999997,
+    "type": "decide",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "阿德說鴿子生病的事可能只是路人隨口閒聊，不用擔心。",
+     "thought": "雖然阿德這麼說，但萬一鴿子真的生病了怎麼辦？",
+     "feeling": "😟 忐忑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美玲：雖然阿德這麼說，但萬一鴿子真的生病了怎麼辦？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 230501
+   },
+   {
+    "id": "e18",
+    "t": 29.9,
+    "type": "react",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "feeling": "😟 忐忑"
+    },
+    "zh": "美玲 😟 忐忑",
+    "actor": "florist",
+    "place": "flower",
+    "w": 230501
+   },
+   {
+    "id": "e19",
+    "t": 29.9,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 230501
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人說慶典的鴿子生病了，可能會影響活動。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "慶典那批鴿子好像生病了。",
+       "topic": "pigeons_sick",
+       "says": "yes",
+       "category": "health"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "只是不認識的客人隨口說的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "要是鴿子真的生病，慶典開場會不會很尷尬？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "message": "美玲，妳有聽說什麼嗎？剛才店裡有個客人說慶典的鴿子生病了，感覺怪怪的。",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 95588,
+      "latencyMs": 89282,
+      "attempts": 3,
+      "promptTokens": 1600,
+      "completionTokens": 212,
+      "platformCost": 0.0000159943,
+      "estCost": 0.001436,
+      "status": 200,
+      "raw": "{\"understanding\": \"有客人說慶典的鴿子生病了，可能會影響活動。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"慶典那批鴿子好像生病了。\", \"topic\": \"pigeons_sick\", \"says\": \"yes\", \"category\": \"health\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.5, \"why\": \"只是不認識的客人隨口說的\", \"cites\": [\"m1\"]}], \"feeling\": \"😟 擔心\", \"thought\": \"要是鴿子真的生病，慶典開場會不會很尷尬？\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"message\": \"美玲，妳有聽說什麼嗎？剛才店裡有個客人說慶典的鴿子生病了，感覺怪怪的。\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 2648
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德說有人傳鴿子生病了，我擔心鴿子們會受苦。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "慶典的鴿子生病了",
+       "topic": "pigeons_sick",
+       "says": "yes",
+       "category": "health"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.7,
+       "why": "阿德很可靠，且我本就擔心鴿子",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "😟 憂心",
+     "thought": "如果鴿子真的生病了還被放飛，太可憐了，我不能坐視不管。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "baker",
+       "intent": "ask",
+       "message": "阿德，那個客人還說了什麼嗎？鴿子具體是什麼樣子？我好擔心牠們...",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 95588,
+      "wallEndMs": 205689,
+      "latencyMs": 108048,
+      "attempts": 2,
+      "promptTokens": 1666,
+      "completionTokens": 307,
+      "platformCost": 0.0000226905,
+      "estCost": 0.001754,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"阿德說有人傳鴿子生病了，我擔心鴿子們會受苦。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m2\",\n      \"statement\": \"慶典的鴿子生病了\",\n      \"topic\": \"pigeons_sick\",\n      \"says\": \"yes\",\n      \"category\": \"health\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.7,\n      \"why\": \"阿德很可靠，且我本就擔心鴿子\",\n      \"cites\": [\n        \"m2\"\n      ]\n    }\n  ],\n  \"feeling\": \"😟 憂心\",\n  \"thought\": \"如果鴿子真的生病了還被放飛，太可憐了，我不能坐視不管。\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"baker\",\n      \"intent\": \"ask\",\n      \"message\": \"阿德，那個客人還說了什麼嗎？鴿子具體是什麼樣子？我好擔心牠們...\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2747
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "baker",
+    "t": 26.599999999999998,
+    "triggers": [
+     "e12"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美玲很擔心鴿子的情況，想知道更多細節。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😅 尷尬",
+     "thought": "糟糕，我也沒問清楚，美玲居然這麼在意。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "intent": "answer",
+       "message": "美玲，別擔心！其實那個客人就隨口說一句，我也沒來得及問具體情況，可能只是路人的閒聊吧！",
+       "cites": [
+        "m3"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 205690,
+      "wallEndMs": 222979,
+      "latencyMs": 17289,
+      "attempts": 1,
+      "promptTokens": 1704,
+      "completionTokens": 122,
+      "platformCost": 0.0000232813,
+      "estCost": 0.001218,
+      "status": 200,
+      "raw": "{\"understanding\": \"美玲很擔心鴿子的情況，想知道更多細節。\", \"claims\": [], \"stances\": [], \"feeling\": \"😅 尷尬\", \"thought\": \"糟糕，我也沒問清楚，美玲居然這麼在意。\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"intent\": \"answer\", \"message\": \"美玲，別擔心！其實那個客人就隨口說一句，我也沒來得及問具體情況，可能只是路人的閒聊吧！\", \"cites\": [\"m3\"]}]}",
+      "promptChars": 2781
+     }
+    ],
+    "applied": [
+     "e13",
+     "e14"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "florist",
+    "t": 29.799999999999997,
+    "triggers": [
+     "e16"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德說鴿子生病的事可能只是路人隨口閒聊，不用擔心。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😟 忐忑",
+     "thought": "雖然阿德這麼說，但萬一鴿子真的生病了怎麼辦？",
+     "actions": [
+      {
+       "type": "none",
+       "why": "阿德既然說不用擔心，我先繼續整理花飾吧",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "stance for unknown claim 0 dropped"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d4",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 222979,
+      "wallEndMs": 230501,
+      "latencyMs": 7522,
+      "attempts": 1,
+      "promptTokens": 1776,
+      "completionTokens": 138,
+      "platformCost": 0.0000495936,
+      "estCost": 0.001302,
+      "status": 200,
+      "raw": "{\"understanding\": \"阿德說鴿子生病的事可能只是路人隨口閒聊，不用擔心。\", \"claims\": [], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.2, \"why\": \"阿德也沒問清楚，不能完全放心\", \"cites\": [\"m4\"]}], \"feeling\": \"😟 忐忑\", \"thought\": \"雖然阿德這麼說，但萬一鴿子真的生病了怎麼辦？\", \"actions\": [{\"type\": \"none\", \"why\": \"阿德既然說不用擔心，我先繼續整理花飾吧\"}]}",
+      "promptChars": 2886
+     }
+    ],
+    "applied": [
+     "e17",
+     "e18"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "慶典那批鴿子好像生病了。",
+    "topic": "pigeons_sick",
+    "says": "yes",
+    "category": "health",
+    "fact": "pigeons_sick",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   },
+   {
+    "id": "c2",
+    "statement": "慶典的鴿子生病了",
+    "topic": "pigeons_sick",
+    "says": "yes",
+    "category": "health",
+    "fact": "pigeons_sick",
+    "asserts": true,
+    "origin": "e7",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.49,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "只是不認識的客人隨口說的"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「慶典那批鴿子好像生病了。」",
+     "15:20 你決定：打電話給美玲說「美玲，妳有聽說什麼嗎？剛才店裡有個客人說慶典的鴿子生病了，感覺怪怪的。」",
+     "15:26 美玲打電話說：「阿德，那個客人還說了什麼嗎？鴿子具體是什麼樣子？我好擔心牠們...」",
+     "15:27 你決定：打電話給美玲說「美玲，別擔心！其實那個客人就隨口說一句，我也沒來得及問具體情況，可能只是路人的閒聊吧！」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.1,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 23.4,
+      "why": "阿德很可靠，且我本就擔心鴿子"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:23 阿德打電話說：「美玲，妳有聽說什麼嗎？剛才店裡有個客人說慶典的鴿子生病了，感覺怪怪的。」",
+     "15:23 你決定：打電話給阿德說「阿德，那個客人還說了什麼嗎？鴿子具體是什麼樣子？我好擔心牠們...」",
+     "15:30 阿德打電話說：「美玲，別擔心！其實那個客人就隨口說一句，我也沒來得及問具體情況，可能只是路人的閒聊吧！」",
+     "15:30 你決定先不做什麼。"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 29.9
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:33:38.921Z",
+   "ms": 230501
+  },
+  "llm": {
+   "calls": 4,
+   "attempts": 7,
+   "promptTokens": 6746,
+   "completionTokens": 779,
+   "platformCost": 0.0001115597,
+   "estCost": 0.005710000000000001,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 4,
+  "reach": 2,
+  "believers": 0,
+  "decisions": 4,
+  "noneDecisions": 1,
+  "actionsDone": {
+   "phone": 3
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "pigeons_sick"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "美玲，妳有聽說什麼嗎？剛才店裡有個客人說慶典的鴿子生病了，感覺怪怪的。",
+    "similarity": 0.11
+   },
+   {
+    "from": "florist",
+    "to": "baker",
+    "text": "阿德，那個客人還說了什麼嗎？鴿子具體是什麼樣子？我好擔心牠們...",
+    "similarity": 0.03
+   },
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "美玲，別擔心！其實那個客人就隨口說一句，我也沒來得及問具體情況，可能只是路人的閒聊吧！",
+    "similarity": 0
+   }
+  ],
+  "meanSimilarity": 0.05,
+  "explained": 1,
+  "visualEvents": 7,
+  "gameMinutes": 9.9,
+  "llmCalls": 4,
+  "llmSeconds": 222.1,
+  "tokens": 7525,
+  "estCost": 0.00571,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

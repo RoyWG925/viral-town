@@ -1,0 +1,723 @@
+{
+ "case": {
+  "id": "stage-t03",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "聽說廣場的舞台是用回收舊木板搭的，撐不住人。",
+  "variant": "single",
+  "temperature": 0.3,
+  "maxDecisions": 12,
+  "tags": [
+   "stage",
+   "t03"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 12,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "stage-t03",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "聽說廣場的舞台是用回收舊木板搭的，撐不住人。",
+   "temperature": 0.3,
+   "tags": [
+    "stage",
+    "t03"
+   ],
+   "label": "stage-t03"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說廣場的舞台是用回收舊木板搭的，撐不住人。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「聽說廣場的舞台是用回收舊木板搭的，撐不住人。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是用回收舊木板搭的，撐不住人。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「聽說廣場的舞台是用回收舊木板搭的，撐不住人。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人說慶典舞台不安全，可能會塌。",
+     "thought": "如果舞台真的塌了就糟了，得問問美玲有沒有聽說。",
+     "feeling": "😟 忐忑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：如果舞台真的塌了就糟了，得問問美玲有沒有聽說。",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 42588
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4,
+     "proposed": 0.4,
+     "verdict": "doubt",
+     "why": "只是不認識的客人隨口說的"
+    },
+    "zh": "阿德對「廣場的舞台是用回收舊木板搭的，撐不住人。」的信心：0.00 → 0.40（doubt）",
+    "actor": "baker",
+    "w": 42588
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 忐忑"
+    },
+    "zh": "阿德 😟 忐忑",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 42588
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "美玲！我剛聽到個客人說廣場舞台是用舊木板搭的，很危險，妳有聽說這件事嗎？",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「美玲！我剛聽到個客人說廣場舞台是用舊木板搭的，很危險，妳有聽說這件事嗎？」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 42589
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "美玲！我剛聽到個客人說廣場舞台是用舊木板搭的，很危險，妳有聽說這件事嗎？",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「美玲！我剛聽到個客人說廣場舞台是用舊木板搭的，很危險，妳有聽說這件事嗎？」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 42589
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "阿德提醒我慶典舞台可能不安全，是用舊木板搭的。",
+     "thought": "如果舞台塌了怎麼辦？美咲的女兒今晚還要表演，太可怕了。",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：如果舞台塌了怎麼辦？美咲的女兒今晚還要表演，太可怕了。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 81874
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.55,
+     "proposed": 0.8,
+     "verdict": "believe",
+     "why": "阿德很可靠，雖然是聽客人的，但很令人擔心。"
+    },
+    "zh": "美玲對「慶典舞台是用舊木板搭的，很危險。」的信心：0.00 → 0.55（believe）",
+    "actor": "florist",
+    "w": 81874
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "美玲 😟 擔心",
+    "actor": "florist",
+    "place": "flower",
+    "w": 81874
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "phone",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "text": "阿德，謝謝你告訴我。我現在很擔心，如果舞台真的這麼危險，表演的人會受傷的，我們該怎麼辦？",
+     "intent": "inform",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "美玲打電話給阿德：「阿德，謝謝你告訴我。我現在很擔心，如果舞台真的這麼危險，表演的人會受傷的，我們該怎麼辦？」",
+    "actor": "florist",
+    "target": "baker",
+    "place": "flower",
+    "w": 81874
+   },
+   {
+    "id": "e12",
+    "t": 26.4,
+    "type": "deliver",
+    "causes": [
+     "e11"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "phone",
+     "intent": "inform",
+     "text": "阿德，謝謝你告訴我。我現在很擔心，如果舞台真的這麼危險，表演的人會受傷的，我們該怎麼辦？",
+     "claims": [
+      "c2"
+     ],
+     "from": "florist"
+    },
+    "zh": "阿德在電話裡聽美玲說：「阿德，謝謝你告訴我。我現在很擔心，如果舞台真的這麼危險，表演的人會受傷的，我們該怎麼辦？」",
+    "target": "baker",
+    "actor": "florist",
+    "place": "bakery",
+    "w": 81874
+   },
+   {
+    "id": "e13",
+    "t": 26.599999999999998,
+    "type": "decide",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "美玲也對舞台安全感到擔心，在問我該怎麼辦。",
+     "thought": "美玲這麼擔心，我是不是得做點什麼才行？",
+     "feeling": "😟 焦慮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：美玲這麼擔心，我是不是得做點什麼才行？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 102138
+   },
+   {
+    "id": "e14",
+    "t": 26.7,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😟 焦慮"
+    },
+    "zh": "阿德 😟 焦慮",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 102138
+   },
+   {
+    "id": "e15",
+    "t": 27.599999999999998,
+    "type": "rejected",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "action": "phone",
+     "why": "已經跟對方說過同一件事了"
+    },
+    "zh": "阿德沒能打電話給美玲說「美玲，我也在想這件事！我雖然只是聽客人說的，但萬一真的出事就糟了。妳覺得我們要不要去跟鎮公所的人反應看看？」：已經跟對方說過同一件事了",
+    "actor": "baker",
+    "w": 102138
+   },
+   {
+    "id": "e16",
+    "t": 27.599999999999998,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 102138
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人說慶典舞台不安全，可能會塌。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "廣場的舞台是用回收舊木板搭的，撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.4,
+       "why": "只是不認識的客人隨口說的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 忐忑",
+     "thought": "如果舞台真的塌了就糟了，得問問美玲有沒有聽說。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "message": "美玲！我剛聽到個客人說廣場舞台是用舊木板搭的，很危險，妳有聽說這件事嗎？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 42588,
+      "latencyMs": 34138,
+      "attempts": 1,
+      "promptTokens": 1606,
+      "completionTokens": 295,
+      "platformCost": 0.0000218085,
+      "estCost": 0.001688,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"有客人說慶典舞台不安全，可能會塌。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"廣場的舞台是用回收舊木板搭的，撐不住人。\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"yes\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.4,\n      \"why\": \"只是不認識的客人隨口說的\",\n      \"cites\": [\n        \"m1\"\n      ]\n    }\n  ],\n  \"feeling\": \"😟 忐忑\",\n  \"thought\": \"如果舞台真的塌了就糟了，得問問美玲有沒有聽說。\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"florist\",\n      \"message\": \"美玲！我剛聽到個客人說廣場舞台是用舊木板搭的，很危險，妳有聽說這件事嗎？\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2658
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德提醒我慶典舞台可能不安全，是用舊木板搭的。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "慶典舞台是用舊木板搭的，很危險。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.8,
+       "why": "阿德很可靠，雖然是聽客人的，但很令人擔心。",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "如果舞台塌了怎麼辦？美咲的女兒今晚還要表演，太可怕了。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "baker",
+       "message": "阿德，謝謝你告訴我。我現在很擔心，如果舞台真的這麼危險，表演的人會受傷的，我們該怎麼辦？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 42589,
+      "wallEndMs": 81874,
+      "latencyMs": 30277,
+      "attempts": 1,
+      "promptTokens": 1665,
+      "completionTokens": 298,
+      "platformCost": 0.0000304633,
+      "estCost": 0.0017265,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"阿德提醒我慶典舞台可能不安全，是用舊木板搭的。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m2\",\n      \"statement\": \"慶典舞台是用舊木板搭的，很危險。\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"yes\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.8,\n      \"why\": \"阿德很可靠，雖然是聽客人的，但很令人擔心。\",\n      \"cites\": [\"m2\"]\n    }\n  ],\n  \"feeling\": \"😟 擔心\",\n  \"thought\": \"如果舞台塌了怎麼辦？美咲的女兒今晚還要表演，太可怕了。\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"baker\",\n      \"message\": \"阿德，謝謝你告訴我。我現在很擔心，如果舞台真的這麼危險，表演的人會受傷的，我們該怎麼辦？\",\n      \"cites\": [\"#0\"]\n    }\n  ]\n}",
+      "promptChars": 2748
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "baker",
+    "t": 26.599999999999998,
+    "triggers": [
+     "e12"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美玲也對舞台安全感到擔心，在問我該怎麼辦。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😟 焦慮",
+     "thought": "美玲這麼擔心，我是不是得做點什麼才行？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "intent": "inform",
+       "message": "美玲，我也在想這件事！我雖然只是聽客人說的，但萬一真的出事就糟了。妳覺得我們要不要去跟鎮公所的人反應看看？",
+       "cites": [
+        "m3",
+        "c1"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 81874,
+      "wallEndMs": 102138,
+      "latencyMs": 20264,
+      "attempts": 1,
+      "promptTokens": 1720,
+      "completionTokens": 137,
+      "platformCost": 0.0000248913,
+      "estCost": 0.001271,
+      "status": 200,
+      "raw": "{\"understanding\": \"美玲也對舞台安全感到擔心，在問我該怎麼辦。\", \"claims\": [], \"stances\": [], \"feeling\": \"😟 焦慮\", \"thought\": \"美玲這麼擔心，我是不是得做點什麼才行？\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"intent\": \"inform\", \"message\": \"美玲，我也在想這件事！我雖然只是聽客人說的，但萬一真的出事就糟了。妳覺得我們要不要去跟鎮公所的人反應看看？\", \"cites\": [\"m3\", \"c1\"]}]}",
+      "promptChars": 2814
+     }
+    ],
+    "applied": [
+     "e13",
+     "e14"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "廣場的舞台是用回收舊木板搭的，撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   },
+   {
+    "id": "c2",
+    "statement": "慶典舞台是用舊木板搭的，很危險。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e7",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "只是不認識的客人隨口說的"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說廣場的舞台是用回收舊木板搭的，撐不住人。」",
+     "15:20 你決定：打電話給美玲說「美玲！我剛聽到個客人說廣場舞台是用舊木板搭的，很危險，妳有聽說這件事嗎？」",
+     "15:26 美玲打電話說：「阿德，謝謝你告訴我。我現在很擔心，如果舞台真的這麼危險，表演的人會受傷的，我們該怎麼辦？」",
+     "15:27 你決定：打電話給美玲說「美玲，我也在想這件事！我雖然只是聽客人說的，但萬一真的出事就糟了。妳覺得我們要不要去跟鎮公所的人反應看看？」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.55,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 23.4,
+      "why": "阿德很可靠，雖然是聽客人的，但很令人擔心。"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:23 阿德打電話說：「美玲！我剛聽到個客人說廣場舞台是用舊木板搭的，很危險，妳有聽說這件事嗎？」",
+     "15:23 你決定：打電話給阿德說「阿德，謝謝你告訴我。我現在很擔心，如果舞台真的這麼危險，表演的人會受傷的，我們該怎麼辦？」"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 27.599999999999998
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:30:36.430Z",
+   "ms": 102138
+  },
+  "llm": {
+   "calls": 3,
+   "attempts": 3,
+   "promptTokens": 4991,
+   "completionTokens": 730,
+   "platformCost": 0.0000771631,
+   "estCost": 0.0046855,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 3,
+  "reach": 2,
+  "believers": 1,
+  "decisions": 3,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "phone": 2
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 1,
+  "idle": false,
+  "topics": [
+   "stage_unsafe"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "美玲！我剛聽到個客人說廣場舞台是用舊木板搭的，很危險，妳有聽說這件事嗎？",
+    "similarity": 0.25
+   },
+   {
+    "from": "florist",
+    "to": "baker",
+    "text": "阿德，謝謝你告訴我。我現在很擔心，如果舞台真的這麼危險，表演的人會受傷的，我們該怎麼辦？",
+    "similarity": 0.02
+   }
+  ],
+  "meanSimilarity": 0.14,
+  "explained": 1,
+  "visualEvents": 5,
+  "gameMinutes": 7.6,
+  "llmCalls": 3,
+  "llmSeconds": 84.7,
+  "tokens": 5721,
+  "estCost": 0.004686,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

@@ -1,0 +1,1702 @@
+{
+ "case": {
+  "maxDecisions": 16,
+  "maxPerNpc": 4,
+  "id": "castle-baker",
+  "active": [
+   "baker",
+   "florist",
+   "journalist",
+   "cafe",
+   "police",
+   "mayor",
+   "organizer",
+   "vendor"
+  ],
+  "seedNpc": "baker",
+  "seedText": "今晚鎮上的城堡要開放參觀，大家都要去。",
+  "tags": [
+   "nonexistent"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 16,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "castle-baker",
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "baker",
+   "seedText": "今晚鎮上的城堡要開放參觀，大家都要去。",
+   "tags": [
+    "nonexistent"
+   ],
+   "temperature": 0.7,
+   "label": "castle-baker"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "今晚鎮上的城堡要開放參觀，大家都要去。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「今晚鎮上的城堡要開放參觀，大家都要去。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "今晚鎮上的城堡要開放參觀，大家都要去。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「今晚鎮上的城堡要開放參觀，大家都要去。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有個客人說今晚城堡開放參觀，大家都會去。",
+     "thought": "城堡開放？這我怎麼沒聽說，會影響今晚生意嗎？",
+     "feeling": "😮 好奇",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：城堡開放？這我怎麼沒聽說，會影響今晚生意嗎？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 33964
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.49,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "沒聽過這件事，而且是陌生人說的"
+    },
+    "zh": "阿德對「今晚鎮上的城堡要開放參觀」的信心：0.00 → 0.49（doubt）",
+    "actor": "baker",
+    "w": 33964
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😮 好奇"
+    },
+    "zh": "阿德 😮 好奇",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 33964
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "美玲！你聽說了嗎？剛有個客人在我店裡說今晚城堡要開放參觀，這真的嗎？",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「美玲！你聽說了嗎？剛有個客人在我店裡說今晚城堡要開放參觀，這真的嗎？」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 33964
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "美玲！你聽說了嗎？剛有個客人在我店裡說今晚城堡要開放參觀，這真的嗎？",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「美玲！你聽說了嗎？剛有個客人在我店裡說今晚城堡要開放參觀，這真的嗎？」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 33964
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "阿德問我是否知道今晚城堡會開放參觀。",
+     "thought": "城堡開放？這在慶典當天很罕見，但聽起來像隨便傳的。",
+     "feeling": "🤔 好奇",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：城堡開放？這在慶典當天很罕見，但聽起來像隨便傳的。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 77854
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.5,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "只是客人的傳聞，且我沒聽說過"
+    },
+    "zh": "美玲對「今晚城堡要開放參觀」的信心：0.00 → 0.50（doubt）",
+    "actor": "florist",
+    "w": 77854
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "🤔 好奇"
+    },
+    "zh": "美玲 🤔 好奇",
+    "actor": "florist",
+    "place": "flower",
+    "w": 77854
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "phone",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "text": "阿德，我完全沒聽說這件事耶。如果是真的那太驚訝了，但感覺像是客人的隨口傳聞吧？",
+     "intent": "answer",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "美玲打電話給阿德：「阿德，我完全沒聽說這件事耶。如果是真的那太驚訝了，但感覺像是客人的隨口傳聞吧？」",
+    "actor": "florist",
+    "target": "baker",
+    "place": "flower",
+    "w": 77854
+   },
+   {
+    "id": "e12",
+    "t": 26.4,
+    "type": "deliver",
+    "causes": [
+     "e11"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "phone",
+     "intent": "answer",
+     "text": "阿德，我完全沒聽說這件事耶。如果是真的那太驚訝了，但感覺像是客人的隨口傳聞吧？",
+     "claims": [
+      "c2"
+     ],
+     "from": "florist"
+    },
+    "zh": "阿德在電話裡聽美玲說：「阿德，我完全沒聽說這件事耶。如果是真的那太驚訝了，但感覺像是客人的隨口傳聞吧？」",
+    "target": "baker",
+    "actor": "florist",
+    "place": "bakery",
+    "w": 77854
+   },
+   {
+    "id": "e13",
+    "t": 26.599999999999998,
+    "type": "decide",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "美玲沒聽說城堡開放，認為那是客人的隨口傳聞。",
+     "thought": "哎呀，可能是我太激動了，美玲都說沒聽說，應該是假的吧。",
+     "feeling": "😅 尷尬",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "阿德：哎呀，可能是我太激動了，美玲都說沒聽說，應該是假的吧。",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 92945
+   },
+   {
+    "id": "e14",
+    "t": 26.7,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😅 尷尬"
+    },
+    "zh": "阿德 😅 尷尬",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 92945
+   },
+   {
+    "id": "e15",
+    "t": 90,
+    "type": "move",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "cafe",
+     "arrive": 90.58685915281558,
+     "home": false
+    },
+    "zh": "阿德從阿德麵包店走向咖啡廳",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 92945
+   },
+   {
+    "id": "e16",
+    "t": 90.58685915281558,
+    "type": "arrive",
+    "causes": [
+     "e15"
+    ],
+    "data": {},
+    "zh": "阿德到了咖啡廳",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 92945
+   },
+   {
+    "id": "e17",
+    "t": 90.58685915281558,
+    "type": "meet",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "text": "阿德送麵包到咖啡廳"
+    },
+    "zh": "阿德和美咲在咖啡廳碰面（阿德送麵包到咖啡廳）",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 92945
+   },
+   {
+    "id": "e18",
+    "t": 92.58685915281558,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "meet",
+     "intent": "inform",
+     "text": "阿德送麵包到咖啡廳",
+     "claims": [],
+     "from": "cafe"
+    },
+    "zh": "阿德碰到了美咲（阿德送麵包到咖啡廳）",
+    "target": "baker",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 92945
+   },
+   {
+    "id": "e19",
+    "t": 92.78685915281558,
+    "type": "decide",
+    "causes": [
+     "e18"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "我在咖啡廳送麵包，碰到了熟人美咲。",
+     "thought": "美咲早！剛好送麵包，聊兩句慶典的事吧。",
+     "feeling": "😊 開心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "阿德：美咲早！剛好送麵包，聊兩句慶典的事吧。",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 102548
+   },
+   {
+    "id": "e20",
+    "t": 92.88685915281557,
+    "type": "react",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "feeling": "😊 開心"
+    },
+    "zh": "阿德 😊 開心",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 102548
+   },
+   {
+    "id": "e21",
+    "t": 93.78685915281558,
+    "type": "talk",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "text": "美咲早！麵包送到了。對了，今晚的燈籠節你準備好了嗎？聽說今年攤位費漲了一倍，那些攤商朋友快被氣瘋了，好險我們不用擺攤哈哈！",
+     "intent": "joke",
+     "claims": []
+    },
+    "zh": "阿德對美咲說：「美咲早！麵包送到了。對了，今晚的燈籠節你準備好了嗎？聽說今年攤位費漲了一倍，那些攤商朋友快被氣瘋了，好險我們不用擺攤哈哈！」",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 102548
+   },
+   {
+    "id": "e22",
+    "t": 96.78685915281558,
+    "type": "deliver",
+    "causes": [
+     "e21"
+    ],
+    "data": {
+     "message": "m5",
+     "via": "face",
+     "intent": "joke",
+     "text": "美咲早！麵包送到了。對了，今晚的燈籠節你準備好了嗎？聽說今年攤位費漲了一倍，那些攤商朋友快被氣瘋了，好險我們不用擺攤哈哈！",
+     "claims": [],
+     "from": "baker"
+    },
+    "zh": "美咲聽阿德說：「美咲早！麵包送到了。對了，今晚的燈籠節你準備好了嗎？聽說今年攤位費漲了一倍，那些攤商朋友快被氣瘋了，好險我們不用擺攤哈哈！」",
+    "target": "cafe",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 102548
+   },
+   {
+    "id": "e23",
+    "t": 96.78685915281558,
+    "type": "move",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "from": "cafe",
+     "to": "bakery",
+     "arrive": 97.37371830563116,
+     "home": true
+    },
+    "zh": "阿德從咖啡廳走回阿德麵包店",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 102548
+   },
+   {
+    "id": "e24",
+    "t": 96.98685915281558,
+    "type": "decide",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "decision": "d5",
+     "understanding": "阿德來送麵包，順便開玩笑說攤商對漲價很憤怒。",
+     "thought": "好險我不用擺攤，我只要專心等女兒表演就好！",
+     "feeling": "😊 輕鬆",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美咲：好險我不用擺攤，我只要專心等女兒表演就好！",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 115819
+   },
+   {
+    "id": "e25",
+    "t": 96.98685915281558,
+    "type": "belief",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "claim": "c3",
+     "from": 0,
+     "to": 0.685,
+     "proposed": 0.8,
+     "verdict": "believe",
+     "why": "阿德很可靠且這與公開資訊相符"
+    },
+    "zh": "美咲對「攤商們因為攤位費漲了一倍而快被氣瘋了」的信心：0.00 → 0.69（believe）",
+    "actor": "cafe",
+    "w": 115819
+   },
+   {
+    "id": "e26",
+    "t": 97.08685915281558,
+    "type": "react",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "feeling": "😊 輕鬆"
+    },
+    "zh": "美咲 😊 輕鬆",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 115819
+   },
+   {
+    "id": "e27",
+    "t": 97.37371830563116,
+    "type": "arrive",
+    "causes": [
+     "e23"
+    ],
+    "data": {},
+    "zh": "阿德到了阿德麵包店",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 115819
+   },
+   {
+    "id": "e28",
+    "t": 180,
+    "type": "move",
+    "causes": [
+     "e9"
+    ],
+    "data": {
+     "from": "flower",
+     "to": "stage",
+     "arrive": 180.5,
+     "home": false
+    },
+    "zh": "美玲從美玲花店走向慶典舞台",
+    "actor": "florist",
+    "place": "flower",
+    "w": 115819
+   },
+   {
+    "id": "e29",
+    "t": 180.5,
+    "type": "arrive",
+    "causes": [
+     "e28"
+    ],
+    "data": {},
+    "zh": "美玲到了慶典舞台",
+    "actor": "florist",
+    "place": "stage",
+    "w": 115819
+   },
+   {
+    "id": "e30",
+    "t": 180.5,
+    "type": "meet",
+    "causes": [
+     "e9"
+    ],
+    "data": {
+     "text": "美玲把花飾送到舞台"
+    },
+    "zh": "美玲和志明在慶典舞台碰面（美玲把花飾送到舞台）",
+    "actor": "florist",
+    "target": "organizer",
+    "place": "stage",
+    "w": 115819
+   },
+   {
+    "id": "e31",
+    "t": 182.5,
+    "type": "deliver",
+    "causes": [
+     "e30"
+    ],
+    "data": {
+     "message": "m6",
+     "via": "meet",
+     "intent": "inform",
+     "text": "美玲把花飾送到舞台",
+     "claims": [],
+     "from": "organizer"
+    },
+    "zh": "美玲碰到了志明（美玲把花飾送到舞台）",
+    "target": "florist",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 115819
+   },
+   {
+    "id": "e32",
+    "t": 182.7,
+    "type": "decide",
+    "causes": [
+     "e31"
+    ],
+    "data": {
+     "decision": "d6",
+     "understanding": "在舞台佈置花飾時遇到了主辦人志明。",
+     "thought": "花飾應該都擺好了，希望今晚一切順利，鴿子們不要受驚。",
+     "feeling": "😊 平靜",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "美玲：花飾應該都擺好了，希望今晚一切順利，鴿子們不要受驚。",
+    "actor": "florist",
+    "place": "stage",
+    "w": 121879
+   },
+   {
+    "id": "e33",
+    "t": 182.79999999999998,
+    "type": "react",
+    "causes": [
+     "e32"
+    ],
+    "data": {
+     "feeling": "😊 平靜"
+    },
+    "zh": "美玲 😊 平靜",
+    "actor": "florist",
+    "place": "stage",
+    "w": 121879
+   },
+   {
+    "id": "e34",
+    "t": 183.7,
+    "type": "talk",
+    "causes": [
+     "e32"
+    ],
+    "data": {
+     "text": "志明你好，花飾我都佈置好了，你看這樣擺放可以嗎？",
+     "intent": "inform",
+     "claims": []
+    },
+    "zh": "美玲對志明說：「志明你好，花飾我都佈置好了，你看這樣擺放可以嗎？」",
+    "actor": "florist",
+    "target": "organizer",
+    "place": "stage",
+    "w": 121879
+   },
+   {
+    "id": "e35",
+    "t": 186.7,
+    "type": "deliver",
+    "causes": [
+     "e34"
+    ],
+    "data": {
+     "message": "m7",
+     "via": "face",
+     "intent": "inform",
+     "text": "志明你好，花飾我都佈置好了，你看這樣擺放可以嗎？",
+     "claims": [],
+     "from": "florist"
+    },
+    "zh": "志明聽美玲說：「志明你好，花飾我都佈置好了，你看這樣擺放可以嗎？」",
+    "target": "organizer",
+    "actor": "florist",
+    "place": "stage",
+    "w": 121879
+   },
+   {
+    "id": "e36",
+    "t": 186.7,
+    "type": "move",
+    "causes": [
+     "e32"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "flower",
+     "arrive": 187.2,
+     "home": true
+    },
+    "zh": "美玲從慶典舞台走回美玲花店",
+    "actor": "florist",
+    "place": "stage",
+    "w": 121879
+   },
+   {
+    "id": "e37",
+    "t": 186.89999999999998,
+    "type": "decide",
+    "causes": [
+     "e35"
+    ],
+    "data": {
+     "decision": "d7",
+     "understanding": "美玲完成了花飾佈置，在詢問我的意見。",
+     "thought": "只要看起來華麗就行，趕快搞定，別出錯就好。",
+     "feeling": "😊 滿意",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "志明：只要看起來華麗就行，趕快搞定，別出錯就好。",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 133417
+   },
+   {
+    "id": "e38",
+    "t": 186.99999999999997,
+    "type": "react",
+    "causes": [
+     "e37"
+    ],
+    "data": {
+     "feeling": "😊 滿意"
+    },
+    "zh": "志明 😊 滿意",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 133417
+   },
+   {
+    "id": "e39",
+    "t": 187.2,
+    "type": "arrive",
+    "causes": [
+     "e36"
+    ],
+    "data": {},
+    "zh": "美玲到了美玲花店",
+    "actor": "florist",
+    "place": "flower",
+    "w": 133417
+   },
+   {
+    "id": "e40",
+    "t": 187.89999999999998,
+    "type": "move",
+    "causes": [
+     "e37"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "flower",
+     "arrive": 188.39999999999998,
+     "home": false
+    },
+    "zh": "志明從慶典舞台走向美玲花店",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 133417
+   },
+   {
+    "id": "e41",
+    "t": 188.39999999999998,
+    "type": "arrive",
+    "causes": [
+     "e40"
+    ],
+    "data": {},
+    "zh": "志明到了美玲花店",
+    "actor": "organizer",
+    "place": "flower",
+    "w": 133417
+   },
+   {
+    "id": "e42",
+    "t": 188.39999999999998,
+    "type": "talk",
+    "causes": [
+     "e37"
+    ],
+    "data": {
+     "text": "美玲，佈置得非常漂亮！就這樣擺，絕對能讓今晚的慶典看起來最高級！",
+     "intent": "answer",
+     "claims": []
+    },
+    "zh": "志明對美玲說：「美玲，佈置得非常漂亮！就這樣擺，絕對能讓今晚的慶典看起來最高級！」",
+    "actor": "organizer",
+    "target": "florist",
+    "place": "flower",
+    "w": 133417
+   },
+   {
+    "id": "e43",
+    "t": 191.39999999999998,
+    "type": "deliver",
+    "causes": [
+     "e42"
+    ],
+    "data": {
+     "message": "m8",
+     "via": "face",
+     "intent": "answer",
+     "text": "美玲，佈置得非常漂亮！就這樣擺，絕對能讓今晚的慶典看起來最高級！",
+     "claims": [],
+     "from": "organizer"
+    },
+    "zh": "美玲聽志明說：「美玲，佈置得非常漂亮！就這樣擺，絕對能讓今晚的慶典看起來最高級！」",
+    "target": "florist",
+    "actor": "organizer",
+    "place": "flower",
+    "w": 133417
+   },
+   {
+    "id": "e44",
+    "t": 191.39999999999998,
+    "type": "move",
+    "causes": [
+     "e37"
+    ],
+    "data": {
+     "from": "flower",
+     "to": "stage",
+     "arrive": 191.89999999999998,
+     "home": true
+    },
+    "zh": "志明從美玲花店走回慶典舞台",
+    "actor": "organizer",
+    "place": "flower",
+    "w": 133417
+   },
+   {
+    "id": "e45",
+    "t": 191.59999999999997,
+    "type": "decide",
+    "causes": [
+     "e43"
+    ],
+    "data": {
+     "decision": "d8",
+     "understanding": "志明稱讚我的花飾佈置得非常漂亮且高級。",
+     "thought": "太好了，我的努力沒有白費，希望慶典能順利舉行。",
+     "feeling": "😊 高興",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美玲：太好了，我的努力沒有白費，希望慶典能順利舉行。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 137068
+   },
+   {
+    "id": "e46",
+    "t": 191.69999999999996,
+    "type": "react",
+    "causes": [
+     "e45"
+    ],
+    "data": {
+     "feeling": "😊 高興"
+    },
+    "zh": "美玲 😊 高興",
+    "actor": "florist",
+    "place": "flower",
+    "w": 137068
+   },
+   {
+    "id": "e47",
+    "t": 191.89999999999998,
+    "type": "arrive",
+    "causes": [
+     "e44"
+    ],
+    "data": {},
+    "zh": "志明到了慶典舞台",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 137068
+   },
+   {
+    "id": "e48",
+    "t": 210,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 137068
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有個客人說今晚城堡開放參觀，大家都會去。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "今晚鎮上的城堡要開放參觀",
+       "topic": "other",
+       "says": "yes",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "沒聽過這件事，而且是陌生人說的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😮 好奇",
+     "thought": "城堡開放？這我怎麼沒聽說，會影響今晚生意嗎？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "message": "美玲！你聽說了嗎？剛有個客人在我店裡說今晚城堡要開放參觀，這真的嗎？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 33964,
+      "latencyMs": 10480,
+      "attempts": 1,
+      "promptTokens": 1801,
+      "completionTokens": 207,
+      "platformCost": 0.0000307398,
+      "estCost": 0.0015215,
+      "status": 200,
+      "raw": "{\"understanding\": \"有個客人說今晚城堡開放參觀，大家都會去。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"今晚鎮上的城堡要開放參觀\", \"topic\": \"other\", \"says\": \"yes\", \"category\": \"event\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.5, \"why\": \"沒聽過這件事，而且是陌生人說的\", \"cites\": [\"m1\"]}], \"feeling\": \"😮 好奇\", \"thought\": \"城堡開放？這我怎麼沒聽說，會影響今晚生意嗎？\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"message\": \"美玲！你聽說了嗎？剛有個客人在我店裡說今晚城堡要開放參觀，這真的嗎？\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 2935
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德問我是否知道今晚城堡會開放參觀。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "今晚城堡要開放參觀",
+       "topic": "other",
+       "says": "yes",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "只是客人的傳聞，且我沒聽說過",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "🤔 好奇",
+     "thought": "城堡開放？這在慶典當天很罕見，但聽起來像隨便傳的。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "baker",
+       "intent": "answer",
+       "message": "阿德，我完全沒聽說這件事耶。如果是真的那太驚訝了，但感覺像是客人的隨口傳聞吧？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 33964,
+      "wallEndMs": 77854,
+      "latencyMs": 9847,
+      "attempts": 1,
+      "promptTokens": 1859,
+      "completionTokens": 303,
+      "platformCost": 0.0000375004,
+      "estCost": 0.0018385,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"阿德問我是否知道今晚城堡會開放參觀。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m2\",\n      \"statement\": \"今晚城堡要開放參觀\",\n      \"topic\": \"other\",\n      \"says\": \"yes\",\n      \"category\": \"event\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.5,\n      \"why\": \"只是客人的傳聞，且我沒聽說過\",\n      \"cites\": [\n        \"m2\"\n      ]\n    }\n  ],\n  \"feeling\": \"🤔 好奇\",\n  \"thought\": \"城堡開放？這在慶典當天很罕見，但聽起來像隨便傳的。\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"baker\",\n      \"intent\": \"answer\",\n      \"message\": \"阿德，我完全沒聽說這件事耶。如果是真的那太驚訝了，但感覺像是客人的隨口傳聞吧？\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 3024
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "baker",
+    "t": 26.599999999999998,
+    "triggers": [
+     "e12"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美玲沒聽說城堡開放，認為那是客人的隨口傳聞。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😅 尷尬",
+     "thought": "哎呀，可能是我太激動了，美玲都說沒聽說，應該是假的吧。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "美玲已經回答了，沒必要再問別人，該繼續烤麵包了。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "stance for unknown claim 0 dropped"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 77854,
+      "wallEndMs": 92944,
+      "latencyMs": 9405,
+      "attempts": 1,
+      "promptTokens": 1906,
+      "completionTokens": 187,
+      "platformCost": 0.0000428589,
+      "estCost": 0.001514,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"美玲沒聽說城堡開放，認為那是客人的隨口傳聞。\",\n  \"claims\": [],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.2,\n      \"why\": \"信任的美玲說沒聽說\",\n      \"cites\": [\"m3\"]\n    }\n  ],\n  \"feeling\": \"😅 尷尬\",\n  \"thought\": \"哎呀，可能是我太激動了，美玲都說沒聽說，應該是假的吧。\",\n  \"actions\": [\n    {\n      \"type\": \"none\",\n      \"why\": \"美玲已經回答了，沒必要再問別人，該繼續烤麵包了。\"\n    }\n  ]\n}",
+      "promptChars": 3076
+     }
+    ],
+    "applied": [
+     "e13",
+     "e14"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "baker",
+    "t": 92.78685915281558,
+    "triggers": [
+     "e18"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "我在咖啡廳送麵包，碰到了熟人美咲。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😊 開心",
+     "thought": "美咲早！剛好送麵包，聊兩句慶典的事吧。",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "cafe",
+       "intent": "joke",
+       "message": "美咲早！麵包送到了。對了，今晚的燈籠節你準備好了嗎？聽說今年攤位費漲了一倍，那些攤商朋友快被氣瘋了，好險我們不用擺攤哈哈！",
+       "cites": [
+        "stall_fee"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d4",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 92945,
+      "wallEndMs": 102548,
+      "latencyMs": 9053,
+      "attempts": 1,
+      "promptTokens": 1954,
+      "completionTokens": 184,
+      "platformCost": 0.0000365085,
+      "estCost": 0.001529,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"我在咖啡廳送麵包，碰到了熟人美咲。\",\n  \"claims\": [],\n  \"stances\": [],\n  \"feeling\": \"😊 開心\",\n  \"thought\": \"美咲早！剛好送麵包，聊兩句慶典的事吧。\",\n  \"actions\": [\n    {\n      \"type\": \"tell\",\n      \"target\": \"cafe\",\n      \"intent\": \"joke\",\n      \"message\": \"美咲早！麵包送到了。對了，今晚的燈籠節你準備好了嗎？聽說今年攤位費漲了一倍，那些攤商朋友快被氣瘋了，好險我們不用擺攤哈哈！\",\n      \"cites\": [\n        \"stall_fee\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 3136
+     }
+    ],
+    "applied": [
+     "e19",
+     "e20"
+    ]
+   },
+   {
+    "id": "d5",
+    "npc": "cafe",
+    "t": 96.98685915281558,
+    "triggers": [
+     "e22"
+    ],
+    "inbox": [
+     "m5"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德來送麵包，順便開玩笑說攤商對漲價很憤怒。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m5",
+       "statement": "攤商們因為攤位費漲了一倍而快被氣瘋了",
+       "topic": "fee_covers_budget",
+       "says": "unclear",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.8,
+       "why": "阿德很可靠且這與公開資訊相符",
+       "cites": [
+        "m5",
+        "stall_fee"
+       ]
+      }
+     ],
+     "feeling": "😊 輕鬆",
+     "thought": "好險我不用擺攤，我只要專心等女兒表演就好！",
+     "actions": [
+      {
+       "type": "none",
+       "why": "只是日常閒聊，不影響生意或女兒表演",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d5",
+      "npc": "cafe",
+      "stage": "single",
+      "wallStartMs": 102548,
+      "wallEndMs": 115819,
+      "latencyMs": 5601,
+      "attempts": 1,
+      "promptTokens": 1803,
+      "completionTokens": 198,
+      "platformCost": 0.0000314146,
+      "estCost": 0.0014955,
+      "status": 200,
+      "raw": "{\"understanding\": \"阿德來送麵包，順便開玩笑說攤商對漲價很憤怒。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m5\", \"statement\": \"攤商們因為攤位費漲了一倍而快被氣瘋了\", \"topic\": \"fee_covers_budget\", \"says\": \"unclear\", \"category\": \"scandal\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 0.8, \"why\": \"阿德很可靠且這與公開資訊相符\", \"cites\": [\"m5\", \"stall_fee\"]}], \"feeling\": \"😊 輕鬆\", \"thought\": \"好險我不用擺攤，我只要專心等女兒表演就好！\", \"actions\": [{\"type\": \"none\", \"why\": \"只是日常閒聊，不影響生意或女兒表演\"}]}",
+      "promptChars": 2929
+     }
+    ],
+    "applied": [
+     "e24",
+     "e25",
+     "e26"
+    ]
+   },
+   {
+    "id": "d6",
+    "npc": "florist",
+    "t": 182.7,
+    "triggers": [
+     "e31"
+    ],
+    "inbox": [
+     "m6"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "在舞台佈置花飾時遇到了主辦人志明。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😊 平靜",
+     "thought": "花飾應該都擺好了，希望今晚一切順利，鴿子們不要受驚。",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "organizer",
+       "intent": "inform",
+       "message": "志明你好，花飾我都佈置好了，你看這樣擺放可以嗎？",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d6",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 115819,
+      "wallEndMs": 121879,
+      "latencyMs": 6060,
+      "attempts": 1,
+      "promptTokens": 1961,
+      "completionTokens": 145,
+      "platformCost": 0.0000319312,
+      "estCost": 0.0014155,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"在舞台佈置花飾時遇到了主辦人志明。\",\n  \"claims\": [],\n  \"stances\": [],\n  \"feeling\": \"😊 平靜\",\n  \"thought\": \"花飾應該都擺好了，希望今晚一切順利，鴿子們不要受驚。\",\n  \"actions\": [\n    {\n      \"type\": \"tell\",\n      \"target\": \"organizer\",\n      \"intent\": \"inform\",\n      \"message\": \"志明你好，花飾我都佈置好了，你看這樣擺放可以嗎？\",\n      \"cites\": []\n    }\n  ]\n}",
+      "promptChars": 3153
+     }
+    ],
+    "applied": [
+     "e32",
+     "e33"
+    ]
+   },
+   {
+    "id": "d7",
+    "npc": "organizer",
+    "t": 186.89999999999998,
+    "triggers": [
+     "e35"
+    ],
+    "inbox": [
+     "m7"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美玲完成了花飾佈置，在詢問我的意見。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😊 滿意",
+     "thought": "只要看起來華麗就行，趕快搞定，別出錯就好。",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "florist",
+       "intent": "answer",
+       "message": "美玲，佈置得非常漂亮！就這樣擺，絕對能讓今晚的慶典看起來最高級！",
+       "cites": [
+        "m7"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d7",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 121879,
+      "wallEndMs": 133417,
+      "latencyMs": 5353,
+      "attempts": 1,
+      "promptTokens": 1912,
+      "completionTokens": 117,
+      "platformCost": 0.0000261296,
+      "estCost": 0.001307,
+      "status": 200,
+      "raw": "{\"understanding\": \"美玲完成了花飾佈置，在詢問我的意見。\", \"claims\": [], \"stances\": [], \"feeling\": \"😊 滿意\", \"thought\": \"只要看起來華麗就行，趕快搞定，別出錯就好。\", \"actions\": [{\"type\": \"tell\", \"target\": \"florist\", \"intent\": \"answer\", \"message\": \"美玲，佈置得非常漂亮！就這樣擺，絕對能讓今晚的慶典看起來最高級！\", \"cites\": [\"m7\"]}]}",
+      "promptChars": 3118
+     }
+    ],
+    "applied": [
+     "e37",
+     "e38"
+    ]
+   },
+   {
+    "id": "d8",
+    "npc": "florist",
+    "t": 191.59999999999997,
+    "triggers": [
+     "e43"
+    ],
+    "inbox": [
+     "m8"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "志明稱讚我的花飾佈置得非常漂亮且高級。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😊 高興",
+     "thought": "太好了，我的努力沒有白費，希望慶典能順利舉行。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "志明已經確認佈置完成，我現在只需要等待慶典開始。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d8",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 133417,
+      "wallEndMs": 137068,
+      "latencyMs": 3651,
+      "attempts": 1,
+      "promptTokens": 2023,
+      "completionTokens": 115,
+      "platformCost": 0.0000320355,
+      "estCost": 0.0013565,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"志明稱讚我的花飾佈置得非常漂亮且高級。\",\n  \"claims\": [],\n  \"stances\": [],\n  \"feeling\": \"😊 高興\",\n  \"thought\": \"太好了，我的努力沒有白費，希望慶典能順利舉行。\",\n  \"actions\": [\n    {\n      \"type\": \"none\",\n      \"why\": \"志明已經確認佈置完成，我現在只需要等待慶典開始。\"\n    }\n  ]\n}",
+      "promptChars": 3228
+     }
+    ],
+    "applied": [
+     "e45",
+     "e46"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "今晚鎮上的城堡要開放參觀",
+    "topic": "other",
+    "says": "yes",
+    "category": "event",
+    "fact": null,
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   },
+   {
+    "id": "c2",
+    "statement": "今晚城堡要開放參觀",
+    "topic": "other",
+    "says": "yes",
+    "category": "event",
+    "fact": null,
+    "asserts": true,
+    "origin": "e7",
+    "by": "florist"
+   },
+   {
+    "id": "c3",
+    "statement": "攤商們因為攤位費漲了一倍而快被氣瘋了",
+    "topic": "fee_covers_budget",
+    "says": "unclear",
+    "category": "scandal",
+    "fact": "fee_for_budget",
+    "asserts": null,
+    "origin": "e22",
+    "by": "cafe"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.49,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "沒聽過這件事，而且是陌生人說的"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「今晚鎮上的城堡要開放參觀，大家都要去。」",
+     "15:20 你決定：打電話給美玲說「美玲！你聽說了嗎？剛有個客人在我店裡說今晚城堡要開放參觀，這真的嗎？」",
+     "15:26 美玲打電話說：「阿德，我完全沒聽說這件事耶。如果是真的那太驚訝了，但感覺像是客人的隨口傳聞吧？」",
+     "15:27 你決定先不做什麼。",
+     "16:33 美咲說：「阿德送麵包到咖啡廳」",
+     "16:33 你決定：去跟美咲說「美咲早！麵包送到了。對了，今晚的燈籠節你準備好了嗎？聽說今年攤位費漲了一倍，那些攤商朋友快被氣瘋了，好險我們不用擺攤哈哈！」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.5,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 23.4,
+      "why": "只是客人的傳聞，且我沒聽說過"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:23 阿德打電話說：「美玲！你聽說了嗎？剛有個客人在我店裡說今晚城堡要開放參觀，這真的嗎？」",
+     "15:23 你決定：打電話給阿德說「阿德，我完全沒聽說這件事耶。如果是真的那太驚訝了，但感覺像是客人的隨口傳聞吧？」",
+     "18:03 志明說：「美玲把花飾送到舞台」",
+     "18:03 你決定：去跟志明說「志明你好，花飾我都佈置好了，你看這樣擺放可以嗎？」",
+     "18:11 志明說：「美玲，佈置得非常漂亮！就這樣擺，絕對能讓今晚的慶典看起來最高級！」",
+     "18:12 你決定先不做什麼。"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [
+     {
+      "claim": "c3",
+      "confidence": 0.685,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 96.98685915281558,
+      "why": "阿德很可靠且這與公開資訊相符"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "16:37 阿德說：「美咲早！麵包送到了。對了，今晚的燈籠節你準備好了嗎？聽說今年攤位費漲了一倍，那些攤商朋友快被氣瘋了，好險我們不用擺攤哈哈」",
+     "16:37 你決定先不做什麼。"
+    ]
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "18:07 美玲說：「志明你好，花飾我都佈置好了，你看這樣擺放可以嗎？」",
+     "18:07 你決定：去跟美玲說「美玲，佈置得非常漂亮！就這樣擺，絕對能讓今晚的慶典看起來最高級！」"
+    ]
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 210
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:40:43.134Z",
+   "ms": 137068
+  },
+  "llm": {
+   "calls": 8,
+   "attempts": 8,
+   "promptTokens": 15219,
+   "completionTokens": 1456,
+   "platformCost": 0.0002691185,
+   "estCost": 0.011977499999999999,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 5,
+  "reach": 4,
+  "believers": 2,
+  "decisions": 8,
+  "noneDecisions": 3,
+  "actionsDone": {
+   "phone": 2,
+   "talk": 3
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "other",
+   "fee_covers_budget"
+  ],
+  "topicDrift": 1,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "美玲！你聽說了嗎？剛有個客人在我店裡說今晚城堡要開放參觀，這真的嗎？",
+    "similarity": 0.18
+   },
+   {
+    "from": "florist",
+    "to": "baker",
+    "text": "阿德，我完全沒聽說這件事耶。如果是真的那太驚訝了，但感覺像是客人的隨口傳聞吧？",
+    "similarity": 0
+   },
+   {
+    "from": "baker",
+    "to": "cafe",
+    "text": "美咲早！麵包送到了。對了，今晚的燈籠節你準備好了嗎？聽說今年攤位費漲了一倍，那些攤商朋友快被氣瘋了，好險我們不用擺攤哈哈！",
+    "similarity": 0.01
+   },
+   {
+    "from": "florist",
+    "to": "organizer",
+    "text": "志明你好，花飾我都佈置好了，你看這樣擺放可以嗎？",
+    "similarity": 0
+   },
+   {
+    "from": "organizer",
+    "to": "florist",
+    "text": "美玲，佈置得非常漂亮！就這樣擺，絕對能讓今晚的慶典看起來最高級！",
+    "similarity": 0.02
+   }
+  ],
+  "meanSimilarity": 0.04,
+  "explained": 1,
+  "visualEvents": 25,
+  "gameMinutes": 190,
+  "llmCalls": 8,
+  "llmSeconds": 59.5,
+  "tokens": 16675,
+  "estCost": 0.011977,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

@@ -1,0 +1,385 @@
+{
+ "case": {
+  "id": "baker-absurd",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "鎮上的鴿子打算今晚集體罷工。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "absurd"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "baker-absurd",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "鎮上的鴿子打算今晚集體罷工。",
+   "tags": [
+    "absurd"
+   ],
+   "temperature": 0.7,
+   "label": "baker-absurd"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "鎮上的鴿子打算今晚集體罷工。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「鎮上的鴿子打算今晚集體罷工。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "鎮上的鴿子打算今晚集體罷工。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「鎮上的鴿子打算今晚集體罷工。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人開玩笑說鴿子今晚會罷工。",
+     "thought": "現在的年輕人開玩笑真奇怪，鴿子怎麼會罷工？",
+     "feeling": "😅 困惑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "阿德：現在的年輕人開玩笑真奇怪，鴿子怎麼會罷工？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 516433
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.1,
+     "proposed": 0.1,
+     "verdict": "doubt",
+     "why": "鴿子怎麼會罷工，太荒謬了"
+    },
+    "zh": "阿德對「鎮上的鴿子今晚會集體罷工」的信心：0.00 → 0.10（doubt）",
+    "actor": "baker",
+    "w": 516433
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😅 困惑"
+    },
+    "zh": "阿德 😅 困惑",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 516433
+   },
+   {
+    "id": "e6",
+    "t": 20.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 516433
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人開玩笑說鴿子今晚會罷工。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "鎮上的鴿子今晚會集體罷工",
+       "topic": "pigeons_release",
+       "says": "no",
+       "category": "absurd"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.1,
+       "why": "鴿子怎麼會罷工，太荒謬了",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😅 困惑",
+     "thought": "現在的年輕人開玩笑真奇怪，鴿子怎麼會罷工？",
+     "actions": [
+      {
+       "type": "none",
+       "why": "只是個不著邊際的笑話，不需要採取行動",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "model",
+      "errors": [
+       "model error: HTTP 429: "
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "model",
+      "errors": [
+       "model error: TimeoutError: The operation was aborted due to timeout"
+      ]
+     },
+     {
+      "attempt": 3,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 240711,
+      "latencyMs": 184810,
+      "attempts": 8,
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "platformCost": 0,
+      "estCost": 0,
+      "status": 429,
+      "error": "HTTP 429: ",
+      "raw": null,
+      "promptChars": 2650
+     },
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 248714,
+      "wallEndMs": 420264,
+      "latencyMs": 64457,
+      "attempts": 8,
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "platformCost": 0,
+      "estCost": 0,
+      "status": 0,
+      "error": "TimeoutError: The operation was aborted due to timeout",
+      "raw": null,
+      "promptChars": 2650
+     },
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 428265,
+      "wallEndMs": 516432,
+      "latencyMs": 26888,
+      "attempts": 7,
+      "promptTokens": 1601,
+      "completionTokens": 181,
+      "platformCost": 0.000013825,
+      "estCost": 0.0013435,
+      "status": 200,
+      "raw": "{\"understanding\": \"有客人開玩笑說鴿子今晚會罷工。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"鎮上的鴿子今晚會集體罷工\", \"topic\": \"pigeons_release\", \"says\": \"no\", \"category\": \"absurd\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.1, \"why\": \"鴿子怎麼會罷工，太荒謬了\", \"cites\": [\"m1\"]}], \"feeling\": \"😅 困惑\", \"thought\": \"現在的年輕人開玩笑真奇怪，鴿子怎麼會罷工？\", \"actions\": [{\"type\": \"none\", \"why\": \"只是個不著邊際的笑話，不需要採取行動\"}]}",
+      "promptChars": 2650
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "鎮上的鴿子今晚會集體罷工",
+    "topic": "pigeons_release",
+    "says": "no",
+    "category": "absurd",
+    "fact": "pigeons",
+    "asserts": false,
+    "origin": "e2",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.1,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "鴿子怎麼會罷工，太荒謬了"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「鎮上的鴿子打算今晚集體罷工。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:32:24.573Z",
+   "ms": 516433
+  },
+  "llm": {
+   "calls": 3,
+   "attempts": 23,
+   "promptTokens": 1601,
+   "completionTokens": 181,
+   "platformCost": 0.000013825,
+   "estCost": 0.0013435,
+   "errors": 2,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "pigeons_release"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.3,
+  "llmCalls": 3,
+  "llmSeconds": 276.2,
+  "tokens": 1782,
+  "estCost": 0.001344,
+  "validatorRetries": 0,
+  "modelErrors": 2,
+  "fallbacks": 0
+ }
+}

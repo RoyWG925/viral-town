@@ -1,0 +1,1233 @@
+{
+ "case": {
+  "id": "pigeon-journalist",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "journalist",
+  "seedText": "聽說市長很害怕鴿子。",
+  "seed": 1,
+  "maxDecisions": 12,
+  "policy": "gemma",
+  "tags": [
+   "pigeon"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 12,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "pigeon-journalist",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "journalist",
+   "seedText": "聽說市長很害怕鴿子。",
+   "tags": [
+    "pigeon"
+   ],
+   "temperature": 0.7,
+   "label": "pigeon-journalist"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說市長很害怕鴿子。"
+    },
+    "zh": "一個念頭被植入小雯耳中：「聽說市長很害怕鴿子。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "小雯聽到一位陌生客人說：「聽說市長很害怕鴿子。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人說市長怕鴿子，這跟今晚放鴿子的活動有衝突。",
+     "thought": "如果市長怕鴿子卻要放鴿子，這絕對是個好標題！",
+     "feeling": "😏 有興趣",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：如果市長怕鴿子卻要放鴿子，這絕對是個好標題！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 172302
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4525,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "來源是不認識的客人"
+    },
+    "zh": "小雯對「市長很害怕鴿子」的信心：0.00 → 0.45（doubt）",
+    "actor": "journalist",
+    "w": 172302
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😏 有興趣"
+    },
+    "zh": "小雯 😏 有興趣",
+    "actor": "journalist",
+    "place": "news",
+    "w": 172302
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "move",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "from": "news",
+     "to": "townhall",
+     "arrive": 21.7,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向鎮公所",
+    "actor": "journalist",
+    "place": "news",
+    "w": 172307
+   },
+   {
+    "id": "e7",
+    "t": 21.7,
+    "type": "arrive",
+    "causes": [
+     "e6"
+    ],
+    "data": {},
+    "zh": "小雯到了鎮公所",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 172307
+   },
+   {
+    "id": "e8",
+    "t": 21.7,
+    "type": "look",
+    "causes": [
+     "e3"
+    ],
+    "data": {},
+    "zh": "小雯在鎮公所到處看看",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 172307
+   },
+   {
+    "id": "e9",
+    "t": 24.7,
+    "type": "look",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "found": "鎮公所看起來一切如常，沒看到什麼特別的。",
+     "learned": []
+    },
+    "zh": "小雯看到：鎮公所看起來一切如常，沒看到什麼特別的。",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 172308
+   },
+   {
+    "id": "e10",
+    "t": 24.7,
+    "type": "deliver",
+    "causes": [
+     "e9"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "鎮公所看起來一切如常，沒看到什麼特別的。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：鎮公所看起來一切如常，沒看到什麼特別的。",
+    "target": "journalist",
+    "place": "townhall",
+    "w": 172308
+   },
+   {
+    "id": "e11",
+    "t": 24.7,
+    "type": "move",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "from": "townhall",
+     "to": "news",
+     "arrive": 25.2,
+     "home": true
+    },
+    "zh": "小雯從鎮公所走回霧港新聞社",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 172308
+   },
+   {
+    "id": "e12",
+    "t": 25.2,
+    "type": "arrive",
+    "causes": [
+     "e11"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 172308
+   },
+   {
+    "id": "e13",
+    "t": 25.2,
+    "type": "decide",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "去鎮公所沒發現任何異常，市長怕鴿子的傳聞暫時沒線索。",
+     "thought": "什麼都沒有，這樣怎麼寫出爆款文章？得找個突破口。",
+     "feeling": "😑 失望",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：什麼都沒有，這樣怎麼寫出爆款文章？得找個突破口。",
+    "actor": "journalist",
+    "place": "news",
+    "w": 409575
+   },
+   {
+    "id": "e14",
+    "t": 25.3,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😑 失望"
+    },
+    "zh": "小雯 😑 失望",
+    "actor": "journalist",
+    "place": "news",
+    "w": 409575
+   },
+   {
+    "id": "e15",
+    "t": 26.2,
+    "type": "move",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "from": "news",
+     "to": "plaza",
+     "arrive": 26.7,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向中央廣場（布告欄旁）",
+    "actor": "journalist",
+    "place": "news",
+    "w": 409577
+   },
+   {
+    "id": "e16",
+    "t": 26.7,
+    "type": "arrive",
+    "causes": [
+     "e15"
+    ],
+    "data": {},
+    "zh": "小雯到了中央廣場（布告欄旁）",
+    "actor": "journalist",
+    "place": "plaza",
+    "w": 409577
+   },
+   {
+    "id": "e17",
+    "t": 26.7,
+    "type": "look",
+    "causes": [
+     "e13"
+    ],
+    "data": {},
+    "zh": "小雯在中央廣場（布告欄旁）到處看看",
+    "actor": "journalist",
+    "place": "plaza",
+    "w": 409577
+   },
+   {
+    "id": "e18",
+    "t": 29.7,
+    "type": "look",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "found": "中央廣場（布告欄旁）看起來一切如常，沒看到什麼特別的。",
+     "learned": []
+    },
+    "zh": "小雯看到：中央廣場（布告欄旁）看起來一切如常，沒看到什麼特別的。",
+    "actor": "journalist",
+    "place": "plaza",
+    "w": 409577
+   },
+   {
+    "id": "e19",
+    "t": 29.7,
+    "type": "deliver",
+    "causes": [
+     "e18"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "中央廣場（布告欄旁）看起來一切如常，沒看到什麼特別的。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：中央廣場（布告欄旁）看起來一切如常，沒看到什麼特別的。",
+    "target": "journalist",
+    "place": "plaza",
+    "w": 409577
+   },
+   {
+    "id": "e20",
+    "t": 29.7,
+    "type": "move",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "from": "plaza",
+     "to": "news",
+     "arrive": 30.2,
+     "home": true
+    },
+    "zh": "小雯從中央廣場（布告欄旁）走回霧港新聞社",
+    "actor": "journalist",
+    "place": "plaza",
+    "w": 409577
+   },
+   {
+    "id": "e21",
+    "t": 30.2,
+    "type": "arrive",
+    "causes": [
+     "e20"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 409577
+   },
+   {
+    "id": "e22",
+    "t": 30.2,
+    "type": "decide",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "廣場上沒發現異常，目前沒有能寫成新聞的線索。",
+     "thought": "鎮公所和廣場都沒事，這樣怎麼搞流量？得找點料才行。",
+     "feeling": "😑 失望",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "小雯：鎮公所和廣場都沒事，這樣怎麼搞流量？得找點料才行。",
+    "actor": "journalist",
+    "place": "news",
+    "w": 503804
+   },
+   {
+    "id": "e23",
+    "t": 30.3,
+    "type": "react",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "feeling": "😑 失望"
+    },
+    "zh": "小雯 😑 失望",
+    "actor": "journalist",
+    "place": "news",
+    "w": 503804
+   },
+   {
+    "id": "e24",
+    "t": 31.2,
+    "type": "phone",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "text": "美玲，最近鎮上有什麼奇怪的傳聞嗎？不管是關於市長還是慶典的，快告訴我！",
+     "intent": "ask",
+     "claims": []
+    },
+    "zh": "小雯打電話給美玲：「美玲，最近鎮上有什麼奇怪的傳聞嗎？不管是關於市長還是慶典的，快告訴我！」",
+    "actor": "journalist",
+    "target": "florist",
+    "place": "news",
+    "w": 503804
+   },
+   {
+    "id": "e25",
+    "t": 33.2,
+    "type": "deliver",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "phone",
+     "intent": "ask",
+     "text": "美玲，最近鎮上有什麼奇怪的傳聞嗎？不管是關於市長還是慶典的，快告訴我！",
+     "claims": [],
+     "from": "journalist"
+    },
+    "zh": "美玲在電話裡聽小雯說：「美玲，最近鎮上有什麼奇怪的傳聞嗎？不管是關於市長還是慶典的，快告訴我！」",
+    "target": "florist",
+    "actor": "journalist",
+    "place": "flower",
+    "w": 503804
+   },
+   {
+    "id": "e26",
+    "t": 33.400000000000006,
+    "type": "decide",
+    "causes": [
+     "e25"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "小雯想打聽關於市長或慶典的奇怪傳聞。",
+     "thought": "小雯突然問這個，是不是發生了什麼我不知道的事？",
+     "feeling": "😕 困惑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：小雯突然問這個，是不是發生了什麼我不知道的事？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 542039
+   },
+   {
+    "id": "e27",
+    "t": 33.50000000000001,
+    "type": "react",
+    "causes": [
+     "e26"
+    ],
+    "data": {
+     "feeling": "😕 困惑"
+    },
+    "zh": "美玲 😕 困惑",
+    "actor": "florist",
+    "place": "flower",
+    "w": 542039
+   },
+   {
+    "id": "e28",
+    "t": 34.400000000000006,
+    "type": "phone",
+    "causes": [
+     "e26"
+    ],
+    "data": {
+     "text": "小雯，我沒聽到什麼奇怪的傳聞呀。妳怎麼突然問這個？是不是發生了什麼事？",
+     "intent": "answer",
+     "claims": []
+    },
+    "zh": "美玲打電話給小雯：「小雯，我沒聽到什麼奇怪的傳聞呀。妳怎麼突然問這個？是不是發生了什麼事？」",
+    "actor": "florist",
+    "target": "journalist",
+    "place": "flower",
+    "w": 542039
+   },
+   {
+    "id": "e29",
+    "t": 36.400000000000006,
+    "type": "deliver",
+    "causes": [
+     "e28"
+    ],
+    "data": {
+     "message": "m5",
+     "via": "phone",
+     "intent": "answer",
+     "text": "小雯，我沒聽到什麼奇怪的傳聞呀。妳怎麼突然問這個？是不是發生了什麼事？",
+     "claims": [],
+     "from": "florist"
+    },
+    "zh": "小雯在電話裡聽美玲說：「小雯，我沒聽到什麼奇怪的傳聞呀。妳怎麼突然問這個？是不是發生了什麼事？」",
+    "target": "journalist",
+    "actor": "florist",
+    "place": "news",
+    "w": 542039
+   },
+   {
+    "id": "e30",
+    "t": 36.60000000000001,
+    "type": "decide",
+    "causes": [
+     "e29"
+    ],
+    "data": {
+     "decision": "d5",
+     "understanding": "美玲說沒聽到傳聞，並反問我為什麼想知道。",
+     "thought": "美玲沒消息，得找其他突破口才能救我的流量。",
+     "feeling": "😑 失望",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：美玲沒消息，得找其他突破口才能救我的流量。",
+    "actor": "journalist",
+    "place": "news",
+    "w": 573949
+   },
+   {
+    "id": "e31",
+    "t": 36.70000000000001,
+    "type": "react",
+    "causes": [
+     "e30"
+    ],
+    "data": {
+     "feeling": "😑 失望"
+    },
+    "zh": "小雯 😑 失望",
+    "actor": "journalist",
+    "place": "news",
+    "w": 573949
+   },
+   {
+    "id": "e32",
+    "t": 37.60000000000001,
+    "type": "move",
+    "causes": [
+     "e30"
+    ],
+    "data": {
+     "from": "news",
+     "to": "stall",
+     "arrive": 38.10000000000001,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向章魚燒攤",
+    "actor": "journalist",
+    "place": "news",
+    "w": 573950
+   },
+   {
+    "id": "e33",
+    "t": 38.10000000000001,
+    "type": "arrive",
+    "causes": [
+     "e32"
+    ],
+    "data": {},
+    "zh": "小雯到了章魚燒攤",
+    "actor": "journalist",
+    "place": "stall",
+    "w": 573950
+   },
+   {
+    "id": "e34",
+    "t": 38.10000000000001,
+    "type": "look",
+    "causes": [
+     "e30"
+    ],
+    "data": {},
+    "zh": "小雯在章魚燒攤到處看看",
+    "actor": "journalist",
+    "place": "stall",
+    "w": 573950
+   },
+   {
+    "id": "e35",
+    "t": 41.10000000000001,
+    "type": "look",
+    "causes": [
+     "e34"
+    ],
+    "data": {
+     "found": "章魚燒攤看起來一切如常，沒看到什麼特別的。",
+     "learned": []
+    },
+    "zh": "小雯看到：章魚燒攤看起來一切如常，沒看到什麼特別的。",
+    "actor": "journalist",
+    "place": "stall",
+    "w": 573950
+   },
+   {
+    "id": "e36",
+    "t": 41.10000000000001,
+    "type": "deliver",
+    "causes": [
+     "e35"
+    ],
+    "data": {
+     "message": "m6",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "章魚燒攤看起來一切如常，沒看到什麼特別的。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：章魚燒攤看起來一切如常，沒看到什麼特別的。",
+    "target": "journalist",
+    "place": "stall",
+    "w": 573950
+   },
+   {
+    "id": "e37",
+    "t": 41.10000000000001,
+    "type": "move",
+    "causes": [
+     "e30"
+    ],
+    "data": {
+     "from": "stall",
+     "to": "news",
+     "arrive": 41.60000000000001,
+     "home": true
+    },
+    "zh": "小雯從章魚燒攤走回霧港新聞社",
+    "actor": "journalist",
+    "place": "stall",
+    "w": 573950
+   },
+   {
+    "id": "e38",
+    "t": 41.60000000000001,
+    "type": "arrive",
+    "causes": [
+     "e37"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 573950
+   },
+   {
+    "id": "e39",
+    "t": 41.60000000000001,
+    "type": "decide",
+    "causes": [
+     "e36"
+    ],
+    "data": {
+     "decision": "d6",
+     "budget": true
+    },
+    "zh": "小雯聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "journalist",
+    "place": "news",
+    "w": 573950
+   },
+   {
+    "id": "e40",
+    "t": 41.60000000000001,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 573950
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "journalist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人說市長怕鴿子，這跟今晚放鴿子的活動有衝突。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "市長很害怕鴿子",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "來源是不認識的客人",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😏 有興趣",
+     "thought": "如果市長怕鴿子卻要放鴿子，這絕對是個好標題！",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "townhall",
+       "intent": "ask",
+       "message": "我想去鎮公所看看市長的反應，或者找機會打聽。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 2,
+      "wallEndMs": 172301,
+      "latencyMs": 99504,
+      "attempts": 5,
+      "promptTokens": 1562,
+      "completionTokens": 277,
+      "platformCost": 0.0000648676,
+      "estCost": 0.001612,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"有人說市長怕鴿子，這跟今晚放鴿子的活動有衝突。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"市長很害怕鴿子\",\n      \"topic\": \"mayor_fears_pigeons\",\n      \"says\": \"yes\",\n      \"category\": \"personal\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.5,\n      \"why\": \"來源是不認識的客人\",\n      \"cites\": [\"m1\"]\n    }\n  ],\n  \"feeling\": \"😏 有興趣\",\n  \"thought\": \"如果市長怕鴿子卻要放鴿子，這絕對是個好標題！\",\n  \"actions\": [\n    {\n      \"type\": \"go_look\",\n      \"place\": \"townhall\",\n      \"intent\": \"ask\",\n      \"message\": \"我想去鎮公所看看市長的反應，或者找機會打聽。\",\n      \"cites\": [\"c0\"]\n    }\n  ]\n}",
+      "promptChars": 2583
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "journalist",
+    "t": 25.2,
+    "triggers": [
+     "e10",
+     "e10"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "去鎮公所沒發現任何異常，市長怕鴿子的傳聞暫時沒線索。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😑 失望",
+     "thought": "什麼都沒有，這樣怎麼寫出爆款文章？得找個突破口。",
+     "actions": [
+      {
+       "type": "go_look",
+       "target": null,
+       "place": "plaza",
+       "intent": "inform",
+       "message": "",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "validator",
+      "errors": [
+       "stances[0].claim 要對應 claims 的索引"
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 172308,
+      "wallEndMs": 387462,
+      "latencyMs": 30508,
+      "attempts": 7,
+      "promptTokens": 1617,
+      "completionTokens": 201,
+      "platformCost": 0.0000348558,
+      "estCost": 0.0014115,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"去鎮公所沒發現任何異常，市長怕鴿子的傳聞沒線索。\",\n  \"claims\": [],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.3,\n      \"why\": \"現場沒看到任何奇怪跡象\",\n      \"cites\": [\n        \"m2\"\n      ]\n    }\n  ],\n  \"feeling\": \"😑 失望\",\n  \"thought\": \"什麼都沒有，這樣怎麼寫出爆款文章？得找個突破口。\",\n  \"actions\": [\n    {\n      \"type\": \"go_look\",\n      \"target\": null,\n      \"place\": \"plaza\",\n      \"intent\": \"inform\",\n      \"message\": \"\",\n      \"cites\": []\n    }\n  ]\n}",
+      "promptChars": 2656
+     },
+     {
+      "decision": "d2",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 387462,
+      "wallEndMs": 409575,
+      "latencyMs": 22113,
+      "attempts": 1,
+      "promptTokens": 1855,
+      "completionTokens": 137,
+      "platformCost": 0.0000191891,
+      "estCost": 0.0013385,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"去鎮公所沒發現任何異常，市長怕鴿子的傳聞暫時沒線索。\",\n  \"claims\": [],\n  \"stances\": [],\n  \"feeling\": \"😑 失望\",\n  \"thought\": \"什麼都沒有，這樣怎麼寫出爆款文章？得找個突破口。\",\n  \"actions\": [\n    {\n      \"type\": \"go_look\",\n      \"target\": null,\n      \"place\": \"plaza\",\n      \"intent\": \"inform\",\n      \"message\": \"\",\n      \"cites\": []\n    }\n  ]\n}",
+      "promptChars": 3179
+     }
+    ],
+    "applied": [
+     "e13",
+     "e14"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "journalist",
+    "t": 30.2,
+    "triggers": [
+     "e19",
+     "e19"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "廣場上沒發現異常，目前沒有能寫成新聞的線索。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😑 失望",
+     "thought": "鎮公所和廣場都沒事，這樣怎麼搞流量？得找點料才行。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "intent": "ask",
+       "message": "美玲，最近鎮上有什麼奇怪的傳聞嗎？不管是關於市長還是慶典的，快告訴我！",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 409578,
+      "wallEndMs": 503803,
+      "latencyMs": 36212,
+      "attempts": 3,
+      "promptTokens": 1670,
+      "completionTokens": 154,
+      "platformCost": 0.0000334551,
+      "estCost": 0.001297,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"廣場上沒發現異常，目前沒有能寫成新聞的線索。\",\n  \"claims\": [],\n  \"stances\": [],\n  \"feeling\": \"😑 失望\",\n  \"thought\": \"鎮公所和廣場都沒事，這樣怎麼搞流量？得找點料才行。\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"florist\",\n      \"intent\": \"ask\",\n      \"message\": \"美玲，最近鎮上有什麼奇怪的傳聞嗎？不管是關於市長還是慶典的，快告訴我！\",\n      \"cites\": []\n    }\n  ]\n}",
+      "promptChars": 2726
+     }
+    ],
+    "applied": [
+     "e22",
+     "e23"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "florist",
+    "t": 33.400000000000006,
+    "triggers": [
+     "e25"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯想打聽關於市長或慶典的奇怪傳聞。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😕 困惑",
+     "thought": "小雯突然問這個，是不是發生了什麼我不知道的事？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "intent": "answer",
+       "message": "小雯，我沒聽到什麼奇怪的傳聞呀。妳怎麼突然問這個？是不是發生了什麼事？",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d4",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 503804,
+      "wallEndMs": 542039,
+      "latencyMs": 38235,
+      "attempts": 1,
+      "promptTokens": 1630,
+      "completionTokens": 147,
+      "platformCost": 0.0000315308,
+      "estCost": 0.001256,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"小雯想打聽關於市長或慶典的奇怪傳聞。\",\n  \"claims\": [],\n  \"stances\": [],\n  \"feeling\": \"😕 困惑\",\n  \"thought\": \"小雯突然問這個，是不是發生了什麼我不知道的事？\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"journalist\",\n      \"intent\": \"answer\",\n      \"message\": \"小雯，我沒聽到什麼奇怪的傳聞呀。妳怎麼突然問這個？是不是發生了什麼事？\",\n      \"cites\": []\n    }\n  ]\n}",
+      "promptChars": 2692
+     }
+    ],
+    "applied": [
+     "e26",
+     "e27"
+    ]
+   },
+   {
+    "id": "d5",
+    "npc": "journalist",
+    "t": 36.60000000000001,
+    "triggers": [
+     "e29"
+    ],
+    "inbox": [
+     "m5"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美玲說沒聽到傳聞，並反問我為什麼想知道。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😑 失望",
+     "thought": "美玲沒消息，得找其他突破口才能救我的流量。",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "stall",
+       "intent": "inform",
+       "message": "去攤位區看看，攤商對漲價不滿，或許能挖到市長的醜聞。",
+       "cites": [
+        "stall_fee"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d5",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 542039,
+      "wallEndMs": 573949,
+      "latencyMs": 31063,
+      "attempts": 1,
+      "promptTokens": 1752,
+      "completionTokens": 116,
+      "platformCost": 0.0000336308,
+      "estCost": 0.001224,
+      "status": 200,
+      "raw": "{\"understanding\": \"美玲說沒聽到傳聞，並反問我為什麼想知道。\", \"claims\": [], \"stances\": [], \"feeling\": \"😑 失望\", \"thought\": \"美玲沒消息，得找其他突破口才能救我的流量。\", \"actions\": [{\"type\": \"go_look\", \"place\": \"stall\", \"intent\": \"inform\", \"message\": \"去攤位區看看，攤商對漲價不滿，或許能挖到市長的醜聞。\", \"cites\": [\"stall_fee\"]}]}",
+      "promptChars": 2842
+     }
+    ],
+    "applied": [
+     "e30",
+     "e31"
+    ]
+   },
+   {
+    "id": "d6",
+    "npc": "journalist",
+    "t": 41.60000000000001,
+    "triggers": [
+     "e36",
+     "e36"
+    ],
+    "inbox": [
+     "m6"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e39"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "市長很害怕鴿子",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e2",
+    "by": "journalist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:33 小雯打電話說：「美玲，最近鎮上有什麼奇怪的傳聞嗎？不管是關於市長還是慶典的，快告訴我！」",
+     "15:33 你決定：打電話給小雯說「小雯，我沒聽到什麼奇怪的傳聞呀。妳怎麼突然問這個？是不是發生了什麼事？」"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4525,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "來源是不認識的客人"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說市長很害怕鴿子。」",
+     "15:20 你決定：去鎮公所看看",
+     "15:25 你親眼看到：「鎮公所看起來一切如常，沒看到什麼特別的。」",
+     "15:25 你決定：去中央廣場（布告欄旁）看看",
+     "15:30 你親眼看到：「中央廣場（布告欄旁）看起來一切如常，沒看到什麼特別的。」",
+     "15:30 你決定：打電話給美玲說「美玲，最近鎮上有什麼奇怪的傳聞嗎？不管是關於市長還是慶典的，快告訴我！」",
+     "15:36 美玲打電話說：「小雯，我沒聽到什麼奇怪的傳聞呀。妳怎麼突然問這個？是不是發生了什麼事？」",
+     "15:37 你決定：去章魚燒攤看看",
+     "15:42 你自己說：「章魚燒攤看起來一切如常，沒看到什麼特別的。」（你沒有多想）"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 41.60000000000001
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:07:58.177Z",
+   "ms": 573950
+  },
+  "llm": {
+   "calls": 6,
+   "attempts": 18,
+   "promptTokens": 10086,
+   "completionTokens": 1032,
+   "platformCost": 0.0002175292,
+   "estCost": 0.008139,
+   "errors": 0,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 5,
+  "reach": 2,
+  "believers": 0,
+  "decisions": 5,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "look": 6,
+   "phone": 2
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "mayor_fears_pigeons"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "journalist",
+    "to": "florist",
+    "text": "美玲，最近鎮上有什麼奇怪的傳聞嗎？不管是關於市長還是慶典的，快告訴我！",
+    "similarity": 0.03
+   },
+   {
+    "from": "florist",
+    "to": "journalist",
+    "text": "小雯，我沒聽到什麼奇怪的傳聞呀。妳怎麼突然問這個？是不是發生了什麼事？",
+    "similarity": 0
+   }
+  ],
+  "meanSimilarity": 0.01,
+  "explained": 1,
+  "visualEvents": 25,
+  "gameMinutes": 21.6,
+  "llmCalls": 6,
+  "llmSeconds": 257.6,
+  "tokens": 11118,
+  "estCost": 0.008139,
+  "validatorRetries": 1,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

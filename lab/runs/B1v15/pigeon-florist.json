@@ -1,0 +1,336 @@
+{
+ "case": {
+  "id": "pigeon-florist",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "florist",
+  "seedText": "聽說市長很害怕鴿子。",
+  "seed": 1,
+  "maxDecisions": 12,
+  "policy": "gemma",
+  "tags": [
+   "pigeon"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 12,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "pigeon-florist",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "florist",
+   "seedText": "聽說市長很害怕鴿子。",
+   "tags": [
+    "pigeon"
+   ],
+   "temperature": 0.7,
+   "label": "pigeon-florist"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說市長很害怕鴿子。"
+    },
+    "zh": "一個念頭被植入美玲耳中：「聽說市長很害怕鴿子。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "美玲聽到一位陌生客人說：「聽說市長很害怕鴿子。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人說市長怕鴿子，這對今晚的放鴿活動可能有影響。",
+     "thought": "如果市長怕鴿子，那些鴿子會不會被粗魯對待？",
+     "feeling": "😟 忐忑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美玲：如果市長怕鴿子，那些鴿子會不會被粗魯對待？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 42952
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.44,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "只是不認識的客人口中的傳聞"
+    },
+    "zh": "美玲對「市長很害怕鴿子」的信心：0.00 → 0.44（doubt）",
+    "actor": "florist",
+    "w": 42952
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 忐忑"
+    },
+    "zh": "美玲 😟 忐忑",
+    "actor": "florist",
+    "place": "flower",
+    "w": 42952
+   },
+   {
+    "id": "e6",
+    "t": 20.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 42953
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "florist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人說市長怕鴿子，這對今晚的放鴿活動可能有影響。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "市長很害怕鴿子",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "只是不認識的客人口中的傳聞",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 忐忑",
+     "thought": "如果市長怕鴿子，那些鴿子會不會被粗魯對待？",
+     "actions": [
+      {
+       "type": "none",
+       "why": "只是路人的閒聊，目前沒理由特意去調查或驚慌。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 42952,
+      "latencyMs": 42952,
+      "attempts": 1,
+      "promptTokens": 1649,
+      "completionTokens": 185,
+      "platformCost": 0.0000337239,
+      "estCost": 0.0013795,
+      "status": 200,
+      "raw": "{\"understanding\": \"有客人說市長怕鴿子，這對今晚的放鴿活動可能有影響。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"市長很害怕鴿子\", \"topic\": \"mayor_fears_pigeons\", \"says\": \"yes\", \"category\": \"personal\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.5, \"why\": \"只是不認識的客人口中的傳聞\", \"cites\": [\"m1\"]}], \"feeling\": \"😟 忐忑\", \"thought\": \"如果市長怕鴿子，那些鴿子會不會被粗魯對待？\", \"actions\": [{\"type\": \"none\", \"why\": \"只是路人的閒聊，目前沒理由特意去調查或驚慌。\"}]}",
+      "promptChars": 2725
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "市長很害怕鴿子",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e2",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.44,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "只是不認識的客人口中的傳聞"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說市長很害怕鴿子。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:26:56.520Z",
+   "ms": 42953
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1649,
+   "completionTokens": 185,
+   "platformCost": 0.0000337239,
+   "estCost": 0.0013795,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "mayor_fears_pigeons"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.3,
+  "llmCalls": 1,
+  "llmSeconds": 43,
+  "tokens": 1834,
+  "estCost": 0.00138,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

@@ -1,0 +1,498 @@
+{
+ "case": {
+  "id": "R-journalist-true",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "journalist",
+  "seedText": "今晚燈籠節開場會放一百隻白鴿喔。",
+  "maxDecisions": 1,
+  "policy": "rules",
+  "tags": [
+   "true"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "rules",
+   "variant": "single",
+   "id": "R-journalist-true",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "journalist",
+   "seedText": "今晚燈籠節開場會放一百隻白鴿喔。",
+   "tags": [
+    "true"
+   ],
+   "temperature": 0.7,
+   "label": "R-journalist-true"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "今晚燈籠節開場會放一百隻白鴿喔。"
+    },
+    "zh": "一個念頭被植入小雯耳中：「今晚燈籠節開場會放一百隻白鴿喔。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "今晚燈籠節開場會放一百隻白鴿喔。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "小雯聽到一位陌生客人說：「今晚燈籠節開場會放一百隻白鴿喔。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人說：今晚燈籠節開場會放一百隻白鴿喔。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "publish_article"
+     ]
+    },
+    "zh": "小雯：這是真的嗎？",
+    "actor": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.8,
+     "proposed": 0.8,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "小雯對「今晚燈籠節開場會放一百隻白鴿喔。」的信心：0.00 → 0.80（believe）",
+    "actor": "journalist",
+    "w": 0
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "小雯 😮 驚訝",
+    "actor": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "state",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "key": "writing"
+    },
+    "zh": "小雯開始寫文章",
+    "actor": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e7",
+    "t": 41.2,
+    "type": "article",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "headline": "【傳聞】今晚燈籠節開場會放一百隻白鴿喔。",
+     "body": "【傳聞】今晚燈籠節開場會放一百隻白鴿喔。",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "小雯發文〈【傳聞】今晚燈籠節開場會放一百隻白鴿喔。〉",
+    "actor": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e8",
+    "t": 46.295750241307545,
+    "type": "deliver",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】今晚燈籠節開場會放一百隻白鴿喔。〉【傳聞】今晚燈籠節開場會放一百隻白鴿喔。",
+     "claims": [
+      "c1"
+     ],
+     "from": "journalist"
+    },
+    "zh": "阿德看到小雯的文章：〈【傳聞】今晚燈籠節開場會放一百隻白鴿喔。〉【傳聞】今晚燈籠節開場會放一百隻白鴿喔。",
+    "target": "baker",
+    "actor": "journalist",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e9",
+    "t": 46.49575024130755,
+    "type": "decide",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "decision": "d2",
+     "budget": true
+    },
+    "zh": "阿德聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e10",
+    "t": 80.5367838615086,
+    "type": "deliver",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】今晚燈籠節開場會放一百隻白鴿喔。〉【傳聞】今晚燈籠節開場會放一百隻白鴿喔。",
+     "claims": [
+      "c1"
+     ],
+     "from": "journalist"
+    },
+    "zh": "美玲看到小雯的文章：〈【傳聞】今晚燈籠節開場會放一百隻白鴿喔。〉【傳聞】今晚燈籠節開場會放一百隻白鴿喔。",
+    "target": "florist",
+    "actor": "journalist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e11",
+    "t": 80.7367838615086,
+    "type": "decide",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "decision": "d3",
+     "budget": true
+    },
+    "zh": "美玲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e12",
+    "t": 80.7367838615086,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "budget",
+     "festival": "scheduled"
+    },
+    "zh": "模擬達到決策上限。",
+    "w": 0
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "journalist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：今晚燈籠節開場會放一百隻白鴿喔。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "今晚燈籠節開場會放一百隻白鴿喔。",
+       "topic": "pigeons_release",
+       "says": "yes",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.8,
+       "why": "rule",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "publish_article",
+       "message": "【傳聞】今晚燈籠節開場會放一百隻白鴿喔。",
+       "why": "rule: journalist publishes",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "baker",
+    "t": 46.49575024130755,
+    "triggers": [
+     "e8"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e9"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "florist",
+    "t": 80.7367838615086,
+    "triggers": [
+     "e10"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e11"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "今晚燈籠節開場會放一百隻白鴿喔。",
+    "topic": "pigeons_release",
+    "says": "yes",
+    "category": "event",
+    "fact": "pigeons",
+    "asserts": true,
+    "origin": "e2",
+    "by": "journalist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [
+    {
+     "id": "a1",
+     "headline": "【傳聞】今晚燈籠節開場會放一百隻白鴿喔。",
+     "body": "【傳聞】今晚燈籠節開場會放一百隻白鴿喔。",
+     "by": "journalist",
+     "at": 41.2
+    }
+   ],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:46 小雯說：「〈【傳聞】今晚燈籠節開場會放一百隻白鴿喔。〉【傳聞】今晚燈籠節開場會放一百隻白鴿喔。」（你沒有多想）"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "16:21 小雯說：「〈【傳聞】今晚燈籠節開場會放一百隻白鴿喔。〉【傳聞】今晚燈籠節開場會放一百隻白鴿喔。」（你沒有多想）"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.8,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「今晚燈籠節開場會放一百隻白鴿喔。」",
+     "15:20 你決定：publish_article"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "budget",
+   "t": 80.7367838615086
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:01:20.530Z",
+   "ms": 0
+  },
+  "llm": {
+   "calls": 0,
+   "attempts": 0,
+   "promptTokens": 0,
+   "completionTokens": 0,
+   "platformCost": 0,
+   "estCost": 0,
+   "errors": 0,
+   "fallbacks": 2
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 3,
+  "believers": 1,
+  "decisions": 1,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "state": 1,
+   "article": 1
+  },
+  "worldChanges": 1,
+  "worldChangeTypes": [
+   "article"
+  ],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "pigeons_release"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 3,
+  "gameMinutes": 60.7,
+  "llmCalls": 0,
+  "llmSeconds": 0,
+  "tokens": 0,
+  "estCost": 0,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

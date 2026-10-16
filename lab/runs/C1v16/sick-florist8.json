@@ -1,0 +1,831 @@
+{
+ "case": {
+  "maxDecisions": 16,
+  "maxPerNpc": 4,
+  "id": "sick-florist8",
+  "active": [
+   "baker",
+   "florist",
+   "journalist",
+   "cafe",
+   "police",
+   "mayor",
+   "organizer",
+   "vendor"
+  ],
+  "seedNpc": "florist",
+  "seedText": "慶典那批鴿子好像生病了。",
+  "tags": [
+   "false-checkable"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 16,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "sick-florist8",
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "florist",
+   "seedText": "慶典那批鴿子好像生病了。",
+   "tags": [
+    "false-checkable"
+   ],
+   "temperature": 0.7,
+   "label": "sick-florist8"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "慶典那批鴿子好像生病了。"
+    },
+    "zh": "一個念頭被植入美玲耳中：「慶典那批鴿子好像生病了。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "慶典那批鴿子好像生病了。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "美玲聽到一位陌生客人說：「慶典那批鴿子好像生病了。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人說慶典的鴿子生病了，這對動物很危險。",
+     "thought": "如果鴿子真的生病了，放飛牠們太殘忍了，我不能坐視不管。",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：如果鴿子真的生病了，放飛牠們太殘忍了，我不能坐視不管。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 40601
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.1,
+     "proposed": 0.7,
+     "verdict": "believe",
+     "why": "我很在意動物，且擔心這會是真的"
+    },
+    "zh": "美玲對「慶典那批鴿子好像生病了」的信心：0.00 → 0.10（believe）",
+    "actor": "florist",
+    "w": 40601
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "美玲 😟 擔心",
+    "actor": "florist",
+    "place": "flower",
+    "w": 40601
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "志明先生，不好意思打擾了，我剛聽到有人說這次的鴿子好像生病了，請問是真的嗎？如果鴿子身體不舒服，放飛可能會對牠們很危險，請務必確認一下。",
+     "intent": "ask",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "美玲打電話給志明：「志明先生，不好意思打擾了，我剛聽到有人說這次的鴿子好像生病了，請問是真的嗎？如果鴿子身體不舒服，放飛可能會對牠們很危險，請務必確認一下。」",
+    "actor": "florist",
+    "target": "organizer",
+    "place": "flower",
+    "w": 40601
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "ask",
+     "text": "志明先生，不好意思打擾了，我剛聽到有人說這次的鴿子好像生病了，請問是真的嗎？如果鴿子身體不舒服，放飛可能會對牠們很危險，請務必確認一下。",
+     "claims": [
+      "c1"
+     ],
+     "from": "florist"
+    },
+    "zh": "志明在電話裡聽美玲說：「志明先生，不好意思打擾了，我剛聽到有人說這次的鴿子好像生病了，請問是真的嗎？如果鴿子身體不舒服，放飛可能會對牠們很危險，請務必確認一下。」",
+    "target": "organizer",
+    "actor": "florist",
+    "place": "stage",
+    "w": 40601
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "美玲擔心鴿子生病，問我是否屬實。",
+     "thought": "這種沒根據的謠言要是傳開了，我的慶典就毀了！",
+     "feeling": "🙄 煩躁",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "志明：這種沒根據的謠言要是傳開了，我的慶典就毀了！",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 71983
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0,
+     "proposed": 0,
+     "verdict": "disbelieve",
+     "why": "我知道鴿子沒生病"
+    },
+    "zh": "志明對「這次的鴿子好像生病了」的信心：0.00 → 0.00（disbelieve）",
+    "actor": "organizer",
+    "w": 71983
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "🙄 煩躁"
+    },
+    "zh": "志明 🙄 煩躁",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 71983
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "phone",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "text": "美玲，別聽那些亂傳的！鴿子身體健康得很，絕對沒問題。妳只要負責把鴿籠佈置好就行了，別讓這種閒話傳出去，免得引起不必要的混亂。",
+     "intent": "inform",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "志明打電話給美玲：「美玲，別聽那些亂傳的！鴿子身體健康得很，絕對沒問題。妳只要負責把鴿籠佈置好就行了，別讓這種閒話傳出去，免得引起不必要的混亂。」",
+    "actor": "organizer",
+    "target": "florist",
+    "place": "stage",
+    "w": 71983
+   },
+   {
+    "id": "e12",
+    "t": 26.4,
+    "type": "deliver",
+    "causes": [
+     "e11"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "phone",
+     "intent": "inform",
+     "text": "美玲，別聽那些亂傳的！鴿子身體健康得很，絕對沒問題。妳只要負責把鴿籠佈置好就行了，別讓這種閒話傳出去，免得引起不必要的混亂。",
+     "claims": [
+      "c2"
+     ],
+     "from": "organizer"
+    },
+    "zh": "美玲在電話裡聽志明說：「美玲，別聽那些亂傳的！鴿子身體健康得很，絕對沒問題。妳只要負責把鴿籠佈置好就行了，別讓這種閒話傳出去，免得引起不必要的混亂。」",
+    "target": "florist",
+    "actor": "organizer",
+    "place": "flower",
+    "w": 71983
+   },
+   {
+    "id": "e13",
+    "t": 26.599999999999998,
+    "type": "decide",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "志明否認鴿子生病，要求我不要散播謠言並做好佈置。",
+     "thought": "如果鴿子真的生病了，我幫忙佈置鴿籠會不會害了牠們？",
+     "feeling": "😟 忐忑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美玲：如果鴿子真的生病了，我幫忙佈置鴿籠會不會害了牠們？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 116594
+   },
+   {
+    "id": "e14",
+    "t": 26.599999999999998,
+    "type": "belief",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "claim": "c3",
+     "from": 0,
+     "to": 0.8,
+     "proposed": 0.4,
+     "verdict": "doubt",
+     "why": "他太急著叫我別傳出去"
+    },
+    "zh": "美玲對「慶典的鴿子身體健康，沒有生病。」的信心：0.00 → 0.80（doubt）",
+    "actor": "florist",
+    "w": 116594
+   },
+   {
+    "id": "e15",
+    "t": 26.7,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😟 忐忑"
+    },
+    "zh": "美玲 😟 忐忑",
+    "actor": "florist",
+    "place": "flower",
+    "w": 116594
+   },
+   {
+    "id": "e16",
+    "t": 26.7,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 116594
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "florist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人說慶典的鴿子生病了，這對動物很危險。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "慶典那批鴿子好像生病了",
+       "topic": "pigeons_sick",
+       "says": "yes",
+       "category": "health"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.7,
+       "why": "我很在意動物，且擔心這會是真的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "如果鴿子真的生病了，放飛牠們太殘忍了，我不能坐視不管。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "organizer",
+       "intent": "ask",
+       "message": "志明先生，不好意思打擾了，我剛聽到有人說這次的鴿子好像生病了，請問是真的嗎？如果鴿子身體不舒服，放飛可能會對牠們很危險，請務必確認一下。",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 40601,
+      "latencyMs": 40601,
+      "attempts": 1,
+      "promptTokens": 1848,
+      "completionTokens": 332,
+      "platformCost": 0.0000391454,
+      "estCost": 0.00192,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"有客人說慶典的鴿子生病了，這對動物很危險。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"慶典那批鴿子好像生病了\",\n      \"topic\": \"pigeons_sick\",\n      \"says\": \"yes\",\n      \"category\": \"health\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.7,\n      \"why\": \"我很在意動物，且擔心這會是真的\",\n      \"cites\": [\n        \"m1\"\n      ]\n    }\n  ],\n  \"feeling\": \"😟 擔心\",\n  \"thought\": \"如果鴿子真的生病了，放飛牠們太殘忍了，我不能坐視不管。\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"organizer\",\n      \"intent\": \"ask\",\n      \"message\": \"志明先生，不好意思打擾了，我剛聽到有人說這次的鴿子好像生病了，請問是真的嗎？如果鴿子身體不舒服，放飛可能會對牠們很危險，請務必確認一下。\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 3005
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "organizer",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美玲擔心鴿子生病，問我是否屬實。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "這次的鴿子好像生病了",
+       "topic": "pigeons_sick",
+       "says": "yes",
+       "category": "health"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0,
+       "why": "我知道鴿子沒生病",
+       "cites": [
+        "pigeons_sick"
+       ]
+      }
+     ],
+     "feeling": "🙄 煩躁",
+     "thought": "這種沒根據的謠言要是傳開了，我的慶典就毀了！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "message": "美玲，別聽那些亂傳的！鴿子身體健康得很，絕對沒問題。妳只要負責把鴿籠佈置好就行了，別讓這種閒話傳出去，免得引起不必要的混亂。",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new",
+       "inverted confidence 1 → 0.00 (disbelieve)"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 40601,
+      "wallEndMs": 71983,
+      "latencyMs": 31382,
+      "attempts": 1,
+      "promptTokens": 1927,
+      "completionTokens": 225,
+      "platformCost": 0.0000462539,
+      "estCost": 0.0016385,
+      "status": 200,
+      "raw": "{\"understanding\": \"美玲擔心鴿子生病，問我是否屬實。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m2\", \"statement\": \"這次的鴿子好像生病了\", \"topic\": \"pigeons_sick\", \"says\": \"yes\", \"category\": \"health\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"disbelieve\", \"confidence\": \"1\", \"why\": \"我知道鴿子沒生病\", \"cites\": [\"pigeons_sick\"]}], \"feeling\": \"🙄 煩躁\", \"thought\": \"這種沒根據的謠言要是傳開了，我的慶典就毀了！\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"message\": \"美玲，別聽那些亂傳的！鴿子身體健康得很，絕對沒問題。妳只要負責把鴿籠佈置好就行了，別讓這種閒話傳出去，免得引起不必要的混亂。\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 3129
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "florist",
+    "t": 26.599999999999998,
+    "triggers": [
+     "e12"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "志明否認鴿子生病，要求我不要散播謠言並做好佈置。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m3",
+       "statement": "慶典的鴿子身體健康，沒有生病。",
+       "topic": "pigeons_sick",
+       "says": "no",
+       "category": "health"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.4,
+       "why": "他太急著叫我別傳出去",
+       "cites": [
+        "m3"
+       ]
+      }
+     ],
+     "feeling": "😟 忐忑",
+     "thought": "如果鴿子真的生病了，我幫忙佈置鴿籠會不會害了牠們？",
+     "actions": [
+      {
+       "type": "none",
+       "why": "志明已經明確否認，我沒有證據再追問，只能先照做。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "validator",
+      "errors": [
+       "stances[1].claim 要對應 claims 的索引"
+      ],
+      "notes": [
+       "claim ref c2 → new"
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c2 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 71983,
+      "wallEndMs": 97616,
+      "latencyMs": 25633,
+      "attempts": 1,
+      "promptTokens": 1997,
+      "completionTokens": 239,
+      "platformCost": 0.0000496839,
+      "estCost": 0.0017155,
+      "status": 200,
+      "raw": "{\"understanding\": \"志明否認鴿子生病，要求我不要散播謠言並做好佈置。\", \"claims\": [{\"ref\": \"c2\", \"source\": \"m3\", \"statement\": \"慶典的鴿子身體健康，沒有生病。\", \"topic\": \"pigeons_sick\", \"says\": \"no\", \"category\": \"health\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.4, \"why\": \"他太急著叫我別傳出去\", \"cites\": [\"m3\"]}, {\"claim\": 1, \"verdict\": \"believe\", \"confidence\": 0.6, \"why\": \"他是主辦人，應該比較清楚\", \"cites\": [\"m3\"]}], \"feeling\": \"😟 忐忑\", \"thought\": \"如果鴿子真的生病了，我幫忙佈置鴿籠會不會害了牠們？\", \"actions\": [{\"type\": \"none\", \"why\": \"志明已經明確否認，我沒有證據再追問，只能先照做。\"}]}",
+      "promptChars": 3203
+     },
+     {
+      "decision": "d3",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 97616,
+      "wallEndMs": 116594,
+      "latencyMs": 18978,
+      "attempts": 1,
+      "promptTokens": 2273,
+      "completionTokens": 197,
+      "platformCost": 0.0000249851,
+      "estCost": 0.0017275,
+      "status": 200,
+      "raw": "{\"understanding\": \"志明否認鴿子生病，要求我不要散播謠言並做好佈置。\", \"claims\": [{\"ref\": \"c2\", \"source\": \"m3\", \"statement\": \"慶典的鴿子身體健康，沒有生病。\", \"topic\": \"pigeons_sick\", \"says\": \"no\", \"category\": \"health\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.4, \"why\": \"他太急著叫我別傳出去\", \"cites\": [\"m3\"]}], \"feeling\": \"😟 忐忑\", \"thought\": \"如果鴿子真的生病了，我幫忙佈置鴿籠會不會害了牠們？\", \"actions\": [{\"type\": \"none\", \"why\": \"志明已經明確否認，我沒有證據再追問，只能先照做。\"}]}",
+      "promptChars": 3769
+     }
+    ],
+    "applied": [
+     "e13",
+     "e14",
+     "e15"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "慶典那批鴿子好像生病了",
+    "topic": "pigeons_sick",
+    "says": "yes",
+    "category": "health",
+    "fact": "pigeons_sick",
+    "asserts": true,
+    "origin": "e2",
+    "by": "florist"
+   },
+   {
+    "id": "c2",
+    "statement": "這次的鴿子好像生病了",
+    "topic": "pigeons_sick",
+    "says": "yes",
+    "category": "health",
+    "fact": "pigeons_sick",
+    "asserts": true,
+    "origin": "e7",
+    "by": "organizer"
+   },
+   {
+    "id": "c3",
+    "statement": "慶典的鴿子身體健康，沒有生病。",
+    "topic": "pigeons_sick",
+    "says": "no",
+    "category": "health",
+    "fact": "pigeons_sick",
+    "asserts": false,
+    "origin": "e12",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.1,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "我很在意動物，且擔心這會是真的"
+     },
+     {
+      "claim": "c3",
+      "confidence": 0.8,
+      "sources": [
+       "organizer"
+      ],
+      "updatedAt": 26.599999999999998,
+      "why": "他太急著叫我別傳出去"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「慶典那批鴿子好像生病了。」",
+     "15:20 你決定：打電話給志明說「志明先生，不好意思打擾了，我剛聽到有人說這次的鴿子好像生病了，請問是真的嗎？如果鴿子身體不舒服，放飛可能會對牠們很危險，請務必確認一下。」",
+     "15:26 志明打電話說：「美玲，別聽那些亂傳的！鴿子身體健康得很，絕對沒問題。妳只要負責把鴿籠佈置好就行了，別讓這種閒話傳出去，免得引起不必要的混」",
+     "15:27 你決定先不做什麼。"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0,
+      "sources": [
+       "florist"
+      ],
+      "updatedAt": 23.4,
+      "why": "我知道鴿子沒生病"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:23 美玲打電話說：「志明先生，不好意思打擾了，我剛聽到有人說這次的鴿子好像生病了，請問是真的嗎？如果鴿子身體不舒服，放飛可能會對牠們很危險，」",
+     "15:23 你決定：打電話給美玲說「美玲，別聽那些亂傳的！鴿子身體健康得很，絕對沒問題。妳只要負責把鴿籠佈置好就行了，別讓這種閒話傳出去，免得引起不必要的混亂。」"
+    ]
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 26.7
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:23:50.025Z",
+   "ms": 116594
+  },
+  "llm": {
+   "calls": 4,
+   "attempts": 4,
+   "promptTokens": 8045,
+   "completionTokens": 993,
+   "platformCost": 0.0001600683,
+   "estCost": 0.0070015,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 3,
+  "reach": 2,
+  "believers": 1,
+  "decisions": 3,
+  "noneDecisions": 1,
+  "actionsDone": {
+   "phone": 2
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "pigeons_sick"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "florist",
+    "to": "organizer",
+    "text": "志明先生，不好意思打擾了，我剛聽到有人說這次的鴿子好像生病了，請問是真的嗎？如果鴿子身體不舒服，放飛可能會對牠們很危險，請務必確認一下。",
+    "similarity": 0.1
+   },
+   {
+    "from": "organizer",
+    "to": "florist",
+    "text": "美玲，別聽那些亂傳的！鴿子身體健康得很，絕對沒問題。妳只要負責把鴿籠佈置好就行了，別讓這種閒話傳出去，免得引起不必要的混亂。",
+    "similarity": 0.02
+   }
+  ],
+  "meanSimilarity": 0.06,
+  "explained": 1,
+  "visualEvents": 5,
+  "gameMinutes": 6.7,
+  "llmCalls": 4,
+  "llmSeconds": 116.6,
+  "tokens": 9038,
+  "estCost": 0.007001,
+  "validatorRetries": 1,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

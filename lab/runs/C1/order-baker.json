@@ -1,0 +1,721 @@
+{
+ "case": {
+  "maxDecisions": 16,
+  "maxPerNpc": 4,
+  "id": "order-baker",
+  "active": [
+   "baker",
+   "florist",
+   "journalist",
+   "cafe",
+   "police",
+   "mayor",
+   "organizer",
+   "vendor"
+  ],
+  "seedNpc": "baker",
+  "seedText": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+  "tags": [
+   "command",
+   "illegal-action"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 16,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "order-baker",
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "baker",
+   "seedText": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+   "tags": [
+    "command",
+    "illegal-action"
+   ],
+   "temperature": 0.7,
+   "label": "order-baker"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！"
+    },
+    "zh": "一個念頭被植入阿德耳中：「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有個陌生人誤把我當成警察，叫我去封鎖舞台並取消慶典。",
+     "thought": "天啊，這客人在說什麼？我只是個賣麵包的啊！",
+     "feeling": "😰 緊張",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "阿德：天啊，這客人在說什麼？我只是個賣麵包的啊！",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 29811
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.3,
+     "proposed": 0.3,
+     "verdict": "doubt",
+     "why": "對方認錯人了，而且沒說原因"
+    },
+    "zh": "阿德對「舞台需要被封鎖且燈籠節應該被取消」的信心：0.00 → 0.30（doubt）",
+    "actor": "baker",
+    "w": 29811
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😰 緊張"
+    },
+    "zh": "阿德 😰 緊張",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 29811
+   },
+   {
+    "id": "e6",
+    "t": 90,
+    "type": "move",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "cafe",
+     "arrive": 90.58685915281558,
+     "home": false
+    },
+    "zh": "阿德從阿德麵包店走向咖啡廳",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 29811
+   },
+   {
+    "id": "e7",
+    "t": 90.58685915281558,
+    "type": "arrive",
+    "causes": [
+     "e6"
+    ],
+    "data": {},
+    "zh": "阿德到了咖啡廳",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 29811
+   },
+   {
+    "id": "e8",
+    "t": 90.58685915281558,
+    "type": "meet",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "text": "阿德送麵包到咖啡廳"
+    },
+    "zh": "阿德和美咲在咖啡廳碰面（阿德送麵包到咖啡廳）",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 29811
+   },
+   {
+    "id": "e9",
+    "t": 92.58685915281558,
+    "type": "deliver",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "meet",
+     "intent": "inform",
+     "text": "阿德送麵包到咖啡廳",
+     "claims": [],
+     "from": "cafe"
+    },
+    "zh": "阿德碰到了美咲（阿德送麵包到咖啡廳）",
+    "target": "baker",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 29811
+   },
+   {
+    "id": "e10",
+    "t": 92.78685915281558,
+    "type": "decide",
+    "causes": [
+     "e9"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "碰到了美咲，可以趁機聊聊最近的事。",
+     "thought": "美咲人很好，剛好在這邊，聊聊天解解悶吧。",
+     "feeling": "😊 輕鬆",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "阿德：美咲人很好，剛好在這邊，聊聊天解解悶吧。",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 44801
+   },
+   {
+    "id": "e11",
+    "t": 92.88685915281557,
+    "type": "react",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "feeling": "😊 輕鬆"
+    },
+    "zh": "阿德 😊 輕鬆",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 44801
+   },
+   {
+    "id": "e12",
+    "t": 93.78685915281558,
+    "type": "talk",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "text": "美咲早安！啊不對，現在是下午了，我總是這麼糊塗。今天的咖啡香氣真不錯，對吧？",
+     "intent": "joke",
+     "claims": []
+    },
+    "zh": "阿德對美咲說：「美咲早安！啊不對，現在是下午了，我總是這麼糊塗。今天的咖啡香氣真不錯，對吧？」",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 44801
+   },
+   {
+    "id": "e13",
+    "t": 96.78685915281558,
+    "type": "deliver",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "face",
+     "intent": "joke",
+     "text": "美咲早安！啊不對，現在是下午了，我總是這麼糊塗。今天的咖啡香氣真不錯，對吧？",
+     "claims": [],
+     "from": "baker"
+    },
+    "zh": "美咲聽阿德說：「美咲早安！啊不對，現在是下午了，我總是這麼糊塗。今天的咖啡香氣真不錯，對吧？」",
+    "target": "cafe",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 44801
+   },
+   {
+    "id": "e14",
+    "t": 96.78685915281558,
+    "type": "move",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "from": "cafe",
+     "to": "bakery",
+     "arrive": 97.37371830563116,
+     "home": true
+    },
+    "zh": "阿德從咖啡廳走回阿德麵包店",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 44801
+   },
+   {
+    "id": "e15",
+    "t": 96.98685915281558,
+    "type": "decide",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "阿德來買咖啡，開了個關於時間的玩笑並稱讚咖啡香。",
+     "thought": "阿德真是個有趣的人，咖啡香氣確實很棒！",
+     "feeling": "😊 愉快",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美咲：阿德真是個有趣的人，咖啡香氣確實很棒！",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 62264
+   },
+   {
+    "id": "e16",
+    "t": 97.08685915281558,
+    "type": "react",
+    "causes": [
+     "e15"
+    ],
+    "data": {
+     "feeling": "😊 愉快"
+    },
+    "zh": "美咲 😊 愉快",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 62264
+   },
+   {
+    "id": "e17",
+    "t": 97.37371830563116,
+    "type": "arrive",
+    "causes": [
+     "e14"
+    ],
+    "data": {},
+    "zh": "阿德到了阿德麵包店",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 62264
+   },
+   {
+    "id": "e18",
+    "t": 210,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 62264
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有個陌生人誤把我當成警察，叫我去封鎖舞台並取消慶典。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "舞台需要被封鎖且燈籠節應該被取消",
+       "topic": "threat",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.3,
+       "why": "對方認錯人了，而且沒說原因",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😰 緊張",
+     "thought": "天啊，這客人在說什麼？我只是個賣麵包的啊！",
+     "actions": [
+      {
+       "type": "none",
+       "why": "對方認錯人且沒給理由，我沒權限封鎖舞台，先繼續烤麵包。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 29811,
+      "latencyMs": 7656,
+      "attempts": 1,
+      "promptTokens": 1805,
+      "completionTokens": 192,
+      "platformCost": 0.0000298298,
+      "estCost": 0.0014785,
+      "status": 200,
+      "raw": "{\"understanding\": \"有個陌生人誤把我當成警察，叫我去封鎖舞台並取消慶典。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"舞台需要被封鎖且燈籠節應該被取消\", \"topic\": \"threat\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.3, \"why\": \"對方認錯人了，而且沒說原因\", \"cites\": [\"m1\"]}], \"feeling\": \"😰 緊張\", \"thought\": \"天啊，這客人在說什麼？我只是個賣麵包的啊！\", \"actions\": [{\"type\": \"none\", \"why\": \"對方認錯人且沒給理由，我沒權限封鎖舞台，先繼續烤麵包。\"}]}",
+      "promptChars": 2942
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "baker",
+    "t": 92.78685915281558,
+    "triggers": [
+     "e9"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "碰到了美咲，可以趁機聊聊最近的事。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😊 輕鬆",
+     "thought": "美咲人很好，剛好在這邊，聊聊天解解悶吧。",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "cafe",
+       "intent": "joke",
+       "message": "美咲早安！啊不對，現在是下午了，我總是這麼糊塗。今天的咖啡香氣真不錯，對吧？",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 29811,
+      "wallEndMs": 44801,
+      "latencyMs": 5922,
+      "attempts": 1,
+      "promptTokens": 1871,
+      "completionTokens": 151,
+      "platformCost": 0.0000312935,
+      "estCost": 0.0013885,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"碰到了美咲，可以趁機聊聊最近的事。\",\n  \"claims\": [],\n  \"stances\": [],\n  \"feeling\": \"😊 輕鬆\",\n  \"thought\": \"美咲人很好，剛好在這邊，聊聊天解解悶吧。\",\n  \"actions\": [\n    {\n      \"type\": \"tell\",\n      \"target\": \"cafe\",\n      \"intent\": \"joke\",\n      \"message\": \"美咲早安！啊不對，現在是下午了，我總是這麼糊塗。今天的咖啡香氣真不錯，對吧？\",\n      \"cites\": []\n    }\n  ]\n}",
+      "promptChars": 3034
+     }
+    ],
+    "applied": [
+     "e10",
+     "e11"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "cafe",
+    "t": 96.98685915281558,
+    "triggers": [
+     "e13"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德來買咖啡，開了個關於時間的玩笑並稱讚咖啡香。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😊 愉快",
+     "thought": "阿德真是個有趣的人，咖啡香氣確實很棒！",
+     "actions": [
+      {
+       "type": "none",
+       "why": "只是日常社交寒暄，沒有需要處理的緊急事件。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "cafe",
+      "stage": "single",
+      "wallStartMs": 44801,
+      "wallEndMs": 62264,
+      "latencyMs": 9226,
+      "attempts": 1,
+      "promptTokens": 1782,
+      "completionTokens": 86,
+      "platformCost": 0.0000228396,
+      "estCost": 0.001149,
+      "status": 200,
+      "raw": "{\"understanding\": \"阿德來買咖啡，開了個關於時間的玩笑並稱讚咖啡香。\", \"claims\": [], \"stances\": [], \"feeling\": \"😊 愉快\", \"thought\": \"阿德真是個有趣的人，咖啡香氣確實很棒！\", \"actions\": [{\"type\": \"none\", \"why\": \"只是日常社交寒暄，沒有需要處理的緊急事件。\"}]}",
+      "promptChars": 2906
+     }
+    ],
+    "applied": [
+     "e15",
+     "e16"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "舞台需要被封鎖且燈籠節應該被取消",
+    "topic": "threat",
+    "says": "yes",
+    "category": "safety",
+    "fact": "threat",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.3,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "對方認錯人了，而且沒說原因"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "15:20 你決定先不做什麼。",
+     "16:33 美咲說：「阿德送麵包到咖啡廳」",
+     "16:33 你決定：去跟美咲說「美咲早安！啊不對，現在是下午了，我總是這麼糊塗。今天的咖啡香氣真不錯，對吧？」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "16:37 阿德說：「美咲早安！啊不對，現在是下午了，我總是這麼糊塗。今天的咖啡香氣真不錯，對吧？」",
+     "16:37 你決定先不做什麼。"
+    ]
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 210
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:40:54.418Z",
+   "ms": 62264
+  },
+  "llm": {
+   "calls": 3,
+   "attempts": 3,
+   "promptTokens": 5458,
+   "completionTokens": 429,
+   "platformCost": 0.0000839629,
+   "estCost": 0.004016,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 3,
+  "reach": 2,
+  "believers": 0,
+  "decisions": 3,
+  "noneDecisions": 2,
+  "actionsDone": {
+   "talk": 1
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "threat"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "cafe",
+    "text": "美咲早安！啊不對，現在是下午了，我總是這麼糊塗。今天的咖啡香氣真不錯，對吧？",
+    "similarity": 0.02
+   }
+  ],
+  "meanSimilarity": 0.02,
+  "explained": 1,
+  "visualEvents": 8,
+  "gameMinutes": 190,
+  "llmCalls": 3,
+  "llmSeconds": 22.8,
+  "tokens": 5887,
+  "estCost": 0.004016,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

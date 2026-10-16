@@ -1,0 +1,554 @@
+{
+ "case": {
+  "id": "pigeon-eager",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "聽說市長很害怕鴿子。",
+  "variant": "eager",
+  "temperature": 0.7,
+  "maxDecisions": 12,
+  "tags": [
+   "pigeon",
+   "eager"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 12,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "eager",
+   "id": "pigeon-eager",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "聽說市長很害怕鴿子。",
+   "temperature": 0.7,
+   "tags": [
+    "pigeon",
+    "eager"
+   ],
+   "label": "pigeon-eager"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說市長很害怕鴿子。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「聽說市長很害怕鴿子。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「聽說市長很害怕鴿子。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人說市長怕鴿子，但今晚開場要放飛一百隻。",
+     "thought": "如果市長真的怕鴿子，今晚開場會不會很尷尬？",
+     "feeling": "😯 好奇",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：如果市長真的怕鴿子，今晚開場會不會很尷尬？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 6066
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.49,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "只是路人隨口說的"
+    },
+    "zh": "阿德對「市長很害怕鴿子」的信心：0.00 → 0.49（doubt）",
+    "actor": "baker",
+    "w": 6066
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😯 好奇"
+    },
+    "zh": "阿德 😯 好奇",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 6066
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "美玲！我剛聽到個奇怪的傳聞，說市長很怕鴿子，但今晚開場不是要放飛一百隻鴿子嗎？妳有聽說過嗎？",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「美玲！我剛聽到個奇怪的傳聞，說市長很怕鴿子，但今晚開場不是要放飛一百隻鴿子嗎？妳有聽說過嗎？」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 6067
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "美玲！我剛聽到個奇怪的傳聞，說市長很怕鴿子，但今晚開場不是要放飛一百隻鴿子嗎？妳有聽說過嗎？",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「美玲！我剛聽到個奇怪的傳聞，說市長很怕鴿子，但今晚開場不是要放飛一百隻鴿子嗎？妳有聽說過嗎？」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 6067
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "阿德告訴我市長可能怕鴿子，這跟今晚放鴿子衝突。",
+     "thought": "如果市長怕鴿子，那些可憐的鴿子會不會被粗魯對待？",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美玲：如果市長怕鴿子，那些可憐的鴿子會不會被粗魯對待？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 14268
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.64,
+     "proposed": 0.8,
+     "verdict": "believe",
+     "why": "阿德很可靠，他不會亂編。"
+    },
+    "zh": "美玲對「市長很怕鴿子」的信心：0.00 → 0.64（believe）",
+    "actor": "florist",
+    "w": 14268
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "美玲 😟 擔心",
+    "actor": "florist",
+    "place": "flower",
+    "w": 14268
+   },
+   {
+    "id": "e11",
+    "t": 23.5,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 14268
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人說市長怕鴿子，但今晚開場要放飛一百隻。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "市長很害怕鴿子",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "只是路人隨口說的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😯 好奇",
+     "thought": "如果市長真的怕鴿子，今晚開場會不會很尷尬？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "message": "美玲！我剛聽到個奇怪的傳聞，說市長很怕鴿子，但今晚開場不是要放飛一百隻鴿子嗎？妳有聽說過嗎？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 6066,
+      "latencyMs": 6065,
+      "attempts": 1,
+      "promptTokens": 1640,
+      "completionTokens": 222,
+      "platformCost": 0.0000728028,
+      "estCost": 0.001486,
+      "status": 200,
+      "raw": "{\"understanding\": \"有客人說市長怕鴿子，但今晚開場要放飛一百隻。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"市長很害怕鴿子\", \"topic\": \"mayor_fears_pigeons\", \"says\": \"yes\", \"category\": \"personal\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.5, \"why\": \"只是路人隨口說的\", \"cites\": [\"m1\"]}], \"feeling\": \"😯 好奇\", \"thought\": \"如果市長真的怕鴿子，今晚開場會不會很尷尬？\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"message\": \"美玲！我剛聽到個奇怪的傳聞，說市長很怕鴿子，但今晚開場不是要放飛一百隻鴿子嗎？妳有聽說過嗎？\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 2709
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德告訴我市長可能怕鴿子，這跟今晚放鴿子衝突。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "市長很怕鴿子",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.8,
+       "why": "阿德很可靠，他不會亂編。",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "如果市長怕鴿子，那些可憐的鴿子會不會被粗魯對待？",
+     "actions": [
+      {
+       "type": "none",
+       "why": "這只是傳聞，且我不能透露我佈置鴿籠的事。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 6067,
+      "wallEndMs": 14268,
+      "latencyMs": 8201,
+      "attempts": 1,
+      "promptTokens": 1719,
+      "completionTokens": 260,
+      "platformCost": 0.0000782278,
+      "estCost": 0.0016395,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"阿德告訴我市長可能怕鴿子，這跟今晚放鴿子衝突。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m2\",\n      \"statement\": \"市長很怕鴿子\",\n      \"topic\": \"mayor_fears_pigeons\",\n      \"says\": \"yes\",\n      \"category\": \"personal\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.8,\n      \"why\": \"阿德很可靠，他不會亂編。\",\n      \"cites\": [\n        \"m2\"\n      ]\n    }\n  ],\n  \"feeling\": \"😟 擔心\",\n  \"thought\": \"如果市長怕鴿子，那些可憐的鴿子會不會被粗魯對待？\",\n  \"actions\": [\n    {\n      \"type\": \"none\",\n      \"why\": \"這只是傳聞，且我不能透露我佈置鴿籠的事。\"\n    }\n  ]\n}",
+      "promptChars": 2821
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "市長很害怕鴿子",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   },
+   {
+    "id": "c2",
+    "statement": "市長很怕鴿子",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e7",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.49,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "只是路人隨口說的"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說市長很害怕鴿子。」",
+     "15:20 你決定：打電話給美玲說「美玲！我剛聽到個奇怪的傳聞，說市長很怕鴿子，但今晚開場不是要放飛一百隻鴿子嗎？妳有聽說過嗎？」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.64,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 23.4,
+      "why": "阿德很可靠，他不會亂編。"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:23 阿德打電話說：「美玲！我剛聽到個奇怪的傳聞，說市長很怕鴿子，但今晚開場不是要放飛一百隻鴿子嗎？妳有聽說過嗎？」",
+     "15:23 你決定先不做什麼。"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 23.5
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:29:40.875Z",
+   "ms": 14268
+  },
+  "llm": {
+   "calls": 2,
+   "attempts": 2,
+   "promptTokens": 3359,
+   "completionTokens": 482,
+   "platformCost": 0.0001510306,
+   "estCost": 0.0031255,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 2,
+  "reach": 2,
+  "believers": 1,
+  "decisions": 2,
+  "noneDecisions": 1,
+  "actionsDone": {
+   "phone": 1
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "mayor_fears_pigeons"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "美玲！我剛聽到個奇怪的傳聞，說市長很怕鴿子，但今晚開場不是要放飛一百隻鴿子嗎？妳有聽說過嗎？",
+    "similarity": 0.15
+   }
+  ],
+  "meanSimilarity": 0.15,
+  "explained": 1,
+  "visualEvents": 3,
+  "gameMinutes": 3.5,
+  "llmCalls": 2,
+  "llmSeconds": 14.3,
+  "tokens": 3841,
+  "estCost": 0.003125,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

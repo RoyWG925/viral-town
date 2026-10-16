@@ -1,0 +1,435 @@
+{
+ "case": {
+  "id": "baker-vague",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "今晚最好離舞台遠一點。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "vague"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "baker-vague",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "今晚最好離舞台遠一點。",
+   "tags": [
+    "vague"
+   ],
+   "temperature": 0.7,
+   "label": "baker-vague"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "今晚最好離舞台遠一點。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「今晚最好離舞台遠一點。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "今晚最好離舞台遠一點。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「今晚最好離舞台遠一點。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有陌生人警告舞台危險，可能影響今晚慶典。",
+     "thought": "舞台怎麼了？要是出事就糟糕了，得問問美玲。",
+     "feeling": "😟 不安",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：舞台怎麼了？要是出事就糟糕了，得問問美玲。",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 57904
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4,
+     "proposed": 0.4,
+     "verdict": "doubt",
+     "why": "不認識的客人隨口說的"
+    },
+    "zh": "阿德對「今晚最好離舞台遠一點」的信心：0.00 → 0.40（doubt）",
+    "actor": "baker",
+    "w": 57904
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 不安"
+    },
+    "zh": "阿德 😟 不安",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 57904
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "美玲，妳聽說什麼了嗎？剛有個客人在我店裡說今晚要離舞台遠一點，感覺怪怪的，妳知道發生什麼事嗎？",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「美玲，妳聽說什麼了嗎？剛有個客人在我店裡說今晚要離舞台遠一點，感覺怪怪的，妳知道發生什麼事嗎？」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 57904
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "美玲，妳聽說什麼了嗎？剛有個客人在我店裡說今晚要離舞台遠一點，感覺怪怪的，妳知道發生什麼事嗎？",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「美玲，妳聽說什麼了嗎？剛有個客人在我店裡說今晚要離舞台遠一點，感覺怪怪的，妳知道發生什麼事嗎？」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 57904
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "budget": true
+    },
+    "zh": "美玲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "florist",
+    "place": "flower",
+    "w": 57904
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "budget",
+     "festival": "scheduled"
+    },
+    "zh": "模擬達到決策上限。",
+    "w": 57904
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有陌生人警告舞台危險，可能影響今晚慶典。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "今晚最好離舞台遠一點",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.4,
+       "why": "不認識的客人隨口說的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 不安",
+     "thought": "舞台怎麼了？要是出事就糟糕了，得問問美玲。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "message": "美玲，妳聽說什麼了嗎？剛有個客人在我店裡說今晚要離舞台遠一點，感覺怪怪的，妳知道發生什麼事嗎？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 57904,
+      "latencyMs": 57904,
+      "attempts": 1,
+      "promptTokens": 1597,
+      "completionTokens": 212,
+      "platformCost": 0.0000238812,
+      "estCost": 0.0014345,
+      "status": 200,
+      "raw": "{\"understanding\": \"有陌生人警告舞台危險，可能影響今晚慶典。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"今晚最好離舞台遠一點\", \"topic\": \"stage_unsafe\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.4, \"why\": \"不認識的客人隨口說的\", \"cites\": [\"m1\"]}], \"feeling\": \"😟 不安\", \"thought\": \"舞台怎麼了？要是出事就糟糕了，得問問美玲。\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"message\": \"美玲，妳聽說什麼了嗎？剛有個客人在我店裡說今晚要離舞台遠一點，感覺怪怪的，妳知道發生什麼事嗎？\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 2647
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e8"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "今晚最好離舞台遠一點",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "不認識的客人隨口說的"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「今晚最好離舞台遠一點。」",
+     "15:20 你決定：打電話給美玲說「美玲，妳聽說什麼了嗎？剛有個客人在我店裡說今晚要離舞台遠一點，感覺怪怪的，妳知道發生什麼事嗎？」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:23 阿德說：「美玲，妳聽說什麼了嗎？剛有個客人在我店裡說今晚要離舞台遠一點，感覺怪怪的，妳知道發生什麼事嗎？」（你沒有多想）"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "budget",
+   "t": 23.4
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:14:46.356Z",
+   "ms": 57904
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1597,
+   "completionTokens": 212,
+   "platformCost": 0.0000238812,
+   "estCost": 0.0014345,
+   "errors": 0,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 2,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "phone": 1
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "stage_unsafe"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "美玲，妳聽說什麼了嗎？剛有個客人在我店裡說今晚要離舞台遠一點，感覺怪怪的，妳知道發生什麼事嗎？",
+    "similarity": 0.14
+   }
+  ],
+  "meanSimilarity": 0.14,
+  "explained": 1,
+  "visualEvents": 2,
+  "gameMinutes": 3.4,
+  "llmCalls": 1,
+  "llmSeconds": 57.9,
+  "tokens": 1809,
+  "estCost": 0.001435,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

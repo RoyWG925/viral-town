@@ -1,0 +1,335 @@
+{
+ "case": {
+  "id": "florist-unrelated",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "florist",
+  "seedText": "港口今天的魚特別便宜。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "unrelated"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "florist-unrelated",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "florist",
+   "seedText": "港口今天的魚特別便宜。",
+   "tags": [
+    "unrelated"
+   ],
+   "temperature": 0.7,
+   "label": "florist-unrelated"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "港口今天的魚特別便宜。"
+    },
+    "zh": "一個念頭被植入美玲耳中：「港口今天的魚特別便宜。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "港口今天的魚特別便宜。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "美玲聽到一位陌生客人說：「港口今天的魚特別便宜。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有個客人提到港口的魚現在很便宜。",
+     "thought": "魚便宜的話，晚餐可以考慮買一點。",
+     "feeling": "😊 平靜",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美玲：魚便宜的話，晚餐可以考慮買一點。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 16389
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.44,
+     "proposed": 0.7,
+     "verdict": "believe",
+     "why": "客人隨口提到的生活資訊"
+    },
+    "zh": "美玲對「港口今天的魚特別便宜」的信心：0.00 → 0.44（believe）",
+    "actor": "florist",
+    "w": 16389
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😊 平靜"
+    },
+    "zh": "美玲 😊 平靜",
+    "actor": "florist",
+    "place": "flower",
+    "w": 16389
+   },
+   {
+    "id": "e6",
+    "t": 20.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 16389
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "florist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有個客人提到港口的魚現在很便宜。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "港口今天的魚特別便宜",
+       "topic": "other",
+       "says": "unclear",
+       "category": "other"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.7,
+       "why": "客人隨口提到的生活資訊",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😊 平靜",
+     "thought": "魚便宜的話，晚餐可以考慮買一點。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "這只是個瑣碎的消息，我還得準備花飾。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 16389,
+      "latencyMs": 16389,
+      "attempts": 1,
+      "promptTokens": 1648,
+      "completionTokens": 157,
+      "platformCost": 0.0000198954,
+      "estCost": 0.001295,
+      "status": 200,
+      "raw": "{\"understanding\": \"有個客人提到港口的魚現在很便宜。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"港口今天的魚特別便宜\", \"topic\": \"other\", \"says\": \"unclear\", \"category\": \"other\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 0.7, \"why\": \"客人隨口提到的生活資訊\", \"cites\": [\"m1\"]}], \"feeling\": \"😊 平靜\", \"thought\": \"魚便宜的話，晚餐可以考慮買一點。\", \"actions\": [{\"type\": \"none\", \"why\": \"這只是個瑣碎的消息，我還得準備花飾。\"}]}",
+      "promptChars": 2726
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "港口今天的魚特別便宜",
+    "topic": "other",
+    "says": "unclear",
+    "category": "other",
+    "fact": null,
+    "asserts": null,
+    "origin": "e2",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.44,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "客人隨口提到的生活資訊"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「港口今天的魚特別便宜。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:23:18.698Z",
+   "ms": 16389
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1648,
+   "completionTokens": 157,
+   "platformCost": 0.0000198954,
+   "estCost": 0.001295,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "other"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.3,
+  "llmCalls": 1,
+  "llmSeconds": 16.4,
+  "tokens": 1805,
+  "estCost": 0.001295,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

@@ -1,0 +1,846 @@
+{
+ "case": {
+  "id": "fee-baker",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "攤位費漲價是因為鎮公所把錢花光了。",
+  "seed": 1,
+  "maxDecisions": 12,
+  "policy": "gemma",
+  "tags": [
+   "fee"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 12,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "fee-baker",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "攤位費漲價是因為鎮公所把錢花光了。",
+   "tags": [
+    "fee"
+   ],
+   "temperature": 0.7,
+   "label": "fee-baker"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "攤位費漲價是因為鎮公所把錢花光了。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「攤位費漲價是因為鎮公所把錢花光了。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "攤位費漲價是因為鎮公所把錢花光了。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「攤位費漲價是因為鎮公所把錢花光了。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "客人說攤位費漲價是因為鎮公所沒錢了。",
+     "thought": "如果公所沒錢了，那今年的慶典會不會出問題？",
+     "feeling": "😮 驚訝",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：如果公所沒錢了，那今年的慶典會不會出問題？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 18535
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.49,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "不認識的客人隨口說的"
+    },
+    "zh": "阿德對「攤位費漲價是因為鎮公所把錢花光了」的信心：0.00 → 0.49（doubt）",
+    "actor": "baker",
+    "w": 18535
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "阿德 😮 驚訝",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 18535
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "美玲！妳聽說了嗎？剛有個客人在我店裡說鎮公所把錢花光了，所以攤位費才漲價，這會是真的嗎？",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「美玲！妳聽說了嗎？剛有個客人在我店裡說鎮公所把錢花光了，所以攤位費才漲價，這會是真的嗎？」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 18535
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "美玲！妳聽說了嗎？剛有個客人在我店裡說鎮公所把錢花光了，所以攤位費才漲價，這會是真的嗎？",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「美玲！妳聽說了嗎？剛有個客人在我店裡說鎮公所把錢花光了，所以攤位費才漲價，這會是真的嗎？」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 18535
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "阿德告訴我有人傳言鎮公所經費花光才漲攤位費。",
+     "thought": "如果公所沒錢，那鴿子們的照顧會不會被縮減？",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：如果公所沒錢，那鴿子們的照顧會不會被縮減？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 48841
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.4,
+     "proposed": 0.4,
+     "verdict": "doubt",
+     "why": "只是客人的傳聞，但阿德特地打來。"
+    },
+    "zh": "美玲對「鎮公所把錢花光了，所以攤位費才漲價。」的信心：0.00 → 0.40（doubt）",
+    "actor": "florist",
+    "w": 48841
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "美玲 😟 擔心",
+    "actor": "florist",
+    "place": "flower",
+    "w": 48841
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "phone",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "text": "阿德，我也在想這件事。但那個客人還說了其他什麼嗎？我擔心如果經費真的出問題，慶典的準備會不會被隨便處理。",
+     "intent": "inform",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "美玲打電話給阿德：「阿德，我也在想這件事。但那個客人還說了其他什麼嗎？我擔心如果經費真的出問題，慶典的準備會不會被隨便處理。」",
+    "actor": "florist",
+    "target": "baker",
+    "place": "flower",
+    "w": 48841
+   },
+   {
+    "id": "e12",
+    "t": 26.4,
+    "type": "deliver",
+    "causes": [
+     "e11"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "phone",
+     "intent": "inform",
+     "text": "阿德，我也在想這件事。但那個客人還說了其他什麼嗎？我擔心如果經費真的出問題，慶典的準備會不會被隨便處理。",
+     "claims": [
+      "c2"
+     ],
+     "from": "florist"
+    },
+    "zh": "阿德在電話裡聽美玲說：「阿德，我也在想這件事。但那個客人還說了其他什麼嗎？我擔心如果經費真的出問題，慶典的準備會不會被隨便處理。」",
+    "target": "baker",
+    "actor": "florist",
+    "place": "bakery",
+    "w": 48841
+   },
+   {
+    "id": "e13",
+    "t": 26.599999999999998,
+    "type": "decide",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "美玲也擔心經費問題會影響慶典準備，想知道客人還說了什麼。",
+     "thought": "美玲也這麼想，那經費出問題真的很有可能！",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：美玲也這麼想，那經費出問題真的很有可能！",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 54143
+   },
+   {
+    "id": "e14",
+    "t": 26.7,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "阿德 😟 擔心",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 54143
+   },
+   {
+    "id": "e15",
+    "t": 27.599999999999998,
+    "type": "phone",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "text": "美玲，那個客人沒說更多了，就只提到錢花光這件事。但妳這麼一說，我也開始擔心了，要是慶典準備得亂七八糟怎麼辦！",
+     "intent": "inform",
+     "claims": []
+    },
+    "zh": "阿德打電話給美玲：「美玲，那個客人沒說更多了，就只提到錢花光這件事。但妳這麼一說，我也開始擔心了，要是慶典準備得亂七八糟怎麼辦！」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 54143
+   },
+   {
+    "id": "e16",
+    "t": 29.599999999999998,
+    "type": "deliver",
+    "causes": [
+     "e15"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "phone",
+     "intent": "inform",
+     "text": "美玲，那個客人沒說更多了，就只提到錢花光這件事。但妳這麼一說，我也開始擔心了，要是慶典準備得亂七八糟怎麼辦！",
+     "claims": [],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「美玲，那個客人沒說更多了，就只提到錢花光這件事。但妳這麼一說，我也開始擔心了，要是慶典準備得亂七八糟怎麼辦！」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 54143
+   },
+   {
+    "id": "e17",
+    "t": 29.799999999999997,
+    "type": "decide",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "阿德確認客人沒提供更多細節，但他也開始擔心慶典準備狀況。",
+     "thought": "如果經費真的不足，鴿子們的安置會不會被敷衍？",
+     "feeling": "😟 不安",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美玲：如果經費真的不足，鴿子們的安置會不會被敷衍？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 58997
+   },
+   {
+    "id": "e18",
+    "t": 29.9,
+    "type": "react",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "feeling": "😟 不安"
+    },
+    "zh": "美玲 😟 不安",
+    "actor": "florist",
+    "place": "flower",
+    "w": 58997
+   },
+   {
+    "id": "e19",
+    "t": 29.9,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 58998
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "客人說攤位費漲價是因為鎮公所沒錢了。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "攤位費漲價是因為鎮公所把錢花光了",
+       "topic": "budget_overrun",
+       "says": "yes",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "不認識的客人隨口說的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "如果公所沒錢了，那今年的慶典會不會出問題？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "message": "美玲！妳聽說了嗎？剛有個客人在我店裡說鎮公所把錢花光了，所以攤位費才漲價，這會是真的嗎？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 18535,
+      "latencyMs": 18535,
+      "attempts": 1,
+      "promptTokens": 1604,
+      "completionTokens": 306,
+      "platformCost": 0.0000406189,
+      "estCost": 0.00172,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"客人說攤位費漲價是因為鎮公所沒錢了。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"攤位費漲價是因為鎮公所把錢花光了\",\n      \"topic\": \"budget_overrun\",\n      \"says\": \"yes\",\n      \"category\": \"scandal\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.5,\n      \"why\": \"不認識的客人隨口說的\",\n      \"cites\": [\n        \"m1\"\n      ]\n    }\n  ],\n  \"feeling\": \"😮 驚訝\",\n  \"thought\": \"如果公所沒錢了，那今年的慶典會不會出問題？\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"florist\",\n      \"message\": \"美玲！妳聽說了嗎？剛有個客人在我店裡說鎮公所把錢花光了，所以攤位費才漲價，這會是真的嗎？\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2653
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德告訴我有人傳言鎮公所經費花光才漲攤位費。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "鎮公所把錢花光了，所以攤位費才漲價。",
+       "topic": "budget_overrun",
+       "says": "yes",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.4,
+       "why": "只是客人的傳聞，但阿德特地打來。",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "如果公所沒錢，那鴿子們的照顧會不會被縮減？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "baker",
+       "message": "阿德，我也在想這件事。但那個客人還說了其他什麼嗎？我擔心如果經費真的出問題，慶典的準備會不會被隨便處理。",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 18536,
+      "wallEndMs": 48841,
+      "latencyMs": 27247,
+      "attempts": 1,
+      "promptTokens": 1673,
+      "completionTokens": 319,
+      "platformCost": 0.0000440468,
+      "estCost": 0.0017935,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"阿德告訴我有人傳言鎮公所經費花光才漲攤位費。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m2\",\n      \"statement\": \"鎮公所把錢花光了，所以攤位費才漲價。\",\n      \"topic\": \"budget_overrun\",\n      \"says\": \"yes\",\n      \"category\": \"scandal\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.4,\n      \"why\": \"只是客人的傳聞，但阿德特地打來。\",\n      \"cites\": [\n        \"m2\"\n      ]\n    }\n  ],\n  \"feeling\": \"😟 擔心\",\n  \"thought\": \"如果公所沒錢，那鴿子們的照顧會不會被縮減？\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"baker\",\n      \"message\": \"阿德，我也在想這件事。但那個客人還說了其他什麼嗎？我擔心如果經費真的出問題，慶典的準備會不會被隨便處理。\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2756
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "baker",
+    "t": 26.599999999999998,
+    "triggers": [
+     "e12"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美玲也擔心經費問題會影響慶典準備，想知道客人還說了什麼。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😟 擔心",
+     "thought": "美玲也這麼想，那經費出問題真的很有可能！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "message": "美玲，那個客人沒說更多了，就只提到錢花光這件事。但妳這麼一說，我也開始擔心了，要是慶典準備得亂七八糟怎麼辦！",
+       "cites": [
+        "m3"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 48841,
+      "wallEndMs": 54143,
+      "latencyMs": 5302,
+      "attempts": 1,
+      "promptTokens": 1733,
+      "completionTokens": 134,
+      "platformCost": 0.0000330939,
+      "estCost": 0.0012685,
+      "status": 200,
+      "raw": "{\"understanding\": \"美玲也擔心經費問題會影響慶典準備，想知道客人還說了什麼。\", \"claims\": [], \"stances\": [], \"feeling\": \"😟 擔心\", \"thought\": \"美玲也這麼想，那經費出問題真的很有可能！\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"message\": \"美玲，那個客人沒說更多了，就只提到錢花光這件事。但妳這麼一說，我也開始擔心了，要是慶典準備得亂七八糟怎麼辦！\", \"cites\": [\"m3\"]}]}",
+      "promptChars": 2821
+     }
+    ],
+    "applied": [
+     "e13",
+     "e14"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "florist",
+    "t": 29.799999999999997,
+    "triggers": [
+     "e16"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德確認客人沒提供更多細節，但他也開始擔心慶典準備狀況。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😟 不安",
+     "thought": "如果經費真的不足，鴿子們的安置會不會被敷衍？",
+     "actions": [
+      {
+       "type": "none",
+       "why": "阿德沒提供新資訊，目前只能繼續工作，觀察後續。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d4",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 54143,
+      "wallEndMs": 58997,
+      "latencyMs": 4854,
+      "attempts": 1,
+      "promptTokens": 1814,
+      "completionTokens": 92,
+      "platformCost": 0.0000230076,
+      "estCost": 0.001183,
+      "status": 200,
+      "raw": "{\"understanding\": \"阿德確認客人沒提供更多細節，但他也開始擔心慶典準備狀況。\", \"claims\": [], \"stances\": [], \"feeling\": \"😟 不安\", \"thought\": \"如果經費真的不足，鴿子們的安置會不會被敷衍？\", \"actions\": [{\"type\": \"none\", \"why\": \"阿德沒提供新資訊，目前只能繼續工作，觀察後續。\"}]}",
+      "promptChars": 2935
+     }
+    ],
+    "applied": [
+     "e17",
+     "e18"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "攤位費漲價是因為鎮公所把錢花光了",
+    "topic": "budget_overrun",
+    "says": "yes",
+    "category": "scandal",
+    "fact": "budget_overrun",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   },
+   {
+    "id": "c2",
+    "statement": "鎮公所把錢花光了，所以攤位費才漲價。",
+    "topic": "budget_overrun",
+    "says": "yes",
+    "category": "scandal",
+    "fact": "budget_overrun",
+    "asserts": true,
+    "origin": "e7",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.49,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "不認識的客人隨口說的"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「攤位費漲價是因為鎮公所把錢花光了。」",
+     "15:20 你決定：打電話給美玲說「美玲！妳聽說了嗎？剛有個客人在我店裡說鎮公所把錢花光了，所以攤位費才漲價，這會是真的嗎？」",
+     "15:26 美玲打電話說：「阿德，我也在想這件事。但那個客人還說了其他什麼嗎？我擔心如果經費真的出問題，慶典的準備會不會被隨便處理。」",
+     "15:27 你決定：打電話給美玲說「美玲，那個客人沒說更多了，就只提到錢花光這件事。但妳這麼一說，我也開始擔心了，要是慶典準備得亂七八糟怎麼辦！」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.4,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 23.4,
+      "why": "只是客人的傳聞，但阿德特地打來。"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:23 阿德打電話說：「美玲！妳聽說了嗎？剛有個客人在我店裡說鎮公所把錢花光了，所以攤位費才漲價，這會是真的嗎？」",
+     "15:23 你決定：打電話給阿德說「阿德，我也在想這件事。但那個客人還說了其他什麼嗎？我擔心如果經費真的出問題，慶典的準備會不會被隨便處理。」",
+     "15:30 阿德打電話說：「美玲，那個客人沒說更多了，就只提到錢花光這件事。但妳這麼一說，我也開始擔心了，要是慶典準備得亂七八糟怎麼辦！」",
+     "15:30 你決定先不做什麼。"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 29.9
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:37:31.893Z",
+   "ms": 58998
+  },
+  "llm": {
+   "calls": 4,
+   "attempts": 4,
+   "promptTokens": 6824,
+   "completionTokens": 851,
+   "platformCost": 0.0001407672,
+   "estCost": 0.005965,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 4,
+  "reach": 2,
+  "believers": 0,
+  "decisions": 4,
+  "noneDecisions": 1,
+  "actionsDone": {
+   "phone": 3
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "budget_overrun"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "美玲！妳聽說了嗎？剛有個客人在我店裡說鎮公所把錢花光了，所以攤位費才漲價，這會是真的嗎？",
+    "similarity": 0.23
+   },
+   {
+    "from": "florist",
+    "to": "baker",
+    "text": "阿德，我也在想這件事。但那個客人還說了其他什麼嗎？我擔心如果經費真的出問題，慶典的準備會不會被隨便處理。",
+    "similarity": 0
+   },
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "美玲，那個客人沒說更多了，就只提到錢花光這件事。但妳這麼一說，我也開始擔心了，要是慶典準備得亂七八糟怎麼辦！",
+    "similarity": 0.03
+   }
+  ],
+  "meanSimilarity": 0.09,
+  "explained": 1,
+  "visualEvents": 7,
+  "gameMinutes": 9.9,
+  "llmCalls": 4,
+  "llmSeconds": 55.9,
+  "tokens": 7675,
+  "estCost": 0.005965,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

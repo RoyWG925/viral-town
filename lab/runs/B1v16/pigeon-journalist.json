@@ -1,0 +1,551 @@
+{
+ "case": {
+  "id": "pigeon-journalist",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "journalist",
+  "seedText": "聽說市長很害怕鴿子。",
+  "seed": 1,
+  "maxDecisions": 12,
+  "policy": "gemma",
+  "tags": [
+   "pigeon"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 12,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "pigeon-journalist",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "journalist",
+   "seedText": "聽說市長很害怕鴿子。",
+   "tags": [
+    "pigeon"
+   ],
+   "temperature": 0.7,
+   "label": "pigeon-journalist"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說市長很害怕鴿子。"
+    },
+    "zh": "一個念頭被植入小雯耳中：「聽說市長很害怕鴿子。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "小雯聽到一位陌生客人說：「聽說市長很害怕鴿子。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人傳市長怕鴿子，這可能跟今晚放鴿子的活動有衝突。",
+     "thought": "如果市長怕鴿子卻要放鴿子，這標題一定很吸睛！",
+     "feeling": "🧐 有趣",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "小雯：如果市長怕鴿子卻要放鴿子，這標題一定很吸睛！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 44835
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4525,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "只是路人的傳聞"
+    },
+    "zh": "小雯對「市長很害怕鴿子」的信心：0.00 → 0.45（doubt）",
+    "actor": "journalist",
+    "w": 44835
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🧐 有趣"
+    },
+    "zh": "小雯 🧐 有趣",
+    "actor": "journalist",
+    "place": "news",
+    "w": 44835
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "美玲，妳在花店嗎？快幫我確認一下，妳有沒有聽說市長其實很怕鴿子？",
+     "intent": "ask",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "小雯打電話給美玲：「美玲，妳在花店嗎？快幫我確認一下，妳有沒有聽說市長其實很怕鴿子？」",
+    "actor": "journalist",
+    "target": "florist",
+    "place": "news",
+    "w": 44835
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "ask",
+     "text": "美玲，妳在花店嗎？快幫我確認一下，妳有沒有聽說市長其實很怕鴿子？",
+     "claims": [
+      "c1"
+     ],
+     "from": "journalist"
+    },
+    "zh": "美玲在電話裡聽小雯說：「美玲，妳在花店嗎？快幫我確認一下，妳有沒有聽說市長其實很怕鴿子？」",
+    "target": "florist",
+    "actor": "journalist",
+    "place": "flower",
+    "w": 44835
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "小雯想確認市長是否恐鴿，可能是為了找新聞素材。",
+     "thought": "如果市長怕鴿子，那放飛鴿子的計畫會出問題嗎？",
+     "feeling": "🤔 好奇",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美玲：如果市長怕鴿子，那放飛鴿子的計畫會出問題嗎？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 264560
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.5,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "只是小雯的詢問，還沒聽過這傳聞"
+    },
+    "zh": "美玲對「市長其實很怕鴿子」的信心：0.00 → 0.50（doubt）",
+    "actor": "florist",
+    "w": 264560
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "🤔 好奇"
+    },
+    "zh": "美玲 🤔 好奇",
+    "actor": "florist",
+    "place": "flower",
+    "w": 264560
+   },
+   {
+    "id": "e11",
+    "t": 23.5,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 264560
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "journalist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人傳市長怕鴿子，這可能跟今晚放鴿子的活動有衝突。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "市長很害怕鴿子",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "只是路人的傳聞",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "🧐 有趣",
+     "thought": "如果市長怕鴿子卻要放鴿子，這標題一定很吸睛！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "intent": "ask",
+       "message": "美玲，妳在花店嗎？快幫我確認一下，妳有沒有聽說市長其實很怕鴿子？",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 44835,
+      "latencyMs": 22790,
+      "attempts": 1,
+      "promptTokens": 1592,
+      "completionTokens": 213,
+      "platformCost": 0.0000235361,
+      "estCost": 0.001435,
+      "status": 200,
+      "raw": "{\"understanding\": \"有人傳市長怕鴿子，這可能跟今晚放鴿子的活動有衝突。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"市長很害怕鴿子\", \"topic\": \"mayor_fears_pigeons\", \"says\": \"yes\", \"category\": \"personal\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.5, \"why\": \"只是路人的傳聞\", \"cites\": [\"m1\"]}], \"feeling\": \"🧐 有趣\", \"thought\": \"如果市長怕鴿子卻要放鴿子，這標題一定很吸睛！\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"intent\": \"ask\", \"message\": \"美玲，妳在花店嗎？快幫我確認一下，妳有沒有聽說市長其實很怕鴿子？\", \"cites\": [\"c0\"]}]}",
+      "promptChars": 2635
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯想確認市長是否恐鴿，可能是為了找新聞素材。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "市長其實很怕鴿子",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "只是小雯的詢問，還沒聽過這傳聞",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "🤔 好奇",
+     "thought": "如果市長怕鴿子，那放飛鴿子的計畫會出問題嗎？",
+     "actions": [
+      {
+       "type": "none",
+       "why": "我不知道市長怕不怕鴿子，沒必要隨便亂猜或亂傳。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 44835,
+      "wallEndMs": 264560,
+      "latencyMs": 153685,
+      "attempts": 5,
+      "promptTokens": 1661,
+      "completionTokens": 187,
+      "platformCost": 0.000014287,
+      "estCost": 0.0013915,
+      "status": 200,
+      "raw": "{\"understanding\": \"小雯想確認市長是否恐鴿，可能是為了找新聞素材。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m2\", \"statement\": \"市長其實很怕鴿子\", \"topic\": \"mayor_fears_pigeons\", \"says\": \"yes\", \"category\": \"personal\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.5, \"why\": \"只是小雯的詢問，還沒聽過這傳聞\", \"cites\": [\"m2\"]}], \"feeling\": \"🤔 好奇\", \"thought\": \"如果市長怕鴿子，那放飛鴿子的計畫會出問題嗎？\", \"actions\": [{\"type\": \"none\", \"why\": \"我不知道市長怕不怕鴿子，沒必要隨便亂猜或亂傳。\"}]}",
+      "promptChars": 2741
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "市長很害怕鴿子",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e2",
+    "by": "journalist"
+   },
+   {
+    "id": "c2",
+    "statement": "市長其實很怕鴿子",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e7",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.5,
+      "sources": [
+       "journalist"
+      ],
+      "updatedAt": 23.4,
+      "why": "只是小雯的詢問，還沒聽過這傳聞"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:23 小雯打電話說：「美玲，妳在花店嗎？快幫我確認一下，妳有沒有聽說市長其實很怕鴿子？」",
+     "15:23 你決定先不做什麼。"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4525,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "只是路人的傳聞"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說市長很害怕鴿子。」",
+     "15:20 你決定：打電話給美玲說「美玲，妳在花店嗎？快幫我確認一下，妳有沒有聽說市長其實很怕鴿子？」"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 23.5
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:11:30.119Z",
+   "ms": 264560
+  },
+  "llm": {
+   "calls": 2,
+   "attempts": 6,
+   "promptTokens": 3253,
+   "completionTokens": 400,
+   "platformCost": 0.0000378231,
+   "estCost": 0.0028265,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 2,
+  "reach": 2,
+  "believers": 1,
+  "decisions": 2,
+  "noneDecisions": 1,
+  "actionsDone": {
+   "phone": 1
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "mayor_fears_pigeons"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "journalist",
+    "to": "florist",
+    "text": "美玲，妳在花店嗎？快幫我確認一下，妳有沒有聽說市長其實很怕鴿子？",
+    "similarity": 0.17
+   }
+  ],
+  "meanSimilarity": 0.17,
+  "explained": 1,
+  "visualEvents": 3,
+  "gameMinutes": 3.5,
+  "llmCalls": 2,
+  "llmSeconds": 176.5,
+  "tokens": 3653,
+  "estCost": 0.002827,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

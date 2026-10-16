@@ -1,0 +1,351 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "mayor",
+    "organizer",
+    "police",
+    "cafe",
+    "vendor"
+   ],
+   "seedNpc": "mayor",
+   "seedText": "放心，大家都說預算一點都沒有超支。",
+   "seed": 2,
+   "policy": "gemma",
+   "variant": "single",
+   "temperature": 0.7,
+   "maxDecisions": 1,
+   "label": "deny-mayor-s2"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "放心，大家都說預算一點都沒有超支。"
+    },
+    "zh": "一個念頭被植入林市長耳中：「放心，大家都說預算一點都沒有超支。」",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 1
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "放心，大家都說預算一點都沒有超支。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "林市長聽到一位陌生客人說：「放心，大家都說預算一點都沒有超支。」",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 1
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人以為預算沒超支，這對我來說是好事。",
+     "thought": "只要民眾不懷疑預算問題，我的連任就穩了。",
+     "feeling": "😌 欣慰",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "林市長：只要民眾不懷疑預算問題，我的連任就穩了。",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 55906
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0,
+     "proposed": 0,
+     "verdict": "disbelieve",
+     "why": "我知道預算其實超支三成"
+    },
+    "zh": "林市長對「大家都說預算一點都沒有超支」的信心：0.00 → 0.00（disbelieve）",
+    "actor": "mayor",
+    "w": 55906
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😌 欣慰"
+    },
+    "zh": "林市長 😌 欣慰",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 55906
+   },
+   {
+    "id": "e6",
+    "t": 210,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 55906
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "mayor",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人以為預算沒超支，這對我來說是好事。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "大家都說預算一點都沒有超支",
+       "topic": "budget_overrun",
+       "says": "no",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0,
+       "why": "我知道預算其實超支三成",
+       "cites": [
+        "budget_overrun"
+       ]
+      }
+     ],
+     "feeling": "😌 欣慰",
+     "thought": "只要民眾不懷疑預算問題，我的連任就穩了。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "既然民眾目前沒有懷疑，我不需要採取任何行動去驚動他們。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new",
+       "inverted confidence 1 → 0.00 (disbelieve)"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "mayor",
+      "stage": "single",
+      "wallStartMs": 3,
+      "wallEndMs": 55903,
+      "latencyMs": 55899,
+      "attempts": 1,
+      "promptTokens": 1955,
+      "completionTokens": 181,
+      "platformCost": 0.0000720741,
+      "estCost": 0.0015205,
+      "status": 200,
+      "raw": "{\"understanding\": \"有客人以為預算沒超支，這對我來說是好事。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"大家都說預算一點都沒有超支\", \"topic\": \"budget_overrun\", \"says\": \"no\", \"category\": \"scandal\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"disbelieve\", \"confidence\": 1, \"why\": \"我知道預算其實超支三成\", \"cites\": [\"budget_overrun\"]}], \"feeling\": \"😌 欣慰\", \"thought\": \"只要民眾不懷疑預算問題，我的連任就穩了。\", \"actions\": [{\"type\": \"none\", \"why\": \"既然民眾目前沒有懷疑，我不需要採取任何行動去驚動他們。\"}]}",
+      "promptChars": 3183
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "大家都說預算一點都沒有超支",
+    "topic": "budget_overrun",
+    "says": "no",
+    "category": "scandal",
+    "fact": "budget_overrun",
+    "asserts": false,
+    "origin": "e2",
+    "by": "mayor"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "我知道預算其實超支三成"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「放心，大家都說預算一點都沒有超支。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 210
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:58:41.893Z",
+   "ms": 55908
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1955,
+   "completionTokens": 181,
+   "platformCost": 0.0000720741,
+   "estCost": 0.0015205,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "budget_overrun"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 190,
+  "llmCalls": 1,
+  "llmSeconds": 55.9,
+  "tokens": 2136,
+  "estCost": 0.00152,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

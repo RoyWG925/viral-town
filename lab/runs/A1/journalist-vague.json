@@ -1,0 +1,514 @@
+{
+ "case": {
+  "id": "journalist-vague",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "journalist",
+  "seedText": "今晚最好離舞台遠一點。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "vague"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "journalist-vague",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "journalist",
+   "seedText": "今晚最好離舞台遠一點。",
+   "tags": [
+    "vague"
+   ],
+   "temperature": 0.7,
+   "label": "journalist-vague"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "今晚最好離舞台遠一點。"
+    },
+    "zh": "一個念頭被植入小雯耳中：「今晚最好離舞台遠一點。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "今晚最好離舞台遠一點。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "小雯聽到一位陌生客人說：「今晚最好離舞台遠一點。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人警告舞台有危險，這可能是個大新聞。",
+     "thought": "如果舞台真的有問題，這絕對能讓我的流量暴漲！",
+     "feeling": "🤩 興奮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：如果舞台真的有問題，這絕對能讓我的流量暴漲！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 27292
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4525,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "路人隨口說的，需要證實。"
+    },
+    "zh": "小雯對「今晚慶典的舞台可能有危險，應該遠離。」的信心：0.00 → 0.45（doubt）",
+    "actor": "journalist",
+    "w": 27292
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🤩 興奮"
+    },
+    "zh": "小雯 🤩 興奮",
+    "actor": "journalist",
+    "place": "news",
+    "w": 27292
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "move",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "from": "news",
+     "to": "stage",
+     "arrive": 21.7,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向慶典舞台",
+    "actor": "journalist",
+    "place": "news",
+    "w": 27292
+   },
+   {
+    "id": "e7",
+    "t": 21.7,
+    "type": "arrive",
+    "causes": [
+     "e6"
+    ],
+    "data": {},
+    "zh": "小雯到了慶典舞台",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 27292
+   },
+   {
+    "id": "e8",
+    "t": 21.7,
+    "type": "look",
+    "causes": [
+     "e3"
+    ],
+    "data": {},
+    "zh": "小雯在慶典舞台到處看看",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 27292
+   },
+   {
+    "id": "e9",
+    "t": 24.7,
+    "type": "look",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "found": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "learned": [
+      "pigeons",
+      "pigeons_sick",
+      "lanterns_unsafe"
+     ]
+    },
+    "zh": "小雯看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 27292
+   },
+   {
+    "id": "e10",
+    "t": 24.7,
+    "type": "deliver",
+    "causes": [
+     "e9"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "target": "journalist",
+    "place": "stage",
+    "w": 27292
+   },
+   {
+    "id": "e11",
+    "t": 24.7,
+    "type": "move",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "news",
+     "arrive": 25.2,
+     "home": true
+    },
+    "zh": "小雯從慶典舞台走回霧港新聞社",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 27292
+   },
+   {
+    "id": "e12",
+    "t": 25.2,
+    "type": "arrive",
+    "causes": [
+     "e11"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 27292
+   },
+   {
+    "id": "e13",
+    "t": 25.2,
+    "type": "decide",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "decision": "d2",
+     "budget": true
+    },
+    "zh": "小雯聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "journalist",
+    "place": "news",
+    "w": 27292
+   },
+   {
+    "id": "e14",
+    "t": 25.2,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "budget",
+     "festival": "scheduled"
+    },
+    "zh": "模擬達到決策上限。",
+    "w": 27292
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "journalist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人警告舞台有危險，這可能是個大新聞。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "今晚慶典的舞台可能有危險，應該遠離。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "路人隨口說的，需要證實。",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "🤩 興奮",
+     "thought": "如果舞台真的有問題，這絕對能讓我的流量暴漲！",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "stage",
+       "intent": "investigate",
+       "message": "去舞台看看有沒有什麼異常。",
+       "cites": [
+        "m1"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 1,
+      "wallEndMs": 27292,
+      "latencyMs": 24899,
+      "attempts": 1,
+      "promptTokens": 1592,
+      "completionTokens": 195,
+      "platformCost": 0.0000222761,
+      "estCost": 0.001381,
+      "status": 200,
+      "raw": "{\"understanding\": \"有人警告舞台有危險，這可能是個大新聞。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"今晚慶典的舞台可能有危險，應該遠離。\", \"topic\": \"stage_unsafe\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.5, \"why\": \"路人隨口說的，需要證實。\", \"cites\": [\"m1\"]}], \"feeling\": \"🤩 興奮\", \"thought\": \"如果舞台真的有問題，這絕對能讓我的流量暴漲！\", \"actions\": [{\"type\": \"go_look\", \"place\": \"stage\", \"intent\": \"investigate\", \"message\": \"去舞台看看有沒有什麼異常。\", \"cites\": [\"m1\"]}]}",
+      "promptChars": 2636
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "journalist",
+    "t": 25.2,
+    "triggers": [
+     "e10",
+     "e10"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e13"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "今晚慶典的舞台可能有危險，應該遠離。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e2",
+    "by": "journalist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4525,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "路人隨口說的，需要證實。"
+     }
+    ],
+    "learned": [
+     [
+      "pigeons",
+      true
+     ],
+     [
+      "pigeons_sick",
+      false
+     ],
+     [
+      "lanterns_unsafe",
+      false
+     ]
+    ],
+    "memory": [
+     "15:20 一位陌生客人說：「今晚最好離舞台遠一點。」",
+     "15:20 你決定：去慶典舞台看看",
+     "15:25 你自己說：「舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。」（你沒有多想）"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "budget",
+   "t": 25.2
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:26:17.903Z",
+   "ms": 27292
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1592,
+   "completionTokens": 195,
+   "platformCost": 0.0000222761,
+   "estCost": 0.001381,
+   "errors": 0,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "look": 2
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "stage_unsafe"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 7,
+  "gameMinutes": 5.2,
+  "llmCalls": 1,
+  "llmSeconds": 24.9,
+  "tokens": 1787,
+  "estCost": 0.001381,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

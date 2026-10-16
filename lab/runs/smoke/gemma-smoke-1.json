@@ -1,0 +1,266 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "聽說市長很害怕鴿子。",
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "temperature": 0.7,
+   "maxDecisions": 12,
+   "label": "gemma-smoke-1"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說市長很害怕鴿子。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「聽說市長很害怕鴿子。」",
+    "target": "baker",
+    "place": "bakery"
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「聽說市長很害怕鴿子。」",
+    "target": "baker",
+    "place": "bakery"
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "",
+     "thought": "（沒能做出判斷）",
+     "feeling": "😶 愣住",
+     "policy": "gemma",
+     "fallback": true,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "阿德：（沒能做出判斷）",
+    "actor": "baker",
+    "place": "bakery"
+   },
+   {
+    "id": "e4",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😶 愣住"
+    },
+    "zh": "阿德 😶 愣住",
+    "actor": "baker",
+    "place": "bakery"
+   },
+   {
+    "id": "e5",
+    "t": 20.2,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。"
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "",
+     "claims": [],
+     "stances": [],
+     "feeling": "😶 愣住",
+     "thought": "（沒能做出判斷）",
+     "actions": [
+      {
+       "type": "none",
+       "why": "fallback"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": [
+       "model error: TimeoutError: The operation was aborted due to timeout"
+      ]
+     },
+     {
+      "attempt": 2,
+      "errors": [
+       "model error: HTTP 500: Error from provider self-dploy: 503 Service Unavailable {\"error\":{\"type\":\"Service Unavailable\",\"code\":\"no_available_workers\",\"message\":\"No available workers (all circuits open or unhealthy)\"}}"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 1,
+      "wallEndMs": 107373,
+      "latencyMs": 92652,
+      "attempts": 4,
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "platformCost": 0,
+      "estCost": 0,
+      "status": 0,
+      "error": "TimeoutError: The operation was aborted due to timeout",
+      "raw": null,
+      "promptChars": 2521
+     },
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 107373,
+      "wallEndMs": 215230,
+      "latencyMs": 92803,
+      "attempts": 4,
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "platformCost": 0,
+      "estCost": 0,
+      "status": 500,
+      "error": "HTTP 500: Error from provider self-dploy: 503 Service Unavailable {\"error\":{\"type\":\"Service Unavailable\",\"code\":\"no_available_workers\",\"message\":\"No available workers (all circuits open or unhealthy)\"}}",
+      "raw": null,
+      "promptChars": 2521
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4"
+    ]
+   }
+  ],
+  "claims": [],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說市長很害怕鴿子。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.2
+  },
+  "wall": {
+   "startedAt": "2026-10-16T12:11:44.033Z",
+   "ms": 215232
+  },
+  "llm": {
+   "calls": 2,
+   "attempts": 8,
+   "promptTokens": 0,
+   "completionTokens": 0,
+   "platformCost": 0,
+   "estCost": 0,
+   "errors": 2,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.2,
+  "llmCalls": 2,
+  "llmSeconds": 185.5,
+  "tokens": 0,
+  "estCost": 0,
+  "validatorRetries": 1,
+  "fallbacks": 1
+ }
+}

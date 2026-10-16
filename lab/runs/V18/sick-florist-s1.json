@@ -1,0 +1,350 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "mayor",
+    "organizer",
+    "police",
+    "cafe",
+    "vendor"
+   ],
+   "seedNpc": "florist",
+   "seedText": "慶典那批鴿子好像生病了。",
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "temperature": 0.7,
+   "maxDecisions": 1,
+   "label": "sick-florist-s1"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "慶典那批鴿子好像生病了。"
+    },
+    "zh": "一個念頭被植入美玲耳中：「慶典那批鴿子好像生病了。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 2
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "慶典那批鴿子好像生病了。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "美玲聽到一位陌生客人說：「慶典那批鴿子好像生病了。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 2
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人說慶典的鴿子生病了，這對動物很危險。",
+     "thought": "雖然我知道鴿子很健康，但如果真的生病了就太糟糕了。",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美玲：雖然我知道鴿子很健康，但如果真的生病了就太糟糕了。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 55522
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0,
+     "proposed": 0,
+     "verdict": "disbelieve",
+     "why": "我知道鴿子們都很健康"
+    },
+    "zh": "美玲對「慶典那批鴿子好像生病了」的信心：0.00 → 0.00（disbelieve）",
+    "actor": "florist",
+    "w": 55522
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "美玲 😟 擔心",
+    "actor": "florist",
+    "place": "flower",
+    "w": 55522
+   },
+   {
+    "id": "e6",
+    "t": 210,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 55522
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "florist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人說慶典的鴿子生病了，這對動物很危險。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "慶典那批鴿子好像生病了",
+       "topic": "pigeons_sick",
+       "says": "yes",
+       "category": "health"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0,
+       "why": "我知道鴿子們都很健康",
+       "cites": [
+        "pigeons_sick"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "雖然我知道鴿子很健康，但如果真的生病了就太糟糕了。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "我知道鴿子沒生病，不需採取行動。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 4,
+      "wallEndMs": 55519,
+      "latencyMs": 55515,
+      "attempts": 1,
+      "promptTokens": 1885,
+      "completionTokens": 179,
+      "platformCost": 0.0000694841,
+      "estCost": 0.0014795,
+      "status": 200,
+      "raw": "{\"understanding\": \"有客人說慶典的鴿子生病了，這對動物很危險。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"慶典那批鴿子好像生病了\", \"topic\": \"pigeons_sick\", \"says\": \"yes\", \"category\": \"health\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"disbelieve\", \"confidence\": 0, \"why\": \"我知道鴿子們都很健康\", \"cites\": [\"pigeons_sick\"]}], \"feeling\": \"😟 擔心\", \"thought\": \"雖然我知道鴿子很健康，但如果真的生病了就太糟糕了。\", \"actions\": [{\"type\": \"none\", \"why\": \"我知道鴿子沒生病，不需採取行動。\"}]}",
+      "promptChars": 3060
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "慶典那批鴿子好像生病了",
+    "topic": "pigeons_sick",
+    "says": "yes",
+    "category": "health",
+    "fact": "pigeons_sick",
+    "asserts": true,
+    "origin": "e2",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "我知道鴿子們都很健康"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「慶典那批鴿子好像生病了。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 210
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:58:41.813Z",
+   "ms": 55525
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1885,
+   "completionTokens": 179,
+   "platformCost": 0.0000694841,
+   "estCost": 0.0014795,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "pigeons_sick"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 190,
+  "llmCalls": 1,
+  "llmSeconds": 55.5,
+  "tokens": 2064,
+  "estCost": 0.001479,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

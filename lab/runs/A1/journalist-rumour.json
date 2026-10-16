@@ -1,0 +1,495 @@
+{
+ "case": {
+  "id": "journalist-rumour",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "journalist",
+  "seedText": "聽說市長很害怕鴿子。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "unverifiable"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "journalist-rumour",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "journalist",
+   "seedText": "聽說市長很害怕鴿子。",
+   "tags": [
+    "unverifiable"
+   ],
+   "temperature": 0.7,
+   "label": "journalist-rumour"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說市長很害怕鴿子。"
+    },
+    "zh": "一個念頭被植入小雯耳中：「聽說市長很害怕鴿子。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "小雯聽到一位陌生客人說：「聽說市長很害怕鴿子。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人傳市長怕鴿子，但開場要放鴿子，這可能有戲。",
+     "thought": "如果市長怕鴿子卻要放鴿子，這標題一定很吸睛！",
+     "feeling": "😏 有興趣",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：如果市長怕鴿子卻要放鴿子，這標題一定很吸睛！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 18484
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4525,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "只是路人的傳聞"
+    },
+    "zh": "小雯對「市長很害怕鴿子」的信心：0.00 → 0.45（doubt）",
+    "actor": "journalist",
+    "w": 18484
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😏 有興趣"
+    },
+    "zh": "小雯 😏 有興趣",
+    "actor": "journalist",
+    "place": "news",
+    "w": 18484
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "move",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "from": "news",
+     "to": "townhall",
+     "arrive": 21.7,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向鎮公所",
+    "actor": "journalist",
+    "place": "news",
+    "w": 18484
+   },
+   {
+    "id": "e7",
+    "t": 21.7,
+    "type": "arrive",
+    "causes": [
+     "e6"
+    ],
+    "data": {},
+    "zh": "小雯到了鎮公所",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 18484
+   },
+   {
+    "id": "e8",
+    "t": 21.7,
+    "type": "look",
+    "causes": [
+     "e3"
+    ],
+    "data": {},
+    "zh": "小雯在鎮公所到處看看",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 18484
+   },
+   {
+    "id": "e9",
+    "t": 24.7,
+    "type": "look",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "found": "鎮公所看起來一切如常，沒看到什麼特別的。",
+     "learned": []
+    },
+    "zh": "小雯看到：鎮公所看起來一切如常，沒看到什麼特別的。",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 18484
+   },
+   {
+    "id": "e10",
+    "t": 24.7,
+    "type": "deliver",
+    "causes": [
+     "e9"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "鎮公所看起來一切如常，沒看到什麼特別的。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：鎮公所看起來一切如常，沒看到什麼特別的。",
+    "target": "journalist",
+    "place": "townhall",
+    "w": 18484
+   },
+   {
+    "id": "e11",
+    "t": 24.7,
+    "type": "move",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "from": "townhall",
+     "to": "news",
+     "arrive": 25.2,
+     "home": true
+    },
+    "zh": "小雯從鎮公所走回霧港新聞社",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 18484
+   },
+   {
+    "id": "e12",
+    "t": 25.2,
+    "type": "arrive",
+    "causes": [
+     "e11"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 18484
+   },
+   {
+    "id": "e13",
+    "t": 25.2,
+    "type": "decide",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "decision": "d2",
+     "budget": true
+    },
+    "zh": "小雯聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "journalist",
+    "place": "news",
+    "w": 18484
+   },
+   {
+    "id": "e14",
+    "t": 25.2,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "budget",
+     "festival": "scheduled"
+    },
+    "zh": "模擬達到決策上限。",
+    "w": 18484
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "journalist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人傳市長怕鴿子，但開場要放鴿子，這可能有戲。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "市長很害怕鴿子",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "只是路人的傳聞",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😏 有興趣",
+     "thought": "如果市長怕鴿子卻要放鴿子，這標題一定很吸睛！",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "townhall",
+       "intent": "inform",
+       "message": "",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 18484,
+      "latencyMs": 18484,
+      "attempts": 1,
+      "promptTokens": 1592,
+      "completionTokens": 188,
+      "platformCost": 0.0000218547,
+      "estCost": 0.00136,
+      "status": 200,
+      "raw": "{\"understanding\": \"有人傳市長怕鴿子，但開場要放鴿子，這可能有戲。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"市長很害怕鴿子\", \"topic\": \"mayor_fears_pigeons\", \"says\": \"yes\", \"category\": \"personal\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.5, \"why\": \"只是路人的傳聞\", \"cites\": [\"m1\"]}], \"feeling\": \"😏 有興趣\", \"thought\": \"如果市長怕鴿子卻要放鴿子，這標題一定很吸睛！\", \"actions\": [{\"type\": \"go_look\", \"place\": \"townhall\", \"intent\": \"inform\", \"message\": \"\", \"cites\": [\"c0\"]}]}",
+      "promptChars": 2635
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "journalist",
+    "t": 25.2,
+    "triggers": [
+     "e10",
+     "e10"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e13"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "市長很害怕鴿子",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e2",
+    "by": "journalist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4525,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "只是路人的傳聞"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說市長很害怕鴿子。」",
+     "15:20 你決定：去鎮公所看看",
+     "15:25 你自己說：「鎮公所看起來一切如常，沒看到什麼特別的。」（你沒有多想）"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "budget",
+   "t": 25.2
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:25:20.242Z",
+   "ms": 18484
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1592,
+   "completionTokens": 188,
+   "platformCost": 0.0000218547,
+   "estCost": 0.00136,
+   "errors": 0,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "look": 2
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "mayor_fears_pigeons"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 7,
+  "gameMinutes": 5.2,
+  "llmCalls": 1,
+  "llmSeconds": 18.5,
+  "tokens": 1780,
+  "estCost": 0.00136,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

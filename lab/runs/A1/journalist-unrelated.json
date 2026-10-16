@@ -1,0 +1,335 @@
+{
+ "case": {
+  "id": "journalist-unrelated",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "journalist",
+  "seedText": "港口今天的魚特別便宜。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "unrelated"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "journalist-unrelated",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "journalist",
+   "seedText": "港口今天的魚特別便宜。",
+   "tags": [
+    "unrelated"
+   ],
+   "temperature": 0.7,
+   "label": "journalist-unrelated"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "港口今天的魚特別便宜。"
+    },
+    "zh": "一個念頭被植入小雯耳中：「港口今天的魚特別便宜。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "港口今天的魚特別便宜。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "小雯聽到一位陌生客人說：「港口今天的魚特別便宜。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人說港口的魚今天很便宜。",
+     "thought": "魚便宜能有流量嗎？除非是中毒或非法捕撈。",
+     "feeling": "😐 平淡",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "小雯：魚便宜能有流量嗎？除非是中毒或非法捕撈。",
+    "actor": "journalist",
+    "place": "news",
+    "w": 24819
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4525,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "隨機客人的話，缺乏依據"
+    },
+    "zh": "小雯對「港口今天的魚特別便宜」的信心：0.00 → 0.45（doubt）",
+    "actor": "journalist",
+    "w": 24819
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😐 平淡"
+    },
+    "zh": "小雯 😐 平淡",
+    "actor": "journalist",
+    "place": "news",
+    "w": 24819
+   },
+   {
+    "id": "e6",
+    "t": 20.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 24819
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "journalist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人說港口的魚今天很便宜。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "港口今天的魚特別便宜",
+       "topic": "other",
+       "says": "unclear",
+       "category": "other"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "隨機客人的話，缺乏依據",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😐 平淡",
+     "thought": "魚便宜能有流量嗎？除非是中毒或非法捕撈。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "魚便宜這件事對我的部落格流量沒有任何幫助。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 24819,
+      "latencyMs": 24819,
+      "attempts": 1,
+      "promptTokens": 1591,
+      "completionTokens": 237,
+      "platformCost": 0.0000252497,
+      "estCost": 0.0015065,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"有人說港口的魚今天很便宜。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"港口今天的魚特別便宜\",\n      \"topic\": \"other\",\n      \"says\": \"unclear\",\n      \"category\": \"other\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.5,\n      \"why\": \"隨機客人的話，缺乏依據\",\n      \"cites\": [\n        \"m1\"\n      ]\n    }\n  ],\n  \"feeling\": \"😐 平淡\",\n  \"thought\": \"魚便宜能有流量嗎？除非是中毒或非法捕撈。\",\n  \"actions\": [\n    {\n      \"type\": \"none\",\n      \"why\": \"魚便宜這件事對我的部落格流量沒有任何幫助。\"\n    }\n  ]\n}",
+      "promptChars": 2636
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "港口今天的魚特別便宜",
+    "topic": "other",
+    "says": "unclear",
+    "category": "other",
+    "fact": null,
+    "asserts": null,
+    "origin": "e2",
+    "by": "journalist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4525,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "隨機客人的話，缺乏依據"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「港口今天的魚特別便宜。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:27:08.693Z",
+   "ms": 24819
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1591,
+   "completionTokens": 237,
+   "platformCost": 0.0000252497,
+   "estCost": 0.0015065,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "other"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.3,
+  "llmCalls": 1,
+  "llmSeconds": 24.8,
+  "tokens": 1828,
+  "estCost": 0.001507,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

@@ -1,0 +1,1451 @@
+{
+ "case": {
+  "id": "R-pigeon-baker",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "聽說市長很害怕鴿子。",
+  "seed": 1,
+  "maxDecisions": 12,
+  "policy": "rules",
+  "tags": [
+   "pigeon"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 12,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "rules",
+   "variant": "single",
+   "id": "R-pigeon-baker",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "聽說市長很害怕鴿子。",
+   "tags": [
+    "pigeon"
+   ],
+   "temperature": 0.7,
+   "label": "R-pigeon-baker"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說市長很害怕鴿子。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「聽說市長很害怕鴿子。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「聽說市長很害怕鴿子。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人說：市長很害怕鴿子。",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：聽聽就好。",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 3
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.31,
+     "proposed": 0.31,
+     "verdict": "doubt",
+     "why": "rule"
+    },
+    "zh": "阿德對「市長很害怕鴿子。」的信心：0.00 → 0.31（doubt）",
+    "actor": "baker",
+    "w": 3
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "阿德 🤨 懷疑",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 3
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "聽說市長很害怕鴿子。",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「聽說市長很害怕鴿子。」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 4
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「聽說市長很害怕鴿子。」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 4
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "有人說：市長很害怕鴿子。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：這是真的嗎？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 4
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.7150000000000001,
+     "proposed": 0.72,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "美玲對「市長很害怕鴿子。」的信心：0.00 → 0.72（believe）",
+    "actor": "florist",
+    "w": 4
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "美玲 😮 驚訝",
+    "actor": "florist",
+    "place": "flower",
+    "w": 4
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "phone",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "text": "聽說市長很害怕鴿子。",
+     "intent": "inform",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "美玲打電話給小雯：「聽說市長很害怕鴿子。」",
+    "actor": "florist",
+    "target": "journalist",
+    "place": "flower",
+    "w": 4
+   },
+   {
+    "id": "e12",
+    "t": 26.4,
+    "type": "deliver",
+    "causes": [
+     "e11"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [
+      "c2"
+     ],
+     "from": "florist"
+    },
+    "zh": "小雯在電話裡聽美玲說：「聽說市長很害怕鴿子。」",
+    "target": "journalist",
+    "actor": "florist",
+    "place": "news",
+    "w": 4
+   },
+   {
+    "id": "e13",
+    "t": 26.599999999999998,
+    "type": "decide",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "有人說：市長很害怕鴿子。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "publish_article"
+     ]
+    },
+    "zh": "小雯：這是真的嗎？",
+    "actor": "journalist",
+    "place": "news",
+    "w": 5
+   },
+   {
+    "id": "e14",
+    "t": 26.599999999999998,
+    "type": "belief",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "claim": "c3",
+     "from": 0,
+     "to": 0.6,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "小雯對「市長很害怕鴿子。」的信心：0.00 → 0.60（believe）",
+    "actor": "journalist",
+    "w": 5
+   },
+   {
+    "id": "e15",
+    "t": 26.7,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "小雯 😮 驚訝",
+    "actor": "journalist",
+    "place": "news",
+    "w": 5
+   },
+   {
+    "id": "e16",
+    "t": 27.599999999999998,
+    "type": "state",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "key": "writing"
+    },
+    "zh": "小雯開始寫文章",
+    "actor": "journalist",
+    "place": "news",
+    "w": 5
+   },
+   {
+    "id": "e17",
+    "t": 47.599999999999994,
+    "type": "article",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "headline": "【傳聞】市長很害怕鴿子。",
+     "body": "【傳聞】市長很害怕鴿子。",
+     "claims": [
+      "c3"
+     ]
+    },
+    "zh": "小雯發文〈【傳聞】市長很害怕鴿子。〉",
+    "actor": "journalist",
+    "place": "news",
+    "w": 5
+   },
+   {
+    "id": "e18",
+    "t": 52.695750241307536,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】市長很害怕鴿子。〉【傳聞】市長很害怕鴿子。",
+     "claims": [
+      "c3"
+     ],
+     "from": "journalist"
+    },
+    "zh": "阿德看到小雯的文章：〈【傳聞】市長很害怕鴿子。〉【傳聞】市長很害怕鴿子。",
+    "target": "baker",
+    "actor": "journalist",
+    "place": "bakery",
+    "w": 5
+   },
+   {
+    "id": "e19",
+    "t": 52.89575024130754,
+    "type": "decide",
+    "causes": [
+     "e18"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "有人說：市長很害怕鴿子。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "阿德：這是真的嗎？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 5
+   },
+   {
+    "id": "e20",
+    "t": 52.89575024130754,
+    "type": "belief",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0.31,
+     "to": 0.56,
+     "proposed": 0.56,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "阿德對「市長很害怕鴿子。」的信心：0.31 → 0.56（believe）",
+    "actor": "baker",
+    "w": 5
+   },
+   {
+    "id": "e21",
+    "t": 52.99575024130754,
+    "type": "react",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "阿德 😮 驚訝",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 5
+   },
+   {
+    "id": "e22",
+    "t": 86.93678386150859,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m5",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】市長很害怕鴿子。〉【傳聞】市長很害怕鴿子。",
+     "claims": [
+      "c3"
+     ],
+     "from": "journalist"
+    },
+    "zh": "美玲看到小雯的文章：〈【傳聞】市長很害怕鴿子。〉【傳聞】市長很害怕鴿子。",
+    "target": "florist",
+    "actor": "journalist",
+    "place": "flower",
+    "w": 5
+   },
+   {
+    "id": "e23",
+    "t": 87.13678386150859,
+    "type": "decide",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "decision": "d5",
+     "understanding": "有人說：市長很害怕鴿子。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：這是真的嗎？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 6
+   },
+   {
+    "id": "e24",
+    "t": 87.13678386150859,
+    "type": "belief",
+    "causes": [
+     "e23"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0.7150000000000001,
+     "to": 0.72,
+     "proposed": 0.72,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "美玲對「市長很害怕鴿子。」的信心：0.72 → 0.72（believe）",
+    "actor": "florist",
+    "w": 6
+   },
+   {
+    "id": "e25",
+    "t": 87.23678386150858,
+    "type": "react",
+    "causes": [
+     "e23"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "美玲 😮 驚訝",
+    "actor": "florist",
+    "place": "flower",
+    "w": 6
+   },
+   {
+    "id": "e26",
+    "t": 88.13678386150859,
+    "type": "phone",
+    "causes": [
+     "e23"
+    ],
+    "data": {
+     "text": "聽說市長很害怕鴿子。",
+     "intent": "inform",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "美玲打電話給阿德：「聽說市長很害怕鴿子。」",
+    "actor": "florist",
+    "target": "baker",
+    "place": "flower",
+    "w": 6
+   },
+   {
+    "id": "e27",
+    "t": 90.13678386150859,
+    "type": "deliver",
+    "causes": [
+     "e26"
+    ],
+    "data": {
+     "message": "m6",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [
+      "c2"
+     ],
+     "from": "florist"
+    },
+    "zh": "阿德在電話裡聽美玲說：「聽說市長很害怕鴿子。」",
+    "target": "baker",
+    "actor": "florist",
+    "place": "bakery",
+    "w": 6
+   },
+   {
+    "id": "e28",
+    "t": 90.3367838615086,
+    "type": "decide",
+    "causes": [
+     "e27"
+    ],
+    "data": {
+     "decision": "d6",
+     "understanding": "有人說：市長很害怕鴿子。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "阿德：這是真的嗎？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 6
+   },
+   {
+    "id": "e29",
+    "t": 90.3367838615086,
+    "type": "belief",
+    "causes": [
+     "e28"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0.56,
+     "to": 0.92,
+     "proposed": 0.92,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "阿德對「市長很害怕鴿子。」的信心：0.56 → 0.92（believe）",
+    "actor": "baker",
+    "w": 6
+   },
+   {
+    "id": "e30",
+    "t": 90.43678386150859,
+    "type": "react",
+    "causes": [
+     "e28"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "阿德 😮 驚訝",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 6
+   },
+   {
+    "id": "e31",
+    "t": 91.3367838615086,
+    "type": "move",
+    "causes": [
+     "e28"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "news",
+     "arrive": 92.00617217064774,
+     "home": false
+    },
+    "zh": "阿德從阿德麵包店走向霧港新聞社",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 15
+   },
+   {
+    "id": "e32",
+    "t": 92.00617217064774,
+    "type": "arrive",
+    "causes": [
+     "e31"
+    ],
+    "data": {},
+    "zh": "阿德到了霧港新聞社",
+    "actor": "baker",
+    "place": "news",
+    "w": 15
+   },
+   {
+    "id": "e33",
+    "t": 92.00617217064774,
+    "type": "talk",
+    "causes": [
+     "e28"
+    ],
+    "data": {
+     "text": "聽說市長很害怕鴿子。",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德對小雯說：「聽說市長很害怕鴿子。」",
+    "actor": "baker",
+    "target": "journalist",
+    "place": "news",
+    "w": 16
+   },
+   {
+    "id": "e34",
+    "t": 95.00617217064774,
+    "type": "deliver",
+    "causes": [
+     "e33"
+    ],
+    "data": {
+     "message": "m7",
+     "via": "face",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "小雯聽阿德說：「聽說市長很害怕鴿子。」",
+    "target": "journalist",
+    "actor": "baker",
+    "place": "news",
+    "w": 16
+   },
+   {
+    "id": "e35",
+    "t": 95.00617217064774,
+    "type": "move",
+    "causes": [
+     "e28"
+    ],
+    "data": {
+     "from": "news",
+     "to": "bakery",
+     "arrive": 95.6755604797869,
+     "home": true
+    },
+    "zh": "阿德從霧港新聞社走回阿德麵包店",
+    "actor": "baker",
+    "place": "news",
+    "w": 16
+   },
+   {
+    "id": "e36",
+    "t": 95.20617217064775,
+    "type": "decide",
+    "causes": [
+     "e34"
+    ],
+    "data": {
+     "decision": "d7",
+     "understanding": "有人說：市長很害怕鴿子。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "publish_article"
+     ]
+    },
+    "zh": "小雯：這是真的嗎？",
+    "actor": "journalist",
+    "place": "news",
+    "w": 16
+   },
+   {
+    "id": "e37",
+    "t": 95.20617217064775,
+    "type": "belief",
+    "causes": [
+     "e36"
+    ],
+    "data": {
+     "claim": "c3",
+     "from": 0.6,
+     "to": 0.6,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "小雯對「市長很害怕鴿子。」的信心：0.60 → 0.60（believe）",
+    "actor": "journalist",
+    "w": 16
+   },
+   {
+    "id": "e38",
+    "t": 95.30617217064774,
+    "type": "react",
+    "causes": [
+     "e36"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "小雯 😮 驚訝",
+    "actor": "journalist",
+    "place": "news",
+    "w": 16
+   },
+   {
+    "id": "e39",
+    "t": 95.6755604797869,
+    "type": "arrive",
+    "causes": [
+     "e35"
+    ],
+    "data": {},
+    "zh": "阿德到了阿德麵包店",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 16
+   },
+   {
+    "id": "e40",
+    "t": 96.20617217064775,
+    "type": "rejected",
+    "causes": [
+     "e36"
+    ],
+    "data": {
+     "action": "publish_article",
+     "why": "已經寫過這件事了"
+    },
+    "zh": "小雯沒能publish_article：已經寫過這件事了",
+    "actor": "journalist",
+    "w": 16
+   },
+   {
+    "id": "e41",
+    "t": 96.20617217064775,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 16
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：市長很害怕鴿子。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "市長很害怕鴿子。",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.31,
+       "why": "rule",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "intent": "inform",
+       "message": "聽說市長很害怕鴿子。",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：市長很害怕鴿子。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "市長很害怕鴿子。",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.72,
+       "why": "rule",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "intent": "inform",
+       "message": "聽說市長很害怕鴿子。",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "journalist",
+    "t": 26.599999999999998,
+    "triggers": [
+     "e12"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：市長很害怕鴿子。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "市長很害怕鴿子。",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "rule",
+       "cites": [
+        "m3"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "publish_article",
+       "message": "【傳聞】市長很害怕鴿子。",
+       "why": "rule: journalist publishes",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e13",
+     "e14",
+     "e15"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "baker",
+    "t": 52.89575024130754,
+    "triggers": [
+     "e18"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：市長很害怕鴿子。",
+     "claims": [
+      {
+       "ref": "c1",
+       "statement": "市長很害怕鴿子。",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.56,
+       "why": "rule",
+       "cites": [
+        "m4"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "none",
+       "why": "rule: nothing to do"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e19",
+     "e20",
+     "e21"
+    ]
+   },
+   {
+    "id": "d5",
+    "npc": "florist",
+    "t": 87.13678386150859,
+    "triggers": [
+     "e22"
+    ],
+    "inbox": [
+     "m5"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：市長很害怕鴿子。",
+     "claims": [
+      {
+       "ref": "c2",
+       "statement": "市長很害怕鴿子。",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.72,
+       "why": "rule",
+       "cites": [
+        "m5"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "baker",
+       "intent": "inform",
+       "message": "聽說市長很害怕鴿子。",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e23",
+     "e24",
+     "e25"
+    ]
+   },
+   {
+    "id": "d6",
+    "npc": "baker",
+    "t": 90.3367838615086,
+    "triggers": [
+     "e27"
+    ],
+    "inbox": [
+     "m6"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：市長很害怕鴿子。",
+     "claims": [
+      {
+       "ref": "c1",
+       "statement": "市長很害怕鴿子。",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.92,
+       "why": "rule",
+       "cites": [
+        "m6"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "journalist",
+       "intent": "inform",
+       "message": "聽說市長很害怕鴿子。",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e28",
+     "e29",
+     "e30"
+    ]
+   },
+   {
+    "id": "d7",
+    "npc": "journalist",
+    "t": 95.20617217064775,
+    "triggers": [
+     "e34"
+    ],
+    "inbox": [
+     "m7"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：市長很害怕鴿子。",
+     "claims": [
+      {
+       "ref": "c3",
+       "statement": "市長很害怕鴿子。",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "rule",
+       "cites": [
+        "m7"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "publish_article",
+       "message": "【傳聞】市長很害怕鴿子。",
+       "why": "rule: journalist publishes",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e36",
+     "e37",
+     "e38"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "市長很害怕鴿子。",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   },
+   {
+    "id": "c2",
+    "statement": "市長很害怕鴿子。",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e7",
+    "by": "florist"
+   },
+   {
+    "id": "c3",
+    "statement": "市長很害怕鴿子。",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e12",
+    "by": "journalist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [
+    {
+     "id": "a1",
+     "headline": "【傳聞】市長很害怕鴿子。",
+     "body": "【傳聞】市長很害怕鴿子。",
+     "by": "journalist",
+     "at": 47.599999999999994
+    }
+   ],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.92,
+      "sources": [
+       "unknown",
+       "journalist",
+       "florist"
+      ],
+      "updatedAt": 90.3367838615086,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說市長很害怕鴿子。」",
+     "15:20 你決定：打電話給美玲說「聽說市長很害怕鴿子。」",
+     "15:53 小雯說：「〈【傳聞】市長很害怕鴿子。〉【傳聞】市長很害怕鴿子。」",
+     "15:53 你決定先不做什麼。",
+     "16:30 美玲打電話說：「聽說市長很害怕鴿子。」",
+     "16:30 你決定：去跟小雯說「聽說市長很害怕鴿子。」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.72,
+      "sources": [
+       "baker",
+       "journalist"
+      ],
+      "updatedAt": 87.13678386150859,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:23 阿德打電話說：「聽說市長很害怕鴿子。」",
+     "15:23 你決定：打電話給小雯說「聽說市長很害怕鴿子。」",
+     "16:27 小雯說：「〈【傳聞】市長很害怕鴿子。〉【傳聞】市長很害怕鴿子。」",
+     "16:27 你決定：打電話給阿德說「聽說市長很害怕鴿子。」"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c3",
+      "confidence": 0.6,
+      "sources": [
+       "florist",
+       "baker"
+      ],
+      "updatedAt": 95.20617217064775,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:26 美玲打電話說：「聽說市長很害怕鴿子。」",
+     "15:27 你決定：publish_article",
+     "16:35 阿德說：「聽說市長很害怕鴿子。」",
+     "16:35 你決定：publish_article"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 96.20617217064775
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:01:20.886Z",
+   "ms": 18
+  },
+  "llm": {
+   "calls": 0,
+   "attempts": 0,
+   "promptTokens": 0,
+   "completionTokens": 0,
+   "platformCost": 0,
+   "estCost": 0,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 6,
+  "reach": 3,
+  "believers": 3,
+  "decisions": 7,
+  "noneDecisions": 1,
+  "actionsDone": {
+   "phone": 3,
+   "state": 1,
+   "article": 1,
+   "talk": 1
+  },
+  "worldChanges": 1,
+  "worldChangeTypes": [
+   "article"
+  ],
+  "rejected": 1,
+  "idle": false,
+  "topics": [
+   "mayor_fears_pigeons"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "聽說市長很害怕鴿子。",
+    "similarity": 1
+   },
+   {
+    "from": "florist",
+    "to": "journalist",
+    "text": "聽說市長很害怕鴿子。",
+    "similarity": 1
+   },
+   {
+    "from": "florist",
+    "to": "baker",
+    "text": "聽說市長很害怕鴿子。",
+    "similarity": 1
+   },
+   {
+    "from": "baker",
+    "to": "journalist",
+    "text": "聽說市長很害怕鴿子。",
+    "similarity": 1
+   }
+  ],
+  "meanSimilarity": 1,
+  "explained": 1,
+  "visualEvents": 17,
+  "gameMinutes": 76.2,
+  "llmCalls": 0,
+  "llmSeconds": 0,
+  "tokens": 0,
+  "estCost": 0,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

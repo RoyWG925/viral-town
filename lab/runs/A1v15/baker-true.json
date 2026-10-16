@@ -1,0 +1,336 @@
+{
+ "case": {
+  "id": "baker-true",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "今晚燈籠節開場會放一百隻白鴿喔。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "true"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "baker-true",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "今晚燈籠節開場會放一百隻白鴿喔。",
+   "tags": [
+    "true"
+   ],
+   "temperature": 0.7,
+   "label": "baker-true"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "今晚燈籠節開場會放一百隻白鴿喔。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「今晚燈籠節開場會放一百隻白鴿喔。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "今晚燈籠節開場會放一百隻白鴿喔。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「今晚燈籠節開場會放一百隻白鴿喔。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "客人提到今晚慶典要放鴿子，跟我知道的資訊一樣。",
+     "thought": "客人也知道這件事，今晚應該會很熱鬧吧！",
+     "feeling": "😊 開心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "阿德：客人也知道這件事，今晚應該會很熱鬧吧！",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 338026
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.98,
+     "proposed": 1,
+     "verdict": "believe",
+     "why": "這跟我知道的公開資訊一致"
+    },
+    "zh": "阿德對「今晚燈籠節開場會放一百隻白鴿」的信心：0.00 → 0.98（believe）",
+    "actor": "baker",
+    "w": 338026
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😊 開心"
+    },
+    "zh": "阿德 😊 開心",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 338026
+   },
+   {
+    "id": "e6",
+    "t": 20.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 338026
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "客人提到今晚慶典要放鴿子，跟我知道的資訊一樣。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "今晚燈籠節開場會放一百隻白鴿",
+       "topic": "pigeons_release",
+       "says": "yes",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 1,
+       "why": "這跟我知道的公開資訊一致",
+       "cites": [
+        "m1",
+        "pigeons"
+       ]
+      }
+     ],
+     "feeling": "😊 開心",
+     "thought": "客人也知道這件事，今晚應該會很熱鬧吧！",
+     "actions": [
+      {
+       "type": "none",
+       "why": "只是確認了已知資訊，不需要採取行動",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 1,
+      "wallEndMs": 338025,
+      "latencyMs": 281750,
+      "attempts": 8,
+      "promptTokens": 1604,
+      "completionTokens": 178,
+      "platformCost": 0.0000136171,
+      "estCost": 0.001336,
+      "status": 200,
+      "raw": "{\"understanding\": \"客人提到今晚慶典要放鴿子，跟我知道的資訊一樣。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"今晚燈籠節開場會放一百隻白鴿\", \"topic\": \"pigeons_release\", \"says\": \"yes\", \"category\": \"event\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 1, \"why\": \"這跟我知道的公開資訊一致\", \"cites\": [\"m1\", \"pigeons\"]}], \"feeling\": \"😊 開心\", \"thought\": \"客人也知道這件事，今晚應該會很熱鬧吧！\", \"actions\": [{\"type\": \"none\", \"why\": \"只是確認了已知資訊，不需要採取行動\"}]}",
+      "promptChars": 2652
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "今晚燈籠節開場會放一百隻白鴿",
+    "topic": "pigeons_release",
+    "says": "yes",
+    "category": "event",
+    "fact": "pigeons",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.98,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "這跟我知道的公開資訊一致"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「今晚燈籠節開場會放一百隻白鴿喔。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:26:40.947Z",
+   "ms": 338026
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 8,
+   "promptTokens": 1604,
+   "completionTokens": 178,
+   "platformCost": 0.0000136171,
+   "estCost": 0.001336,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 1,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "pigeons_release"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.3,
+  "llmCalls": 1,
+  "llmSeconds": 281.8,
+  "tokens": 1782,
+  "estCost": 0.001336,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

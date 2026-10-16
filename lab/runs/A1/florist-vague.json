@@ -1,0 +1,436 @@
+{
+ "case": {
+  "id": "florist-vague",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "florist",
+  "seedText": "今晚最好離舞台遠一點。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "vague"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "florist-vague",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "florist",
+   "seedText": "今晚最好離舞台遠一點。",
+   "tags": [
+    "vague"
+   ],
+   "temperature": 0.7,
+   "label": "florist-vague"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "今晚最好離舞台遠一點。"
+    },
+    "zh": "一個念頭被植入美玲耳中：「今晚最好離舞台遠一點。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "今晚最好離舞台遠一點。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "美玲聽到一位陌生客人說：「今晚最好離舞台遠一點。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有陌生人警告舞台附近危險，可能發生意外。",
+     "thought": "如果舞台出問題，美咲的女兒表演時怎麼辦？好不安。",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：如果舞台出問題，美咲的女兒表演時怎麼辦？好不安。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 43873
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.44,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "雖然不認識，但這種警告通常有原因"
+    },
+    "zh": "美玲對「今晚慶典的舞台附近可能不安全，最好遠離。」的信心：0.00 → 0.44（believe）",
+    "actor": "florist",
+    "w": 43873
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "美玲 😟 擔心",
+    "actor": "florist",
+    "place": "flower",
+    "w": 43873
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "小雯，妳有聽到什麼關於今晚慶典舞台的消息嗎？我剛聽到有人說舞台附近危險，我很擔心。",
+     "intent": "ask",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "美玲打電話給小雯：「小雯，妳有聽到什麼關於今晚慶典舞台的消息嗎？我剛聽到有人說舞台附近危險，我很擔心。」",
+    "actor": "florist",
+    "target": "journalist",
+    "place": "flower",
+    "w": 43873
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "ask",
+     "text": "小雯，妳有聽到什麼關於今晚慶典舞台的消息嗎？我剛聽到有人說舞台附近危險，我很擔心。",
+     "claims": [
+      "c1"
+     ],
+     "from": "florist"
+    },
+    "zh": "小雯在電話裡聽美玲說：「小雯，妳有聽到什麼關於今晚慶典舞台的消息嗎？我剛聽到有人說舞台附近危險，我很擔心。」",
+    "target": "journalist",
+    "actor": "florist",
+    "place": "news",
+    "w": 43873
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "budget": true
+    },
+    "zh": "小雯聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "journalist",
+    "place": "news",
+    "w": 43873
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "budget",
+     "festival": "scheduled"
+    },
+    "zh": "模擬達到決策上限。",
+    "w": 43873
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "florist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有陌生人警告舞台附近危險，可能發生意外。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "今晚慶典的舞台附近可能不安全，最好遠離。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "雖然不認識，但這種警告通常有原因",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "如果舞台出問題，美咲的女兒表演時怎麼辦？好不安。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "intent": "ask",
+       "message": "小雯，妳有聽到什麼關於今晚慶典舞台的消息嗎？我剛聽到有人說舞台附近危險，我很擔心。",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 43873,
+      "latencyMs": 43873,
+      "attempts": 1,
+      "promptTokens": 1649,
+      "completionTokens": 300,
+      "platformCost": 0.0000298718,
+      "estCost": 0.0017245,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"有陌生人警告舞台附近危險，可能發生意外。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"今晚慶典的舞台附近可能不安全，最好遠離。\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"yes\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.6,\n      \"why\": \"雖然不認識，但這種警告通常有原因\",\n      \"cites\": [\n        \"m1\"\n      ]\n    }\n  ],\n  \"feeling\": \"😟 擔心\",\n  \"thought\": \"如果舞台出問題，美咲的女兒表演時怎麼辦？好不安。\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"journalist\",\n      \"intent\": \"ask\",\n      \"message\": \"小雯，妳有聽到什麼關於今晚慶典舞台的消息嗎？我剛聽到有人說舞台附近危險，我很擔心。\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2726
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "journalist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e8"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "今晚慶典的舞台附近可能不安全，最好遠離。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e2",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.44,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "雖然不認識，但這種警告通常有原因"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「今晚最好離舞台遠一點。」",
+     "15:20 你決定：打電話給小雯說「小雯，妳有聽到什麼關於今晚慶典舞台的消息嗎？我剛聽到有人說舞台附近危險，我很擔心。」"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:23 美玲說：「小雯，妳有聽到什麼關於今晚慶典舞台的消息嗎？我剛聽到有人說舞台附近危險，我很擔心。」（你沒有多想）"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "budget",
+   "t": 23.4
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:21:51.227Z",
+   "ms": 43873
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1649,
+   "completionTokens": 300,
+   "platformCost": 0.0000298718,
+   "estCost": 0.0017245,
+   "errors": 0,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 2,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "phone": 1
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "stage_unsafe"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "florist",
+    "to": "journalist",
+    "text": "小雯，妳有聽到什麼關於今晚慶典舞台的消息嗎？我剛聽到有人說舞台附近危險，我很擔心。",
+    "similarity": 0.05
+   }
+  ],
+  "meanSimilarity": 0.05,
+  "explained": 1,
+  "visualEvents": 2,
+  "gameMinutes": 3.4,
+  "llmCalls": 1,
+  "llmSeconds": 43.9,
+  "tokens": 1949,
+  "estCost": 0.001724,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

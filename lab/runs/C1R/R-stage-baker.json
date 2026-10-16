@@ -1,0 +1,4263 @@
+{
+ "case": {
+  "maxDecisions": 16,
+  "maxPerNpc": 4,
+  "id": "R-stage-baker",
+  "active": [
+   "baker",
+   "florist",
+   "journalist",
+   "cafe",
+   "police",
+   "mayor",
+   "organizer",
+   "vendor"
+  ],
+  "seedNpc": "baker",
+  "seedText": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+  "tags": [
+   "truth-discovery"
+  ],
+  "policy": "rules"
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 16,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "rules",
+   "variant": "single",
+   "id": "R-stage-baker",
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "baker",
+   "seedText": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+   "tags": [
+    "truth-discovery"
+   ],
+   "temperature": 0.7,
+   "label": "R-stage-baker"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：聽聽就好。",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.31,
+     "proposed": 0.31,
+     "verdict": "doubt",
+     "why": "rule"
+    },
+    "zh": "阿德對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.00 → 0.31（doubt）",
+    "actor": "baker",
+    "w": 1
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "阿德 🤨 懷疑",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 2
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：這是真的嗎？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 2
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.7150000000000001,
+     "proposed": 0.72,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "美玲對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.00 → 0.72（believe）",
+    "actor": "florist",
+    "w": 2
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "美玲 😮 驚訝",
+    "actor": "florist",
+    "place": "flower",
+    "w": 2
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "phone",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "intent": "inform",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "美玲打電話給小雯：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "actor": "florist",
+    "target": "journalist",
+    "place": "flower",
+    "w": 2
+   },
+   {
+    "id": "e12",
+    "t": 26.4,
+    "type": "deliver",
+    "causes": [
+     "e11"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      "c2"
+     ],
+     "from": "florist"
+    },
+    "zh": "小雯在電話裡聽美玲說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "journalist",
+    "actor": "florist",
+    "place": "news",
+    "w": 2
+   },
+   {
+    "id": "e13",
+    "t": 26.599999999999998,
+    "type": "decide",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "publish_article"
+     ]
+    },
+    "zh": "小雯：這是真的嗎？",
+    "actor": "journalist",
+    "place": "news",
+    "w": 2
+   },
+   {
+    "id": "e14",
+    "t": 26.599999999999998,
+    "type": "belief",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "claim": "c3",
+     "from": 0,
+     "to": 0.6,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "小雯對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.00 → 0.60（believe）",
+    "actor": "journalist",
+    "w": 2
+   },
+   {
+    "id": "e15",
+    "t": 26.7,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "小雯 😮 驚訝",
+    "actor": "journalist",
+    "place": "news",
+    "w": 2
+   },
+   {
+    "id": "e16",
+    "t": 27.599999999999998,
+    "type": "state",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "key": "writing"
+    },
+    "zh": "小雯開始寫文章",
+    "actor": "journalist",
+    "place": "news",
+    "w": 2
+   },
+   {
+    "id": "e17",
+    "t": 47.599999999999994,
+    "type": "article",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "headline": "【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+     "body": "【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      "c3"
+     ]
+    },
+    "zh": "小雯發文〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉",
+    "actor": "journalist",
+    "place": "news",
+    "w": 2
+   },
+   {
+    "id": "e18",
+    "t": 52.695750241307536,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      "c3"
+     ],
+     "from": "journalist"
+    },
+    "zh": "阿德看到小雯的文章：〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+    "target": "baker",
+    "actor": "journalist",
+    "place": "bakery",
+    "w": 2
+   },
+   {
+    "id": "e19",
+    "t": 52.89575024130754,
+    "type": "decide",
+    "causes": [
+     "e18"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：這是真的嗎？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 3
+   },
+   {
+    "id": "e20",
+    "t": 52.89575024130754,
+    "type": "belief",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0.31,
+     "to": 0.56,
+     "proposed": 0.56,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "阿德對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.31 → 0.56（believe）",
+    "actor": "baker",
+    "w": 3
+   },
+   {
+    "id": "e21",
+    "t": 52.99575024130754,
+    "type": "react",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "阿德 😮 驚訝",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 3
+   },
+   {
+    "id": "e22",
+    "t": 53.89575024130754,
+    "type": "phone",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美咲：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "bakery",
+    "w": 3
+   },
+   {
+    "id": "e23",
+    "t": 55.89575024130754,
+    "type": "deliver",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "message": "m5",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美咲在電話裡聽阿德說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "cafe",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 3
+   },
+   {
+    "id": "e24",
+    "t": 56.09575024130754,
+    "type": "decide",
+    "causes": [
+     "e23"
+    ],
+    "data": {
+     "decision": "d5",
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美咲：這是真的嗎？",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 3
+   },
+   {
+    "id": "e25",
+    "t": 56.09575024130754,
+    "type": "belief",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "claim": "c4",
+     "from": 0,
+     "to": 0.67,
+     "proposed": 0.67,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "美咲對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.00 → 0.67（believe）",
+    "actor": "cafe",
+    "w": 3
+   },
+   {
+    "id": "e26",
+    "t": 56.19575024130754,
+    "type": "react",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "美咲 😮 驚訝",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 3
+   },
+   {
+    "id": "e27",
+    "t": 57.09575024130754,
+    "type": "phone",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "intent": "inform",
+     "claims": [
+      "c4"
+     ]
+    },
+    "zh": "美咲打電話給老周：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "actor": "cafe",
+    "target": "police",
+    "place": "cafe",
+    "w": 3
+   },
+   {
+    "id": "e28",
+    "t": 59.09575024130754,
+    "type": "deliver",
+    "causes": [
+     "e27"
+    ],
+    "data": {
+     "message": "m6",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      "c4"
+     ],
+     "from": "cafe"
+    },
+    "zh": "老周在電話裡聽美咲說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "police",
+    "actor": "cafe",
+    "place": "police",
+    "w": 3
+   },
+   {
+    "id": "e29",
+    "t": 59.295750241307545,
+    "type": "decide",
+    "causes": [
+     "e28"
+    ],
+    "data": {
+     "decision": "d6",
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "dispatch_police"
+     ]
+    },
+    "zh": "老周：這是真的嗎？",
+    "actor": "police",
+    "place": "police",
+    "w": 3
+   },
+   {
+    "id": "e30",
+    "t": 59.295750241307545,
+    "type": "belief",
+    "causes": [
+     "e29"
+    ],
+    "data": {
+     "claim": "c5",
+     "from": 0,
+     "to": 0.61,
+     "proposed": 0.61,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "老周對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.00 → 0.61（believe）",
+    "actor": "police",
+    "w": 3
+   },
+   {
+    "id": "e31",
+    "t": 59.395750241307546,
+    "type": "react",
+    "causes": [
+     "e29"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "老周 😮 驚訝",
+    "actor": "police",
+    "place": "police",
+    "w": 3
+   },
+   {
+    "id": "e32",
+    "t": 60.295750241307545,
+    "type": "state",
+    "causes": [
+     "e29"
+    ],
+    "data": {
+     "key": "police",
+     "to": "plaza",
+     "arrive": 62.795750241307545,
+     "reason": "加強廣場巡邏"
+    },
+    "zh": "老周派警員前往中央廣場（布告欄旁）",
+    "actor": "police",
+    "place": "police",
+    "w": 5
+   },
+   {
+    "id": "e33",
+    "t": 62.795750241307545,
+    "type": "arrive",
+    "causes": [
+     "e32"
+    ],
+    "data": {
+     "who": "officers"
+    },
+    "zh": "警員抵達中央廣場（布告欄旁）",
+    "place": "plaza",
+    "w": 5
+   },
+   {
+    "id": "e34",
+    "t": 67.50289332345127,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m7",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      "c3"
+     ],
+     "from": "journalist"
+    },
+    "zh": "林市長看到小雯的文章：〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+    "target": "mayor",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 5
+   },
+   {
+    "id": "e35",
+    "t": 67.70289332345128,
+    "type": "decide",
+    "causes": [
+     "e34"
+    ],
+    "data": {
+     "decision": "d7",
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "林市長：聽聽就好。",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 5
+   },
+   {
+    "id": "e36",
+    "t": 67.70289332345128,
+    "type": "belief",
+    "causes": [
+     "e35"
+    ],
+    "data": {
+     "claim": "c6",
+     "from": 0,
+     "to": 0.16,
+     "proposed": 0.16,
+     "verdict": "disbelieve",
+     "why": "rule"
+    },
+    "zh": "林市長對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.00 → 0.16（disbelieve）",
+    "actor": "mayor",
+    "w": 5
+   },
+   {
+    "id": "e37",
+    "t": 67.80289332345127,
+    "type": "react",
+    "causes": [
+     "e35"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "林市長 🤨 懷疑",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 5
+   },
+   {
+    "id": "e38",
+    "t": 69.1431479095947,
+    "type": "deliver",
+    "causes": [
+     "e33"
+    ],
+    "data": {
+     "message": "m8",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "警察出動到中央廣場（布告欄旁）了",
+     "claims": [],
+     "from": "crowd"
+    },
+    "zh": "小雯聽客人說：警察出動到中央廣場（布告欄旁）了",
+    "target": "journalist",
+    "place": "news",
+    "w": 5
+   },
+   {
+    "id": "e39",
+    "t": 69.3431479095947,
+    "type": "decide",
+    "causes": [
+     "e38"
+    ],
+    "data": {
+     "decision": "d8",
+     "understanding": "有人說：警察出動到中央廣場（布告欄旁）了",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "publish_article"
+     ]
+    },
+    "zh": "小雯：聽聽就好。",
+    "actor": "journalist",
+    "place": "news",
+    "w": 5
+   },
+   {
+    "id": "e40",
+    "t": 69.3431479095947,
+    "type": "belief",
+    "causes": [
+     "e39"
+    ],
+    "data": {
+     "claim": "c7",
+     "from": 0,
+     "to": 0.37,
+     "proposed": 0.37,
+     "verdict": "doubt",
+     "why": "rule"
+    },
+    "zh": "小雯對「警察出動到中央廣場（布告欄旁）了」的信心：0.00 → 0.37（doubt）",
+    "actor": "journalist",
+    "w": 5
+   },
+   {
+    "id": "e41",
+    "t": 69.4431479095947,
+    "type": "react",
+    "causes": [
+     "e39"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "小雯 🤨 懷疑",
+    "actor": "journalist",
+    "place": "news",
+    "w": 5
+   },
+   {
+    "id": "e42",
+    "t": 69.70759110981598,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m9",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      "c3"
+     ],
+     "from": "journalist"
+    },
+    "zh": "阿珠看到小雯的文章：〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+    "target": "vendor",
+    "actor": "journalist",
+    "place": "stall",
+    "w": 5
+   },
+   {
+    "id": "e43",
+    "t": 69.90759110981598,
+    "type": "decide",
+    "causes": [
+     "e42"
+    ],
+    "data": {
+     "decision": "d9",
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "阿珠：這是真的嗎？",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 5
+   },
+   {
+    "id": "e44",
+    "t": 69.90759110981598,
+    "type": "belief",
+    "causes": [
+     "e43"
+    ],
+    "data": {
+     "claim": "c8",
+     "from": 0,
+     "to": 0.54,
+     "proposed": 0.54,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "阿珠對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.00 → 0.54（believe）",
+    "actor": "vendor",
+    "w": 5
+   },
+   {
+    "id": "e45",
+    "t": 70.00759110981598,
+    "type": "react",
+    "causes": [
+     "e43"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "阿珠 😮 驚訝",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 5
+   },
+   {
+    "id": "e46",
+    "t": 70.3431479095947,
+    "type": "state",
+    "causes": [
+     "e39"
+    ],
+    "data": {
+     "key": "writing"
+    },
+    "zh": "小雯開始寫文章",
+    "actor": "journalist",
+    "place": "news",
+    "w": 5
+   },
+   {
+    "id": "e47",
+    "t": 70.88561293999665,
+    "type": "deliver",
+    "causes": [
+     "e33"
+    ],
+    "data": {
+     "message": "m10",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "警察出動到中央廣場（布告欄旁）了",
+     "claims": [],
+     "from": "crowd"
+    },
+    "zh": "美玲聽客人說：警察出動到中央廣場（布告欄旁）了",
+    "target": "florist",
+    "place": "flower",
+    "w": 5
+   },
+   {
+    "id": "e48",
+    "t": 70.90759110981598,
+    "type": "move",
+    "causes": [
+     "e43"
+    ],
+    "data": {
+     "from": "stall",
+     "to": "bakery",
+     "arrive": 71.43033480214646,
+     "home": false
+    },
+    "zh": "阿珠從章魚燒攤走向阿德麵包店",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 10
+   },
+   {
+    "id": "e49",
+    "t": 71.08561293999665,
+    "type": "decide",
+    "causes": [
+     "e47"
+    ],
+    "data": {
+     "decision": "d10",
+     "understanding": "有人說：警察出動到中央廣場（布告欄旁）了",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：聽聽就好。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 11
+   },
+   {
+    "id": "e50",
+    "t": 71.08561293999665,
+    "type": "belief",
+    "causes": [
+     "e49"
+    ],
+    "data": {
+     "claim": "c9",
+     "from": 0,
+     "to": 0.36,
+     "proposed": 0.36,
+     "verdict": "doubt",
+     "why": "rule"
+    },
+    "zh": "美玲對「警察出動到中央廣場（布告欄旁）了」的信心：0.00 → 0.36（doubt）",
+    "actor": "florist",
+    "w": 11
+   },
+   {
+    "id": "e51",
+    "t": 71.18561293999664,
+    "type": "react",
+    "causes": [
+     "e49"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "美玲 🤨 懷疑",
+    "actor": "florist",
+    "place": "flower",
+    "w": 11
+   },
+   {
+    "id": "e52",
+    "t": 71.43033480214646,
+    "type": "arrive",
+    "causes": [
+     "e48"
+    ],
+    "data": {},
+    "zh": "阿珠到了阿德麵包店",
+    "actor": "vendor",
+    "place": "bakery",
+    "w": 11
+   },
+   {
+    "id": "e53",
+    "t": 71.43033480214646,
+    "type": "talk",
+    "causes": [
+     "e43"
+    ],
+    "data": {
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "intent": "inform",
+     "claims": [
+      "c8"
+     ]
+    },
+    "zh": "阿珠對阿德說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "actor": "vendor",
+    "target": "baker",
+    "place": "bakery",
+    "w": 11
+   },
+   {
+    "id": "e54",
+    "t": 71.61322180978023,
+    "type": "deliver",
+    "causes": [
+     "e33"
+    ],
+    "data": {
+     "message": "m11",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "警察出動到中央廣場（布告欄旁）了",
+     "claims": [],
+     "from": "crowd"
+    },
+    "zh": "林市長聽客人說：警察出動到中央廣場（布告欄旁）了",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 11
+   },
+   {
+    "id": "e55",
+    "t": 71.81322180978023,
+    "type": "decide",
+    "causes": [
+     "e54"
+    ],
+    "data": {
+     "decision": "d11",
+     "understanding": "有人說：警察出動到中央廣場（布告欄旁）了",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "林市長：聽聽就好。",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 11
+   },
+   {
+    "id": "e56",
+    "t": 71.81322180978023,
+    "type": "belief",
+    "causes": [
+     "e55"
+    ],
+    "data": {
+     "claim": "c10",
+     "from": 0,
+     "to": 0.31,
+     "proposed": 0.31,
+     "verdict": "doubt",
+     "why": "rule"
+    },
+    "zh": "林市長對「警察出動到中央廣場（布告欄旁）了」的信心：0.00 → 0.31（doubt）",
+    "actor": "mayor",
+    "w": 11
+   },
+   {
+    "id": "e57",
+    "t": 71.91322180978023,
+    "type": "react",
+    "causes": [
+     "e55"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "林市長 🤨 懷疑",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 11
+   },
+   {
+    "id": "e58",
+    "t": 72.08561293999665,
+    "type": "phone",
+    "causes": [
+     "e49"
+    ],
+    "data": {
+     "missed": true
+    },
+    "zh": "美玲打給阿德，但對方沒接",
+    "actor": "florist",
+    "target": "baker",
+    "w": 11
+   },
+   {
+    "id": "e59",
+    "t": 74.04936012104153,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m12",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      "c3"
+     ],
+     "from": "journalist"
+    },
+    "zh": "老周看到小雯的文章：〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+    "target": "police",
+    "actor": "journalist",
+    "place": "police",
+    "w": 11
+   },
+   {
+    "id": "e60",
+    "t": 74.24936012104153,
+    "type": "decide",
+    "causes": [
+     "e59"
+    ],
+    "data": {
+     "decision": "d12",
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "dispatch_police"
+     ]
+    },
+    "zh": "老周：這是真的嗎？",
+    "actor": "police",
+    "place": "police",
+    "w": 12
+   },
+   {
+    "id": "e61",
+    "t": 74.24936012104153,
+    "type": "belief",
+    "causes": [
+     "e60"
+    ],
+    "data": {
+     "claim": "c5",
+     "from": 0.61,
+     "to": 0.61,
+     "proposed": 0.61,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "老周對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.61 → 0.61（believe）",
+    "actor": "police",
+    "w": 12
+   },
+   {
+    "id": "e62",
+    "t": 74.34936012104153,
+    "type": "react",
+    "causes": [
+     "e60"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "老周 😮 驚訝",
+    "actor": "police",
+    "place": "police",
+    "w": 12
+   },
+   {
+    "id": "e63",
+    "t": 74.43033480214646,
+    "type": "deliver",
+    "causes": [
+     "e53"
+    ],
+    "data": {
+     "message": "m13",
+     "via": "face",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      "c8"
+     ],
+     "from": "vendor"
+    },
+    "zh": "阿德聽阿珠說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "baker",
+    "actor": "vendor",
+    "place": "bakery",
+    "w": 12
+   },
+   {
+    "id": "e64",
+    "t": 74.43033480214646,
+    "type": "move",
+    "causes": [
+     "e43"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "stall",
+     "arrive": 74.95307849447694,
+     "home": true
+    },
+    "zh": "阿珠從阿德麵包店走回章魚燒攤",
+    "actor": "vendor",
+    "place": "bakery",
+    "w": 12
+   },
+   {
+    "id": "e65",
+    "t": 74.63033480214646,
+    "type": "decide",
+    "causes": [
+     "e63"
+    ],
+    "data": {
+     "decision": "d13",
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "阿德：這是真的嗎？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 12
+   },
+   {
+    "id": "e66",
+    "t": 74.63033480214646,
+    "type": "belief",
+    "causes": [
+     "e65"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0.56,
+     "to": 0.71,
+     "proposed": 0.71,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "阿德對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.56 → 0.71（believe）",
+    "actor": "baker",
+    "w": 12
+   },
+   {
+    "id": "e67",
+    "t": 74.73033480214646,
+    "type": "react",
+    "causes": [
+     "e65"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "阿德 😮 驚訝",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 12
+   },
+   {
+    "id": "e68",
+    "t": 74.95307849447694,
+    "type": "arrive",
+    "causes": [
+     "e64"
+    ],
+    "data": {},
+    "zh": "阿珠到了章魚燒攤",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 12
+   },
+   {
+    "id": "e69",
+    "t": 75.24936012104153,
+    "type": "state",
+    "causes": [
+     "e60"
+    ],
+    "data": {
+     "key": "police",
+     "to": "plaza",
+     "arrive": 77.74936012104153,
+     "reason": "加強廣場巡邏"
+    },
+    "zh": "老周派警員前往中央廣場（布告欄旁）",
+    "actor": "police",
+    "place": "police",
+    "w": 12
+   },
+   {
+    "id": "e70",
+    "t": 75.63033480214646,
+    "type": "move",
+    "causes": [
+     "e65"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "townhall",
+     "arrive": 76.19430646998316,
+     "home": false
+    },
+    "zh": "阿德從阿德麵包店走向鎮公所",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 13
+   },
+   {
+    "id": "e71",
+    "t": 75.8706455431413,
+    "type": "deliver",
+    "causes": [
+     "e33"
+    ],
+    "data": {
+     "message": "m14",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "警察出動到中央廣場（布告欄旁）了",
+     "claims": [],
+     "from": "crowd"
+    },
+    "zh": "阿德聽客人說：警察出動到中央廣場（布告欄旁）了",
+    "target": "baker",
+    "place": "bakery",
+    "w": 13
+   },
+   {
+    "id": "e72",
+    "t": 76.19430646998316,
+    "type": "arrive",
+    "causes": [
+     "e70"
+    ],
+    "data": {},
+    "zh": "阿德到了鎮公所",
+    "actor": "baker",
+    "place": "townhall",
+    "w": 13
+   },
+   {
+    "id": "e73",
+    "t": 76.19430646998316,
+    "type": "talk",
+    "causes": [
+     "e65"
+    ],
+    "data": {
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德對林市長說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "actor": "baker",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 13
+   },
+   {
+    "id": "e74",
+    "t": 76.34338935702108,
+    "type": "deliver",
+    "causes": [
+     "e33"
+    ],
+    "data": {
+     "message": "m15",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "警察出動到中央廣場（布告欄旁）了",
+     "claims": [],
+     "from": "crowd"
+    },
+    "zh": "志明聽客人說：警察出動到中央廣場（布告欄旁）了",
+    "target": "organizer",
+    "place": "stage",
+    "w": 13
+   },
+   {
+    "id": "e75",
+    "t": 76.54338935702108,
+    "type": "decide",
+    "causes": [
+     "e74"
+    ],
+    "data": {
+     "decision": "d14",
+     "understanding": "有人說：警察出動到中央廣場（布告欄旁）了",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "志明：聽聽就好。",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 14
+   },
+   {
+    "id": "e76",
+    "t": 76.54338935702108,
+    "type": "belief",
+    "causes": [
+     "e75"
+    ],
+    "data": {
+     "claim": "c11",
+     "from": 0,
+     "to": 0.36,
+     "proposed": 0.36,
+     "verdict": "doubt",
+     "why": "rule"
+    },
+    "zh": "志明對「警察出動到中央廣場（布告欄旁）了」的信心：0.00 → 0.36（doubt）",
+    "actor": "organizer",
+    "w": 14
+   },
+   {
+    "id": "e77",
+    "t": 76.64338935702108,
+    "type": "react",
+    "causes": [
+     "e75"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "志明 🤨 懷疑",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 14
+   },
+   {
+    "id": "e78",
+    "t": 77.54338935702108,
+    "type": "phone",
+    "causes": [
+     "e75"
+    ],
+    "data": {
+     "missed": true
+    },
+    "zh": "志明打給林市長，但對方沒接",
+    "actor": "organizer",
+    "target": "mayor",
+    "w": 14
+   },
+   {
+    "id": "e79",
+    "t": 77.74936012104153,
+    "type": "arrive",
+    "causes": [
+     "e69"
+    ],
+    "data": {
+     "who": "officers"
+    },
+    "zh": "警員抵達中央廣場（布告欄旁）",
+    "place": "plaza",
+    "w": 14
+   },
+   {
+    "id": "e80",
+    "t": 79.19430646998316,
+    "type": "deliver",
+    "causes": [
+     "e73"
+    ],
+    "data": {
+     "message": "m16",
+     "via": "face",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "林市長聽阿德說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "mayor",
+    "actor": "baker",
+    "place": "townhall",
+    "w": 14
+   },
+   {
+    "id": "e81",
+    "t": 79.19430646998316,
+    "type": "move",
+    "causes": [
+     "e65"
+    ],
+    "data": {
+     "from": "townhall",
+     "to": "bakery",
+     "arrive": 79.75827813781986,
+     "home": true
+    },
+    "zh": "阿德從鎮公所走回阿德麵包店",
+    "actor": "baker",
+    "place": "townhall",
+    "w": 14
+   },
+   {
+    "id": "e82",
+    "t": 79.39430646998316,
+    "type": "decide",
+    "causes": [
+     "e80"
+    ],
+    "data": {
+     "decision": "d15",
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "林市長：聽聽就好。",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 14
+   },
+   {
+    "id": "e83",
+    "t": 79.39430646998316,
+    "type": "belief",
+    "causes": [
+     "e82"
+    ],
+    "data": {
+     "claim": "c6",
+     "from": 0.16,
+     "to": 0.49,
+     "proposed": 0.49,
+     "verdict": "doubt",
+     "why": "rule"
+    },
+    "zh": "林市長對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.16 → 0.49（doubt）",
+    "actor": "mayor",
+    "w": 14
+   },
+   {
+    "id": "e84",
+    "t": 79.49430646998316,
+    "type": "react",
+    "causes": [
+     "e82"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "林市長 🤨 懷疑",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 14
+   },
+   {
+    "id": "e85",
+    "t": 79.75827813781986,
+    "type": "arrive",
+    "causes": [
+     "e81"
+    ],
+    "data": {},
+    "zh": "阿德到了阿德麵包店",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 14
+   },
+   {
+    "id": "e86",
+    "t": 79.75827813781986,
+    "type": "decide",
+    "causes": [
+     "e71"
+    ],
+    "data": {
+     "decision": "d16",
+     "understanding": "有人說：警察出動到中央廣場（布告欄旁）了",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：聽聽就好。",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 14
+   },
+   {
+    "id": "e87",
+    "t": 79.75827813781986,
+    "type": "belief",
+    "causes": [
+     "e86"
+    ],
+    "data": {
+     "claim": "c12",
+     "from": 0,
+     "to": 0.41,
+     "proposed": 0.41,
+     "verdict": "doubt",
+     "why": "rule"
+    },
+    "zh": "阿德對「警察出動到中央廣場（布告欄旁）了」的信心：0.00 → 0.41（doubt）",
+    "actor": "baker",
+    "w": 14
+   },
+   {
+    "id": "e88",
+    "t": 79.85827813781985,
+    "type": "react",
+    "causes": [
+     "e86"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "阿德 🤨 懷疑",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 14
+   },
+   {
+    "id": "e89",
+    "t": 80.75827813781986,
+    "type": "phone",
+    "causes": [
+     "e86"
+    ],
+    "data": {
+     "text": "聽說警察出動到中央廣場（布告欄旁）了",
+     "intent": "inform",
+     "claims": [
+      "c12"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「聽說警察出動到中央廣場（布告欄旁）了」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 14
+   },
+   {
+    "id": "e90",
+    "t": 82.75827813781986,
+    "type": "deliver",
+    "causes": [
+     "e89"
+    ],
+    "data": {
+     "message": "m17",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      "c12"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「聽說警察出動到中央廣場（布告欄旁）了」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 14
+   },
+   {
+    "id": "e91",
+    "t": 82.95827813781986,
+    "type": "decide",
+    "causes": [
+     "e90"
+    ],
+    "data": {
+     "decision": "d17",
+     "budget": true
+    },
+    "zh": "美玲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "florist",
+    "place": "flower",
+    "w": 14
+   },
+   {
+    "id": "e92",
+    "t": 83.13791076052003,
+    "type": "deliver",
+    "causes": [
+     "e33"
+    ],
+    "data": {
+     "message": "m18",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "警察出動到中央廣場（布告欄旁）了",
+     "claims": [],
+     "from": "crowd"
+    },
+    "zh": "美咲聽客人說：警察出動到中央廣場（布告欄旁）了",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 14
+   },
+   {
+    "id": "e93",
+    "t": 83.33791076052003,
+    "type": "decide",
+    "causes": [
+     "e92"
+    ],
+    "data": {
+     "decision": "d18",
+     "budget": true
+    },
+    "zh": "美咲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 14
+   },
+   {
+    "id": "e94",
+    "t": 83.76943455408328,
+    "type": "deliver",
+    "causes": [
+     "e33"
+    ],
+    "data": {
+     "message": "m19",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "警察出動到中央廣場（布告欄旁）了",
+     "claims": [],
+     "from": "crowd"
+    },
+    "zh": "阿珠聽客人說：警察出動到中央廣場（布告欄旁）了",
+    "target": "vendor",
+    "place": "stall",
+    "w": 14
+   },
+   {
+    "id": "e95",
+    "t": 83.96943455408328,
+    "type": "decide",
+    "causes": [
+     "e94"
+    ],
+    "data": {
+     "decision": "d19",
+     "budget": true
+    },
+    "zh": "阿珠聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 14
+   },
+   {
+    "id": "e96",
+    "t": 86.85875585414469,
+    "type": "deliver",
+    "causes": [
+     "e79"
+    ],
+    "data": {
+     "message": "m20",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "警察出動到中央廣場（布告欄旁）了",
+     "claims": [],
+     "from": "crowd"
+    },
+    "zh": "阿德聽客人說：警察出動到中央廣場（布告欄旁）了",
+    "target": "baker",
+    "place": "bakery",
+    "w": 14
+   },
+   {
+    "id": "e97",
+    "t": 86.93678386150859,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m21",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      "c3"
+     ],
+     "from": "journalist"
+    },
+    "zh": "美玲看到小雯的文章：〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+    "target": "florist",
+    "actor": "journalist",
+    "place": "flower",
+    "w": 14
+   },
+   {
+    "id": "e98",
+    "t": 87.05875585414469,
+    "type": "decide",
+    "causes": [
+     "e96"
+    ],
+    "data": {
+     "decision": "d20",
+     "budget": true
+    },
+    "zh": "阿德聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 14
+   },
+   {
+    "id": "e99",
+    "t": 87.13678386150859,
+    "type": "decide",
+    "causes": [
+     "e97"
+    ],
+    "data": {
+     "decision": "d21",
+     "budget": true
+    },
+    "zh": "美玲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "florist",
+    "place": "flower",
+    "w": 14
+   },
+   {
+    "id": "e100",
+    "t": 90.3431479095947,
+    "type": "article",
+    "causes": [
+     "e39"
+    ],
+    "data": {
+     "headline": "【傳聞】警察出動到中央廣場（布告欄旁）了",
+     "body": "【傳聞】警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      "c7"
+     ]
+    },
+    "zh": "小雯發文〈【傳聞】警察出動到中央廣場（布告欄旁）了〉",
+    "actor": "journalist",
+    "place": "news",
+    "w": 15
+   },
+   {
+    "id": "e101",
+    "t": 93.6710073530674,
+    "type": "deliver",
+    "causes": [
+     "e79"
+    ],
+    "data": {
+     "message": "m22",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "警察出動到中央廣場（布告欄旁）了",
+     "claims": [],
+     "from": "crowd"
+    },
+    "zh": "美玲聽客人說：警察出動到中央廣場（布告欄旁）了",
+    "target": "florist",
+    "place": "flower",
+    "w": 15
+   },
+   {
+    "id": "e102",
+    "t": 93.8710073530674,
+    "type": "decide",
+    "causes": [
+     "e101"
+    ],
+    "data": {
+     "decision": "d22",
+     "budget": true
+    },
+    "zh": "美玲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "florist",
+    "place": "flower",
+    "w": 15
+   },
+   {
+    "id": "e103",
+    "t": 97.04846917055548,
+    "type": "deliver",
+    "causes": [
+     "e100"
+    ],
+    "data": {
+     "message": "m23",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      "c7"
+     ],
+     "from": "journalist"
+    },
+    "zh": "林市長看到小雯的文章：〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+    "target": "mayor",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 15
+   },
+   {
+    "id": "e104",
+    "t": 97.1683147560805,
+    "type": "deliver",
+    "causes": [
+     "e79"
+    ],
+    "data": {
+     "message": "m24",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "警察出動到中央廣場（布告欄旁）了",
+     "claims": [],
+     "from": "crowd"
+    },
+    "zh": "美咲聽客人說：警察出動到中央廣場（布告欄旁）了",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 15
+   },
+   {
+    "id": "e105",
+    "t": 97.24846917055548,
+    "type": "decide",
+    "causes": [
+     "e103"
+    ],
+    "data": {
+     "decision": "d23",
+     "budget": true
+    },
+    "zh": "林市長聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 15
+   },
+   {
+    "id": "e106",
+    "t": 97.36831475608051,
+    "type": "decide",
+    "causes": [
+     "e104"
+    ],
+    "data": {
+     "decision": "d24",
+     "budget": true
+    },
+    "zh": "美咲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 15
+   },
+   {
+    "id": "e107",
+    "t": 97.8893860021606,
+    "type": "deliver",
+    "causes": [
+     "e79"
+    ],
+    "data": {
+     "message": "m25",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "警察出動到中央廣場（布告欄旁）了",
+     "claims": [],
+     "from": "crowd"
+    },
+    "zh": "阿珠聽客人說：警察出動到中央廣場（布告欄旁）了",
+    "target": "vendor",
+    "place": "stall",
+    "w": 15
+   },
+   {
+    "id": "e108",
+    "t": 98.08938600216061,
+    "type": "decide",
+    "causes": [
+     "e107"
+    ],
+    "data": {
+     "decision": "d25",
+     "budget": true
+    },
+    "zh": "阿珠聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 15
+   },
+   {
+    "id": "e109",
+    "t": 98.15763661284,
+    "type": "deliver",
+    "causes": [
+     "e79"
+    ],
+    "data": {
+     "message": "m26",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "警察出動到中央廣場（布告欄旁）了",
+     "claims": [],
+     "from": "crowd"
+    },
+    "zh": "林市長聽客人說：警察出動到中央廣場（布告欄旁）了",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 15
+   },
+   {
+    "id": "e110",
+    "t": 98.35763661284,
+    "type": "decide",
+    "causes": [
+     "e109"
+    ],
+    "data": {
+     "decision": "d26",
+     "budget": true
+    },
+    "zh": "林市長聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 15
+   },
+   {
+    "id": "e111",
+    "t": 99.79552843011916,
+    "type": "deliver",
+    "causes": [
+     "e100"
+    ],
+    "data": {
+     "message": "m27",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      "c7"
+     ],
+     "from": "journalist"
+    },
+    "zh": "老周看到小雯的文章：〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+    "target": "police",
+    "actor": "journalist",
+    "place": "police",
+    "w": 15
+   },
+   {
+    "id": "e112",
+    "t": 99.99552843011917,
+    "type": "decide",
+    "causes": [
+     "e111"
+    ],
+    "data": {
+     "decision": "d27",
+     "budget": true
+    },
+    "zh": "老周聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "police",
+    "place": "police",
+    "w": 15
+   },
+   {
+    "id": "e113",
+    "t": 104.06559097333812,
+    "type": "deliver",
+    "causes": [
+     "e100"
+    ],
+    "data": {
+     "message": "m28",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      "c7"
+     ],
+     "from": "journalist"
+    },
+    "zh": "美玲看到小雯的文章：〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+    "target": "florist",
+    "actor": "journalist",
+    "place": "flower",
+    "w": 15
+   },
+   {
+    "id": "e114",
+    "t": 104.26559097333812,
+    "type": "decide",
+    "causes": [
+     "e113"
+    ],
+    "data": {
+     "decision": "d28",
+     "budget": true
+    },
+    "zh": "美玲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "florist",
+    "place": "flower",
+    "w": 15
+   },
+   {
+    "id": "e115",
+    "t": 106.65975459604525,
+    "type": "deliver",
+    "causes": [
+     "e100"
+    ],
+    "data": {
+     "message": "m29",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      "c7"
+     ],
+     "from": "journalist"
+    },
+    "zh": "阿德看到小雯的文章：〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+    "target": "baker",
+    "actor": "journalist",
+    "place": "bakery",
+    "w": 15
+   },
+   {
+    "id": "e116",
+    "t": 106.85975459604525,
+    "type": "decide",
+    "causes": [
+     "e115"
+    ],
+    "data": {
+     "decision": "d29",
+     "budget": true
+    },
+    "zh": "阿德聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 15
+   },
+   {
+    "id": "e117",
+    "t": 120.75681692440995,
+    "type": "deliver",
+    "causes": [
+     "e100"
+    ],
+    "data": {
+     "message": "m30",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      "c7"
+     ],
+     "from": "journalist"
+    },
+    "zh": "美咲看到小雯的文章：〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+    "target": "cafe",
+    "actor": "journalist",
+    "place": "cafe",
+    "w": 15
+   },
+   {
+    "id": "e118",
+    "t": 120.95681692440995,
+    "type": "decide",
+    "causes": [
+     "e117"
+    ],
+    "data": {
+     "decision": "d30",
+     "budget": true
+    },
+    "zh": "美咲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 15
+   },
+   {
+    "id": "e119",
+    "t": 125.64517021747307,
+    "type": "deliver",
+    "causes": [
+     "e100"
+    ],
+    "data": {
+     "message": "m31",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      "c7"
+     ],
+     "from": "journalist"
+    },
+    "zh": "志明看到小雯的文章：〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+    "target": "organizer",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 15
+   },
+   {
+    "id": "e120",
+    "t": 125.84517021747307,
+    "type": "decide",
+    "causes": [
+     "e119"
+    ],
+    "data": {
+     "decision": "d31",
+     "budget": true
+    },
+    "zh": "志明聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 15
+   },
+   {
+    "id": "e121",
+    "t": 129.97135998667218,
+    "type": "deliver",
+    "causes": [
+     "e100"
+    ],
+    "data": {
+     "message": "m32",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      "c7"
+     ],
+     "from": "journalist"
+    },
+    "zh": "阿珠看到小雯的文章：〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了",
+    "target": "vendor",
+    "actor": "journalist",
+    "place": "stall",
+    "w": 15
+   },
+   {
+    "id": "e122",
+    "t": 130.17135998667217,
+    "type": "decide",
+    "causes": [
+     "e121"
+    ],
+    "data": {
+     "decision": "d32",
+     "budget": true
+    },
+    "zh": "阿珠聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 15
+   },
+   {
+    "id": "e123",
+    "t": 130.17135998667217,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "budget",
+     "festival": "scheduled"
+    },
+    "zh": "模擬達到決策上限。",
+    "w": 15
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.31,
+       "why": "rule",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "intent": "inform",
+       "message": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.72,
+       "why": "rule",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "intent": "inform",
+       "message": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "journalist",
+    "t": 26.599999999999998,
+    "triggers": [
+     "e12"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "rule",
+       "cites": [
+        "m3"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "publish_article",
+       "message": "【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+       "why": "rule: journalist publishes",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e13",
+     "e14",
+     "e15"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "baker",
+    "t": 52.89575024130754,
+    "triggers": [
+     "e18"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      {
+       "ref": "c1",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.56,
+       "why": "rule",
+       "cites": [
+        "m4"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "cafe",
+       "intent": "inform",
+       "message": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e19",
+     "e20",
+     "e21"
+    ]
+   },
+   {
+    "id": "d5",
+    "npc": "cafe",
+    "t": 56.09575024130754,
+    "triggers": [
+     "e23"
+    ],
+    "inbox": [
+     "m5"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.67,
+       "why": "rule",
+       "cites": [
+        "m5"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "police",
+       "intent": "inform",
+       "message": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e24",
+     "e25",
+     "e26"
+    ]
+   },
+   {
+    "id": "d6",
+    "npc": "police",
+    "t": 59.295750241307545,
+    "triggers": [
+     "e28"
+    ],
+    "inbox": [
+     "m6"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.61,
+       "why": "rule",
+       "cites": [
+        "m6"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "dispatch_police",
+       "place": "plaza",
+       "message": "加強廣場巡邏",
+       "why": "rule: police reflex",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e29",
+     "e30",
+     "e31"
+    ]
+   },
+   {
+    "id": "d7",
+    "npc": "mayor",
+    "t": 67.70289332345128,
+    "triggers": [
+     "e34"
+    ],
+    "inbox": [
+     "m7"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0.16,
+       "why": "rule",
+       "cites": [
+        "m7"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "rule: nothing to do"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e35",
+     "e36",
+     "e37"
+    ]
+   },
+   {
+    "id": "d8",
+    "npc": "journalist",
+    "t": 69.3431479095947,
+    "triggers": [
+     "e38"
+    ],
+    "inbox": [
+     "m8"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "警察出動到中央廣場（布告欄旁）了",
+       "topic": "other",
+       "says": "yes",
+       "category": "other"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.37,
+       "why": "rule",
+       "cites": [
+        "m8"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "publish_article",
+       "message": "【傳聞】警察出動到中央廣場（布告欄旁）了",
+       "why": "rule: journalist publishes",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e39",
+     "e40",
+     "e41"
+    ]
+   },
+   {
+    "id": "d9",
+    "npc": "vendor",
+    "t": 69.90759110981598,
+    "triggers": [
+     "e42"
+    ],
+    "inbox": [
+     "m9"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.54,
+       "why": "rule",
+       "cites": [
+        "m9"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "baker",
+       "intent": "inform",
+       "message": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e43",
+     "e44",
+     "e45"
+    ]
+   },
+   {
+    "id": "d10",
+    "npc": "florist",
+    "t": 71.08561293999665,
+    "triggers": [
+     "e47"
+    ],
+    "inbox": [
+     "m10"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "警察出動到中央廣場（布告欄旁）了",
+       "topic": "other",
+       "says": "yes",
+       "category": "other"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.36,
+       "why": "rule",
+       "cites": [
+        "m10"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "baker",
+       "intent": "inform",
+       "message": "聽說警察出動到中央廣場（布告欄旁）了",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e49",
+     "e50",
+     "e51"
+    ]
+   },
+   {
+    "id": "d11",
+    "npc": "mayor",
+    "t": 71.81322180978023,
+    "triggers": [
+     "e54"
+    ],
+    "inbox": [
+     "m11"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "警察出動到中央廣場（布告欄旁）了",
+       "topic": "other",
+       "says": "yes",
+       "category": "other"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.31,
+       "why": "rule",
+       "cites": [
+        "m11"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "rule: nothing to do"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e55",
+     "e56",
+     "e57"
+    ]
+   },
+   {
+    "id": "d12",
+    "npc": "police",
+    "t": 74.24936012104153,
+    "triggers": [
+     "e59"
+    ],
+    "inbox": [
+     "m12"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      {
+       "ref": "c5",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.61,
+       "why": "rule",
+       "cites": [
+        "m12"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "dispatch_police",
+       "place": "plaza",
+       "message": "加強廣場巡邏",
+       "why": "rule: police reflex",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e60",
+     "e61",
+     "e62"
+    ]
+   },
+   {
+    "id": "d13",
+    "npc": "baker",
+    "t": 74.63033480214646,
+    "triggers": [
+     "e63"
+    ],
+    "inbox": [
+     "m13"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      {
+       "ref": "c1",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.71,
+       "why": "rule",
+       "cites": [
+        "m13"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "mayor",
+       "intent": "inform",
+       "message": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e65",
+     "e66",
+     "e67"
+    ]
+   },
+   {
+    "id": "d14",
+    "npc": "organizer",
+    "t": 76.54338935702108,
+    "triggers": [
+     "e74"
+    ],
+    "inbox": [
+     "m15"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "警察出動到中央廣場（布告欄旁）了",
+       "topic": "other",
+       "says": "yes",
+       "category": "other"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.36,
+       "why": "rule",
+       "cites": [
+        "m15"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "mayor",
+       "intent": "inform",
+       "message": "聽說警察出動到中央廣場（布告欄旁）了",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e75",
+     "e76",
+     "e77"
+    ]
+   },
+   {
+    "id": "d15",
+    "npc": "mayor",
+    "t": 79.39430646998316,
+    "triggers": [
+     "e80"
+    ],
+    "inbox": [
+     "m16"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [
+      {
+       "ref": "c6",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.49,
+       "why": "rule",
+       "cites": [
+        "m16"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "rule: nothing to do"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e82",
+     "e83",
+     "e84"
+    ]
+   },
+   {
+    "id": "d16",
+    "npc": "baker",
+    "t": 79.75827813781986,
+    "triggers": [
+     "e71",
+     "e71",
+     "e71"
+    ],
+    "inbox": [
+     "m14"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：警察出動到中央廣場（布告欄旁）了",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "警察出動到中央廣場（布告欄旁）了",
+       "topic": "other",
+       "says": "yes",
+       "category": "other"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.41,
+       "why": "rule",
+       "cites": [
+        "m14"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "intent": "inform",
+       "message": "聽說警察出動到中央廣場（布告欄旁）了",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e86",
+     "e87",
+     "e88"
+    ]
+   },
+   {
+    "id": "d17",
+    "npc": "florist",
+    "t": 82.95827813781986,
+    "triggers": [
+     "e90"
+    ],
+    "inbox": [
+     "m17"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e91"
+    ]
+   },
+   {
+    "id": "d18",
+    "npc": "cafe",
+    "t": 83.33791076052003,
+    "triggers": [
+     "e92"
+    ],
+    "inbox": [
+     "m18"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e93"
+    ]
+   },
+   {
+    "id": "d19",
+    "npc": "vendor",
+    "t": 83.96943455408328,
+    "triggers": [
+     "e94"
+    ],
+    "inbox": [
+     "m19"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e95"
+    ]
+   },
+   {
+    "id": "d20",
+    "npc": "baker",
+    "t": 87.05875585414469,
+    "triggers": [
+     "e96"
+    ],
+    "inbox": [
+     "m20"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e98"
+    ]
+   },
+   {
+    "id": "d21",
+    "npc": "florist",
+    "t": 87.13678386150859,
+    "triggers": [
+     "e97"
+    ],
+    "inbox": [
+     "m21"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e99"
+    ]
+   },
+   {
+    "id": "d22",
+    "npc": "florist",
+    "t": 93.8710073530674,
+    "triggers": [
+     "e101"
+    ],
+    "inbox": [
+     "m22"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e102"
+    ]
+   },
+   {
+    "id": "d23",
+    "npc": "mayor",
+    "t": 97.24846917055548,
+    "triggers": [
+     "e103"
+    ],
+    "inbox": [
+     "m23"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e105"
+    ]
+   },
+   {
+    "id": "d24",
+    "npc": "cafe",
+    "t": 97.36831475608051,
+    "triggers": [
+     "e104"
+    ],
+    "inbox": [
+     "m24"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e106"
+    ]
+   },
+   {
+    "id": "d25",
+    "npc": "vendor",
+    "t": 98.08938600216061,
+    "triggers": [
+     "e107"
+    ],
+    "inbox": [
+     "m25"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e108"
+    ]
+   },
+   {
+    "id": "d26",
+    "npc": "mayor",
+    "t": 98.35763661284,
+    "triggers": [
+     "e109"
+    ],
+    "inbox": [
+     "m26"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e110"
+    ]
+   },
+   {
+    "id": "d27",
+    "npc": "police",
+    "t": 99.99552843011917,
+    "triggers": [
+     "e111"
+    ],
+    "inbox": [
+     "m27"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e112"
+    ]
+   },
+   {
+    "id": "d28",
+    "npc": "florist",
+    "t": 104.26559097333812,
+    "triggers": [
+     "e113"
+    ],
+    "inbox": [
+     "m28"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e114"
+    ]
+   },
+   {
+    "id": "d29",
+    "npc": "baker",
+    "t": 106.85975459604525,
+    "triggers": [
+     "e115"
+    ],
+    "inbox": [
+     "m29"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e116"
+    ]
+   },
+   {
+    "id": "d30",
+    "npc": "cafe",
+    "t": 120.95681692440995,
+    "triggers": [
+     "e117"
+    ],
+    "inbox": [
+     "m30"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e118"
+    ]
+   },
+   {
+    "id": "d31",
+    "npc": "organizer",
+    "t": 125.84517021747307,
+    "triggers": [
+     "e119"
+    ],
+    "inbox": [
+     "m31"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e120"
+    ]
+   },
+   {
+    "id": "d32",
+    "npc": "vendor",
+    "t": 130.17135998667217,
+    "triggers": [
+     "e121"
+    ],
+    "inbox": [
+     "m32"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e122"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   },
+   {
+    "id": "c2",
+    "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e7",
+    "by": "florist"
+   },
+   {
+    "id": "c3",
+    "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e12",
+    "by": "journalist"
+   },
+   {
+    "id": "c4",
+    "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e23",
+    "by": "cafe"
+   },
+   {
+    "id": "c5",
+    "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e28",
+    "by": "police"
+   },
+   {
+    "id": "c6",
+    "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e34",
+    "by": "mayor"
+   },
+   {
+    "id": "c7",
+    "statement": "警察出動到中央廣場（布告欄旁）了",
+    "topic": "other",
+    "says": "yes",
+    "category": "other",
+    "fact": null,
+    "asserts": true,
+    "origin": "e38",
+    "by": "journalist"
+   },
+   {
+    "id": "c8",
+    "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e42",
+    "by": "vendor"
+   },
+   {
+    "id": "c9",
+    "statement": "警察出動到中央廣場（布告欄旁）了",
+    "topic": "other",
+    "says": "yes",
+    "category": "other",
+    "fact": null,
+    "asserts": true,
+    "origin": "e47",
+    "by": "florist"
+   },
+   {
+    "id": "c10",
+    "statement": "警察出動到中央廣場（布告欄旁）了",
+    "topic": "other",
+    "says": "yes",
+    "category": "other",
+    "fact": null,
+    "asserts": true,
+    "origin": "e54",
+    "by": "mayor"
+   },
+   {
+    "id": "c11",
+    "statement": "警察出動到中央廣場（布告欄旁）了",
+    "topic": "other",
+    "says": "yes",
+    "category": "other",
+    "fact": null,
+    "asserts": true,
+    "origin": "e74",
+    "by": "organizer"
+   },
+   {
+    "id": "c12",
+    "statement": "警察出動到中央廣場（布告欄旁）了",
+    "topic": "other",
+    "says": "yes",
+    "category": "other",
+    "fact": null,
+    "asserts": true,
+    "origin": "e71",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": true,
+    "place": "plaza"
+   },
+   "notices": [],
+   "articles": [
+    {
+     "id": "a1",
+     "headline": "【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+     "body": "【傳聞】廣場的舞台是趕工搭的，可能撐不住人。",
+     "by": "journalist",
+     "at": 47.599999999999994
+    },
+    {
+     "id": "a2",
+     "headline": "【傳聞】警察出動到中央廣場（布告欄旁）了",
+     "body": "【傳聞】警察出動到中央廣場（布告欄旁）了",
+     "by": "journalist",
+     "at": 90.3431479095947
+    }
+   ],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.71,
+      "sources": [
+       "unknown",
+       "journalist",
+       "vendor"
+      ],
+      "updatedAt": 74.63033480214646,
+      "why": "rule"
+     },
+     {
+      "claim": "c12",
+      "confidence": 0.41,
+      "sources": [
+       "crowd"
+      ],
+      "updatedAt": 79.75827813781986,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "15:20 你決定：打電話給美玲說「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "15:53 小雯說：「〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。」",
+     "15:53 你決定：打電話給美咲說「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "16:14 阿珠說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "16:15 你決定：去跟林市長說「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "16:16 客人們說：「警察出動到中央廣場（布告欄旁）了」",
+     "16:20 你決定：打電話給美玲說「聽說警察出動到中央廣場（布告欄旁）了」",
+     "16:27 客人們說：「警察出動到中央廣場（布告欄旁）了」（你沒有多想）",
+     "16:47 小雯說：「〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了」（你沒有多想）"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.7150000000000001,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 23.4,
+      "why": "rule"
+     },
+     {
+      "claim": "c9",
+      "confidence": 0.36,
+      "sources": [
+       "crowd"
+      ],
+      "updatedAt": 71.08561293999665,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:23 阿德打電話說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "15:23 你決定：打電話給小雯說「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "16:11 客人們說：「警察出動到中央廣場（布告欄旁）了」",
+     "16:11 你決定：打電話給阿德說「聽說警察出動到中央廣場（布告欄旁）了」",
+     "16:23 阿德說：「聽說警察出動到中央廣場（布告欄旁）了」（你沒有多想）",
+     "16:27 小雯說：「〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。」（你沒有多想）",
+     "16:34 客人們說：「警察出動到中央廣場（布告欄旁）了」（你沒有多想）",
+     "16:44 小雯說：「〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了」（你沒有多想）"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c3",
+      "confidence": 0.6,
+      "sources": [
+       "florist"
+      ],
+      "updatedAt": 26.599999999999998,
+      "why": "rule"
+     },
+     {
+      "claim": "c7",
+      "confidence": 0.37,
+      "sources": [
+       "crowd"
+      ],
+      "updatedAt": 69.3431479095947,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:26 美玲打電話說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "15:27 你決定：publish_article",
+     "16:09 客人們說：「警察出動到中央廣場（布告欄旁）了」",
+     "16:09 你決定：publish_article"
+    ]
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [
+     {
+      "claim": "c4",
+      "confidence": 0.67,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 56.09575024130754,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:56 阿德打電話說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "15:56 你決定：打電話給老周說「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "16:23 客人們說：「警察出動到中央廣場（布告欄旁）了」（你沒有多想）",
+     "16:37 客人們說：「警察出動到中央廣場（布告欄旁）了」（你沒有多想）",
+     "17:01 小雯說：「〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了」（你沒有多想）"
+    ]
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [
+     {
+      "claim": "c5",
+      "confidence": 0.61,
+      "sources": [
+       "cafe",
+       "journalist"
+      ],
+      "updatedAt": 74.24936012104153,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:59 美咲打電話說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "15:59 你決定：dispatch_police",
+     "16:14 小雯說：「〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。」",
+     "16:14 你決定：dispatch_police",
+     "16:40 小雯說：「〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了」（你沒有多想）"
+    ]
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [
+     {
+      "claim": "c6",
+      "confidence": 0.49,
+      "sources": [
+       "journalist",
+       "baker"
+      ],
+      "updatedAt": 79.39430646998316,
+      "why": "rule"
+     },
+     {
+      "claim": "c10",
+      "confidence": 0.31,
+      "sources": [
+       "crowd"
+      ],
+      "updatedAt": 71.81322180978023,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "16:08 小雯說：「〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。」",
+     "16:08 你決定先不做什麼。",
+     "16:12 客人們說：「警察出動到中央廣場（布告欄旁）了」",
+     "16:12 你決定先不做什麼。",
+     "16:19 阿德說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "16:19 你決定先不做什麼。",
+     "16:37 小雯說：「〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了」（你沒有多想）",
+     "16:38 客人們說：「警察出動到中央廣場（布告欄旁）了」（你沒有多想）"
+    ]
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [
+     {
+      "claim": "c11",
+      "confidence": 0.36,
+      "sources": [
+       "crowd"
+      ],
+      "updatedAt": 76.54338935702108,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "16:16 客人們說：「警察出動到中央廣場（布告欄旁）了」",
+     "16:17 你決定：打電話給林市長說「聽說警察出動到中央廣場（布告欄旁）了」",
+     "17:06 小雯說：「〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了」（你沒有多想）"
+    ]
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [
+     {
+      "claim": "c8",
+      "confidence": 0.54,
+      "sources": [
+       "journalist"
+      ],
+      "updatedAt": 69.90759110981598,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "16:10 小雯說：「〈【傳聞】廣場的舞台是趕工搭的，可能撐不住人。〉【傳聞】廣場的舞台是趕工搭的，可能撐不住人。」",
+     "16:10 你決定：去跟阿德說「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "16:24 客人們說：「警察出動到中央廣場（布告欄旁）了」（你沒有多想）",
+     "16:38 客人們說：「警察出動到中央廣場（布告欄旁）了」（你沒有多想）",
+     "17:10 小雯說：「〈【傳聞】警察出動到中央廣場（布告欄旁）了〉【傳聞】警察出動到中央廣場（布告欄旁）了」（你沒有多想）"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "budget",
+   "t": 130.17135998667217
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:01:21.261Z",
+   "ms": 15
+  },
+  "llm": {
+   "calls": 0,
+   "attempts": 0,
+   "promptTokens": 0,
+   "completionTokens": 0,
+   "platformCost": 0,
+   "estCost": 0,
+   "errors": 0,
+   "fallbacks": 16
+  }
+ },
+ "metrics": {
+  "depth": 7,
+  "reach": 8,
+  "believers": 6,
+  "decisions": 16,
+  "noneDecisions": 3,
+  "actionsDone": {
+   "phone": 7,
+   "state": 4,
+   "article": 2,
+   "talk": 2
+  },
+  "worldChanges": 4,
+  "worldChangeTypes": [
+   "article",
+   "state:police"
+  ],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "stage_unsafe",
+   "other"
+  ],
+  "topicDrift": 5,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+    "similarity": 1
+   },
+   {
+    "from": "florist",
+    "to": "journalist",
+    "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+    "similarity": 1
+   },
+   {
+    "from": "baker",
+    "to": "cafe",
+    "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+    "similarity": 1
+   },
+   {
+    "from": "cafe",
+    "to": "police",
+    "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+    "similarity": 1
+   },
+   {
+    "from": "vendor",
+    "to": "baker",
+    "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+    "similarity": 1
+   },
+   {
+    "from": "baker",
+    "to": "mayor",
+    "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+    "similarity": 1
+   },
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "聽說警察出動到中央廣場（布告欄旁）了",
+    "similarity": 0.07
+   }
+  ],
+  "meanSimilarity": 0.87,
+  "explained": 1,
+  "visualEvents": 41,
+  "gameMinutes": 110.2,
+  "llmCalls": 0,
+  "llmSeconds": 0,
+  "tokens": 0,
+  "estCost": 0,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

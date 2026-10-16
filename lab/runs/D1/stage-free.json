@@ -1,0 +1,336 @@
+{
+ "case": {
+  "id": "stage-free",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "聽說廣場的舞台是用回收舊木板搭的，撐不住人。",
+  "variant": "free-actions",
+  "maxDecisions": 1,
+  "tags": [
+   "stage",
+   "free"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "free-actions",
+   "id": "stage-free",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "聽說廣場的舞台是用回收舊木板搭的，撐不住人。",
+   "tags": [
+    "stage",
+    "free"
+   ],
+   "temperature": 0.7,
+   "label": "stage-free"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說廣場的舞台是用回收舊木板搭的，撐不住人。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「聽說廣場的舞台是用回收舊木板搭的，撐不住人。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是用回收舊木板搭的，撐不住人。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「聽說廣場的舞台是用回收舊木板搭的，撐不住人。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人說慶典舞台不安全，可能會塌。",
+     "thought": "如果舞台真的塌了就太糟糕了，得問問美玲怎麼看。",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "阿德：如果舞台真的塌了就太糟糕了，得問問美玲怎麼看。",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 22918
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4,
+     "proposed": 0.4,
+     "verdict": "doubt",
+     "why": "不認識的客人隨口說的"
+    },
+    "zh": "阿德對「廣場的舞台是用回收舊木板搭的，撐不住人。」的信心：0.00 → 0.40（doubt）",
+    "actor": "baker",
+    "w": 22918
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "阿德 😟 擔心",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 22918
+   },
+   {
+    "id": "e6",
+    "t": 20.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 22918
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人說慶典舞台不安全，可能會塌。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "廣場的舞台是用回收舊木板搭的，撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.4,
+       "why": "不認識的客人隨口說的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "如果舞台真的塌了就太糟糕了，得問問美玲怎麼看。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "free-form: 打電話給美玲"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 22918,
+      "latencyMs": 16306,
+      "attempts": 1,
+      "promptTokens": 1492,
+      "completionTokens": 309,
+      "platformCost": 0.0000383495,
+      "estCost": 0.001673,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"有人說慶典舞台不安全，可能會塌。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"廣場的舞台是用回收舊木板搭的，撐不住人。\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"yes\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.4,\n      \"why\": \"不認識的客人隨口說的\",\n      \"cites\": [\"m1\"]\n    }\n  ],\n  \"feeling\": \"😟 擔心\",\n  \"thought\": \"如果舞台真的塌了就太糟糕了，得問問美玲怎麼看。\",\n  \"actions\": [\n    {\n      \"type\": \"打電話給美玲\",\n      \"target\": \"florist\",\n      \"place\": \"bakery\",\n      \"intent\": \"ask\",\n      \"message\": \"美玲！妳聽說了嗎？剛有個客人在我店裡說廣場的舞台是用舊木板搭的，很不穩，妳有聽說這件事嗎？\",\n      \"cites\": [\"#0\"]\n    }\n  ]\n}",
+      "promptChars": 2432
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "廣場的舞台是用回收舊木板搭的，撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "不認識的客人隨口說的"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說廣場的舞台是用回收舊木板搭的，撐不住人。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:48:47.207Z",
+   "ms": 22918
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1492,
+   "completionTokens": 309,
+   "platformCost": 0.0000383495,
+   "estCost": 0.001673,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "stage_unsafe"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.3,
+  "llmCalls": 1,
+  "llmSeconds": 16.3,
+  "tokens": 1801,
+  "estCost": 0.001673,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

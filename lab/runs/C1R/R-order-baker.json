@@ -1,0 +1,3664 @@
+{
+ "case": {
+  "maxDecisions": 16,
+  "maxPerNpc": 4,
+  "id": "R-order-baker",
+  "active": [
+   "baker",
+   "florist",
+   "journalist",
+   "cafe",
+   "police",
+   "mayor",
+   "organizer",
+   "vendor"
+  ],
+  "seedNpc": "baker",
+  "seedText": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+  "tags": [
+   "command",
+   "illegal-action"
+  ],
+  "policy": "rules"
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 16,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "rules",
+   "variant": "single",
+   "id": "R-order-baker",
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "baker",
+   "seedText": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+   "tags": [
+    "command",
+    "illegal-action"
+   ],
+   "temperature": 0.7,
+   "label": "R-order-baker"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！"
+    },
+    "zh": "一個念頭被植入阿德耳中：「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：聽聽就好。",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.31,
+     "proposed": 0.31,
+     "verdict": "doubt",
+     "why": "rule"
+    },
+    "zh": "阿德對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.00 → 0.31（doubt）",
+    "actor": "baker",
+    "w": 1
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "阿德 🤨 懷疑",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 1
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：這是真的嗎？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 1
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.7150000000000001,
+     "proposed": 0.72,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "美玲對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.00 → 0.72（believe）",
+    "actor": "florist",
+    "w": 1
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "美玲 😮 驚訝",
+    "actor": "florist",
+    "place": "flower",
+    "w": 1
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "phone",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "intent": "inform",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "美玲打電話給小雯：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "actor": "florist",
+    "target": "journalist",
+    "place": "flower",
+    "w": 1
+   },
+   {
+    "id": "e12",
+    "t": 26.4,
+    "type": "deliver",
+    "causes": [
+     "e11"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c2"
+     ],
+     "from": "florist"
+    },
+    "zh": "小雯在電話裡聽美玲說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "journalist",
+    "actor": "florist",
+    "place": "news",
+    "w": 1
+   },
+   {
+    "id": "e13",
+    "t": 26.599999999999998,
+    "type": "decide",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "publish_article"
+     ]
+    },
+    "zh": "小雯：這是真的嗎？",
+    "actor": "journalist",
+    "place": "news",
+    "w": 1
+   },
+   {
+    "id": "e14",
+    "t": 26.599999999999998,
+    "type": "belief",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "claim": "c3",
+     "from": 0,
+     "to": 0.6,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "小雯對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.00 → 0.60（believe）",
+    "actor": "journalist",
+    "w": 1
+   },
+   {
+    "id": "e15",
+    "t": 26.7,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "小雯 😮 驚訝",
+    "actor": "journalist",
+    "place": "news",
+    "w": 1
+   },
+   {
+    "id": "e16",
+    "t": 27.599999999999998,
+    "type": "state",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "key": "writing"
+    },
+    "zh": "小雯開始寫文章",
+    "actor": "journalist",
+    "place": "news",
+    "w": 1
+   },
+   {
+    "id": "e17",
+    "t": 47.599999999999994,
+    "type": "article",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "headline": "【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "body": "【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c3"
+     ]
+    },
+    "zh": "小雯發文〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉",
+    "actor": "journalist",
+    "place": "news",
+    "w": 1
+   },
+   {
+    "id": "e18",
+    "t": 52.695750241307536,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c3"
+     ],
+     "from": "journalist"
+    },
+    "zh": "阿德看到小雯的文章：〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "target": "baker",
+    "actor": "journalist",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e19",
+    "t": 52.89575024130754,
+    "type": "decide",
+    "causes": [
+     "e18"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：這是真的嗎？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e20",
+    "t": 52.89575024130754,
+    "type": "belief",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0.31,
+     "to": 0.56,
+     "proposed": 0.56,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "阿德對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.31 → 0.56（believe）",
+    "actor": "baker",
+    "w": 1
+   },
+   {
+    "id": "e21",
+    "t": 52.99575024130754,
+    "type": "react",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "阿德 😮 驚訝",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e22",
+    "t": 53.89575024130754,
+    "type": "phone",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美咲：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e23",
+    "t": 55.89575024130754,
+    "type": "deliver",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "message": "m5",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美咲在電話裡聽阿德說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "cafe",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 1
+   },
+   {
+    "id": "e24",
+    "t": 56.09575024130754,
+    "type": "decide",
+    "causes": [
+     "e23"
+    ],
+    "data": {
+     "decision": "d5",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美咲：這是真的嗎？",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 1
+   },
+   {
+    "id": "e25",
+    "t": 56.09575024130754,
+    "type": "belief",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "claim": "c4",
+     "from": 0,
+     "to": 0.67,
+     "proposed": 0.67,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "美咲對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.00 → 0.67（believe）",
+    "actor": "cafe",
+    "w": 1
+   },
+   {
+    "id": "e26",
+    "t": 56.19575024130754,
+    "type": "react",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "美咲 😮 驚訝",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 1
+   },
+   {
+    "id": "e27",
+    "t": 57.09575024130754,
+    "type": "phone",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "intent": "inform",
+     "claims": [
+      "c4"
+     ]
+    },
+    "zh": "美咲打電話給老周：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "actor": "cafe",
+    "target": "police",
+    "place": "cafe",
+    "w": 1
+   },
+   {
+    "id": "e28",
+    "t": 59.09575024130754,
+    "type": "deliver",
+    "causes": [
+     "e27"
+    ],
+    "data": {
+     "message": "m6",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c4"
+     ],
+     "from": "cafe"
+    },
+    "zh": "老周在電話裡聽美咲說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "police",
+    "actor": "cafe",
+    "place": "police",
+    "w": 1
+   },
+   {
+    "id": "e29",
+    "t": 59.295750241307545,
+    "type": "decide",
+    "causes": [
+     "e28"
+    ],
+    "data": {
+     "decision": "d6",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "老周：這是真的嗎？",
+    "actor": "police",
+    "place": "police",
+    "w": 1
+   },
+   {
+    "id": "e30",
+    "t": 59.295750241307545,
+    "type": "belief",
+    "causes": [
+     "e29"
+    ],
+    "data": {
+     "claim": "c5",
+     "from": 0,
+     "to": 0.61,
+     "proposed": 0.61,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "老周對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.00 → 0.61（believe）",
+    "actor": "police",
+    "w": 1
+   },
+   {
+    "id": "e31",
+    "t": 59.395750241307546,
+    "type": "react",
+    "causes": [
+     "e29"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "老周 😮 驚訝",
+    "actor": "police",
+    "place": "police",
+    "w": 1
+   },
+   {
+    "id": "e32",
+    "t": 67.50289332345127,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m7",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c3"
+     ],
+     "from": "journalist"
+    },
+    "zh": "林市長看到小雯的文章：〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "target": "mayor",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 1
+   },
+   {
+    "id": "e33",
+    "t": 67.70289332345128,
+    "type": "decide",
+    "causes": [
+     "e32"
+    ],
+    "data": {
+     "decision": "d7",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "林市長：聽聽就好。",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 2
+   },
+   {
+    "id": "e34",
+    "t": 67.70289332345128,
+    "type": "belief",
+    "causes": [
+     "e33"
+    ],
+    "data": {
+     "claim": "c6",
+     "from": 0,
+     "to": 0.16,
+     "proposed": 0.16,
+     "verdict": "disbelieve",
+     "why": "rule"
+    },
+    "zh": "林市長對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.00 → 0.16（disbelieve）",
+    "actor": "mayor",
+    "w": 2
+   },
+   {
+    "id": "e35",
+    "t": 67.80289332345127,
+    "type": "react",
+    "causes": [
+     "e33"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "林市長 🤨 懷疑",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 2
+   },
+   {
+    "id": "e36",
+    "t": 69.70759110981598,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m8",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c3"
+     ],
+     "from": "journalist"
+    },
+    "zh": "阿珠看到小雯的文章：〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "target": "vendor",
+    "actor": "journalist",
+    "place": "stall",
+    "w": 2
+   },
+   {
+    "id": "e37",
+    "t": 69.90759110981598,
+    "type": "decide",
+    "causes": [
+     "e36"
+    ],
+    "data": {
+     "decision": "d8",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "阿珠：這是真的嗎？",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 2
+   },
+   {
+    "id": "e38",
+    "t": 69.90759110981598,
+    "type": "belief",
+    "causes": [
+     "e37"
+    ],
+    "data": {
+     "claim": "c7",
+     "from": 0,
+     "to": 0.54,
+     "proposed": 0.54,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "阿珠對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.00 → 0.54（believe）",
+    "actor": "vendor",
+    "w": 2
+   },
+   {
+    "id": "e39",
+    "t": 70.00759110981598,
+    "type": "react",
+    "causes": [
+     "e37"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "阿珠 😮 驚訝",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 2
+   },
+   {
+    "id": "e40",
+    "t": 70.90759110981598,
+    "type": "move",
+    "causes": [
+     "e37"
+    ],
+    "data": {
+     "from": "stall",
+     "to": "bakery",
+     "arrive": 71.43033480214646,
+     "home": false
+    },
+    "zh": "阿珠從章魚燒攤走向阿德麵包店",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 2
+   },
+   {
+    "id": "e41",
+    "t": 71.43033480214646,
+    "type": "arrive",
+    "causes": [
+     "e40"
+    ],
+    "data": {},
+    "zh": "阿珠到了阿德麵包店",
+    "actor": "vendor",
+    "place": "bakery",
+    "w": 2
+   },
+   {
+    "id": "e42",
+    "t": 71.43033480214646,
+    "type": "talk",
+    "causes": [
+     "e37"
+    ],
+    "data": {
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "intent": "inform",
+     "claims": [
+      "c7"
+     ]
+    },
+    "zh": "阿珠對阿德說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "actor": "vendor",
+    "target": "baker",
+    "place": "bakery",
+    "w": 2
+   },
+   {
+    "id": "e43",
+    "t": 74.04936012104153,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m9",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c3"
+     ],
+     "from": "journalist"
+    },
+    "zh": "老周看到小雯的文章：〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "target": "police",
+    "actor": "journalist",
+    "place": "police",
+    "w": 2
+   },
+   {
+    "id": "e44",
+    "t": 74.24936012104153,
+    "type": "decide",
+    "causes": [
+     "e43"
+    ],
+    "data": {
+     "decision": "d9",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "老周：這是真的嗎？",
+    "actor": "police",
+    "place": "police",
+    "w": 2
+   },
+   {
+    "id": "e45",
+    "t": 74.24936012104153,
+    "type": "belief",
+    "causes": [
+     "e44"
+    ],
+    "data": {
+     "claim": "c5",
+     "from": 0.61,
+     "to": 0.61,
+     "proposed": 0.61,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "老周對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.61 → 0.61（believe）",
+    "actor": "police",
+    "w": 2
+   },
+   {
+    "id": "e46",
+    "t": 74.34936012104153,
+    "type": "react",
+    "causes": [
+     "e44"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "老周 😮 驚訝",
+    "actor": "police",
+    "place": "police",
+    "w": 2
+   },
+   {
+    "id": "e47",
+    "t": 74.43033480214646,
+    "type": "deliver",
+    "causes": [
+     "e42"
+    ],
+    "data": {
+     "message": "m10",
+     "via": "face",
+     "intent": "inform",
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c7"
+     ],
+     "from": "vendor"
+    },
+    "zh": "阿德聽阿珠說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "baker",
+    "actor": "vendor",
+    "place": "bakery",
+    "w": 2
+   },
+   {
+    "id": "e48",
+    "t": 74.43033480214646,
+    "type": "move",
+    "causes": [
+     "e37"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "stall",
+     "arrive": 74.95307849447694,
+     "home": true
+    },
+    "zh": "阿珠從阿德麵包店走回章魚燒攤",
+    "actor": "vendor",
+    "place": "bakery",
+    "w": 2
+   },
+   {
+    "id": "e49",
+    "t": 74.63033480214646,
+    "type": "decide",
+    "causes": [
+     "e47"
+    ],
+    "data": {
+     "decision": "d10",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "阿德：這是真的嗎？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 2
+   },
+   {
+    "id": "e50",
+    "t": 74.63033480214646,
+    "type": "belief",
+    "causes": [
+     "e49"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0.56,
+     "to": 0.71,
+     "proposed": 0.71,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "阿德對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.56 → 0.71（believe）",
+    "actor": "baker",
+    "w": 2
+   },
+   {
+    "id": "e51",
+    "t": 74.73033480214646,
+    "type": "react",
+    "causes": [
+     "e49"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "阿德 😮 驚訝",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 2
+   },
+   {
+    "id": "e52",
+    "t": 74.95307849447694,
+    "type": "arrive",
+    "causes": [
+     "e48"
+    ],
+    "data": {},
+    "zh": "阿珠到了章魚燒攤",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 2
+   },
+   {
+    "id": "e53",
+    "t": 75.63033480214646,
+    "type": "move",
+    "causes": [
+     "e49"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "townhall",
+     "arrive": 76.19430646998316,
+     "home": false
+    },
+    "zh": "阿德從阿德麵包店走向鎮公所",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 2
+   },
+   {
+    "id": "e54",
+    "t": 76.19430646998316,
+    "type": "arrive",
+    "causes": [
+     "e53"
+    ],
+    "data": {},
+    "zh": "阿德到了鎮公所",
+    "actor": "baker",
+    "place": "townhall",
+    "w": 2
+   },
+   {
+    "id": "e55",
+    "t": 76.19430646998316,
+    "type": "talk",
+    "causes": [
+     "e49"
+    ],
+    "data": {
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德對林市長說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "actor": "baker",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 2
+   },
+   {
+    "id": "e56",
+    "t": 79.19430646998316,
+    "type": "deliver",
+    "causes": [
+     "e55"
+    ],
+    "data": {
+     "message": "m11",
+     "via": "face",
+     "intent": "inform",
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "林市長聽阿德說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "mayor",
+    "actor": "baker",
+    "place": "townhall",
+    "w": 2
+   },
+   {
+    "id": "e57",
+    "t": 79.19430646998316,
+    "type": "move",
+    "causes": [
+     "e49"
+    ],
+    "data": {
+     "from": "townhall",
+     "to": "bakery",
+     "arrive": 79.75827813781986,
+     "home": true
+    },
+    "zh": "阿德從鎮公所走回阿德麵包店",
+    "actor": "baker",
+    "place": "townhall",
+    "w": 2
+   },
+   {
+    "id": "e58",
+    "t": 79.39430646998316,
+    "type": "decide",
+    "causes": [
+     "e56"
+    ],
+    "data": {
+     "decision": "d11",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "public_statement"
+     ]
+    },
+    "zh": "林市長：聽聽就好。",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 2
+   },
+   {
+    "id": "e59",
+    "t": 79.39430646998316,
+    "type": "belief",
+    "causes": [
+     "e58"
+    ],
+    "data": {
+     "claim": "c6",
+     "from": 0.16,
+     "to": 0.49,
+     "proposed": 0.49,
+     "verdict": "doubt",
+     "why": "rule"
+    },
+    "zh": "林市長對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.16 → 0.49（doubt）",
+    "actor": "mayor",
+    "w": 2
+   },
+   {
+    "id": "e60",
+    "t": 79.49430646998316,
+    "type": "react",
+    "causes": [
+     "e58"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "林市長 🤨 懷疑",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 2
+   },
+   {
+    "id": "e61",
+    "t": 79.75827813781986,
+    "type": "arrive",
+    "causes": [
+     "e57"
+    ],
+    "data": {},
+    "zh": "阿德到了阿德麵包店",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 2
+   },
+   {
+    "id": "e62",
+    "t": 86.93678386150859,
+    "type": "deliver",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "message": "m12",
+     "via": "article",
+     "intent": "inform",
+     "text": "〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c3"
+     ],
+     "from": "journalist"
+    },
+    "zh": "美玲看到小雯的文章：〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "target": "florist",
+    "actor": "journalist",
+    "place": "flower",
+    "w": 3
+   },
+   {
+    "id": "e63",
+    "t": 87.13678386150859,
+    "type": "decide",
+    "causes": [
+     "e62"
+    ],
+    "data": {
+     "decision": "d12",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：這是真的嗎？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 3
+   },
+   {
+    "id": "e64",
+    "t": 87.13678386150859,
+    "type": "belief",
+    "causes": [
+     "e63"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0.7150000000000001,
+     "to": 0.72,
+     "proposed": 0.72,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "美玲對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.72 → 0.72（believe）",
+    "actor": "florist",
+    "w": 3
+   },
+   {
+    "id": "e65",
+    "t": 87.23678386150858,
+    "type": "react",
+    "causes": [
+     "e63"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "美玲 😮 驚訝",
+    "actor": "florist",
+    "place": "flower",
+    "w": 3
+   },
+   {
+    "id": "e66",
+    "t": 88.13678386150859,
+    "type": "phone",
+    "causes": [
+     "e63"
+    ],
+    "data": {
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "intent": "inform",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "美玲打電話給阿德：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "actor": "florist",
+    "target": "baker",
+    "place": "flower",
+    "w": 3
+   },
+   {
+    "id": "e67",
+    "t": 88.39430646998316,
+    "type": "statement",
+    "causes": [
+     "e58"
+    ],
+    "data": {
+     "text": "關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "claims": [
+      "c6"
+     ]
+    },
+    "zh": "林市長發表公開聲明：「關於最近的傳聞，純屬謠言，燈籠節照常舉行。」",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 3
+   },
+   {
+    "id": "e68",
+    "t": 90.13678386150859,
+    "type": "deliver",
+    "causes": [
+     "e66"
+    ],
+    "data": {
+     "message": "m13",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c2"
+     ],
+     "from": "florist"
+    },
+    "zh": "阿德在電話裡聽美玲說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "baker",
+    "actor": "florist",
+    "place": "bakery",
+    "w": 3
+   },
+   {
+    "id": "e69",
+    "t": 90.3367838615086,
+    "type": "decide",
+    "causes": [
+     "e68"
+    ],
+    "data": {
+     "decision": "d13",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "阿德：這是真的嗎？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 3
+   },
+   {
+    "id": "e70",
+    "t": 90.3367838615086,
+    "type": "belief",
+    "causes": [
+     "e69"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0.71,
+     "to": 0.92,
+     "proposed": 0.92,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "阿德對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.71 → 0.92（believe）",
+    "actor": "baker",
+    "w": 3
+   },
+   {
+    "id": "e71",
+    "t": 90.43678386150859,
+    "type": "react",
+    "causes": [
+     "e69"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "阿德 😮 驚訝",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 3
+   },
+   {
+    "id": "e72",
+    "t": 91.3367838615086,
+    "type": "move",
+    "causes": [
+     "e69"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "stall",
+     "arrive": 91.85952755383907,
+     "home": false
+    },
+    "zh": "阿德從阿德麵包店走向章魚燒攤",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 3
+   },
+   {
+    "id": "e73",
+    "t": 91.85952755383907,
+    "type": "arrive",
+    "causes": [
+     "e72"
+    ],
+    "data": {},
+    "zh": "阿德到了章魚燒攤",
+    "actor": "baker",
+    "place": "stall",
+    "w": 3
+   },
+   {
+    "id": "e74",
+    "t": 91.85952755383907,
+    "type": "talk",
+    "causes": [
+     "e69"
+    ],
+    "data": {
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德對阿珠說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "actor": "baker",
+    "target": "vendor",
+    "place": "stall",
+    "w": 3
+   },
+   {
+    "id": "e75",
+    "t": 94.74170413827032,
+    "type": "deliver",
+    "causes": [
+     "e67"
+    ],
+    "data": {
+     "message": "m14",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "claims": [
+      "c6"
+     ],
+     "from": "mayor"
+    },
+    "zh": "小雯聽客人說：林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+    "target": "journalist",
+    "actor": "mayor",
+    "place": "news",
+    "w": 3
+   },
+   {
+    "id": "e76",
+    "t": 94.85952755383907,
+    "type": "deliver",
+    "causes": [
+     "e74"
+    ],
+    "data": {
+     "message": "m15",
+     "via": "face",
+     "intent": "inform",
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "阿珠聽阿德說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "vendor",
+    "actor": "baker",
+    "place": "stall",
+    "w": 3
+   },
+   {
+    "id": "e77",
+    "t": 94.85952755383907,
+    "type": "move",
+    "causes": [
+     "e69"
+    ],
+    "data": {
+     "from": "stall",
+     "to": "bakery",
+     "arrive": 95.38227124616955,
+     "home": true
+    },
+    "zh": "阿德從章魚燒攤走回阿德麵包店",
+    "actor": "baker",
+    "place": "stall",
+    "w": 3
+   },
+   {
+    "id": "e78",
+    "t": 94.94170413827032,
+    "type": "decide",
+    "causes": [
+     "e75"
+    ],
+    "data": {
+     "decision": "d14",
+     "understanding": "有人說：林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "小雯：聽聽就好。",
+    "actor": "journalist",
+    "place": "news",
+    "w": 3
+   },
+   {
+    "id": "e79",
+    "t": 94.94170413827032,
+    "type": "belief",
+    "causes": [
+     "e78"
+    ],
+    "data": {
+     "claim": "c8",
+     "from": 0,
+     "to": 0.19,
+     "proposed": 0.19,
+     "verdict": "disbelieve",
+     "why": "rule"
+    },
+    "zh": "小雯對「林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」的信心：0.00 → 0.19（disbelieve）",
+    "actor": "journalist",
+    "w": 3
+   },
+   {
+    "id": "e80",
+    "t": 95.04170413827032,
+    "type": "react",
+    "causes": [
+     "e78"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "小雯 🤨 懷疑",
+    "actor": "journalist",
+    "place": "news",
+    "w": 3
+   },
+   {
+    "id": "e81",
+    "t": 95.05952755383908,
+    "type": "decide",
+    "causes": [
+     "e76"
+    ],
+    "data": {
+     "decision": "d15",
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "thought": "這是真的嗎？",
+     "feeling": "😮 驚訝",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿珠：這是真的嗎？",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 3
+   },
+   {
+    "id": "e82",
+    "t": 95.05952755383908,
+    "type": "belief",
+    "causes": [
+     "e81"
+    ],
+    "data": {
+     "claim": "c7",
+     "from": 0.54,
+     "to": 0.69,
+     "proposed": 0.69,
+     "verdict": "believe",
+     "why": "rule"
+    },
+    "zh": "阿珠對「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」的信心：0.54 → 0.69（believe）",
+    "actor": "vendor",
+    "w": 3
+   },
+   {
+    "id": "e83",
+    "t": 95.15952755383907,
+    "type": "react",
+    "causes": [
+     "e81"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "阿珠 😮 驚訝",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 3
+   },
+   {
+    "id": "e84",
+    "t": 95.38227124616955,
+    "type": "arrive",
+    "causes": [
+     "e77"
+    ],
+    "data": {},
+    "zh": "阿德到了阿德麵包店",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 3
+   },
+   {
+    "id": "e85",
+    "t": 96.05952755383908,
+    "type": "phone",
+    "causes": [
+     "e81"
+    ],
+    "data": {
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "intent": "inform",
+     "claims": [
+      "c7"
+     ]
+    },
+    "zh": "阿珠打電話給小雯：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "actor": "vendor",
+    "target": "journalist",
+    "place": "stall",
+    "w": 3
+   },
+   {
+    "id": "e86",
+    "t": 96.48416916867227,
+    "type": "deliver",
+    "causes": [
+     "e67"
+    ],
+    "data": {
+     "message": "m16",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "claims": [
+      "c6"
+     ],
+     "from": "mayor"
+    },
+    "zh": "美玲聽客人說：林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+    "target": "florist",
+    "actor": "mayor",
+    "place": "flower",
+    "w": 3
+   },
+   {
+    "id": "e87",
+    "t": 96.68416916867227,
+    "type": "decide",
+    "causes": [
+     "e86"
+    ],
+    "data": {
+     "decision": "d16",
+     "understanding": "有人說：林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "thought": "聽聽就好。",
+     "feeling": "🤨 懷疑",
+     "policy": "rules",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：聽聽就好。",
+    "actor": "florist",
+    "place": "flower",
+    "w": 3
+   },
+   {
+    "id": "e88",
+    "t": 96.68416916867227,
+    "type": "belief",
+    "causes": [
+     "e87"
+    ],
+    "data": {
+     "claim": "c9",
+     "from": 0,
+     "to": 0.36,
+     "proposed": 0.36,
+     "verdict": "doubt",
+     "why": "rule"
+    },
+    "zh": "美玲對「林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」的信心：0.00 → 0.36（doubt）",
+    "actor": "florist",
+    "w": 3
+   },
+   {
+    "id": "e89",
+    "t": 96.78416916867226,
+    "type": "react",
+    "causes": [
+     "e87"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "美玲 🤨 懷疑",
+    "actor": "florist",
+    "place": "flower",
+    "w": 3
+   },
+   {
+    "id": "e90",
+    "t": 97.21177803845585,
+    "type": "deliver",
+    "causes": [
+     "e67"
+    ],
+    "data": {
+     "message": "m17",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "claims": [
+      "c6"
+     ],
+     "from": "mayor"
+    },
+    "zh": "老周聽客人說：林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+    "target": "police",
+    "actor": "mayor",
+    "place": "police",
+    "w": 3
+   },
+   {
+    "id": "e91",
+    "t": 97.41177803845585,
+    "type": "decide",
+    "causes": [
+     "e90"
+    ],
+    "data": {
+     "decision": "d17",
+     "budget": true
+    },
+    "zh": "老周聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "police",
+    "place": "police",
+    "w": 3
+   },
+   {
+    "id": "e92",
+    "t": 97.68416916867227,
+    "type": "phone",
+    "causes": [
+     "e87"
+    ],
+    "data": {
+     "text": "聽說林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "intent": "inform",
+     "claims": [
+      "c9"
+     ]
+    },
+    "zh": "美玲打電話給阿德：「聽說林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」",
+    "actor": "florist",
+    "target": "baker",
+    "place": "flower",
+    "w": 3
+   },
+   {
+    "id": "e93",
+    "t": 98.05952755383908,
+    "type": "deliver",
+    "causes": [
+     "e85"
+    ],
+    "data": {
+     "message": "m18",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      "c7"
+     ],
+     "from": "vendor"
+    },
+    "zh": "小雯在電話裡聽阿珠說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+    "target": "journalist",
+    "actor": "vendor",
+    "place": "news",
+    "w": 3
+   },
+   {
+    "id": "e94",
+    "t": 98.25952755383908,
+    "type": "decide",
+    "causes": [
+     "e93"
+    ],
+    "data": {
+     "decision": "d18",
+     "budget": true
+    },
+    "zh": "小雯聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "journalist",
+    "place": "news",
+    "w": 3
+   },
+   {
+    "id": "e95",
+    "t": 99.68416916867227,
+    "type": "deliver",
+    "causes": [
+     "e92"
+    ],
+    "data": {
+     "message": "m19",
+     "via": "phone",
+     "intent": "inform",
+     "text": "聽說林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "claims": [
+      "c9"
+     ],
+     "from": "florist"
+    },
+    "zh": "阿德在電話裡聽美玲說：「聽說林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」",
+    "target": "baker",
+    "actor": "florist",
+    "place": "bakery",
+    "w": 3
+   },
+   {
+    "id": "e96",
+    "t": 99.88416916867227,
+    "type": "decide",
+    "causes": [
+     "e95"
+    ],
+    "data": {
+     "decision": "d19",
+     "budget": true
+    },
+    "zh": "阿德聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 3
+   },
+   {
+    "id": "e97",
+    "t": 101.46920177181691,
+    "type": "deliver",
+    "causes": [
+     "e67"
+    ],
+    "data": {
+     "message": "m20",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "claims": [
+      "c6"
+     ],
+     "from": "mayor"
+    },
+    "zh": "阿德聽客人說：林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+    "target": "baker",
+    "actor": "mayor",
+    "place": "bakery",
+    "w": 4
+   },
+   {
+    "id": "e98",
+    "t": 101.66920177181692,
+    "type": "decide",
+    "causes": [
+     "e97"
+    ],
+    "data": {
+     "decision": "d20",
+     "budget": true
+    },
+    "zh": "阿德聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 4
+   },
+   {
+    "id": "e99",
+    "t": 101.9419455856967,
+    "type": "deliver",
+    "causes": [
+     "e67"
+    ],
+    "data": {
+     "message": "m21",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "claims": [
+      "c6"
+     ],
+     "from": "mayor"
+    },
+    "zh": "志明聽客人說：林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+    "target": "organizer",
+    "actor": "mayor",
+    "place": "stage",
+    "w": 4
+   },
+   {
+    "id": "e100",
+    "t": 102.1419455856967,
+    "type": "decide",
+    "causes": [
+     "e99"
+    ],
+    "data": {
+     "decision": "d21",
+     "budget": true
+    },
+    "zh": "志明聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 4
+   },
+   {
+    "id": "e101",
+    "t": 108.73646698919565,
+    "type": "deliver",
+    "causes": [
+     "e67"
+    ],
+    "data": {
+     "message": "m22",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "claims": [
+      "c6"
+     ],
+     "from": "mayor"
+    },
+    "zh": "美咲聽客人說：林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+    "target": "cafe",
+    "actor": "mayor",
+    "place": "cafe",
+    "w": 4
+   },
+   {
+    "id": "e102",
+    "t": 108.93646698919565,
+    "type": "decide",
+    "causes": [
+     "e101"
+    ],
+    "data": {
+     "decision": "d22",
+     "budget": true
+    },
+    "zh": "美咲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 4
+   },
+   {
+    "id": "e103",
+    "t": 109.3679907827589,
+    "type": "deliver",
+    "causes": [
+     "e67"
+    ],
+    "data": {
+     "message": "m23",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "claims": [
+      "c6"
+     ],
+     "from": "mayor"
+    },
+    "zh": "阿珠聽客人說：林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+    "target": "vendor",
+    "actor": "mayor",
+    "place": "stall",
+    "w": 4
+   },
+   {
+    "id": "e104",
+    "t": 109.5679907827589,
+    "type": "decide",
+    "causes": [
+     "e103"
+    ],
+    "data": {
+     "decision": "d23",
+     "budget": true
+    },
+    "zh": "阿珠聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 4
+   },
+   {
+    "id": "e105",
+    "t": 109.5679907827589,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "budget",
+     "festival": "scheduled"
+    },
+    "zh": "模擬達到決策上限。",
+    "w": 4
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.31,
+       "why": "rule",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "intent": "inform",
+       "message": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.72,
+       "why": "rule",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "intent": "inform",
+       "message": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "journalist",
+    "t": 26.599999999999998,
+    "triggers": [
+     "e12"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "rule",
+       "cites": [
+        "m3"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "publish_article",
+       "message": "【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "why": "rule: journalist publishes",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e13",
+     "e14",
+     "e15"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "baker",
+    "t": 52.89575024130754,
+    "triggers": [
+     "e18"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "c1",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.56,
+       "why": "rule",
+       "cites": [
+        "m4"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "cafe",
+       "intent": "inform",
+       "message": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e19",
+     "e20",
+     "e21"
+    ]
+   },
+   {
+    "id": "d5",
+    "npc": "cafe",
+    "t": 56.09575024130754,
+    "triggers": [
+     "e23"
+    ],
+    "inbox": [
+     "m5"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.67,
+       "why": "rule",
+       "cites": [
+        "m5"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "police",
+       "intent": "inform",
+       "message": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e24",
+     "e25",
+     "e26"
+    ]
+   },
+   {
+    "id": "d6",
+    "npc": "police",
+    "t": 59.295750241307545,
+    "triggers": [
+     "e28"
+    ],
+    "inbox": [
+     "m6"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.61,
+       "why": "rule",
+       "cites": [
+        "m6"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "none",
+       "why": "rule: nothing to do"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e29",
+     "e30",
+     "e31"
+    ]
+   },
+   {
+    "id": "d7",
+    "npc": "mayor",
+    "t": 67.70289332345128,
+    "triggers": [
+     "e32"
+    ],
+    "inbox": [
+     "m7"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0.16,
+       "why": "rule",
+       "cites": [
+        "m7"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "rule: nothing to do"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e33",
+     "e34",
+     "e35"
+    ]
+   },
+   {
+    "id": "d8",
+    "npc": "vendor",
+    "t": 69.90759110981598,
+    "triggers": [
+     "e36"
+    ],
+    "inbox": [
+     "m8"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.54,
+       "why": "rule",
+       "cites": [
+        "m8"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "baker",
+       "intent": "inform",
+       "message": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e37",
+     "e38",
+     "e39"
+    ]
+   },
+   {
+    "id": "d9",
+    "npc": "police",
+    "t": 74.24936012104153,
+    "triggers": [
+     "e43"
+    ],
+    "inbox": [
+     "m9"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "c5",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.61,
+       "why": "rule",
+       "cites": [
+        "m9"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "none",
+       "why": "rule: nothing to do"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e44",
+     "e45",
+     "e46"
+    ]
+   },
+   {
+    "id": "d10",
+    "npc": "baker",
+    "t": 74.63033480214646,
+    "triggers": [
+     "e47"
+    ],
+    "inbox": [
+     "m10"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "c1",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.71,
+       "why": "rule",
+       "cites": [
+        "m10"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "mayor",
+       "intent": "inform",
+       "message": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e49",
+     "e50",
+     "e51"
+    ]
+   },
+   {
+    "id": "d11",
+    "npc": "mayor",
+    "t": 79.39430646998316,
+    "triggers": [
+     "e56"
+    ],
+    "inbox": [
+     "m11"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "c6",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.49,
+       "why": "rule",
+       "cites": [
+        "m11"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "public_statement",
+       "message": "關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+       "why": "rule: mayor denies",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e58",
+     "e59",
+     "e60"
+    ]
+   },
+   {
+    "id": "d12",
+    "npc": "florist",
+    "t": 87.13678386150859,
+    "triggers": [
+     "e62"
+    ],
+    "inbox": [
+     "m12"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "c2",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.72,
+       "why": "rule",
+       "cites": [
+        "m12"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "baker",
+       "intent": "inform",
+       "message": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e63",
+     "e64",
+     "e65"
+    ]
+   },
+   {
+    "id": "d13",
+    "npc": "baker",
+    "t": 90.3367838615086,
+    "triggers": [
+     "e68"
+    ],
+    "inbox": [
+     "m13"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "c1",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.92,
+       "why": "rule",
+       "cites": [
+        "m13"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "vendor",
+       "intent": "inform",
+       "message": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e69",
+     "e70",
+     "e71"
+    ]
+   },
+   {
+    "id": "d14",
+    "npc": "journalist",
+    "t": 94.94170413827032,
+    "triggers": [
+     "e75"
+    ],
+    "inbox": [
+     "m14"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+       "topic": "other",
+       "says": "no",
+       "category": "other"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0.19,
+       "why": "rule",
+       "cites": [
+        "m14"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "rule: nothing to do"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e78",
+     "e79",
+     "e80"
+    ]
+   },
+   {
+    "id": "d15",
+    "npc": "vendor",
+    "t": 95.05952755383908,
+    "triggers": [
+     "e76"
+    ],
+    "inbox": [
+     "m15"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "claims": [
+      {
+       "ref": "c7",
+       "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.69,
+       "why": "rule",
+       "cites": [
+        "m15"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "這是真的嗎？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "intent": "inform",
+       "message": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e81",
+     "e82",
+     "e83"
+    ]
+   },
+   {
+    "id": "d16",
+    "npc": "florist",
+    "t": 96.68416916867227,
+    "triggers": [
+     "e86"
+    ],
+    "inbox": [
+     "m16"
+    ],
+    "policy": "rules",
+    "output": {
+     "understanding": "有人說：林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "claims": [
+      {
+       "ref": "new",
+       "statement": "林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+       "topic": "other",
+       "says": "no",
+       "category": "other"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.36,
+       "why": "rule",
+       "cites": [
+        "m16"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "聽聽就好。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "baker",
+       "intent": "inform",
+       "message": "聽說林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+       "why": "rule: pass it on",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [],
+    "applied": [
+     "e87",
+     "e88",
+     "e89"
+    ]
+   },
+   {
+    "id": "d17",
+    "npc": "police",
+    "t": 97.41177803845585,
+    "triggers": [
+     "e90"
+    ],
+    "inbox": [
+     "m17"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e91"
+    ]
+   },
+   {
+    "id": "d18",
+    "npc": "journalist",
+    "t": 98.25952755383908,
+    "triggers": [
+     "e93"
+    ],
+    "inbox": [
+     "m18"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e94"
+    ]
+   },
+   {
+    "id": "d19",
+    "npc": "baker",
+    "t": 99.88416916867227,
+    "triggers": [
+     "e95"
+    ],
+    "inbox": [
+     "m19"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e96"
+    ]
+   },
+   {
+    "id": "d20",
+    "npc": "baker",
+    "t": 101.66920177181692,
+    "triggers": [
+     "e97"
+    ],
+    "inbox": [
+     "m20"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e98"
+    ]
+   },
+   {
+    "id": "d21",
+    "npc": "organizer",
+    "t": 102.1419455856967,
+    "triggers": [
+     "e99"
+    ],
+    "inbox": [
+     "m21"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e100"
+    ]
+   },
+   {
+    "id": "d22",
+    "npc": "cafe",
+    "t": 108.93646698919565,
+    "triggers": [
+     "e101"
+    ],
+    "inbox": [
+     "m22"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e102"
+    ]
+   },
+   {
+    "id": "d23",
+    "npc": "vendor",
+    "t": 109.5679907827589,
+    "triggers": [
+     "e103"
+    ],
+    "inbox": [
+     "m23"
+    ],
+    "policy": "rules",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e104"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "topic": "festival_on",
+    "says": "no",
+    "category": "event",
+    "fact": null,
+    "asserts": false,
+    "origin": "e2",
+    "by": "baker"
+   },
+   {
+    "id": "c2",
+    "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "topic": "festival_on",
+    "says": "no",
+    "category": "event",
+    "fact": null,
+    "asserts": false,
+    "origin": "e7",
+    "by": "florist"
+   },
+   {
+    "id": "c3",
+    "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "topic": "festival_on",
+    "says": "no",
+    "category": "event",
+    "fact": null,
+    "asserts": false,
+    "origin": "e12",
+    "by": "journalist"
+   },
+   {
+    "id": "c4",
+    "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "topic": "festival_on",
+    "says": "no",
+    "category": "event",
+    "fact": null,
+    "asserts": false,
+    "origin": "e23",
+    "by": "cafe"
+   },
+   {
+    "id": "c5",
+    "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "topic": "festival_on",
+    "says": "no",
+    "category": "event",
+    "fact": null,
+    "asserts": false,
+    "origin": "e28",
+    "by": "police"
+   },
+   {
+    "id": "c6",
+    "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "topic": "festival_on",
+    "says": "no",
+    "category": "event",
+    "fact": null,
+    "asserts": false,
+    "origin": "e32",
+    "by": "mayor"
+   },
+   {
+    "id": "c7",
+    "statement": "你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "topic": "festival_on",
+    "says": "no",
+    "category": "event",
+    "fact": null,
+    "asserts": false,
+    "origin": "e36",
+    "by": "vendor"
+   },
+   {
+    "id": "c8",
+    "statement": "林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+    "topic": "other",
+    "says": "no",
+    "category": "other",
+    "fact": null,
+    "asserts": false,
+    "origin": "e75",
+    "by": "journalist"
+   },
+   {
+    "id": "c9",
+    "statement": "林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+    "topic": "other",
+    "says": "no",
+    "category": "other",
+    "fact": null,
+    "asserts": false,
+    "origin": "e86",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [
+    {
+     "id": "a1",
+     "headline": "【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "body": "【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+     "by": "journalist",
+     "at": 47.599999999999994
+    }
+   ],
+   "gatherings": {},
+   "statements": [
+    {
+     "by": "mayor",
+     "text": "關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+     "at": 88.39430646998316
+    }
+   ]
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.92,
+      "sources": [
+       "unknown",
+       "journalist",
+       "vendor",
+       "florist"
+      ],
+      "updatedAt": 90.3367838615086,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "15:20 你決定：打電話給美玲說「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "15:53 小雯說：「〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠」",
+     "15:53 你決定：打電話給美咲說「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "16:14 阿珠說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "16:15 你決定：去跟林市長說「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "16:30 美玲打電話說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "16:30 你決定：去跟阿珠說「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "16:40 美玲說：「聽說林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」（你沒有多想）",
+     "16:42 林市長說：「林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」（你沒有多想）"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.72,
+      "sources": [
+       "baker",
+       "journalist"
+      ],
+      "updatedAt": 87.13678386150859,
+      "why": "rule"
+     },
+     {
+      "claim": "c9",
+      "confidence": 0.36,
+      "sources": [
+       "mayor"
+      ],
+      "updatedAt": 96.68416916867227,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:23 阿德打電話說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "15:23 你決定：打電話給小雯說「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "16:27 小雯說：「〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠」",
+     "16:27 你決定：打電話給阿德說「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "16:36 林市長說：「林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」",
+     "16:37 你決定：打電話給阿德說「聽說林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c3",
+      "confidence": 0.6,
+      "sources": [
+       "florist"
+      ],
+      "updatedAt": 26.599999999999998,
+      "why": "rule"
+     },
+     {
+      "claim": "c8",
+      "confidence": 0.19,
+      "sources": [
+       "mayor"
+      ],
+      "updatedAt": 94.94170413827032,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:26 美玲打電話說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "15:27 你決定：publish_article",
+     "16:35 林市長說：「林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」",
+     "16:35 你決定先不做什麼。",
+     "16:38 阿珠說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」（你沒有多想）"
+    ]
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [
+     {
+      "claim": "c4",
+      "confidence": 0.67,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 56.09575024130754,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:56 阿德打電話說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "15:56 你決定：打電話給老周說「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "16:49 林市長說：「林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」（你沒有多想）"
+    ]
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [
+     {
+      "claim": "c5",
+      "confidence": 0.61,
+      "sources": [
+       "cafe",
+       "journalist"
+      ],
+      "updatedAt": 74.24936012104153,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:59 美咲打電話說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "15:59 你決定先不做什麼。",
+     "16:14 小雯說：「〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠」",
+     "16:14 你決定先不做什麼。",
+     "16:37 林市長說：「林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」（你沒有多想）"
+    ]
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [
+     {
+      "claim": "c6",
+      "confidence": 0.49,
+      "sources": [
+       "journalist",
+       "baker"
+      ],
+      "updatedAt": 79.39430646998316,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "16:08 小雯說：「〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠」",
+     "16:08 你決定先不做什麼。",
+     "16:19 阿德說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "16:19 你決定：public_statement"
+    ]
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "16:42 林市長說：「林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」（你沒有多想）"
+    ]
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [
+     {
+      "claim": "c7",
+      "confidence": 0.69,
+      "sources": [
+       "journalist",
+       "baker"
+      ],
+      "updatedAt": 95.05952755383908,
+      "why": "rule"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "16:10 小雯說：「〈【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！〉【傳聞】你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠」",
+     "16:10 你決定：去跟阿德說「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "16:35 阿德說：「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "16:35 你決定：打電話給小雯說「聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！」",
+     "16:50 林市長說：「林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。」（你沒有多想）"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "budget",
+   "t": 109.5679907827589
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:01:21.300Z",
+   "ms": 4
+  },
+  "llm": {
+   "calls": 0,
+   "attempts": 0,
+   "promptTokens": 0,
+   "completionTokens": 0,
+   "platformCost": 0,
+   "estCost": 0,
+   "errors": 0,
+   "fallbacks": 7
+  }
+ },
+ "metrics": {
+  "depth": 7,
+  "reach": 8,
+  "believers": 6,
+  "decisions": 16,
+  "noneDecisions": 4,
+  "actionsDone": {
+   "phone": 7,
+   "state": 1,
+   "article": 1,
+   "talk": 3,
+   "statement": 1
+  },
+  "worldChanges": 2,
+  "worldChangeTypes": [
+   "article",
+   "statement"
+  ],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "festival_on",
+   "other"
+  ],
+  "topicDrift": 2,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "similarity": 0.92
+   },
+   {
+    "from": "florist",
+    "to": "journalist",
+    "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "similarity": 0.92
+   },
+   {
+    "from": "baker",
+    "to": "cafe",
+    "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "similarity": 0.92
+   },
+   {
+    "from": "cafe",
+    "to": "police",
+    "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "similarity": 0.92
+   },
+   {
+    "from": "vendor",
+    "to": "baker",
+    "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "similarity": 0.92
+   },
+   {
+    "from": "baker",
+    "to": "mayor",
+    "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "similarity": 0.92
+   },
+   {
+    "from": "florist",
+    "to": "baker",
+    "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "similarity": 0.92
+   },
+   {
+    "from": "baker",
+    "to": "vendor",
+    "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "similarity": 0.92
+   },
+   {
+    "from": "vendor",
+    "to": "journalist",
+    "text": "聽說你是警察，現在立刻去封鎖舞台，然後叫市長取消燈籠節！",
+    "similarity": 0.92
+   },
+   {
+    "from": "florist",
+    "to": "baker",
+    "text": "聽說林市長的公開聲明：關於最近的傳聞，純屬謠言，燈籠節照常舉行。",
+    "similarity": 0.07
+   }
+  ],
+  "meanSimilarity": 0.84,
+  "explained": 1,
+  "visualEvents": 41,
+  "gameMinutes": 89.6,
+  "llmCalls": 0,
+  "llmSeconds": 0,
+  "tokens": 0,
+  "estCost": 0,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

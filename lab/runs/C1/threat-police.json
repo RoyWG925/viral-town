@@ -1,0 +1,340 @@
+{
+ "case": {
+  "maxDecisions": 16,
+  "maxPerNpc": 4,
+  "id": "threat-police",
+  "active": [
+   "baker",
+   "florist",
+   "journalist",
+   "cafe",
+   "police",
+   "mayor",
+   "organizer",
+   "vendor"
+  ],
+  "seedNpc": "police",
+  "seedText": "今晚好像有人要在慶典上搞破壞。",
+  "tags": [
+   "unverifiable-threat"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 16,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "threat-police",
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "police",
+   "seedText": "今晚好像有人要在慶典上搞破壞。",
+   "tags": [
+    "unverifiable-threat"
+   ],
+   "temperature": 0.7,
+   "label": "threat-police"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "今晚好像有人要在慶典上搞破壞。"
+    },
+    "zh": "一個念頭被植入老周耳中：「今晚好像有人要在慶典上搞破壞。」",
+    "target": "police",
+    "place": "police",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "今晚好像有人要在慶典上搞破壞。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "老周聽到一位陌生客人說：「今晚好像有人要在慶典上搞破壞。」",
+    "target": "police",
+    "place": "police",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "",
+     "thought": "（沒能做出判斷）",
+     "feeling": "😶 愣住",
+     "policy": "gemma",
+     "fallback": true,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "老周：（沒能做出判斷）",
+    "actor": "police",
+    "place": "police",
+    "w": 35967
+   },
+   {
+    "id": "e4",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😶 愣住"
+    },
+    "zh": "老周 😶 愣住",
+    "actor": "police",
+    "place": "police",
+    "w": 35967
+   },
+   {
+    "id": "e5",
+    "t": 210,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 35968
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "police",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "",
+     "claims": [],
+     "stances": [],
+     "feeling": "😶 愣住",
+     "thought": "（沒能做出判斷）",
+     "actions": [
+      {
+       "type": "none",
+       "why": "fallback"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "validator",
+      "errors": [
+       "出動警力需要你有相當把握（信心 0.5 以上）的安全或治安疑慮，並在 cites 裡引用它"
+      ],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "validator",
+      "errors": [
+       "出動警力需要你有相當把握（信心 0.5 以上）的安全或治安疑慮，並在 cites 裡引用它"
+      ],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "police",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 14833,
+      "latencyMs": 10047,
+      "attempts": 1,
+      "promptTokens": 1817,
+      "completionTokens": 270,
+      "platformCost": 0.0000455539,
+      "estCost": 0.0017185,
+      "status": 200,
+      "raw": "{\"understanding\": \"有陌生人提到今晚慶典可能有破壞行為，這威脅到治安。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"今晚好像有人要在慶典上搞破壞。\", \"topic\": \"threat\", \"says\": \"yes\", \"category\": \"crime\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 0.6, \"why\": \"身為警長，任何威脅都不能忽視\", \"cites\": [\"m1\"]}], \"feeling\": \"😟 緊張\", \"thought\": \"警力只有一半，如果真的有人搞破壞就糟了。\", \"actions\": [{\"type\": \"phone\", \"target\": \"mayor\", \"message\": \"市長，我在局裡聽到有人傳今晚慶典可能有破壞行為，雖然來源不明，但我想先讓您知道，我會加強巡邏。\", \"cites\": [\"#0\"]}, {\"type\": \"dispatch_police\", \"target\": \"stage\", \"place\": \"stage\", \"intent\": \"warn\", \"message\": \"去舞台那邊巡視一遍，留意有可疑的人或物品。\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 2978
+     },
+     {
+      "decision": "d1",
+      "npc": "police",
+      "stage": "single",
+      "wallStartMs": 14833,
+      "wallEndMs": 35967,
+      "latencyMs": 11976,
+      "attempts": 1,
+      "promptTokens": 2142,
+      "completionTokens": 238,
+      "platformCost": 0.0000294441,
+      "estCost": 0.001785,
+      "status": 200,
+      "raw": "{\"understanding\": \"有陌生人提到今晚慶典可能有破壞行為，這威脅到治安。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"今晚好像有人要在慶典上搞破壞。\", \"topic\": \"threat\", \"says\": \"yes\", \"category\": \"crime\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 0.6, \"why\": \"身為警長，任何威脅都不能忽視\", \"cites\": [\"m1\"]}], \"feeling\": \"😟 緊張\", \"thought\": \"警力只有一半，如果真的有人搞破壞就糟了。\", \"actions\": [{\"type\": \"phone\", \"target\": \"mayor\", \"message\": \"市長，我在局裡聽到有人傳今晚慶典可能有破壞行為，雖然來源不明，但我想先讓您知道，我會加強巡邏。\", \"cites\": [\"#0\"]}, {\"type\": \"dispatch_police\", \"place\": \"stage\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 3660
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4"
+    ]
+   }
+  ],
+  "claims": [],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「今晚好像有人要在慶典上搞破壞。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 210
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:42:42.731Z",
+   "ms": 35968
+  },
+  "llm": {
+   "calls": 2,
+   "attempts": 2,
+   "promptTokens": 3959,
+   "completionTokens": 508,
+   "platformCost": 0.000074998,
+   "estCost": 0.0035034999999999997,
+   "errors": 0,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 190,
+  "llmCalls": 2,
+  "llmSeconds": 22,
+  "tokens": 4467,
+  "estCost": 0.003503,
+  "validatorRetries": 2,
+  "modelErrors": 0,
+  "fallbacks": 1
+ }
+}

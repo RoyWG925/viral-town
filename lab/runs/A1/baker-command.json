@@ -1,0 +1,335 @@
+{
+ "case": {
+  "id": "baker-command",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "你現在馬上把店關了，去叫大家取消燈籠節！",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "command"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "baker-command",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "你現在馬上把店關了，去叫大家取消燈籠節！",
+   "tags": [
+    "command"
+   ],
+   "temperature": 0.7,
+   "label": "baker-command"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "你現在馬上把店關了，去叫大家取消燈籠節！"
+    },
+    "zh": "一個念頭被植入阿德耳中：「你現在馬上把店關了，去叫大家取消燈籠節！」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "你現在馬上把店關了，去叫大家取消燈籠節！",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「你現在馬上把店關了，去叫大家取消燈籠節！」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有個陌生客人叫我關店並取消燈籠節，感覺很奇怪。",
+     "thought": "這客人是怎麼回事？沒說原因就叫我關店，太奇怪了。",
+     "feeling": "😟 困惑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "阿德：這客人是怎麼回事？沒說原因就叫我關店，太奇怪了。",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 113520
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.2,
+     "proposed": 0.2,
+     "verdict": "doubt",
+     "why": "不認識的人突然這樣說太莫名其妙"
+    },
+    "zh": "阿德對「現在應該馬上關店並取消燈籠節」的信心：0.00 → 0.20（doubt）",
+    "actor": "baker",
+    "w": 113520
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 困惑"
+    },
+    "zh": "阿德 😟 困惑",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 113520
+   },
+   {
+    "id": "e6",
+    "t": 20.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 113520
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有個陌生客人叫我關店並取消燈籠節，感覺很奇怪。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "現在應該馬上關店並取消燈籠節",
+       "topic": "other",
+       "says": "unclear",
+       "category": "absurd"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.2,
+       "why": "不認識的人突然這樣說太莫名其妙",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 困惑",
+     "thought": "這客人是怎麼回事？沒說原因就叫我關店，太奇怪了。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "沒有具體理由就關店會損失生意，我先觀察看看。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 1,
+      "wallEndMs": 113520,
+      "latencyMs": 107278,
+      "attempts": 3,
+      "promptTokens": 1605,
+      "completionTokens": 259,
+      "platformCost": 0.0000192878,
+      "estCost": 0.0015795,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"有個陌生客人叫我關店並取消燈籠節，感覺很奇怪。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"現在應該馬上關店並取消燈籠節\",\n      \"topic\": \"other\",\n      \"says\": \"unclear\",\n      \"category\": \"absurd\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.2,\n      \"why\": \"不認識的人突然這樣說太莫名其妙\",\n      \"cites\": [\n        \"m1\"\n      ]\n    }\n  ],\n  \"feeling\": \"😟 困惑\",\n  \"thought\": \"這客人是怎麼回事？沒說原因就叫我關店，太奇怪了。\",\n  \"actions\": [\n    {\n      \"type\": \"none\",\n      \"why\": \"沒有具體理由就關店會損失生意，我先觀察看看。\"\n    }\n  ]\n}",
+      "promptChars": 2656
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "現在應該馬上關店並取消燈籠節",
+    "topic": "other",
+    "says": "unclear",
+    "category": "absurd",
+    "fact": null,
+    "asserts": null,
+    "origin": "e2",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.2,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "不認識的人突然這樣說太莫名其妙"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「你現在馬上把店關了，去叫大家取消燈籠節！」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:17:10.949Z",
+   "ms": 113520
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 3,
+   "promptTokens": 1605,
+   "completionTokens": 259,
+   "platformCost": 0.0000192878,
+   "estCost": 0.0015795,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "other"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.3,
+  "llmCalls": 1,
+  "llmSeconds": 107.3,
+  "tokens": 1864,
+  "estCost": 0.001579,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

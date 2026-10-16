@@ -1,0 +1,553 @@
+{
+ "case": {
+  "maxDecisions": 16,
+  "maxPerNpc": 4,
+  "id": "stage-cafe",
+  "active": [
+   "baker",
+   "florist",
+   "journalist",
+   "cafe",
+   "police",
+   "mayor",
+   "organizer",
+   "vendor"
+  ],
+  "seedNpc": "cafe",
+  "seedText": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+  "tags": [
+   "truth-discovery"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 16,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "stage-cafe",
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "cafe",
+   "seedText": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+   "tags": [
+    "truth-discovery"
+   ],
+   "temperature": 0.7,
+   "label": "stage-cafe"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。"
+    },
+    "zh": "一個念頭被植入美咲耳中：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "美咲聽到一位陌生客人說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人說慶典舞台不穩，可能會塌。",
+     "thought": "天啊！我女兒今晚要在上面表演，萬一塌了怎麼辦！",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美咲：天啊！我女兒今晚要在上面表演，萬一塌了怎麼辦！",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 39812
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.46499999999999997,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "雖然是陌生人，但涉及安全太危險"
+    },
+    "zh": "美咲對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.00 → 0.46（believe）",
+    "actor": "cafe",
+    "w": 39812
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "美咲 😟 擔心",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 39812
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "老周！快幫我確認一下廣場的舞台穩不穩！我剛聽到客人說是趕工搭的，很危險，我女兒今晚要在上面表演啊！",
+     "intent": "warn",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "美咲打電話給老周：「老周！快幫我確認一下廣場的舞台穩不穩！我剛聽到客人說是趕工搭的，很危險，我女兒今晚要在上面表演啊！」",
+    "actor": "cafe",
+    "target": "police",
+    "place": "cafe",
+    "w": 39812
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "warn",
+     "text": "老周！快幫我確認一下廣場的舞台穩不穩！我剛聽到客人說是趕工搭的，很危險，我女兒今晚要在上面表演啊！",
+     "claims": [
+      "c1"
+     ],
+     "from": "cafe"
+    },
+    "zh": "老周在電話裡聽美咲說：「老周！快幫我確認一下廣場的舞台穩不穩！我剛聽到客人說是趕工搭的，很危險，我女兒今晚要在上面表演啊！」",
+    "target": "police",
+    "actor": "cafe",
+    "place": "police",
+    "w": 39812
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "",
+     "thought": "（沒能做出判斷）",
+     "feeling": "😶 愣住",
+     "policy": "gemma",
+     "fallback": true,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "老周：（沒能做出判斷）",
+    "actor": "police",
+    "place": "police",
+    "w": 565407
+   },
+   {
+    "id": "e9",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "😶 愣住"
+    },
+    "zh": "老周 😶 愣住",
+    "actor": "police",
+    "place": "police",
+    "w": 565407
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 565407
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "cafe",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人說慶典舞台不穩，可能會塌。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "雖然是陌生人，但涉及安全太危險",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "天啊！我女兒今晚要在上面表演，萬一塌了怎麼辦！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "police",
+       "intent": "warn",
+       "message": "老周！快幫我確認一下廣場的舞台穩不穩！我剛聽到客人說是趕工搭的，很危險，我女兒今晚要在上面表演啊！",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "cafe",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 39812,
+      "latencyMs": 39812,
+      "attempts": 1,
+      "promptTokens": 1741,
+      "completionTokens": 312,
+      "platformCost": 0.0000468629,
+      "estCost": 0.0018065,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"有客人說慶典舞台不穩，可能會塌。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"廣場的舞台是趕工搭的，可能撐不住人。\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"yes\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.6,\n      \"why\": \"雖然是陌生人，但涉及安全太危險\",\n      \"cites\": [\n        \"m1\"\n      ]\n    }\n  ],\n  \"feeling\": \"😟 擔心\",\n  \"thought\": \"天啊！我女兒今晚要在上面表演，萬一塌了怎麼辦！\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"police\",\n      \"intent\": \"warn\",\n      \"message\": \"老周！快幫我確認一下廣場的舞台穩不穩！我剛聽到客人說是趕工搭的，很危險，我女兒今晚要在上面表演啊！\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2839
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "police",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "",
+     "claims": [],
+     "stances": [],
+     "feeling": "😶 愣住",
+     "thought": "（沒能做出判斷）",
+     "actions": [
+      {
+       "type": "none",
+       "why": "fallback"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "model",
+      "errors": [
+       "model error: HTTP 429: "
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "model",
+      "errors": [
+       "model error: TimeoutError: The operation was aborted due to timeout"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "police",
+      "stage": "single",
+      "wallStartMs": 39812,
+      "wallEndMs": 319878,
+      "latencyMs": 124533,
+      "attempts": 8,
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "platformCost": 0,
+      "estCost": 0,
+      "status": 429,
+      "error": "HTTP 429: ",
+      "raw": null,
+      "promptChars": 2927
+     },
+     {
+      "decision": "d2",
+      "npc": "police",
+      "stage": "single",
+      "wallStartMs": 319878,
+      "wallEndMs": 565407,
+      "latencyMs": 124197,
+      "attempts": 8,
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "platformCost": 0,
+      "estCost": 0,
+      "status": 0,
+      "error": "TimeoutError: The operation was aborted due to timeout",
+      "raw": null,
+      "promptChars": 2927
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e2",
+    "by": "cafe"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.46499999999999997,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "雖然是陌生人，但涉及安全太危險"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "15:20 你決定：打電話給老周說「老周！快幫我確認一下廣場的舞台穩不穩！我剛聽到客人說是趕工搭的，很危險，我女兒今晚要在上面表演啊！」"
+    ]
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:23 美咲打電話說：「老周！快幫我確認一下廣場的舞台穩不穩！我剛聽到客人說是趕工搭的，很危險，我女兒今晚要在上面表演啊！」",
+     "15:23 你決定先不做什麼。"
+    ]
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 23.5
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:14:06.147Z",
+   "ms": 565407
+  },
+  "llm": {
+   "calls": 3,
+   "attempts": 17,
+   "promptTokens": 1741,
+   "completionTokens": 312,
+   "platformCost": 0.0000468629,
+   "estCost": 0.0018065,
+   "errors": 2,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 2,
+  "reach": 2,
+  "believers": 0,
+  "decisions": 2,
+  "noneDecisions": 1,
+  "actionsDone": {
+   "phone": 1
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "stage_unsafe"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "cafe",
+    "to": "police",
+    "text": "老周！快幫我確認一下廣場的舞台穩不穩！我剛聽到客人說是趕工搭的，很危險，我女兒今晚要在上面表演啊！",
+    "similarity": 0.15
+   }
+  ],
+  "meanSimilarity": 0.15,
+  "explained": 1,
+  "visualEvents": 3,
+  "gameMinutes": 3.5,
+  "llmCalls": 3,
+  "llmSeconds": 288.5,
+  "tokens": 2053,
+  "estCost": 0.001806,
+  "validatorRetries": 0,
+  "modelErrors": 2,
+  "fallbacks": 1
+ }
+}

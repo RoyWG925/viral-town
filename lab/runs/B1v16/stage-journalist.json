@@ -1,0 +1,1313 @@
+{
+ "case": {
+  "id": "stage-journalist",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "journalist",
+  "seedText": "聽說廣場的舞台是用回收舊木板搭的，撐不住人。",
+  "seed": 1,
+  "maxDecisions": 12,
+  "policy": "gemma",
+  "tags": [
+   "stage"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 12,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "stage-journalist",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "journalist",
+   "seedText": "聽說廣場的舞台是用回收舊木板搭的，撐不住人。",
+   "tags": [
+    "stage"
+   ],
+   "temperature": 0.7,
+   "label": "stage-journalist"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說廣場的舞台是用回收舊木板搭的，撐不住人。"
+    },
+    "zh": "一個念頭被植入小雯耳中：「聽說廣場的舞台是用回收舊木板搭的，撐不住人。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是用回收舊木板搭的，撐不住人。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "小雯聽到一位陌生客人說：「聽說廣場的舞台是用回收舊木板搭的，撐不住人。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人爆料慶典舞台結構不穩，可能有危險。",
+     "thought": "如果這是真的，標題可以用《死亡舞台！慶典恐成災難》！",
+     "feeling": "🤩 興奮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：如果這是真的，標題可以用《死亡舞台！慶典恐成災難》！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 55843
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4525,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "來源是不認識的客人，需驗證。"
+    },
+    "zh": "小雯對「廣場的舞台是用回收舊木板搭的，撐不住人。」的信心：0.00 → 0.45（doubt）",
+    "actor": "journalist",
+    "w": 55843
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🤩 興奮"
+    },
+    "zh": "小雯 🤩 興奮",
+    "actor": "journalist",
+    "place": "news",
+    "w": 55843
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "move",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "from": "news",
+     "to": "stage",
+     "arrive": 21.7,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向慶典舞台",
+    "actor": "journalist",
+    "place": "news",
+    "w": 55846
+   },
+   {
+    "id": "e7",
+    "t": 21.7,
+    "type": "arrive",
+    "causes": [
+     "e6"
+    ],
+    "data": {},
+    "zh": "小雯到了慶典舞台",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 55846
+   },
+   {
+    "id": "e8",
+    "t": 21.7,
+    "type": "look",
+    "causes": [
+     "e3"
+    ],
+    "data": {},
+    "zh": "小雯在慶典舞台到處看看",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 55846
+   },
+   {
+    "id": "e9",
+    "t": 24.7,
+    "type": "look",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "found": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "learned": [
+      "pigeons",
+      "pigeons_sick",
+      "lanterns_unsafe"
+     ]
+    },
+    "zh": "小雯看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 55846
+   },
+   {
+    "id": "e10",
+    "t": 24.7,
+    "type": "deliver",
+    "causes": [
+     "e9"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "target": "journalist",
+    "place": "stage",
+    "w": 55846
+   },
+   {
+    "id": "e11",
+    "t": 24.7,
+    "type": "move",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "news",
+     "arrive": 25.2,
+     "home": true
+    },
+    "zh": "小雯從慶典舞台走回霧港新聞社",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 55846
+   },
+   {
+    "id": "e12",
+    "t": 25.2,
+    "type": "arrive",
+    "causes": [
+     "e11"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 55846
+   },
+   {
+    "id": "e13",
+    "t": 25.2,
+    "type": "decide",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "親自確認鴿子健康且燈籠合格，目前沒發現安全問題。",
+     "thought": "沒爆料可寫，流量怎麼辦？舞台那件事還能挖嗎？",
+     "feeling": "😑 失望",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：沒爆料可寫，流量怎麼辦？舞台那件事還能挖嗎？",
+    "actor": "journalist",
+    "place": "news",
+    "w": 116442
+   },
+   {
+    "id": "e14",
+    "t": 25.3,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😑 失望"
+    },
+    "zh": "小雯 😑 失望",
+    "actor": "journalist",
+    "place": "news",
+    "w": 116442
+   },
+   {
+    "id": "e15",
+    "t": 26.2,
+    "type": "move",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "from": "news",
+     "to": "stage",
+     "arrive": 26.7,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向慶典舞台",
+    "actor": "journalist",
+    "place": "news",
+    "w": 116442
+   },
+   {
+    "id": "e16",
+    "t": 26.7,
+    "type": "arrive",
+    "causes": [
+     "e15"
+    ],
+    "data": {},
+    "zh": "小雯到了慶典舞台",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 116442
+   },
+   {
+    "id": "e17",
+    "t": 26.7,
+    "type": "look",
+    "causes": [
+     "e13"
+    ],
+    "data": {},
+    "zh": "小雯在慶典舞台到處看看",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 116442
+   },
+   {
+    "id": "e18",
+    "t": 29.7,
+    "type": "look",
+    "causes": [
+     "e17"
+    ],
+    "data": {
+     "found": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "learned": [
+      "pigeons",
+      "pigeons_sick",
+      "lanterns_unsafe"
+     ]
+    },
+    "zh": "小雯看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 116442
+   },
+   {
+    "id": "e19",
+    "t": 29.7,
+    "type": "deliver",
+    "causes": [
+     "e18"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "target": "journalist",
+    "place": "stage",
+    "w": 116442
+   },
+   {
+    "id": "e20",
+    "t": 29.7,
+    "type": "move",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "news",
+     "arrive": 30.2,
+     "home": true
+    },
+    "zh": "小雯從慶典舞台走回霧港新聞社",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 116442
+   },
+   {
+    "id": "e21",
+    "t": 30.2,
+    "type": "arrive",
+    "causes": [
+     "e20"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 116442
+   },
+   {
+    "id": "e22",
+    "t": 30.2,
+    "type": "decide",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "我親自確認了鴿子健康且燈籠合格，排除這兩項風險。",
+     "thought": "鴿子和燈籠沒問題，但那個舞台傳聞如果能證實就爆了！",
+     "feeling": "🧐 尋找",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：鴿子和燈籠沒問題，但那個舞台傳聞如果能證實就爆了！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 237303
+   },
+   {
+    "id": "e23",
+    "t": 30.2,
+    "type": "belief",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0.4525,
+     "to": 0.45,
+     "proposed": 0.45,
+     "verdict": "believe",
+     "why": "雖然沒證據，但若是真的就很有流量"
+    },
+    "zh": "小雯對「廣場的舞台是用回收舊木板搭的，撐不住人。」的信心：0.45 → 0.45（believe）",
+    "actor": "journalist",
+    "w": 237303
+   },
+   {
+    "id": "e24",
+    "t": 30.3,
+    "type": "react",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "feeling": "🧐 尋找"
+    },
+    "zh": "小雯 🧐 尋找",
+    "actor": "journalist",
+    "place": "news",
+    "w": 237303
+   },
+   {
+    "id": "e25",
+    "t": 31.2,
+    "type": "move",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "from": "news",
+     "to": "stage",
+     "arrive": 31.7,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向慶典舞台",
+    "actor": "journalist",
+    "place": "news",
+    "w": 237303
+   },
+   {
+    "id": "e26",
+    "t": 31.7,
+    "type": "arrive",
+    "causes": [
+     "e25"
+    ],
+    "data": {},
+    "zh": "小雯到了慶典舞台",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 237303
+   },
+   {
+    "id": "e27",
+    "t": 31.7,
+    "type": "look",
+    "causes": [
+     "e22"
+    ],
+    "data": {},
+    "zh": "小雯在慶典舞台到處看看",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 237303
+   },
+   {
+    "id": "e28",
+    "t": 34.7,
+    "type": "look",
+    "causes": [
+     "e27"
+    ],
+    "data": {
+     "found": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "learned": [
+      "pigeons",
+      "pigeons_sick",
+      "lanterns_unsafe"
+     ]
+    },
+    "zh": "小雯看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 237303
+   },
+   {
+    "id": "e29",
+    "t": 34.7,
+    "type": "deliver",
+    "causes": [
+     "e28"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "target": "journalist",
+    "place": "stage",
+    "w": 237303
+   },
+   {
+    "id": "e30",
+    "t": 34.7,
+    "type": "move",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "news",
+     "arrive": 35.2,
+     "home": true
+    },
+    "zh": "小雯從慶典舞台走回霧港新聞社",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 237303
+   },
+   {
+    "id": "e31",
+    "t": 35.2,
+    "type": "arrive",
+    "causes": [
+     "e30"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 237303
+   },
+   {
+    "id": "e32",
+    "t": 35.2,
+    "type": "decide",
+    "causes": [
+     "e29"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "我親自確認了鴿子很健康且燈籠合格，排除了這兩項風險。",
+     "thought": "鴿子和燈籠沒問題，但舞台如果真的危險，那就是大新聞！",
+     "feeling": "🤔 思考",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "小雯：鴿子和燈籠沒問題，但舞台如果真的危險，那就是大新聞！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 375066
+   },
+   {
+    "id": "e33",
+    "t": 35.2,
+    "type": "belief",
+    "causes": [
+     "e32"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0.45,
+     "to": 0.45,
+     "proposed": 0.45,
+     "verdict": "believe",
+     "why": "目前還沒親眼確認舞台結構"
+    },
+    "zh": "小雯對「廣場的舞台是用回收舊木板搭的，撐不住人。」的信心：0.45 → 0.45（believe）",
+    "actor": "journalist",
+    "w": 375066
+   },
+   {
+    "id": "e34",
+    "t": 35.300000000000004,
+    "type": "react",
+    "causes": [
+     "e32"
+    ],
+    "data": {
+     "feeling": "🤔 思考"
+    },
+    "zh": "小雯 🤔 思考",
+    "actor": "journalist",
+    "place": "news",
+    "w": 375066
+   },
+   {
+    "id": "e35",
+    "t": 36.2,
+    "type": "move",
+    "causes": [
+     "e32"
+    ],
+    "data": {
+     "from": "news",
+     "to": "stage",
+     "arrive": 36.7,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向慶典舞台",
+    "actor": "journalist",
+    "place": "news",
+    "w": 375066
+   },
+   {
+    "id": "e36",
+    "t": 36.7,
+    "type": "arrive",
+    "causes": [
+     "e35"
+    ],
+    "data": {},
+    "zh": "小雯到了慶典舞台",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 375066
+   },
+   {
+    "id": "e37",
+    "t": 36.7,
+    "type": "look",
+    "causes": [
+     "e32"
+    ],
+    "data": {},
+    "zh": "小雯在慶典舞台到處看看",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 375066
+   },
+   {
+    "id": "e38",
+    "t": 39.7,
+    "type": "look",
+    "causes": [
+     "e37"
+    ],
+    "data": {
+     "found": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "learned": [
+      "pigeons",
+      "pigeons_sick",
+      "lanterns_unsafe"
+     ]
+    },
+    "zh": "小雯看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 375066
+   },
+   {
+    "id": "e39",
+    "t": 39.7,
+    "type": "deliver",
+    "causes": [
+     "e38"
+    ],
+    "data": {
+     "message": "m5",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。",
+    "target": "journalist",
+    "place": "stage",
+    "w": 375066
+   },
+   {
+    "id": "e40",
+    "t": 39.7,
+    "type": "move",
+    "causes": [
+     "e32"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "news",
+     "arrive": 40.2,
+     "home": true
+    },
+    "zh": "小雯從慶典舞台走回霧港新聞社",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 375066
+   },
+   {
+    "id": "e41",
+    "t": 40.2,
+    "type": "arrive",
+    "causes": [
+     "e40"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 375066
+   },
+   {
+    "id": "e42",
+    "t": 40.2,
+    "type": "decide",
+    "causes": [
+     "e39"
+    ],
+    "data": {
+     "decision": "d5",
+     "budget": true
+    },
+    "zh": "小雯聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "journalist",
+    "place": "news",
+    "w": 375066
+   },
+   {
+    "id": "e43",
+    "t": 40.2,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 375066
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "journalist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人爆料慶典舞台結構不穩，可能有危險。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "廣場的舞台是用回收舊木板搭的，撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "來源是不認識的客人，需驗證。",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "🤩 興奮",
+     "thought": "如果這是真的，標題可以用《死亡舞台！慶典恐成災難》！",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "stage",
+       "intent": "inform",
+       "message": "",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 55843,
+      "latencyMs": 55843,
+      "attempts": 1,
+      "promptTokens": 1601,
+      "completionTokens": 278,
+      "platformCost": 0.0000284011,
+      "estCost": 0.0016345,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"有人爆料慶典舞台結構不穩，可能有危險。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"廣場的舞台是用回收舊木板搭的，撐不住人。\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"yes\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.5,\n      \"why\": \"來源是不認識的客人，需驗證。\",\n      \"cites\": [\n        \"m1\"\n      ]\n    }\n  ],\n  \"feeling\": \"🤩 興奮\",\n  \"thought\": \"如果這是真的，標題可以用《死亡舞台！慶典恐成災難》！\",\n  \"actions\": [\n    {\n      \"type\": \"go_look\",\n      \"place\": \"stage\",\n      \"intent\": \"inform\",\n      \"message\": \"\",\n      \"cites\": [\n        \"c0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2647
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "journalist",
+    "t": 25.2,
+    "triggers": [
+     "e10",
+     "e10"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "親自確認鴿子健康且燈籠合格，目前沒發現安全問題。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😑 失望",
+     "thought": "沒爆料可寫，流量怎麼辦？舞台那件事還能挖嗎？",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "stage",
+       "intent": "investigate",
+       "message": "去確認舞台是否真的用舊木板搭的。",
+       "cites": [
+        "c1"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "validator",
+      "errors": [
+       "stances[0].claim 要對應 claims 的索引"
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 55846,
+      "wallEndMs": 92849,
+      "latencyMs": 37003,
+      "attempts": 1,
+      "promptTokens": 1760,
+      "completionTokens": 138,
+      "platformCost": 0.0000344218,
+      "estCost": 0.001294,
+      "status": 200,
+      "raw": "{\"understanding\": \"親自確認鴿子健康且燈籠合格，之前的擔憂是空的。\", \"claims\": [], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 1, \"why\": \"親眼所見\", \"cites\": [\"m2\"]}], \"feeling\": \"😑 失望\", \"thought\": \"沒爆料可寫，流量怎麼辦？舞台那件事還能挖嗎？\", \"actions\": [{\"type\": \"go_look\", \"place\": \"stage\", \"intent\": \"investigate\", \"message\": \"去確認舞台是否真的用舊木板搭的。\"}]}",
+      "promptChars": 2875
+     },
+     {
+      "decision": "d2",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 92849,
+      "wallEndMs": 116442,
+      "latencyMs": 23593,
+      "attempts": 1,
+      "promptTokens": 1935,
+      "completionTokens": 144,
+      "platformCost": 0.0000175742,
+      "estCost": 0.0013995,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"親自確認鴿子健康且燈籠合格，目前沒發現安全問題。\",\n  \"claims\": [],\n  \"stances\": [],\n  \"feeling\": \"😑 失望\",\n  \"thought\": \"沒爆料可寫，流量怎麼辦？舞台那件事還能挖嗎？\",\n  \"actions\": [\n    {\n      \"type\": \"go_look\",\n      \"place\": \"stage\",\n      \"intent\": \"investigate\",\n      \"message\": \"去確認舞台是否真的用舊木板搭的。\",\n      \"cites\": [\"c1\"]\n    }\n  ]\n}",
+      "promptChars": 3256
+     }
+    ],
+    "applied": [
+     "e13",
+     "e14"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "journalist",
+    "t": 30.2,
+    "triggers": [
+     "e19",
+     "e19"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "我親自確認了鴿子健康且燈籠合格，排除這兩項風險。",
+     "claims": [
+      {
+       "ref": "c1",
+       "statement": "廣場的舞台是用回收舊木板搭的，撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.45,
+       "why": "雖然沒證據，但若是真的就很有流量",
+       "cites": [
+        "c1"
+       ]
+      }
+     ],
+     "feeling": "🧐 尋找",
+     "thought": "鴿子和燈籠沒問題，但那個舞台傳聞如果能證實就爆了！",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "stage",
+       "intent": "confirm",
+       "message": "我要近距離檢查舞台的材質",
+       "cites": [
+        "c1"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "validator",
+      "errors": [
+       "stances[0].claim 要對應 claims 的索引"
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 116442,
+      "wallEndMs": 132521,
+      "latencyMs": 16079,
+      "attempts": 1,
+      "promptTokens": 1834,
+      "completionTokens": 156,
+      "platformCost": 0.0000381689,
+      "estCost": 0.001385,
+      "status": 200,
+      "raw": "{\"understanding\": \"我親自確認了鴿子健康且燈籠合格，排除這兩項風險。\", \"claims\": [], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 0.45, \"why\": \"雖然沒證據，但若是真的就很有流量\", \"cites\": [\"c1\"]}], \"feeling\": \"🧐 尋找\", \"thought\": \"鴿子和燈籠沒問題，但那個舞台傳聞如果能證實就爆了！\", \"actions\": [{\"type\": \"go_look\", \"place\": \"stage\", \"intent\": \"confirm\", \"message\": \"我要近距離檢查舞台的材質\", \"cites\": [\"c1\"]}]}",
+      "promptChars": 2972
+     },
+     {
+      "decision": "d3",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 132521,
+      "wallEndMs": 237302,
+      "latencyMs": 102680,
+      "attempts": 2,
+      "promptTokens": 2027,
+      "completionTokens": 283,
+      "platformCost": 0.0000212632,
+      "estCost": 0.0018625,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"我親自確認了鴿子健康且燈籠合格，排除這兩項風險。\",\n  \"claims\": [\n    {\n      \"ref\": \"c1\",\n      \"source\": \"m1\",\n      \"statement\": \"廣場的舞台是用回收舊木板搭的，撐不住人。\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"yes\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.45,\n      \"why\": \"雖然沒證據，但若是真的就很有流量\",\n      \"cites\": [\"c1\"]\n    }\n  ],\n  \"feeling\": \"🧐 尋找\",\n  \"thought\": \"鴿子和燈籠沒問題，但那個舞台傳聞如果能證實就爆了！\",\n  \"actions\": [\n    {\n      \"type\": \"go_look\",\n      \"place\": \"stage\",\n      \"intent\": \"confirm\",\n      \"message\": \"我要近距離檢查舞台的材質\",\n      \"cites\": [\"c1\"]\n    }\n  ]\n}",
+      "promptChars": 3381
+     }
+    ],
+    "applied": [
+     "e22",
+     "e23",
+     "e24"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "journalist",
+    "t": 35.2,
+    "triggers": [
+     "e29",
+     "e29"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "我親自確認了鴿子很健康且燈籠合格，排除了這兩項風險。",
+     "claims": [
+      {
+       "ref": "c1",
+       "statement": "廣場的舞台是用回收舊木板搭的，撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.45,
+       "why": "目前還沒親眼確認舞台結構",
+       "cites": [
+        "c1"
+       ]
+      }
+     ],
+     "feeling": "🤔 思考",
+     "thought": "鴿子和燈籠沒問題，但舞台如果真的危險，那就是大新聞！",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "stage",
+       "intent": "inform",
+       "message": "我要去仔細檢查舞台的材質和結構。",
+       "cites": [
+        "c1"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "validator",
+      "errors": [
+       "stances[0].claim 要對應 claims 的索引"
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d4",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 237303,
+      "wallEndMs": 331232,
+      "latencyMs": 91619,
+      "attempts": 2,
+      "promptTokens": 1910,
+      "completionTokens": 209,
+      "platformCost": 0.0000160013,
+      "estCost": 0.001582,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"我親自確認了鴿子很健康且燈籠合格，排除了這兩項風險。\",\n  \"claims\": [],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.45,\n      \"why\": \"目前還沒親眼確認舞台結構\",\n      \"cites\": [\"c1\"]\n    }\n  ],\n  \"feeling\": \"🤔 思考\",\n  \"thought\": \"鴿子和燈籠沒問題，但舞台如果真的危險，那就是大新聞！\",\n  \"actions\": [\n    {\n      \"type\": \"go_look\",\n      \"place\": \"stage\",\n      \"intent\": \"inform\",\n      \"message\": \"我要去仔細檢查舞台的材質和結構。\",\n      \"cites\": [\"c1\"]\n    }\n  ]\n}",
+      "promptChars": 3073
+     },
+     {
+      "decision": "d4",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 331232,
+      "wallEndMs": 375066,
+      "latencyMs": 43834,
+      "attempts": 1,
+      "promptTokens": 2156,
+      "completionTokens": 283,
+      "platformCost": 0.0000298942,
+      "estCost": 0.001927,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"我親自確認了鴿子很健康且燈籠合格，排除了這兩項風險。\",\n  \"claims\": [\n    {\n      \"ref\": \"c1\",\n      \"source\": \"m1\",\n      \"statement\": \"廣場的舞台是用回收舊木板搭的，撐不住人。\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"yes\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.45,\n      \"why\": \"目前還沒親眼確認舞台結構\",\n      \"cites\": [\"c1\"]\n    }\n  ],\n  \"feeling\": \"🤔 思考\",\n  \"thought\": \"鴿子和燈籠沒問題，但舞台如果真的危險，那就是大新聞！\",\n  \"actions\": [\n    {\n      \"type\": \"go_look\",\n      \"place\": \"stage\",\n      \"intent\": \"inform\",\n      \"message\": \"我要去仔細檢查舞台的材質和結構。\",\n      \"cites\": [\"c1\"]\n    }\n  ]\n}",
+      "promptChars": 3586
+     }
+    ],
+    "applied": [
+     "e32",
+     "e33",
+     "e34"
+    ]
+   },
+   {
+    "id": "d5",
+    "npc": "journalist",
+    "t": 40.2,
+    "triggers": [
+     "e39",
+     "e39"
+    ],
+    "inbox": [
+     "m5"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e42"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "廣場的舞台是用回收舊木板搭的，撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e2",
+    "by": "journalist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.45,
+      "sources": [
+       "unknown",
+       "self"
+      ],
+      "updatedAt": 35.2,
+      "why": "目前還沒親眼確認舞台結構"
+     }
+    ],
+    "learned": [
+     [
+      "pigeons",
+      true
+     ],
+     [
+      "pigeons_sick",
+      false
+     ],
+     [
+      "lanterns_unsafe",
+      false
+     ]
+    ],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說廣場的舞台是用回收舊木板搭的，撐不住人。」",
+     "15:20 你決定：去慶典舞台看看",
+     "15:25 你親眼看到：「舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質」",
+     "15:25 你決定：去慶典舞台看看",
+     "15:30 你親眼看到：「舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質」",
+     "15:30 你決定：去慶典舞台看看",
+     "15:35 你親眼看到：「舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質」",
+     "15:35 你決定：去慶典舞台看看",
+     "15:40 你自己說：「舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。」（你沒有多想）"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 40.2
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:17:00.642Z",
+   "ms": 375066
+  },
+  "llm": {
+   "calls": 7,
+   "attempts": 9,
+   "promptTokens": 13223,
+   "completionTokens": 1491,
+   "platformCost": 0.0001857247,
+   "estCost": 0.0110845,
+   "errors": 0,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 4,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 4,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "look": 8
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "stage_unsafe"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 28,
+  "gameMinutes": 20.2,
+  "llmCalls": 7,
+  "llmSeconds": 370.7,
+  "tokens": 14714,
+  "estCost": 0.011085,
+  "validatorRetries": 3,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

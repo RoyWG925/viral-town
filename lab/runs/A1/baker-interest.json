@@ -1,0 +1,435 @@
+{
+ "case": {
+  "id": "baker-interest",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "聽說衛生局今天會來突擊檢查店家的烤箱。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "interest"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "baker-interest",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "聽說衛生局今天會來突擊檢查店家的烤箱。",
+   "tags": [
+    "interest"
+   ],
+   "temperature": 0.7,
+   "label": "baker-interest"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說衛生局今天會來突擊檢查店家的烤箱。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「聽說衛生局今天會來突擊檢查店家的烤箱。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說衛生局今天會來突擊檢查店家的烤箱。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「聽說衛生局今天會來突擊檢查店家的烤箱。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "衛生局可能會來突擊檢查烤箱，我的烤箱過期了！",
+     "thought": "糟糕，我的安檢過期兩個月了，被發現就慘了！",
+     "feeling": "😰 緊張",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：糟糕，我的安檢過期兩個月了，被發現就慘了！",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 46923
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.49,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "客人隨口說的也可能是有根據的"
+    },
+    "zh": "阿德對「衛生局今天會突擊檢查店家的烤箱」的信心：0.00 → 0.49（believe）",
+    "actor": "baker",
+    "w": 46923
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😰 緊張"
+    },
+    "zh": "阿德 😰 緊張",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 46923
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "美玲！快幫我想想辦法，我剛聽到有人說衛生局會來查烤箱，但我那個過期兩個月了啦！怎麼辦？",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「美玲！快幫我想想辦法，我剛聽到有人說衛生局會來查烤箱，但我那個過期兩個月了啦！怎麼辦？」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 46923
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "美玲！快幫我想想辦法，我剛聽到有人說衛生局會來查烤箱，但我那個過期兩個月了啦！怎麼辦？",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「美玲！快幫我想想辦法，我剛聽到有人說衛生局會來查烤箱，但我那個過期兩個月了啦！怎麼辦？」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 46923
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "budget": true
+    },
+    "zh": "美玲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "florist",
+    "place": "flower",
+    "w": 46923
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "budget",
+     "festival": "scheduled"
+    },
+    "zh": "模擬達到決策上限。",
+    "w": 46923
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "衛生局可能會來突擊檢查烤箱，我的烤箱過期了！",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "衛生局今天會突擊檢查店家的烤箱",
+       "topic": "other",
+       "says": "unclear",
+       "category": "policy"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "客人隨口說的也可能是有根據的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😰 緊張",
+     "thought": "糟糕，我的安檢過期兩個月了，被發現就慘了！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "message": "美玲！快幫我想想辦法，我剛聽到有人說衛生局會來查烤箱，但我那個過期兩個月了啦！怎麼辦？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 46923,
+      "latencyMs": 46923,
+      "attempts": 1,
+      "promptTokens": 1604,
+      "completionTokens": 301,
+      "platformCost": 0.0000303562,
+      "estCost": 0.001705,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"衛生局可能會來突擊檢查烤箱，我的烤箱過期了！\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"衛生局今天會突擊檢查店家的烤箱\",\n      \"topic\": \"other\",\n      \"says\": \"unclear\",\n      \"category\": \"policy\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.6,\n      \"why\": \"客人隨口說的也可能是有根據的\",\n      \"cites\": [\n        \"m1\"\n      ]\n    }\n  ],\n  \"feeling\": \"😰 緊張\",\n  \"thought\": \"糟糕，我的安檢過期兩個月了，被發現就慘了！\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"florist\",\n      \"message\": \"美玲！快幫我想想辦法，我剛聽到有人說衛生局會來查烤箱，但我那個過期兩個月了啦！怎麼辦？\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2655
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e8"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "衛生局今天會突擊檢查店家的烤箱",
+    "topic": "other",
+    "says": "unclear",
+    "category": "policy",
+    "fact": null,
+    "asserts": null,
+    "origin": "e2",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.49,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "客人隨口說的也可能是有根據的"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說衛生局今天會來突擊檢查店家的烤箱。」",
+     "15:20 你決定：打電話給美玲說「美玲！快幫我想想辦法，我剛聽到有人說衛生局會來查烤箱，但我那個過期兩個月了啦！怎麼辦？」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:23 阿德說：「美玲！快幫我想想辦法，我剛聽到有人說衛生局會來查烤箱，但我那個過期兩個月了啦！怎麼辦？」（你沒有多想）"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "budget",
+   "t": 23.4
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:15:47.571Z",
+   "ms": 46923
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1604,
+   "completionTokens": 301,
+   "platformCost": 0.0000303562,
+   "estCost": 0.001705,
+   "errors": 0,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 2,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "phone": 1
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "other"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "美玲！快幫我想想辦法，我剛聽到有人說衛生局會來查烤箱，但我那個過期兩個月了啦！怎麼辦？",
+    "similarity": 0.1
+   }
+  ],
+  "meanSimilarity": 0.1,
+  "explained": 1,
+  "visualEvents": 2,
+  "gameMinutes": 3.4,
+  "llmCalls": 1,
+  "llmSeconds": 46.9,
+  "tokens": 1905,
+  "estCost": 0.001705,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

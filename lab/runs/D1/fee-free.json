@@ -1,0 +1,336 @@
+{
+ "case": {
+  "id": "fee-free",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "journalist",
+  "seedText": "攤位費漲價是因為鎮公所把錢花光了。",
+  "variant": "free-actions",
+  "maxDecisions": 1,
+  "tags": [
+   "fee",
+   "free"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "free-actions",
+   "id": "fee-free",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "journalist",
+   "seedText": "攤位費漲價是因為鎮公所把錢花光了。",
+   "tags": [
+    "fee",
+    "free"
+   ],
+   "temperature": 0.7,
+   "label": "fee-free"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "攤位費漲價是因為鎮公所把錢花光了。"
+    },
+    "zh": "一個念頭被植入小雯耳中：「攤位費漲價是因為鎮公所把錢花光了。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "攤位費漲價是因為鎮公所把錢花光了。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "小雯聽到一位陌生客人說：「攤位費漲價是因為鎮公所把錢花光了。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人傳言攤位費漲價是因為鎮公所沒錢了。",
+     "thought": "如果公款被花光了，這絕對是個超級大新聞！",
+     "feeling": "🤩 興奮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "小雯：如果公款被花光了，這絕對是個超級大新聞！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 29552
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4,
+     "proposed": 0.4,
+     "verdict": "doubt",
+     "why": "來路不明的客人隨口說的"
+    },
+    "zh": "小雯對「攤位費漲價是因為鎮公所把錢花光了」的信心：0.00 → 0.40（doubt）",
+    "actor": "journalist",
+    "w": 29552
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🤩 興奮"
+    },
+    "zh": "小雯 🤩 興奮",
+    "actor": "journalist",
+    "place": "news",
+    "w": 29552
+   },
+   {
+    "id": "e6",
+    "t": 20.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 29552
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "journalist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人傳言攤位費漲價是因為鎮公所沒錢了。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "攤位費漲價是因為鎮公所把錢花光了",
+       "topic": "fee_covers_budget",
+       "says": "yes",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.4,
+       "why": "來路不明的客人隨口說的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "🤩 興奮",
+     "thought": "如果公款被花光了，這絕對是個超級大新聞！",
+     "actions": [
+      {
+       "type": "none",
+       "why": "free-form: 打電話給美玲"
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 29552,
+      "latencyMs": 18044,
+      "attempts": 1,
+      "promptTokens": 1487,
+      "completionTokens": 244,
+      "platformCost": 0.0000321496,
+      "estCost": 0.0014755,
+      "status": 200,
+      "raw": "{\"understanding\": \"有人傳言攤位費漲價是因為鎮公所沒錢了。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"攤位費漲價是因為鎮公所把錢花光了\", \"topic\": \"fee_covers_budget\", \"says\": \"yes\", \"category\": \"scandal\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.4, \"why\": \"來路不明的客人隨口說的\", \"cites\": [\"m1\"]}], \"feeling\": \"🤩 興奮\", \"thought\": \"如果公款被花光了，這絕對是個超級大新聞！\", \"actions\": [{\"type\": \"打電話給美玲\", \"target\": \"florist\", \"place\": \"news\", \"intent\": \"ask\", \"message\": \"美玲！妳有聽說最近鎮公所財務出問題嗎？我聽說攤位費漲價是因為他們沒錢了，妳在那邊有聽到什麼風聲沒？\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 2420
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "攤位費漲價是因為鎮公所把錢花光了",
+    "topic": "fee_covers_budget",
+    "says": "yes",
+    "category": "scandal",
+    "fact": "fee_for_budget",
+    "asserts": true,
+    "origin": "e2",
+    "by": "journalist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "來路不明的客人隨口說的"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「攤位費漲價是因為鎮公所把錢花光了。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:49:13.430Z",
+   "ms": 29552
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1487,
+   "completionTokens": 244,
+   "platformCost": 0.0000321496,
+   "estCost": 0.0014755,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "fee_covers_budget"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.3,
+  "llmCalls": 1,
+  "llmSeconds": 18,
+  "tokens": 1731,
+  "estCost": 0.001476,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

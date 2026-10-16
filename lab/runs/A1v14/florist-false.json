@@ -1,0 +1,432 @@
+{
+ "case": {
+  "id": "florist-false",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "florist",
+  "seedText": "燈籠節改到下星期了，今晚不辦。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "false"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "florist-false",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "florist",
+   "seedText": "燈籠節改到下星期了，今晚不辦。",
+   "tags": [
+    "false"
+   ],
+   "temperature": 0.7,
+   "label": "florist-false"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "燈籠節改到下星期了，今晚不辦。"
+    },
+    "zh": "一個念頭被植入美玲耳中：「燈籠節改到下星期了，今晚不辦。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "燈籠節改到下星期了，今晚不辦。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "美玲聽到一位陌生客人說：「燈籠節改到下星期了，今晚不辦。」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有個客人說今晚的燈籠節取消了，延到下週。",
+     "thought": "如果真的取消，那些鴿子該怎麼辦？會不會被遺忘？",
+     "feeling": "😟 忐忑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：如果真的取消，那些鴿子該怎麼辦？會不會被遺忘？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 126965
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.44,
+     "proposed": 0.6,
+     "verdict": "doubt",
+     "why": "不認識的客人，沒正式公告"
+    },
+    "zh": "美玲對「燈籠節改到下星期，今晚不辦」的信心：0.00 → 0.44（doubt）",
+    "actor": "florist",
+    "w": 126965
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 忐忑"
+    },
+    "zh": "美玲 😟 忐忑",
+    "actor": "florist",
+    "place": "flower",
+    "w": 126965
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "小雯，剛才店裡有客人說今晚的燈籠節延期了，這件事是真的嗎？妳那邊有收到消息嗎？",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "美玲打電話給小雯：「小雯，剛才店裡有客人說今晚的燈籠節延期了，這件事是真的嗎？妳那邊有收到消息嗎？」",
+    "actor": "florist",
+    "target": "journalist",
+    "place": "flower",
+    "w": 126965
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "小雯，剛才店裡有客人說今晚的燈籠節延期了，這件事是真的嗎？妳那邊有收到消息嗎？",
+     "claims": [
+      "c1"
+     ],
+     "from": "florist"
+    },
+    "zh": "小雯在電話裡聽美玲說：「小雯，剛才店裡有客人說今晚的燈籠節延期了，這件事是真的嗎？妳那邊有收到消息嗎？」",
+    "target": "journalist",
+    "actor": "florist",
+    "place": "news",
+    "w": 126965
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "budget": true
+    },
+    "zh": "小雯聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "journalist",
+    "place": "news",
+    "w": 126965
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "budget",
+     "festival": "scheduled"
+    },
+    "zh": "模擬達到決策上限。",
+    "w": 126965
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "florist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有個客人說今晚的燈籠節取消了，延到下週。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "燈籠節改到下星期，今晚不辦",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.6,
+       "why": "不認識的客人，沒正式公告",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 忐忑",
+     "thought": "如果真的取消，那些鴿子該怎麼辦？會不會被遺忘？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "message": "小雯，剛才店裡有客人說今晚的燈籠節延期了，這件事是真的嗎？妳那邊有收到消息嗎？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 1,
+      "wallEndMs": 126964,
+      "latencyMs": 112008,
+      "attempts": 4,
+      "promptTokens": 1625,
+      "completionTokens": 216,
+      "platformCost": 0.0000162918,
+      "estCost": 0.0014605,
+      "status": 200,
+      "raw": "{\"understanding\": \"有個客人說今晚的燈籠節取消了，延到下週。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"燈籠節改到下星期，今晚不辦\", \"topic\": \"festival_on\", \"says\": \"no\", \"category\": \"event\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.6, \"why\": \"不認識的客人，沒正式公告\", \"cites\": [\"m1\"]}], \"feeling\": \"😟 忐忑\", \"thought\": \"如果真的取消，那些鴿子該怎麼辦？會不會被遺忘？\", \"actions\": [{\"type\": \"phone\", \"target\": \"journalist\", \"message\": \"小雯，剛才店裡有客人說今晚的燈籠節延期了，這件事是真的嗎？妳那邊有收到消息嗎？\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 2678
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "journalist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e8"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "燈籠節改到下星期，今晚不辦",
+    "topic": "festival_on",
+    "says": "no",
+    "category": "event",
+    "fact": null,
+    "asserts": false,
+    "origin": "e2",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.44,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "不認識的客人，沒正式公告"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「燈籠節改到下星期了，今晚不辦。」",
+     "15:20 你決定：打電話給小雯說「小雯，剛才店裡有客人說今晚的燈籠節延期了，這件事是真的嗎？妳那邊有收到消息嗎？」"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:23 美玲說：「小雯，剛才店裡有客人說今晚的燈籠節延期了，這件事是真的嗎？妳那邊有收到消息嗎？」（你沒有多想）"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "budget",
+   "t": 23.4
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:15:40.610Z",
+   "ms": 126965
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 4,
+   "promptTokens": 1625,
+   "completionTokens": 216,
+   "platformCost": 0.0000162918,
+   "estCost": 0.0014605,
+   "errors": 0,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 2,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "phone": 1
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "festival_on"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "florist",
+    "to": "journalist",
+    "text": "小雯，剛才店裡有客人說今晚的燈籠節延期了，這件事是真的嗎？妳那邊有收到消息嗎？",
+    "similarity": 0.1
+   }
+  ],
+  "meanSimilarity": 0.1,
+  "explained": 1,
+  "visualEvents": 2,
+  "gameMinutes": 3.4,
+  "llmCalls": 1,
+  "llmSeconds": 112,
+  "tokens": 1841,
+  "estCost": 0.00146,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

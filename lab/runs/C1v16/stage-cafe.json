@@ -1,0 +1,2618 @@
+{
+ "case": {
+  "maxDecisions": 16,
+  "maxPerNpc": 4,
+  "id": "stage-cafe",
+  "active": [
+   "baker",
+   "florist",
+   "journalist",
+   "cafe",
+   "police",
+   "mayor",
+   "organizer",
+   "vendor"
+  ],
+  "seedNpc": "cafe",
+  "seedText": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+  "tags": [
+   "truth-discovery"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 16,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "stage-cafe",
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "cafe",
+   "seedText": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+   "tags": [
+    "truth-discovery"
+   ],
+   "temperature": 0.7,
+   "label": "stage-cafe"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。"
+    },
+    "zh": "一個念頭被植入美咲耳中：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說廣場的舞台是趕工搭的，可能撐不住人。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "美咲聽到一位陌生客人說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人說慶典舞台不安全，可能撐不住人。",
+     "thought": "如果舞台塌了，我女兒表演時怎麼辦？得確認一下！",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美咲：如果舞台塌了，我女兒表演時怎麼辦？得確認一下！",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 100925
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.46499999999999997,
+     "proposed": 0.6,
+     "verdict": "doubt",
+     "why": "不認識的客人說的，但涉及舞台安全。"
+    },
+    "zh": "美咲對「廣場的舞台是趕工搭的，可能撐不住人。」的信心：0.00 → 0.46（doubt）",
+    "actor": "cafe",
+    "w": 100925
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "美咲 😟 擔心",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 100925
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "老周！我剛在店裡聽到有人說廣場的舞台是趕工搭的，很不穩，這真的假的？我女兒今晚要在上面表演，我好擔心！",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "美咲打電話給老周：「老周！我剛在店裡聽到有人說廣場的舞台是趕工搭的，很不穩，這真的假的？我女兒今晚要在上面表演，我好擔心！」",
+    "actor": "cafe",
+    "target": "police",
+    "place": "cafe",
+    "w": 100925
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "老周！我剛在店裡聽到有人說廣場的舞台是趕工搭的，很不穩，這真的假的？我女兒今晚要在上面表演，我好擔心！",
+     "claims": [
+      "c1"
+     ],
+     "from": "cafe"
+    },
+    "zh": "老周在電話裡聽美咲說：「老周！我剛在店裡聽到有人說廣場的舞台是趕工搭的，很不穩，這真的假的？我女兒今晚要在上面表演，我好擔心！」",
+    "target": "police",
+    "actor": "cafe",
+    "place": "police",
+    "w": 100925
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "美咲反映有人傳言慶典舞台不穩，擔心女兒表演安全。",
+     "thought": "警力本來就不足，如果舞台出事就太糟糕了，得趕快確認。",
+     "feeling": "😟 緊張",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone",
+      "go_look"
+     ]
+    },
+    "zh": "老周：警力本來就不足，如果舞台出事就太糟糕了，得趕快確認。",
+    "actor": "police",
+    "place": "police",
+    "w": 171525
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.6,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "美咲是我信任的朋友且涉及孩子安全"
+    },
+    "zh": "老周對「中央廣場的慶典舞台是趕工搭的，很不穩。」的信心：0.00 → 0.60（believe）",
+    "actor": "police",
+    "w": 171525
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "😟 緊張"
+    },
+    "zh": "老周 😟 緊張",
+    "actor": "police",
+    "place": "police",
+    "w": 171525
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "phone",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "text": "志明，我收到消息說舞台結構可能有問題，很不穩。請立刻跟我說明目前的進度，並確保安全，我等下會過去檢查。",
+     "intent": "inform",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "老周打電話給志明：「志明，我收到消息說舞台結構可能有問題，很不穩。請立刻跟我說明目前的進度，並確保安全，我等下會過去檢查。」",
+    "actor": "police",
+    "target": "organizer",
+    "place": "police",
+    "w": 171525
+   },
+   {
+    "id": "e12",
+    "t": 26.4,
+    "type": "deliver",
+    "causes": [
+     "e11"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "phone",
+     "intent": "inform",
+     "text": "志明，我收到消息說舞台結構可能有問題，很不穩。請立刻跟我說明目前的進度，並確保安全，我等下會過去檢查。",
+     "claims": [
+      "c2"
+     ],
+     "from": "police"
+    },
+    "zh": "志明在電話裡聽老周說：「志明，我收到消息說舞台結構可能有問題，很不穩。請立刻跟我說明目前的進度，並確保安全，我等下會過去檢查。」",
+    "target": "organizer",
+    "actor": "police",
+    "place": "stage",
+    "w": 171525
+   },
+   {
+    "id": "e13",
+    "t": 26.4,
+    "type": "move",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "from": "police",
+     "to": "stage",
+     "arrive": 26.9,
+     "home": false
+    },
+    "zh": "老周從警察局走向慶典舞台",
+    "actor": "police",
+    "place": "police",
+    "w": 171526
+   },
+   {
+    "id": "e14",
+    "t": 26.599999999999998,
+    "type": "decide",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "老周發現舞台不穩要來檢查，這會讓我的秘密曝光。",
+     "thought": "糟糕，如果被老周抓到沒做安檢，我死定了！",
+     "feeling": "😰 恐慌",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "志明：糟糕，如果被老周抓到沒做安檢，我死定了！",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 212501
+   },
+   {
+    "id": "e15",
+    "t": 26.599999999999998,
+    "type": "belief",
+    "causes": [
+     "e14"
+    ],
+    "data": {
+     "claim": "c3",
+     "from": 0,
+     "to": 0.98,
+     "proposed": 1,
+     "verdict": "believe",
+     "why": "我知道舞台是趕工且沒檢查的"
+    },
+    "zh": "志明對「舞台結構可能有問題，很不穩」的信心：0.00 → 0.98（believe）",
+    "actor": "organizer",
+    "w": 212501
+   },
+   {
+    "id": "e16",
+    "t": 26.7,
+    "type": "react",
+    "causes": [
+     "e14"
+    ],
+    "data": {
+     "feeling": "😰 恐慌"
+    },
+    "zh": "志明 😰 恐慌",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 212501
+   },
+   {
+    "id": "e17",
+    "t": 26.9,
+    "type": "arrive",
+    "causes": [
+     "e13"
+    ],
+    "data": {},
+    "zh": "老周到了慶典舞台",
+    "actor": "police",
+    "place": "stage",
+    "w": 212501
+   },
+   {
+    "id": "e18",
+    "t": 26.9,
+    "type": "look",
+    "causes": [
+     "e8"
+    ],
+    "data": {},
+    "zh": "老周在慶典舞台到處看看",
+    "actor": "police",
+    "place": "stage",
+    "w": 212501
+   },
+   {
+    "id": "e19",
+    "t": 27.599999999999998,
+    "type": "phone",
+    "causes": [
+     "e14"
+    ],
+    "data": {
+     "missed": true
+    },
+    "zh": "志明打給老周，但對方沒接",
+    "actor": "organizer",
+    "target": "police",
+    "w": 212501
+   },
+   {
+    "id": "e20",
+    "t": 29.9,
+    "type": "look",
+    "causes": [
+     "e18"
+    ],
+    "data": {
+     "found": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 志明（燈籠節主辦人）在這裡。",
+     "learned": [
+      "pigeons",
+      "pigeons_sick",
+      "lanterns_unsafe"
+     ]
+    },
+    "zh": "老周看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 志明（燈籠節主辦人）在這裡。",
+    "actor": "police",
+    "place": "stage",
+    "w": 212501
+   },
+   {
+    "id": "e21",
+    "t": 29.9,
+    "type": "deliver",
+    "causes": [
+     "e20"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 志明（燈籠節主辦人）在這裡。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "老周親眼看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 志明（燈籠節主辦人）在這裡。",
+    "target": "police",
+    "place": "stage",
+    "w": 212501
+   },
+   {
+    "id": "e22",
+    "t": 29.9,
+    "type": "move",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "police",
+     "arrive": 30.4,
+     "home": true
+    },
+    "zh": "老周從慶典舞台走回警察局",
+    "actor": "police",
+    "place": "stage",
+    "w": 212501
+   },
+   {
+    "id": "e23",
+    "t": 30.4,
+    "type": "arrive",
+    "causes": [
+     "e22"
+    ],
+    "data": {},
+    "zh": "老周到了警察局",
+    "actor": "police",
+    "place": "police",
+    "w": 212501
+   },
+   {
+    "id": "e24",
+    "t": 30.4,
+    "type": "decide",
+    "causes": [
+     "e21"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "我剛檢查完現場，鴿子和燈籠沒問題，但舞台安全還沒確認。",
+     "thought": "鴿子和燈籠雖然合格，但舞台要是塌了就出大事了。",
+     "feeling": "😟 憂心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "inspect"
+     ]
+    },
+    "zh": "老周：鴿子和燈籠雖然合格，但舞台要是塌了就出大事了。",
+    "actor": "police",
+    "place": "police",
+    "w": 446366
+   },
+   {
+    "id": "e25",
+    "t": 30.4,
+    "type": "belief",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0.6,
+     "to": 0.6,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "美咲是老朋友且消息來源具體"
+    },
+    "zh": "老周對「中央廣場的慶典舞台是趕工搭的，很不穩。」的信心：0.60 → 0.60（believe）",
+    "actor": "police",
+    "w": 446366
+   },
+   {
+    "id": "e26",
+    "t": 30.5,
+    "type": "react",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "feeling": "😟 憂心"
+    },
+    "zh": "老周 😟 憂心",
+    "actor": "police",
+    "place": "police",
+    "w": 446366
+   },
+   {
+    "id": "e27",
+    "t": 31.4,
+    "type": "move",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "from": "police",
+     "to": "stage",
+     "arrive": 31.9,
+     "home": false
+    },
+    "zh": "老周從警察局走向慶典舞台",
+    "actor": "police",
+    "place": "police",
+    "w": 446366
+   },
+   {
+    "id": "e28",
+    "t": 31.9,
+    "type": "arrive",
+    "causes": [
+     "e27"
+    ],
+    "data": {},
+    "zh": "老周到了慶典舞台",
+    "actor": "police",
+    "place": "stage",
+    "w": 446366
+   },
+   {
+    "id": "e29",
+    "t": 31.9,
+    "type": "inspect",
+    "causes": [
+     "e24"
+    ],
+    "data": {},
+    "zh": "老周在慶典舞台仔細檢查",
+    "actor": "police",
+    "place": "stage",
+    "w": 446366
+   },
+   {
+    "id": "e30",
+    "t": 41.9,
+    "type": "inspect",
+    "causes": [
+     "e29"
+    ],
+    "data": {
+     "found": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 舞台沒有任何安全檢查紀錄，左後方的一根支架明顯鬆動。 燈籠上貼著防火材質的合格標籤。 志明（燈籠節主辦人）在這裡。",
+     "learned": [
+      "pigeons",
+      "pigeons_sick",
+      "lanterns_unsafe",
+      "stage_uninspected"
+     ]
+    },
+    "zh": "老周看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 舞台沒有任何安全檢查紀錄，左後方的一根支架明顯鬆動。 燈籠上貼著防火材質的合格標籤。 志明（燈籠節主辦人）在這裡。",
+    "actor": "police",
+    "place": "stage",
+    "w": 446366
+   },
+   {
+    "id": "e31",
+    "t": 41.9,
+    "type": "deliver",
+    "causes": [
+     "e30"
+    ],
+    "data": {
+     "message": "m5",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 舞台沒有任何安全檢查紀錄，左後方的一根支架明顯鬆動。 燈籠上貼著防火材質的合格標籤。 志明（燈籠節主辦人）在這裡。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "老周親眼看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 舞台沒有任何安全檢查紀錄，左後方的一根支架明顯鬆動。 燈籠上貼著防火材質的合格標籤。 志明（燈籠節主辦人）在這裡。",
+    "target": "police",
+    "place": "stage",
+    "w": 446367
+   },
+   {
+    "id": "e32",
+    "t": 41.9,
+    "type": "move",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "police",
+     "arrive": 42.4,
+     "home": true
+    },
+    "zh": "老周從慶典舞台走回警察局",
+    "actor": "police",
+    "place": "stage",
+    "w": 446367
+   },
+   {
+    "id": "e33",
+    "t": 42.4,
+    "type": "arrive",
+    "causes": [
+     "e32"
+    ],
+    "data": {},
+    "zh": "老周到了警察局",
+    "actor": "police",
+    "place": "police",
+    "w": 446367
+   },
+   {
+    "id": "e34",
+    "t": 42.4,
+    "type": "decide",
+    "causes": [
+     "e31"
+    ],
+    "data": {
+     "decision": "d5",
+     "understanding": "我親眼確認了舞台支架鬆動且無檢查紀錄，這非常危險。",
+     "thought": "舞台這麼危險竟然沒檢查，萬一塌了會出人命！",
+     "feeling": "😟 憂心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "老周：舞台這麼危險竟然沒檢查，萬一塌了會出人命！",
+    "actor": "police",
+    "place": "police",
+    "w": 555198
+   },
+   {
+    "id": "e35",
+    "t": 42.4,
+    "type": "belief",
+    "causes": [
+     "e34"
+    ],
+    "data": {
+     "claim": "c4",
+     "from": 0,
+     "to": 0.98,
+     "proposed": 1,
+     "verdict": "believe",
+     "why": "我親眼看到的事實"
+    },
+    "zh": "老周對「慶典舞台左後方支架鬆動且沒有安全檢查紀錄。」的信心：0.00 → 0.98（believe）",
+    "actor": "police",
+    "w": 555198
+   },
+   {
+    "id": "e36",
+    "t": 42.5,
+    "type": "react",
+    "causes": [
+     "e34"
+    ],
+    "data": {
+     "feeling": "😟 憂心"
+    },
+    "zh": "老周 😟 憂心",
+    "actor": "police",
+    "place": "police",
+    "w": 555198
+   },
+   {
+    "id": "e37",
+    "t": 43.4,
+    "type": "move",
+    "causes": [
+     "e34"
+    ],
+    "data": {
+     "from": "police",
+     "to": "stage",
+     "arrive": 43.9,
+     "home": false
+    },
+    "zh": "老周從警察局走向慶典舞台",
+    "actor": "police",
+    "place": "police",
+    "w": 555198
+   },
+   {
+    "id": "e38",
+    "t": 43.9,
+    "type": "arrive",
+    "causes": [
+     "e37"
+    ],
+    "data": {},
+    "zh": "老周到了慶典舞台",
+    "actor": "police",
+    "place": "stage",
+    "w": 555198
+   },
+   {
+    "id": "e39",
+    "t": 43.9,
+    "type": "talk",
+    "causes": [
+     "e34"
+    ],
+    "data": {
+     "text": "志明！你看看這個支架，明顯鬆動了，而且我沒看到任何安全檢查紀錄。這太危險了，必須立刻處理，否則我不能讓表演繼續！",
+     "intent": "warn",
+     "claims": [
+      "c4"
+     ]
+    },
+    "zh": "老周對志明說：「志明！你看看這個支架，明顯鬆動了，而且我沒看到任何安全檢查紀錄。這太危險了，必須立刻處理，否則我不能讓表演繼續！」",
+    "actor": "police",
+    "target": "organizer",
+    "place": "stage",
+    "w": 555198
+   },
+   {
+    "id": "e40",
+    "t": 46.9,
+    "type": "deliver",
+    "causes": [
+     "e39"
+    ],
+    "data": {
+     "message": "m6",
+     "via": "face",
+     "intent": "warn",
+     "text": "志明！你看看這個支架，明顯鬆動了，而且我沒看到任何安全檢查紀錄。這太危險了，必須立刻處理，否則我不能讓表演繼續！",
+     "claims": [
+      "c4"
+     ],
+     "from": "police"
+    },
+    "zh": "志明聽老周說：「志明！你看看這個支架，明顯鬆動了，而且我沒看到任何安全檢查紀錄。這太危險了，必須立刻處理，否則我不能讓表演繼續！」",
+    "target": "organizer",
+    "actor": "police",
+    "place": "stage",
+    "w": 555198
+   },
+   {
+    "id": "e41",
+    "t": 46.9,
+    "type": "move",
+    "causes": [
+     "e34"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "police",
+     "arrive": 47.4,
+     "home": true
+    },
+    "zh": "老周從慶典舞台走回警察局",
+    "actor": "police",
+    "place": "stage",
+    "w": 555198
+   },
+   {
+    "id": "e42",
+    "t": 47.1,
+    "type": "decide",
+    "causes": [
+     "e40"
+    ],
+    "data": {
+     "decision": "d6",
+     "understanding": "老周發現舞台支架鬆動且沒檢查紀錄，威脅要停止表演。",
+     "thought": "糟了！被抓到了，要是表演取消或出事，我就完蛋了！",
+     "feeling": "😰 恐慌",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "志明：糟了！被抓到了，要是表演取消或出事，我就完蛋了！",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 652905
+   },
+   {
+    "id": "e43",
+    "t": 47.1,
+    "type": "belief",
+    "causes": [
+     "e42"
+    ],
+    "data": {
+     "claim": "c5",
+     "from": 0,
+     "to": 0.9,
+     "proposed": 0.9,
+     "verdict": "believe",
+     "why": "他就在現場指給我看"
+    },
+    "zh": "志明對「舞台支架鬆動且缺乏安全檢查紀錄，非常危險」的信心：0.00 → 0.90（believe）",
+    "actor": "organizer",
+    "w": 652905
+   },
+   {
+    "id": "e44",
+    "t": 47.2,
+    "type": "react",
+    "causes": [
+     "e42"
+    ],
+    "data": {
+     "feeling": "😰 恐慌"
+    },
+    "zh": "志明 😰 恐慌",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 652905
+   },
+   {
+    "id": "e45",
+    "t": 47.4,
+    "type": "arrive",
+    "causes": [
+     "e41"
+    ],
+    "data": {},
+    "zh": "老周到了警察局",
+    "actor": "police",
+    "place": "police",
+    "w": 652905
+   },
+   {
+    "id": "e46",
+    "t": 48.1,
+    "type": "move",
+    "causes": [
+     "e42"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "police",
+     "arrive": 48.6,
+     "home": false
+    },
+    "zh": "志明從慶典舞台走向警察局",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 652905
+   },
+   {
+    "id": "e47",
+    "t": 48.6,
+    "type": "arrive",
+    "causes": [
+     "e46"
+    ],
+    "data": {},
+    "zh": "志明到了警察局",
+    "actor": "organizer",
+    "place": "police",
+    "w": 652905
+   },
+   {
+    "id": "e48",
+    "t": 48.6,
+    "type": "talk",
+    "causes": [
+     "e42"
+    ],
+    "data": {
+     "text": "老周，你別緊張！這只是視覺上的錯覺，我剛才檢查過沒問題的。為了慶典的盛況，這點小事我們私下處理就好，千萬別驚動大家！",
+     "intent": "deny",
+     "claims": [
+      "c5"
+     ]
+    },
+    "zh": "志明對老周說：「老周，你別緊張！這只是視覺上的錯覺，我剛才檢查過沒問題的。為了慶典的盛況，這點小事我們私下處理就好，千萬別驚動大家！」",
+    "actor": "organizer",
+    "target": "police",
+    "place": "police",
+    "w": 652905
+   },
+   {
+    "id": "e49",
+    "t": 51.6,
+    "type": "deliver",
+    "causes": [
+     "e48"
+    ],
+    "data": {
+     "message": "m7",
+     "via": "face",
+     "intent": "deny",
+     "text": "老周，你別緊張！這只是視覺上的錯覺，我剛才檢查過沒問題的。為了慶典的盛況，這點小事我們私下處理就好，千萬別驚動大家！",
+     "claims": [
+      "c5"
+     ],
+     "from": "organizer"
+    },
+    "zh": "老周聽志明說：「老周，你別緊張！這只是視覺上的錯覺，我剛才檢查過沒問題的。為了慶典的盛況，這點小事我們私下處理就好，千萬別驚動大家！」",
+    "target": "police",
+    "actor": "organizer",
+    "place": "police",
+    "w": 652905
+   },
+   {
+    "id": "e50",
+    "t": 51.6,
+    "type": "move",
+    "causes": [
+     "e42"
+    ],
+    "data": {
+     "from": "police",
+     "to": "stage",
+     "arrive": 52.1,
+     "home": true
+    },
+    "zh": "志明從警察局走回慶典舞台",
+    "actor": "organizer",
+    "place": "police",
+    "w": 652905
+   },
+   {
+    "id": "e51",
+    "t": 51.800000000000004,
+    "type": "decide",
+    "causes": [
+     "e49"
+    ],
+    "data": {
+     "decision": "d7",
+     "understanding": "志明試圖淡化舞台支架鬆動的風險，想私下處理而不公開。",
+     "thought": "這種安全問題怎麼能私下處理？出事了誰負責！",
+     "feeling": "😠 憤怒",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "老周：這種安全問題怎麼能私下處理？出事了誰負責！",
+    "actor": "police",
+    "place": "police",
+    "w": 841379
+   },
+   {
+    "id": "e52",
+    "t": 51.800000000000004,
+    "type": "belief",
+    "causes": [
+     "e51"
+    ],
+    "data": {
+     "claim": "c6",
+     "from": 0,
+     "to": 0.1,
+     "proposed": 0.1,
+     "verdict": "disbelieve",
+     "why": "我親眼看到支架鬆動且沒紀錄"
+    },
+    "zh": "老周對「舞台支架鬆動只是視覺錯覺，實際上沒問題。」的信心：0.00 → 0.10（disbelieve）",
+    "actor": "police",
+    "w": 841379
+   },
+   {
+    "id": "e53",
+    "t": 51.900000000000006,
+    "type": "react",
+    "causes": [
+     "e51"
+    ],
+    "data": {
+     "feeling": "😠 憤怒"
+    },
+    "zh": "老周 😠 憤怒",
+    "actor": "police",
+    "place": "police",
+    "w": 841379
+   },
+   {
+    "id": "e54",
+    "t": 52.1,
+    "type": "arrive",
+    "causes": [
+     "e50"
+    ],
+    "data": {},
+    "zh": "志明到了慶典舞台",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 841379
+   },
+   {
+    "id": "e55",
+    "t": 52.800000000000004,
+    "type": "phone",
+    "causes": [
+     "e51"
+    ],
+    "data": {
+     "text": "市長，志明在舞台安全問題上態度輕率，支架明顯鬆動且無檢查紀錄，他卻想私下掩蓋。為了今晚的平安，我必須請您介入督促立即整改。",
+     "intent": "inform",
+     "claims": [
+      "c4"
+     ]
+    },
+    "zh": "老周打電話給林市長：「市長，志明在舞台安全問題上態度輕率，支架明顯鬆動且無檢查紀錄，他卻想私下掩蓋。為了今晚的平安，我必須請您介入督促立即整改。」",
+    "actor": "police",
+    "target": "mayor",
+    "place": "police",
+    "w": 841379
+   },
+   {
+    "id": "e56",
+    "t": 54.800000000000004,
+    "type": "deliver",
+    "causes": [
+     "e55"
+    ],
+    "data": {
+     "message": "m8",
+     "via": "phone",
+     "intent": "inform",
+     "text": "市長，志明在舞台安全問題上態度輕率，支架明顯鬆動且無檢查紀錄，他卻想私下掩蓋。為了今晚的平安，我必須請您介入督促立即整改。",
+     "claims": [
+      "c4"
+     ],
+     "from": "police"
+    },
+    "zh": "林市長在電話裡聽老周說：「市長，志明在舞台安全問題上態度輕率，支架明顯鬆動且無檢查紀錄，他卻想私下掩蓋。為了今晚的平安，我必須請您介入督促立即整改。」",
+    "target": "mayor",
+    "actor": "police",
+    "place": "townhall",
+    "w": 841379
+   },
+   {
+    "id": "e57",
+    "t": 55.00000000000001,
+    "type": "decide",
+    "causes": [
+     "e56"
+    ],
+    "data": {
+     "decision": "d8",
+     "understanding": "老周提醒我舞台支架鬆動且志明企圖掩蓋，有安全風險。",
+     "thought": "如果舞台塌了我就完了，得趕快讓志明處理掉。",
+     "feeling": "😰 焦慮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone",
+      "go_look"
+     ]
+    },
+    "zh": "林市長：如果舞台塌了我就完了，得趕快讓志明處理掉。",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 870392
+   },
+   {
+    "id": "e58",
+    "t": 55.00000000000001,
+    "type": "belief",
+    "causes": [
+     "e57"
+    ],
+    "data": {
+     "claim": "c7",
+     "from": 0,
+     "to": 0.665,
+     "proposed": 0.9,
+     "verdict": "believe",
+     "why": "老周是多年搭檔，非常信任他"
+    },
+    "zh": "林市長對「慶典舞台支架鬆動且無檢查紀錄，志明試圖掩蓋。」的信心：0.00 → 0.67（believe）",
+    "actor": "mayor",
+    "w": 870392
+   },
+   {
+    "id": "e59",
+    "t": 55.10000000000001,
+    "type": "react",
+    "causes": [
+     "e57"
+    ],
+    "data": {
+     "feeling": "😰 焦慮"
+    },
+    "zh": "林市長 😰 焦慮",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 870392
+   },
+   {
+    "id": "e60",
+    "t": 56.00000000000001,
+    "type": "phone",
+    "causes": [
+     "e57"
+    ],
+    "data": {
+     "text": "志明，老周跟我反映舞台支架有問題而且你沒做檢查？快給我處理好，絕對不能出任何差錯，懂嗎？",
+     "intent": "inform",
+     "claims": [
+      "c7"
+     ]
+    },
+    "zh": "林市長打電話給志明：「志明，老周跟我反映舞台支架有問題而且你沒做檢查？快給我處理好，絕對不能出任何差錯，懂嗎？」",
+    "actor": "mayor",
+    "target": "organizer",
+    "place": "townhall",
+    "w": 870392
+   },
+   {
+    "id": "e61",
+    "t": 58.00000000000001,
+    "type": "deliver",
+    "causes": [
+     "e60"
+    ],
+    "data": {
+     "message": "m9",
+     "via": "phone",
+     "intent": "inform",
+     "text": "志明，老周跟我反映舞台支架有問題而且你沒做檢查？快給我處理好，絕對不能出任何差錯，懂嗎？",
+     "claims": [
+      "c7"
+     ],
+     "from": "mayor"
+    },
+    "zh": "志明在電話裡聽林市長說：「志明，老周跟我反映舞台支架有問題而且你沒做檢查？快給我處理好，絕對不能出任何差錯，懂嗎？」",
+    "target": "organizer",
+    "actor": "mayor",
+    "place": "stage",
+    "w": 870392
+   },
+   {
+    "id": "e62",
+    "t": 58.00000000000001,
+    "type": "move",
+    "causes": [
+     "e57"
+    ],
+    "data": {
+     "from": "townhall",
+     "to": "stage",
+     "arrive": 58.50000000000001,
+     "home": false
+    },
+    "zh": "林市長從鎮公所走向慶典舞台",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 870392
+   },
+   {
+    "id": "e63",
+    "t": 58.20000000000001,
+    "type": "decide",
+    "causes": [
+     "e61"
+    ],
+    "data": {
+     "decision": "d9",
+     "understanding": "市長知道舞台有問題且我沒檢查，在對我施壓。",
+     "thought": "糟糕，老周竟然直接向市長打小報告，我得趕快把這事壓下來！",
+     "feeling": "😰 恐慌",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "志明：糟糕，老周竟然直接向市長打小報告，我得趕快把這事壓下來！",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 894403
+   },
+   {
+    "id": "e64",
+    "t": 58.30000000000001,
+    "type": "react",
+    "causes": [
+     "e63"
+    ],
+    "data": {
+     "feeling": "😰 恐慌"
+    },
+    "zh": "志明 😰 恐慌",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 894403
+   },
+   {
+    "id": "e65",
+    "t": 58.50000000000001,
+    "type": "arrive",
+    "causes": [
+     "e62"
+    ],
+    "data": {},
+    "zh": "林市長到了慶典舞台",
+    "actor": "mayor",
+    "place": "stage",
+    "w": 894403
+   },
+   {
+    "id": "e66",
+    "t": 58.50000000000001,
+    "type": "look",
+    "causes": [
+     "e57"
+    ],
+    "data": {},
+    "zh": "林市長在慶典舞台到處看看",
+    "actor": "mayor",
+    "place": "stage",
+    "w": 894403
+   },
+   {
+    "id": "e67",
+    "t": 59.20000000000001,
+    "type": "phone",
+    "causes": [
+     "e63"
+    ],
+    "data": {
+     "missed": true
+    },
+    "zh": "志明打給林市長，但對方沒接",
+    "actor": "organizer",
+    "target": "mayor",
+    "w": 894403
+   },
+   {
+    "id": "e68",
+    "t": 61.50000000000001,
+    "type": "look",
+    "causes": [
+     "e66"
+    ],
+    "data": {
+     "found": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 志明（燈籠節主辦人）在這裡。",
+     "learned": [
+      "pigeons",
+      "pigeons_sick",
+      "lanterns_unsafe"
+     ]
+    },
+    "zh": "林市長看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 志明（燈籠節主辦人）在這裡。",
+    "actor": "mayor",
+    "place": "stage",
+    "w": 894403
+   },
+   {
+    "id": "e69",
+    "t": 61.50000000000001,
+    "type": "deliver",
+    "causes": [
+     "e68"
+    ],
+    "data": {
+     "message": "m10",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 志明（燈籠節主辦人）在這裡。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "林市長親眼看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 志明（燈籠節主辦人）在這裡。",
+    "target": "mayor",
+    "place": "stage",
+    "w": 894403
+   },
+   {
+    "id": "e70",
+    "t": 61.50000000000001,
+    "type": "move",
+    "causes": [
+     "e57"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "townhall",
+     "arrive": 62.00000000000001,
+     "home": true
+    },
+    "zh": "林市長從慶典舞台走回鎮公所",
+    "actor": "mayor",
+    "place": "stage",
+    "w": 894403
+   },
+   {
+    "id": "e71",
+    "t": 62.00000000000001,
+    "type": "arrive",
+    "causes": [
+     "e70"
+    ],
+    "data": {},
+    "zh": "林市長到了鎮公所",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 894403
+   },
+   {
+    "id": "e72",
+    "t": 62.00000000000001,
+    "type": "decide",
+    "causes": [
+     "e69"
+    ],
+    "data": {
+     "decision": "d10",
+     "understanding": "我親自檢查了鴿子和燈籠都沒問題，且志明就在舞台現場。",
+     "thought": "鴿子和燈籠都沒問題，現在只要確認志明把舞台修好就行。",
+     "feeling": "😌 安慰",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ]
+    },
+    "zh": "林市長：鴿子和燈籠都沒問題，現在只要確認志明把舞台修好就行。",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 915623
+   },
+   {
+    "id": "e73",
+    "t": 62.10000000000001,
+    "type": "react",
+    "causes": [
+     "e72"
+    ],
+    "data": {
+     "feeling": "😌 安慰"
+    },
+    "zh": "林市長 😌 安慰",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 915623
+   },
+   {
+    "id": "e74",
+    "t": 63.00000000000001,
+    "type": "rejected",
+    "causes": [
+     "e72"
+    ],
+    "data": {
+     "action": "tell",
+     "why": "已經跟對方說過同一件事了"
+    },
+    "zh": "林市長沒能去跟志明說「志明，鴿子和燈籠我看過了，沒問題。但老周說舞台支架鬆動且沒紀錄，你處理好了沒？給我個交代，今晚絕對不能出錯！」：已經跟對方說過同一件事了",
+    "actor": "mayor",
+    "w": 915623
+   },
+   {
+    "id": "e75",
+    "t": 63.00000000000001,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 915623
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "cafe",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人說慶典舞台不安全，可能撐不住人。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.6,
+       "why": "不認識的客人說的，但涉及舞台安全。",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "如果舞台塌了，我女兒表演時怎麼辦？得確認一下！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "police",
+       "message": "老周！我剛在店裡聽到有人說廣場的舞台是趕工搭的，很不穩，這真的假的？我女兒今晚要在上面表演，我好擔心！",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "cafe",
+      "stage": "single",
+      "wallStartMs": 1,
+      "wallEndMs": 100925,
+      "latencyMs": 85621,
+      "attempts": 4,
+      "promptTokens": 1771,
+      "completionTokens": 221,
+      "platformCost": 0.000016744,
+      "estCost": 0.0015485,
+      "status": 200,
+      "raw": "{\"understanding\": \"有客人說慶典舞台不安全，可能撐不住人。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"廣場的舞台是趕工搭的，可能撐不住人。\", \"topic\": \"stage_unsafe\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.6, \"why\": \"不認識的客人說的，但涉及舞台安全。\", \"cites\": [\"m1\"]}], \"feeling\": \"😟 擔心\", \"thought\": \"如果舞台塌了，我女兒表演時怎麼辦？得確認一下！\", \"actions\": [{\"type\": \"phone\", \"target\": \"police\", \"message\": \"老周！我剛在店裡聽到有人說廣場的舞台是趕工搭的，很不穩，這真的假的？我女兒今晚要在上面表演，我好擔心！\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 2891
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "police",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美咲反映有人傳言慶典舞台不穩，擔心女兒表演安全。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "中央廣場的慶典舞台是趕工搭的，很不穩。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "美咲是我信任的朋友且涉及孩子安全",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "😟 緊張",
+     "thought": "警力本來就不足，如果舞台出事就太糟糕了，得趕快確認。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "organizer",
+       "message": "志明，我收到消息說舞台結構可能有問題，很不穩。請立刻跟我說明目前的進度，並確保安全，我等下會過去檢查。",
+       "cites": [
+        "#0"
+       ]
+      },
+      {
+       "type": "go_look",
+       "place": "stage",
+       "intent": "inspect",
+       "message": "親自去檢查舞台是否真的有安全隱憂。",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "police",
+      "stage": "single",
+      "wallStartMs": 100925,
+      "wallEndMs": 171525,
+      "latencyMs": 49070,
+      "attempts": 1,
+      "promptTokens": 1823,
+      "completionTokens": 370,
+      "platformCost": 0.0000527639,
+      "estCost": 0.0020215,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"美咲反映有人傳言慶典舞台不穩，擔心女兒表演安全。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m2\",\n      \"statement\": \"中央廣場的慶典舞台是趕工搭的，很不穩。\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"yes\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.6,\n      \"why\": \"美咲是我信任的朋友且涉及孩子安全\",\n      \"cites\": [\n        \"m2\"\n      ]\n    }\n  ],\n  \"feeling\": \"😟 緊張\",\n  \"thought\": \"警力本來就不足，如果舞台出事就太糟糕了，得趕快確認。\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"organizer\",\n      \"message\": \"志明，我收到消息說舞台結構可能有問題，很不穩。請立刻跟我說明目前的進度，並確保安全，我等下會過去檢查。\",\n      \"cites\": [\n        \"#0\"\n      ]\n    },\n    {\n      \"type\": \"go_look\",\n      \"place\": \"stage\",\n      \"intent\": \"inspect\",\n      \"message\": \"親自去檢查舞台是否真的有安全隱憂。\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2983
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "organizer",
+    "t": 26.599999999999998,
+    "triggers": [
+     "e12"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "老周發現舞台不穩要來檢查，這會讓我的秘密曝光。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m3",
+       "statement": "舞台結構可能有問題，很不穩",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 1,
+       "why": "我知道舞台是趕工且沒檢查的",
+       "cites": [
+        "stage_uninspected"
+       ]
+      }
+     ],
+     "feeling": "😰 恐慌",
+     "thought": "糟糕，如果被老周抓到沒做安檢，我死定了！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "police",
+       "intent": "deny",
+       "message": "老周！你聽我說，舞台沒問題的，剛才我才看過。你太操心了，不用特地跑一趟，我這邊一切掌控中！",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 171527,
+      "wallEndMs": 212500,
+      "latencyMs": 40973,
+      "attempts": 1,
+      "promptTokens": 1910,
+      "completionTokens": 225,
+      "platformCost": 0.0000456589,
+      "estCost": 0.00163,
+      "status": 200,
+      "raw": "{\"understanding\": \"老周發現舞台不穩要來檢查，這會讓我的秘密曝光。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m3\", \"statement\": \"舞台結構可能有問題，很不穩\", \"topic\": \"stage_unsafe\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 1, \"why\": \"我知道舞台是趕工且沒檢查的\", \"cites\": [\"stage_uninspected\"]}], \"feeling\": \"😰 恐慌\", \"thought\": \"糟糕，如果被老周抓到沒做安檢，我死定了！\", \"actions\": [{\"type\": \"phone\", \"target\": \"police\", \"intent\": \"deny\", \"message\": \"老周！你聽我說，舞台沒問題的，剛才我才看過。你太操心了，不用特地跑一趟，我這邊一切掌控中！\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 3115
+     }
+    ],
+    "applied": [
+     "e14",
+     "e15",
+     "e16"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "police",
+    "t": 30.4,
+    "triggers": [
+     "e21",
+     "e21"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "我剛檢查完現場，鴿子和燈籠沒問題，但舞台安全還沒確認。",
+     "claims": [
+      {
+       "ref": "c2",
+       "statement": "中央廣場的慶典舞台是趕工搭的，很不穩。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "美咲是老朋友且消息來源具體",
+       "cites": [
+        "c2"
+       ]
+      }
+     ],
+     "feeling": "😟 憂心",
+     "thought": "鴿子和燈籠雖然合格，但舞台要是塌了就出大事了。",
+     "actions": [
+      {
+       "type": "inspect",
+       "place": "stage",
+       "intent": "inspect",
+       "message": "仔細檢查舞台結構是否穩固。",
+       "cites": [
+        "c2"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "validator",
+      "errors": [
+       "stances[0].claim 要對應 claims 的索引"
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d4",
+      "npc": "police",
+      "stage": "single",
+      "wallStartMs": 212501,
+      "wallEndMs": 375674,
+      "latencyMs": 84995,
+      "attempts": 6,
+      "promptTokens": 2042,
+      "completionTokens": 152,
+      "platformCost": 0.0000355649,
+      "estCost": 0.001477,
+      "status": 200,
+      "raw": "{\"understanding\": \"我剛檢查完現場，鴿子和燈籠沒問題，但舞台安全還沒確認。\", \"claims\": [], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 0.6, \"why\": \"美咲是老朋友且消息來源具體\", \"cites\": [\"c2\"]}], \"feeling\": \"😟 憂心\", \"thought\": \"鴿子和燈籠雖然合格，但舞台要是塌了就出大事了。\", \"actions\": [{\"type\": \"inspect\", \"place\": \"stage\", \"intent\": \"inspect\", \"message\": \"仔細檢查舞台結構是否穩固。\", \"cites\": [\"c2\"]}]}",
+      "promptChars": 3287
+     },
+     {
+      "decision": "d4",
+      "npc": "police",
+      "stage": "single",
+      "wallStartMs": 375674,
+      "wallEndMs": 446366,
+      "latencyMs": 47033,
+      "attempts": 1,
+      "promptTokens": 2231,
+      "completionTokens": 279,
+      "platformCost": 0.0000277116,
+      "estCost": 0.0019525,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"我剛檢查完現場，鴿子和燈籠沒問題，但舞台安全還沒確認。\",\n  \"claims\": [\n    {\n      \"ref\": \"c2\",\n      \"source\": \"m1\",\n      \"statement\": \"中央廣場的慶典舞台是趕工搭的，很不穩。\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"yes\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"believe\",\n      \"confidence\": 0.6,\n      \"why\": \"美咲是老朋友且消息來源具體\",\n      \"cites\": [\"c2\"]\n    }\n  ],\n  \"feeling\": \"😟 憂心\",\n  \"thought\": \"鴿子和燈籠雖然合格，但舞台要是塌了就出大事了。\",\n  \"actions\": [\n    {\n      \"type\": \"inspect\",\n      \"place\": \"stage\",\n      \"intent\": \"inspect\",\n      \"message\": \"仔細檢查舞台結構是否穩固。\",\n      \"cites\": [\"c2\"]\n    }\n  ]\n}",
+      "promptChars": 3694
+     }
+    ],
+    "applied": [
+     "e24",
+     "e25",
+     "e26"
+    ]
+   },
+   {
+    "id": "d5",
+    "npc": "police",
+    "t": 42.4,
+    "triggers": [
+     "e31",
+     "e31"
+    ],
+    "inbox": [
+     "m5"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "我親眼確認了舞台支架鬆動且無檢查紀錄，這非常危險。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m5",
+       "statement": "慶典舞台左後方支架鬆動且沒有安全檢查紀錄。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 1,
+       "why": "我親眼看到的事實",
+       "cites": [
+        "m5"
+       ]
+      }
+     ],
+     "feeling": "😟 憂心",
+     "thought": "舞台這麼危險竟然沒檢查，萬一塌了會出人命！",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "organizer",
+       "intent": "warn",
+       "message": "志明！你看看這個支架，明顯鬆動了，而且我沒看到任何安全檢查紀錄。這太危險了，必須立刻處理，否則我不能讓表演繼續！",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c3 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d5",
+      "npc": "police",
+      "stage": "single",
+      "wallStartMs": 446367,
+      "wallEndMs": 555198,
+      "latencyMs": 101874,
+      "attempts": 3,
+      "promptTokens": 2171,
+      "completionTokens": 232,
+      "platformCost": 0.000017794,
+      "estCost": 0.0017815,
+      "status": 200,
+      "raw": "{\"understanding\": \"我親眼確認了舞台支架鬆動且無檢查紀錄，這非常危險。\", \"claims\": [{\"ref\": \"c3\", \"source\": \"m5\", \"statement\": \"慶典舞台左後方支架鬆動且沒有安全檢查紀錄。\", \"topic\": \"stage_unsafe\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 1, \"why\": \"我親眼看到的事實\", \"cites\": [\"m5\"]}], \"feeling\": \"😟 憂心\", \"thought\": \"舞台這麼危險竟然沒檢查，萬一塌了會出人命！\", \"actions\": [{\"type\": \"tell\", \"target\": \"organizer\", \"intent\": \"warn\", \"message\": \"志明！你看看這個支架，明顯鬆動了，而且我沒看到任何安全檢查紀錄。這太危險了，必須立刻處理，否則我不能讓表演繼續！\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 3472
+     }
+    ],
+    "applied": [
+     "e34",
+     "e35",
+     "e36"
+    ]
+   },
+   {
+    "id": "d6",
+    "npc": "organizer",
+    "t": 47.1,
+    "triggers": [
+     "e40"
+    ],
+    "inbox": [
+     "m6"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "老周發現舞台支架鬆動且沒檢查紀錄，威脅要停止表演。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m6",
+       "statement": "舞台支架鬆動且缺乏安全檢查紀錄，非常危險",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.9,
+       "why": "他就在現場指給我看",
+       "cites": [
+        "m6"
+       ]
+      }
+     ],
+     "feeling": "😰 恐慌",
+     "thought": "糟了！被抓到了，要是表演取消或出事，我就完蛋了！",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "police",
+       "intent": "deny",
+       "message": "老周，你別緊張！這只是視覺上的錯覺，我剛才檢查過沒問題的。為了慶典的盛況，這點小事我們私下處理就好，千萬別驚動大家！",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c4 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d6",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 555199,
+      "wallEndMs": 652905,
+      "latencyMs": 95274,
+      "attempts": 2,
+      "promptTokens": 2042,
+      "completionTokens": 239,
+      "platformCost": 0.0000181937,
+      "estCost": 0.001738,
+      "status": 200,
+      "raw": "{\"understanding\": \"老周發現舞台支架鬆動且沒檢查紀錄，威脅要停止表演。\", \"claims\": [{\"ref\": \"c4\", \"source\": \"m6\", \"statement\": \"舞台支架鬆動且缺乏安全檢查紀錄，非常危險\", \"topic\": \"stage_unsafe\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 0.9, \"why\": \"他就在現場指給我看\", \"cites\": [\"m6\"]}], \"feeling\": \"😰 恐慌\", \"thought\": \"糟了！被抓到了，要是表演取消或出事，我就完蛋了！\", \"actions\": [{\"type\": \"tell\", \"target\": \"police\", \"intent\": \"deny\", \"message\": \"老周，你別緊張！這只是視覺上的錯覺，我剛才檢查過沒問題的。為了慶典的盛況，這點小事我們私下處理就好，千萬別驚動大家！\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 3283
+     }
+    ],
+    "applied": [
+     "e42",
+     "e43",
+     "e44"
+    ]
+   },
+   {
+    "id": "d7",
+    "npc": "police",
+    "t": 51.800000000000004,
+    "triggers": [
+     "e49"
+    ],
+    "inbox": [
+     "m7"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "志明試圖淡化舞台支架鬆動的風險，想私下處理而不公開。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m7",
+       "statement": "舞台支架鬆動只是視覺錯覺，實際上沒問題。",
+       "topic": "stage_unsafe",
+       "says": "no",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0.1,
+       "why": "我親眼看到支架鬆動且沒紀錄",
+       "cites": [
+        "m7",
+        "c4"
+       ]
+      }
+     ],
+     "feeling": "😠 憤怒",
+     "thought": "這種安全問題怎麼能私下處理？出事了誰負責！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "mayor",
+       "message": "市長，志明在舞台安全問題上態度輕率，支架明顯鬆動且無檢查紀錄，他卻想私下掩蓋。為了今晚的平安，我必須請您介入督促立即整改。",
+       "cites": [
+        "c4",
+        "m7"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "validator",
+      "errors": [
+       "stances[0].claim 要對應 claims 的索引"
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c5 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d7",
+      "npc": "police",
+      "stage": "single",
+      "wallStartMs": 652905,
+      "wallEndMs": 685592,
+      "latencyMs": 32687,
+      "attempts": 1,
+      "promptTokens": 2288,
+      "completionTokens": 194,
+      "platformCost": 0.0000568561,
+      "estCost": 0.001726,
+      "status": 200,
+      "raw": "{\"understanding\": \"志明試圖淡化舞台支架鬆動的風險，想私下處理而不公開。\", \"claims\": [], \"stances\": [{\"claim\": 0, \"verdict\": \"disbelieve\", \"confidence\": 0.1, \"why\": \"我親眼看到支架鬆動，且沒紀錄\", \"cites\": [\"m7\", \"c4\"]}], \"feeling\": \"😠 憤怒\", \"thought\": \"這種安全問題怎麼能私下處理？出事了誰負責！\", \"actions\": [{\"type\": \"phone\", \"target\": \"mayor\", \"message\": \"市長，志明在舞台安全問題上態度輕率，支架明顯鬆動且無檢查紀錄，他卻想私下掩蓋。為了今晚的平安，我必須請您介入督促立即整改。\", \"cites\": [\"c4\", \"m7\"]}]}",
+      "promptChars": 3628
+     },
+     {
+      "decision": "d7",
+      "npc": "police",
+      "stage": "single",
+      "wallStartMs": 685592,
+      "wallEndMs": 841378,
+      "latencyMs": 96608,
+      "attempts": 6,
+      "promptTokens": 2519,
+      "completionTokens": 317,
+      "platformCost": 0.0000239876,
+      "estCost": 0.0022105,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"志明試圖淡化舞台支架鬆動的風險，想私下處理而不公開。\",\n  \"claims\": [\n    {\n      \"ref\": \"c5\",\n      \"source\": \"m7\",\n      \"statement\": \"舞台支架鬆動只是視覺錯覺，實際上沒問題。\",\n      \"topic\": \"stage_unsafe\",\n      \"says\": \"no\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"disbelieve\",\n      \"confidence\": 0.1,\n      \"why\": \"我親眼看到支架鬆動且沒紀錄\",\n      \"cites\": [\"m7\", \"c4\"]\n    }\n  ],\n  \"feeling\": \"😠 憤怒\",\n  \"thought\": \"這種安全問題怎麼能私下處理？出事了誰負責！\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"mayor\",\n      \"message\": \"市長，志明在舞台安全問題上態度輕率，支架明顯鬆動且無檢查紀錄，他卻想私下掩蓋。為了今晚的平安，我必須請您介入督促立即整改。\",\n      \"cites\": [\"c4\", \"m7\"]\n    }\n  ]\n}",
+      "promptChars": 4074
+     }
+    ],
+    "applied": [
+     "e51",
+     "e52",
+     "e53"
+    ]
+   },
+   {
+    "id": "d8",
+    "npc": "mayor",
+    "t": 55.00000000000001,
+    "triggers": [
+     "e56"
+    ],
+    "inbox": [
+     "m8"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "老周提醒我舞台支架鬆動且志明企圖掩蓋，有安全風險。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m8",
+       "statement": "慶典舞台支架鬆動且無檢查紀錄，志明試圖掩蓋。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.9,
+       "why": "老周是多年搭檔，非常信任他",
+       "cites": [
+        "m8"
+       ]
+      }
+     ],
+     "feeling": "😰 焦慮",
+     "thought": "如果舞台塌了我就完了，得趕快讓志明處理掉。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "organizer",
+       "message": "志明，老周跟我反映舞台支架有問題而且你沒做檢查？快給我處理好，絕對不能出任何差錯，懂嗎？",
+       "cites": [
+        "#0"
+       ]
+      },
+      {
+       "type": "go_look",
+       "place": "stage",
+       "intent": "inform",
+       "message": "我要親自去確認一下情況。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d8",
+      "npc": "mayor",
+      "stage": "single",
+      "wallStartMs": 841379,
+      "wallEndMs": 870392,
+      "latencyMs": 29013,
+      "attempts": 1,
+      "promptTokens": 1955,
+      "completionTokens": 259,
+      "platformCost": 0.0000497511,
+      "estCost": 0.0017545,
+      "status": 200,
+      "raw": "{\"understanding\": \"老周提醒我舞台支架鬆動且志明企圖掩蓋，有安全風險。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m8\", \"statement\": \"慶典舞台支架鬆動且無檢查紀錄，志明試圖掩蓋。\", \"topic\": \"stage_unsafe\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 0.9, \"why\": \"老周是多年搭檔，非常信任他\", \"cites\": [\"m8\"]}], \"feeling\": \"😰 焦慮\", \"thought\": \"如果舞台塌了我就完了，得趕快讓志明處理掉。\", \"actions\": [{\"type\": \"phone\", \"target\": \"organizer\", \"message\": \"志明，老周跟我反映舞台支架有問題而且你沒做檢查？快給我處理好，絕對不能出任何差錯，懂嗎？\", \"cites\": [\"#0\"]}, {\"type\": \"go_look\", \"place\": \"stage\", \"intent\": \"inform\", \"message\": \"我要親自去確認一下情況。\"}]}",
+      "promptChars": 3178
+     }
+    ],
+    "applied": [
+     "e57",
+     "e58",
+     "e59"
+    ]
+   },
+   {
+    "id": "d9",
+    "npc": "organizer",
+    "t": 58.20000000000001,
+    "triggers": [
+     "e61"
+    ],
+    "inbox": [
+     "m9"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "市長知道舞台有問題且我沒檢查，在對我施壓。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😰 恐慌",
+     "thought": "糟糕，老周竟然直接向市長打小報告，我得趕快把這事壓下來！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "mayor",
+       "intent": "deny",
+       "message": "市長！您誤會了，老周可能太謹慎了。我剛剛又仔細確認過，舞台穩固得很，絕對沒問題！我會盯緊進度，保證今晚盛況空前，請您放心！",
+       "cites": [
+        "m9"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d9",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 870392,
+      "wallEndMs": 894403,
+      "latencyMs": 24011,
+      "attempts": 1,
+      "promptTokens": 2184,
+      "completionTokens": 152,
+      "platformCost": 0.0000502418,
+      "estCost": 0.001548,
+      "status": 200,
+      "raw": "{\"understanding\": \"市長知道舞台有問題且我沒檢查，在對我施壓。\", \"claims\": [], \"stances\": [], \"feeling\": \"😰 恐慌\", \"thought\": \"糟糕，老周竟然直接向市長打小報告，我得趕快把這事壓下來！\", \"actions\": [{\"type\": \"phone\", \"target\": \"mayor\", \"intent\": \"deny\", \"message\": \"市長！您誤會了，老周可能太謹慎了。我剛剛又仔細確認過，舞台穩固得很，絕對沒問題！我會盯緊進度，保證今晚盛況空前，請您放心！\", \"cites\": [\"m9\"]}]}",
+      "promptChars": 3467
+     }
+    ],
+    "applied": [
+     "e63",
+     "e64"
+    ]
+   },
+   {
+    "id": "d10",
+    "npc": "mayor",
+    "t": 62.00000000000001,
+    "triggers": [
+     "e69",
+     "e69"
+    ],
+    "inbox": [
+     "m10"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "我親自檢查了鴿子和燈籠都沒問題，且志明就在舞台現場。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😌 安慰",
+     "thought": "鴿子和燈籠都沒問題，現在只要確認志明把舞台修好就行。",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "organizer",
+       "place": "stage",
+       "intent": "ask",
+       "message": "志明，鴿子和燈籠我看過了，沒問題。但老周說舞台支架鬆動且沒紀錄，你處理好了沒？給我個交代，今晚絕對不能出錯！",
+       "cites": [
+        "c7"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d10",
+      "npc": "mayor",
+      "stage": "single",
+      "wallStartMs": 894403,
+      "wallEndMs": 915623,
+      "latencyMs": 21220,
+      "attempts": 1,
+      "promptTokens": 2179,
+      "completionTokens": 151,
+      "platformCost": 0.0000500997,
+      "estCost": 0.0015425,
+      "status": 200,
+      "raw": "{\"understanding\": \"我親自檢查了鴿子和燈籠都沒問題，且志明就在舞台現場。\", \"claims\": [], \"stances\": [], \"feeling\": \"😌 安慰\", \"thought\": \"鴿子和燈籠都沒問題，現在只要確認志明把舞台修好就行。\", \"actions\": [{\"type\": \"tell\", \"target\": \"organizer\", \"place\": \"stage\", \"intent\": \"ask\", \"message\": \"志明，鴿子和燈籠我看過了，沒問題。但老周說舞台支架鬆動且沒紀錄，你處理好了沒？給我個交代，今晚絕對不能出錯！\", \"cites\": [\"c7\"]}]}",
+      "promptChars": 3478
+     }
+    ],
+    "applied": [
+     "e72",
+     "e73"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "廣場的舞台是趕工搭的，可能撐不住人。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e2",
+    "by": "cafe"
+   },
+   {
+    "id": "c2",
+    "statement": "中央廣場的慶典舞台是趕工搭的，很不穩。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e7",
+    "by": "police"
+   },
+   {
+    "id": "c3",
+    "statement": "舞台結構可能有問題，很不穩",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e12",
+    "by": "organizer"
+   },
+   {
+    "id": "c4",
+    "statement": "慶典舞台左後方支架鬆動且沒有安全檢查紀錄。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e31",
+    "by": "police"
+   },
+   {
+    "id": "c5",
+    "statement": "舞台支架鬆動且缺乏安全檢查紀錄，非常危險",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e40",
+    "by": "organizer"
+   },
+   {
+    "id": "c6",
+    "statement": "舞台支架鬆動只是視覺錯覺，實際上沒問題。",
+    "topic": "stage_unsafe",
+    "says": "no",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": false,
+    "origin": "e49",
+    "by": "police"
+   },
+   {
+    "id": "c7",
+    "statement": "慶典舞台支架鬆動且無檢查紀錄，志明試圖掩蓋。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e56",
+    "by": "mayor"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.46499999999999997,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "不認識的客人說的，但涉及舞台安全。"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說廣場的舞台是趕工搭的，可能撐不住人。」",
+     "15:20 你決定：打電話給老周說「老周！我剛在店裡聽到有人說廣場的舞台是趕工搭的，很不穩，這真的假的？我女兒今晚要在上面表演，我好擔心！」"
+    ]
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.6,
+      "sources": [
+       "cafe",
+       "self"
+      ],
+      "updatedAt": 30.4,
+      "why": "美咲是老朋友且消息來源具體"
+     },
+     {
+      "claim": "c4",
+      "confidence": 0.98,
+      "sources": [
+       "self"
+      ],
+      "updatedAt": 42.4,
+      "why": "我親眼看到的事實"
+     },
+     {
+      "claim": "c6",
+      "confidence": 0.1,
+      "sources": [
+       "organizer"
+      ],
+      "updatedAt": 51.800000000000004,
+      "why": "我親眼看到支架鬆動且沒紀錄"
+     }
+    ],
+    "learned": [
+     [
+      "pigeons",
+      true
+     ],
+     [
+      "pigeons_sick",
+      false
+     ],
+     [
+      "lanterns_unsafe",
+      false
+     ],
+     [
+      "stage_uninspected",
+      true
+     ]
+    ],
+    "memory": [
+     "15:23 美咲打電話說：「老周！我剛在店裡聽到有人說廣場的舞台是趕工搭的，很不穩，這真的假的？我女兒今晚要在上面表演，我好擔心！」",
+     "15:23 你決定：打電話給志明說「志明，我收到消息說舞台結構可能有問題，很不穩。請立刻跟我說明目前的進度，並確保安全，我等下會過去檢查。」，然後去慶典舞台看看",
+     "15:30 你親眼看到：「舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質」",
+     "15:30 你決定：去檢查慶典舞台",
+     "15:42 你親眼看到：「舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 舞台沒有任何安全檢」",
+     "15:42 你決定：去跟志明說「志明！你看看這個支架，明顯鬆動了，而且我沒看到任何安全檢查紀錄。這太危險了，必須立刻處理，否則我不能讓表演繼續！」",
+     "15:52 志明說：「老周，你別緊張！這只是視覺上的錯覺，我剛才檢查過沒問題的。為了慶典的盛況，這點小事我們私下處理就好，千萬別驚動大家！」",
+     "15:52 你決定：打電話給林市長說「市長，志明在舞台安全問題上態度輕率，支架明顯鬆動且無檢查紀錄，他卻想私下掩蓋。為了今晚的平安，我必須請您介入督促立即整改。」"
+    ]
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [
+     {
+      "claim": "c7",
+      "confidence": 0.665,
+      "sources": [
+       "police"
+      ],
+      "updatedAt": 55.00000000000001,
+      "why": "老周是多年搭檔，非常信任他"
+     }
+    ],
+    "learned": [
+     [
+      "pigeons",
+      true
+     ],
+     [
+      "pigeons_sick",
+      false
+     ],
+     [
+      "lanterns_unsafe",
+      false
+     ]
+    ],
+    "memory": [
+     "15:55 老周打電話說：「市長，志明在舞台安全問題上態度輕率，支架明顯鬆動且無檢查紀錄，他卻想私下掩蓋。為了今晚的平安，我必須請您介入督促立即整改」",
+     "15:55 你決定：打電話給志明說「志明，老周跟我反映舞台支架有問題而且你沒做檢查？快給我處理好，絕對不能出任何差錯，懂嗎？」，然後去慶典舞台看看",
+     "16:02 你親眼看到：「舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質」",
+     "16:02 你決定：去跟志明說「志明，鴿子和燈籠我看過了，沒問題。但老周說舞台支架鬆動且沒紀錄，你處理好了沒？給我個交代，今晚絕對不能出錯！」"
+    ]
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [
+     {
+      "claim": "c3",
+      "confidence": 0.98,
+      "sources": [
+       "police"
+      ],
+      "updatedAt": 26.599999999999998,
+      "why": "我知道舞台是趕工且沒檢查的"
+     },
+     {
+      "claim": "c5",
+      "confidence": 0.9,
+      "sources": [
+       "police"
+      ],
+      "updatedAt": 47.1,
+      "why": "他就在現場指給我看"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:26 老周打電話說：「志明，我收到消息說舞台結構可能有問題，很不穩。請立刻跟我說明目前的進度，並確保安全，我等下會過去檢查。」",
+     "15:27 你決定：打電話給老周說「老周！你聽我說，舞台沒問題的，剛才我才看過。你太操心了，不用特地跑一趟，我這邊一切掌控中！」",
+     "15:47 老周說：「志明！你看看這個支架，明顯鬆動了，而且我沒看到任何安全檢查紀錄。這太危險了，必須立刻處理，否則我不能讓表演繼續！」",
+     "15:47 你決定：去跟老周說「老周，你別緊張！這只是視覺上的錯覺，我剛才檢查過沒問題的。為了慶典的盛況，這點小事我們私下處理就好，千萬別驚動大家！」",
+     "15:58 林市長打電話說：「志明，老周跟我反映舞台支架有問題而且你沒做檢查？快給我處理好，絕對不能出任何差錯，懂嗎？」",
+     "15:58 你決定：打電話給林市長說「市長！您誤會了，老周可能太謹慎了。我剛剛又仔細確認過，舞台穩固得很，絕對沒問題！我會盯緊進度，保證今晚盛況空前，請您放心！」"
+    ]
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 63.00000000000001
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:09:50.735Z",
+   "ms": 915623
+  },
+  "llm": {
+   "calls": 12,
+   "attempts": 28,
+   "promptTokens": 25115,
+   "completionTokens": 2791,
+   "platformCost": 0.0004453672999999999,
+   "estCost": 0.020930499999999998,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 8,
+  "reach": 4,
+  "believers": 3,
+  "decisions": 10,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "phone": 6,
+   "look": 4,
+   "inspect": 2,
+   "talk": 2
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 1,
+  "idle": false,
+  "topics": [
+   "stage_unsafe"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "cafe",
+    "to": "police",
+    "text": "老周！我剛在店裡聽到有人說廣場的舞台是趕工搭的，很不穩，這真的假的？我女兒今晚要在上面表演，我好擔心！",
+    "similarity": 0.2
+   },
+   {
+    "from": "police",
+    "to": "organizer",
+    "text": "志明，我收到消息說舞台結構可能有問題，很不穩。請立刻跟我說明目前的進度，並確保安全，我等下會過去檢查。",
+    "similarity": 0.03
+   },
+   {
+    "from": "police",
+    "to": "organizer",
+    "text": "志明！你看看這個支架，明顯鬆動了，而且我沒看到任何安全檢查紀錄。這太危險了，必須立刻處理，否則我不能讓表演繼續！",
+    "similarity": 0
+   },
+   {
+    "from": "organizer",
+    "to": "police",
+    "text": "老周，你別緊張！這只是視覺上的錯覺，我剛才檢查過沒問題的。為了慶典的盛況，這點小事我們私下處理就好，千萬別驚動大家！",
+    "similarity": 0
+   },
+   {
+    "from": "police",
+    "to": "mayor",
+    "text": "市長，志明在舞台安全問題上態度輕率，支架明顯鬆動且無檢查紀錄，他卻想私下掩蓋。為了今晚的平安，我必須請您介入督促立即整改。",
+    "similarity": 0.01
+   },
+   {
+    "from": "mayor",
+    "to": "organizer",
+    "text": "志明，老周跟我反映舞台支架有問題而且你沒做檢查？快給我處理好，絕對不能出任何差錯，懂嗎？",
+    "similarity": 0.02
+   }
+  ],
+  "meanSimilarity": 0.04,
+  "explained": 1,
+  "visualEvents": 44,
+  "gameMinutes": 43,
+  "llmCalls": 12,
+  "llmSeconds": 708.4,
+  "tokens": 27906,
+  "estCost": 0.02093,
+  "validatorRetries": 2,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

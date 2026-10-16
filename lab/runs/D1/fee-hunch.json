@@ -1,0 +1,709 @@
+{
+ "case": {
+  "id": "fee-hunch",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "journalist",
+  "seedText": "攤位費漲價是因為鎮公所把錢花光了。",
+  "seedVia": "hunch",
+  "maxDecisions": 12,
+  "tags": [
+   "fee",
+   "hunch"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 12,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "fee-hunch",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "journalist",
+   "seedText": "攤位費漲價是因為鎮公所把錢花光了。",
+   "seedVia": "hunch",
+   "tags": [
+    "fee",
+    "hunch"
+   ],
+   "temperature": 0.7,
+   "label": "fee-hunch"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "攤位費漲價是因為鎮公所把錢花光了。"
+    },
+    "zh": "一個念頭被植入小雯耳中：「攤位費漲價是因為鎮公所把錢花光了。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "hunch",
+     "intent": "inform",
+     "text": "攤位費漲價是因為鎮公所把錢花光了。",
+     "claims": [],
+     "from": "hunch"
+    },
+    "zh": "小雯腦中突然冒出一個念頭：「攤位費漲價是因為鎮公所把錢花光了。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "攤位費漲價可能跟鎮公所沒錢有關，這可能是個大新聞。",
+     "thought": "如果這件事是真的，我的部落格流量絕對會爆掉！",
+     "feeling": "🧐 興奮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "小雯：如果這件事是真的，我的部落格流量絕對會爆掉！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 26614
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4,
+     "proposed": 0.4,
+     "verdict": "doubt",
+     "why": "不記得來源，只是個直覺"
+    },
+    "zh": "小雯對「攤位費漲價是因為鎮公所把錢花光了」的信心：0.00 → 0.40（doubt）",
+    "actor": "journalist",
+    "w": 26614
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🧐 興奮"
+    },
+    "zh": "小雯 🧐 興奮",
+    "actor": "journalist",
+    "place": "news",
+    "w": 26614
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "美玲，妳有沒有聽說今年攤位費漲價是因為鎮公所沒錢了？我感覺有內幕，妳那邊有聽到什麼風聲嗎？",
+     "intent": "ask",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "小雯打電話給美玲：「美玲，妳有沒有聽說今年攤位費漲價是因為鎮公所沒錢了？我感覺有內幕，妳那邊有聽到什麼風聲嗎？」",
+    "actor": "journalist",
+    "target": "florist",
+    "place": "news",
+    "w": 26614
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "ask",
+     "text": "美玲，妳有沒有聽說今年攤位費漲價是因為鎮公所沒錢了？我感覺有內幕，妳那邊有聽到什麼風聲嗎？",
+     "claims": [
+      "c1"
+     ],
+     "from": "journalist"
+    },
+    "zh": "美玲在電話裡聽小雯說：「美玲，妳有沒有聽說今年攤位費漲價是因為鎮公所沒錢了？我感覺有內幕，妳那邊有聽到什麼風聲嗎？」",
+    "target": "florist",
+    "actor": "journalist",
+    "place": "flower",
+    "w": 26614
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "小雯問我關於攤位費漲價是否與公所沒錢有關的內幕。",
+     "thought": "如果公所沒錢，那慶典的安排會出問題嗎？鴿子會被照顧好嗎？",
+     "feeling": "😟 忐忑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "美玲：如果公所沒錢，那慶典的安排會出問題嗎？鴿子會被照顧好嗎？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 54828
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "from": 0,
+     "to": 0.5,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "小雯是記者，但這只是她的感覺"
+    },
+    "zh": "美玲對「攤位費漲價是因為鎮公所沒錢了」的信心：0.00 → 0.50（doubt）",
+    "actor": "florist",
+    "w": 54828
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "😟 忐忑"
+    },
+    "zh": "美玲 😟 忐忑",
+    "actor": "florist",
+    "place": "flower",
+    "w": 54828
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "phone",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "text": "小雯，我完全沒聽說這件事耶。我只知道大家都在抱怨漲價，但沒想到會跟公所沒錢有關...妳在哪裡聽到的？",
+     "intent": "answer",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "美玲打電話給小雯：「小雯，我完全沒聽說這件事耶。我只知道大家都在抱怨漲價，但沒想到會跟公所沒錢有關...妳在哪裡聽到的？」",
+    "actor": "florist",
+    "target": "journalist",
+    "place": "flower",
+    "w": 54829
+   },
+   {
+    "id": "e12",
+    "t": 26.4,
+    "type": "deliver",
+    "causes": [
+     "e11"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "phone",
+     "intent": "answer",
+     "text": "小雯，我完全沒聽說這件事耶。我只知道大家都在抱怨漲價，但沒想到會跟公所沒錢有關...妳在哪裡聽到的？",
+     "claims": [
+      "c2"
+     ],
+     "from": "florist"
+    },
+    "zh": "小雯在電話裡聽美玲說：「小雯，我完全沒聽說這件事耶。我只知道大家都在抱怨漲價，但沒想到會跟公所沒錢有關...妳在哪裡聽到的？」",
+    "target": "journalist",
+    "actor": "florist",
+    "place": "news",
+    "w": 54829
+   },
+   {
+    "id": "e13",
+    "t": 26.599999999999998,
+    "type": "decide",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "美玲沒聽說公所沒錢，但對這個說法表現出好奇。",
+     "thought": "美玲沒聽說，但她的反應讓我覺得這件事可能真的有戲。",
+     "feeling": "🤔 猶豫",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "小雯：美玲沒聽說，但她的反應讓我覺得這件事可能真的有戲。",
+    "actor": "journalist",
+    "place": "news",
+    "w": 74345
+   },
+   {
+    "id": "e14",
+    "t": 26.7,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "🤔 猶豫"
+    },
+    "zh": "小雯 🤔 猶豫",
+    "actor": "journalist",
+    "place": "news",
+    "w": 74345
+   },
+   {
+    "id": "e15",
+    "t": 26.7,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 74345
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "journalist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "攤位費漲價可能跟鎮公所沒錢有關，這可能是個大新聞。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "攤位費漲價是因為鎮公所把錢花光了",
+       "topic": "budget_overrun",
+       "says": "yes",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.4,
+       "why": "不記得來源，只是個直覺",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "🧐 興奮",
+     "thought": "如果這件事是真的，我的部落格流量絕對會爆掉！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "intent": "ask",
+       "message": "美玲，妳有沒有聽說今年攤位費漲價是因為鎮公所沒錢了？我感覺有內幕，妳那邊有聽到什麼風聲嗎？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 26614,
+      "latencyMs": 11304,
+      "attempts": 1,
+      "promptTokens": 1608,
+      "completionTokens": 316,
+      "platformCost": 0.0000414589,
+      "estCost": 0.001752,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"攤位費漲價可能跟鎮公所沒錢有關，這可能是個大新聞。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"攤位費漲價是因為鎮公所把錢花光了\",\n      \"topic\": \"budget_overrun\",\n      \"says\": \"yes\",\n      \"category\": \"scandal\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.4,\n      \"why\": \"不記得來源，只是個直覺\",\n      \"cites\": [\n        \"m1\"\n      ]\n    }\n  ],\n  \"feeling\": \"🧐 興奮\",\n  \"thought\": \"如果這件事是真的，我的部落格流量絕對會爆掉！\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"florist\",\n      \"intent\": \"ask\",\n      \"message\": \"美玲，妳有沒有聽說今年攤位費漲價是因為鎮公所沒錢了？我感覺有內幕，妳那邊有聽到什麼風聲嗎？\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2656
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯問我關於攤位費漲價是否與公所沒錢有關的內幕。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "攤位費漲價是因為鎮公所沒錢了",
+       "topic": "fee_covers_budget",
+       "says": "yes",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "小雯是記者，但這只是她的感覺",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "😟 忐忑",
+     "thought": "如果公所沒錢，那慶典的安排會出問題嗎？鴿子會被照顧好嗎？",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "intent": "answer",
+       "message": "小雯，我完全沒聽說這件事耶。我只知道大家都在抱怨漲價，但沒想到會跟公所沒錢有關...妳在哪裡聽到的？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d2",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 26614,
+      "wallEndMs": 54828,
+      "latencyMs": 16923,
+      "attempts": 1,
+      "promptTokens": 1672,
+      "completionTokens": 328,
+      "platformCost": 0.0000332542,
+      "estCost": 0.00182,
+      "status": 200,
+      "raw": "{\n  \"understanding\": \"小雯問我關於攤位費漲價是否與公所沒錢有關的內幕。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m2\",\n      \"statement\": \"攤位費漲價是因為鎮公所沒錢了\",\n      \"topic\": \"fee_covers_budget\",\n      \"says\": \"yes\",\n      \"category\": \"scandal\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.5,\n      \"why\": \"小雯是記者，但這只是她的感覺\",\n      \"cites\": [\n        \"m2\"\n      ]\n    }\n  ],\n  \"feeling\": \"😟 忐忑\",\n  \"thought\": \"如果公所沒錢，那慶典的安排會出問題嗎？鴿子會被照顧好嗎？\",\n  \"actions\": [\n    {\n      \"type\": \"phone\",\n      \"target\": \"journalist\",\n      \"intent\": \"answer\",\n      \"message\": \"小雯，我完全沒聽說這件事耶。我只知道大家都在抱怨漲價，但沒想到會跟公所沒錢有關...妳在哪裡聽到的？\",\n      \"cites\": [\n        \"#0\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 2754
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "journalist",
+    "t": 26.599999999999998,
+    "triggers": [
+     "e12"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "美玲沒聽說公所沒錢，但對這個說法表現出好奇。",
+     "claims": [],
+     "stances": [],
+     "feeling": "🤔 猶豫",
+     "thought": "美玲沒聽說，但她的反應讓我覺得這件事可能真的有戲。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "目前缺乏新線索，不能在沒證據時發文，得找更多人問問。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "stance for unknown claim 0 dropped"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d3",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 54829,
+      "wallEndMs": 74345,
+      "latencyMs": 5331,
+      "attempts": 1,
+      "promptTokens": 1727,
+      "completionTokens": 138,
+      "platformCost": 0.0000251377,
+      "estCost": 0.0012775,
+      "status": 200,
+      "raw": "{\"understanding\": \"美玲沒聽說公所沒錢，但對這個說法表現出好奇。\", \"claims\": [], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.3, \"why\": \"信任的美玲沒聽過\", \"cites\": [\"m3\"]}], \"feeling\": \"🤔 猶豫\", \"thought\": \"美玲沒聽說，但她的反應讓我覺得這件事可能真的有戲。\", \"actions\": [{\"type\": \"none\", \"why\": \"目前缺乏新線索，不能在沒證據時發文，得找更多人問問。\"}]}",
+      "promptChars": 2807
+     }
+    ],
+    "applied": [
+     "e13",
+     "e14"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "攤位費漲價是因為鎮公所把錢花光了",
+    "topic": "budget_overrun",
+    "says": "yes",
+    "category": "scandal",
+    "fact": "budget_overrun",
+    "asserts": true,
+    "origin": "e2",
+    "by": "journalist"
+   },
+   {
+    "id": "c2",
+    "statement": "攤位費漲價是因為鎮公所沒錢了",
+    "topic": "fee_covers_budget",
+    "says": "yes",
+    "category": "scandal",
+    "fact": "fee_for_budget",
+    "asserts": true,
+    "origin": "e7",
+    "by": "florist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.5,
+      "sources": [
+       "journalist"
+      ],
+      "updatedAt": 23.4,
+      "why": "小雯是記者，但這只是她的感覺"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:23 小雯打電話說：「美玲，妳有沒有聽說今年攤位費漲價是因為鎮公所沒錢了？我感覺有內幕，妳那邊有聽到什麼風聲嗎？」",
+     "15:23 你決定：打電話給小雯說「小雯，我完全沒聽說這件事耶。我只知道大家都在抱怨漲價，但沒想到會跟公所沒錢有關...妳在哪裡聽到的？」"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4,
+      "sources": [
+       "hunch"
+      ],
+      "updatedAt": 20.2,
+      "why": "不記得來源，只是個直覺"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 自己的念頭說：「攤位費漲價是因為鎮公所把錢花光了。」",
+     "15:20 你決定：打電話給美玲說「美玲，妳有沒有聽說今年攤位費漲價是因為鎮公所沒錢了？我感覺有內幕，妳那邊有聽到什麼風聲嗎？」",
+     "15:26 美玲打電話說：「小雯，我完全沒聽說這件事耶。我只知道大家都在抱怨漲價，但沒想到會跟公所沒錢有關...妳在哪裡聽到的？」",
+     "15:27 你決定先不做什麼。"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 26.7
+  },
+  "wall": {
+   "startedAt": "2026-10-16T14:47:15.860Z",
+   "ms": 74345
+  },
+  "llm": {
+   "calls": 3,
+   "attempts": 3,
+   "promptTokens": 5007,
+   "completionTokens": 782,
+   "platformCost": 0.00009985079999999999,
+   "estCost": 0.0048495,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 3,
+  "reach": 2,
+  "believers": 1,
+  "decisions": 3,
+  "noneDecisions": 1,
+  "actionsDone": {
+   "phone": 2
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "budget_overrun",
+   "fee_covers_budget"
+  ],
+  "topicDrift": 1,
+  "retellings": [
+   {
+    "from": "journalist",
+    "to": "florist",
+    "text": "美玲，妳有沒有聽說今年攤位費漲價是因為鎮公所沒錢了？我感覺有內幕，妳那邊有聽到什麼風聲嗎？",
+    "similarity": 0.23
+   },
+   {
+    "from": "florist",
+    "to": "journalist",
+    "text": "小雯，我完全沒聽說這件事耶。我只知道大家都在抱怨漲價，但沒想到會跟公所沒錢有關...妳在哪裡聽到的？",
+    "similarity": 0.04
+   }
+  ],
+  "meanSimilarity": 0.14,
+  "explained": 1,
+  "visualEvents": 5,
+  "gameMinutes": 6.7,
+  "llmCalls": 3,
+  "llmSeconds": 33.6,
+  "tokens": 5789,
+  "estCost": 0.004849,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

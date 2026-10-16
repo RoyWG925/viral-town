@@ -1,0 +1,436 @@
+{
+ "case": {
+  "id": "baker-interest",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "聽說衛生局今天會來突擊檢查店家的烤箱。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "interest"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "baker-interest",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "聽說衛生局今天會來突擊檢查店家的烤箱。",
+   "tags": [
+    "interest"
+   ],
+   "temperature": 0.7,
+   "label": "baker-interest"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說衛生局今天會來突擊檢查店家的烤箱。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「聽說衛生局今天會來突擊檢查店家的烤箱。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說衛生局今天會來突擊檢查店家的烤箱。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「聽說衛生局今天會來突擊檢查店家的烤箱。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "客人說衛生局今天會突擊檢查烤箱，我的烤箱過期了！",
+     "thought": "天啊！我的安全檢查過期兩個月了，被抓到怎麼辦！",
+     "feeling": "😰 恐慌",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：天啊！我的安全檢查過期兩個月了，被抓到怎麼辦！",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 28987
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.49,
+     "proposed": 0.7,
+     "verdict": "believe",
+     "why": "雖然是不認識的客人，但這太巧了"
+    },
+    "zh": "阿德對「衛生局今天會突擊檢查店家的烤箱」的信心：0.00 → 0.49（believe）",
+    "actor": "baker",
+    "w": 28987
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😰 恐慌"
+    },
+    "zh": "阿德 😰 恐慌",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 28987
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "美玲！妳有沒有聽說什麼？剛才有個客人說衛生局今天會來查烤箱，妳在那邊有聽到什麼風聲嗎？",
+     "intent": "ask",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「美玲！妳有沒有聽說什麼？剛才有個客人說衛生局今天會來查烤箱，妳在那邊有聽到什麼風聲嗎？」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 28987
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "ask",
+     "text": "美玲！妳有沒有聽說什麼？剛才有個客人說衛生局今天會來查烤箱，妳在那邊有聽到什麼風聲嗎？",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「美玲！妳有沒有聽說什麼？剛才有個客人說衛生局今天會來查烤箱，妳在那邊有聽到什麼風聲嗎？」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 28987
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "budget": true
+    },
+    "zh": "美玲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "florist",
+    "place": "flower",
+    "w": 28987
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "budget",
+     "festival": "scheduled"
+    },
+    "zh": "模擬達到決策上限。",
+    "w": 28987
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "客人說衛生局今天會突擊檢查烤箱，我的烤箱過期了！",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "衛生局今天會突擊檢查店家的烤箱",
+       "topic": "other",
+       "says": "unclear",
+       "category": "policy"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.7,
+       "why": "雖然是不認識的客人，但這太巧了",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😰 恐慌",
+     "thought": "天啊！我的安全檢查過期兩個月了，被抓到怎麼辦！",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "intent": "ask",
+       "message": "美玲！妳有沒有聽說什麼？剛才有個客人說衛生局今天會來查烤箱，妳在那邊有聽到什麼風聲嗎？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 1,
+      "wallEndMs": 28987,
+      "latencyMs": 24621,
+      "attempts": 1,
+      "promptTokens": 1604,
+      "completionTokens": 228,
+      "platformCost": 0.0000252462,
+      "estCost": 0.001486,
+      "status": 200,
+      "raw": "{\"understanding\": \"客人說衛生局今天會突擊檢查烤箱，我的烤箱過期了！\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"衛生局今天會突擊檢查店家的烤箱\", \"topic\": \"other\", \"says\": \"unclear\", \"category\": \"policy\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 0.7, \"why\": \"雖然是不認識的客人，但這太巧了\", \"cites\": [\"m1\"]}], \"feeling\": \"😰 恐慌\", \"thought\": \"天啊！我的安全檢查過期兩個月了，被抓到怎麼辦！\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"intent\": \"ask\", \"message\": \"美玲！妳有沒有聽說什麼？剛才有個客人說衛生局今天會來查烤箱，妳在那邊有聽到什麼風聲嗎？\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 2655
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e8"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "衛生局今天會突擊檢查店家的烤箱",
+    "topic": "other",
+    "says": "unclear",
+    "category": "policy",
+    "fact": null,
+    "asserts": null,
+    "origin": "e2",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.49,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "雖然是不認識的客人，但這太巧了"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說衛生局今天會來突擊檢查店家的烤箱。」",
+     "15:20 你決定：打電話給美玲說「美玲！妳有沒有聽說什麼？剛才有個客人說衛生局今天會來查烤箱，妳在那邊有聽到什麼風聲嗎？」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:23 阿德說：「美玲！妳有沒有聽說什麼？剛才有個客人說衛生局今天會來查烤箱，妳在那邊有聽到什麼風聲嗎？」（你沒有多想）"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "budget",
+   "t": 23.4
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:40:41.212Z",
+   "ms": 28987
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1604,
+   "completionTokens": 228,
+   "platformCost": 0.0000252462,
+   "estCost": 0.001486,
+   "errors": 0,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 2,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "phone": 1
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "other"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "美玲！妳有沒有聽說什麼？剛才有個客人說衛生局今天會來查烤箱，妳在那邊有聽到什麼風聲嗎？",
+    "similarity": 0.2
+   }
+  ],
+  "meanSimilarity": 0.2,
+  "explained": 1,
+  "visualEvents": 2,
+  "gameMinutes": 3.4,
+  "llmCalls": 1,
+  "llmSeconds": 24.6,
+  "tokens": 1832,
+  "estCost": 0.001486,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

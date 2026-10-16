@@ -1,0 +1,332 @@
+{
+ "case": {
+  "id": "baker-unrelated",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "港口今天的魚特別便宜。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "unrelated"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "baker-unrelated",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "港口今天的魚特別便宜。",
+   "tags": [
+    "unrelated"
+   ],
+   "temperature": 0.7,
+   "label": "baker-unrelated"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "港口今天的魚特別便宜。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「港口今天的魚特別便宜。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "港口今天的魚特別便宜。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「港口今天的魚特別便宜。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有個客人提到港口的魚現在很便宜。",
+     "thought": "魚便宜的話，晚餐是不是可以買來燉湯？",
+     "feeling": "😮 驚訝",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "阿德：魚便宜的話，晚餐是不是可以買來燉湯？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 34721
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.49,
+     "proposed": 0.7,
+     "verdict": "believe",
+     "why": "客人在店裡隨口說的，應該是真的"
+    },
+    "zh": "阿德對「港口今天的魚特別便宜」的信心：0.00 → 0.49（believe）",
+    "actor": "baker",
+    "w": 34721
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😮 驚訝"
+    },
+    "zh": "阿德 😮 驚訝",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 34721
+   },
+   {
+    "id": "e6",
+    "t": 20.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 34721
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有個客人提到港口的魚現在很便宜。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "港口今天的魚特別便宜",
+       "topic": "other",
+       "says": "unclear",
+       "category": "other"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.7,
+       "why": "客人在店裡隨口說的，應該是真的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😮 驚訝",
+     "thought": "魚便宜的話，晚餐是不是可以買來燉湯？",
+     "actions": [
+      {
+       "type": "none",
+       "why": "只是聽到了魚便宜，不影響經營，不用特地去做什麼",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 34721,
+      "latencyMs": 30394,
+      "attempts": 1,
+      "promptTokens": 1566,
+      "completionTokens": 168,
+      "platformCost": 0.0000208138,
+      "estCost": 0.001287,
+      "status": 200,
+      "raw": "{\"understanding\": \"有個客人提到港口的魚現在很便宜。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"港口今天的魚特別便宜\", \"topic\": \"other\", \"says\": \"unclear\", \"category\": \"other\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 0.7, \"why\": \"客人在店裡隨口說的，應該是真的\", \"cites\": [\"m1\"]}], \"feeling\": \"😮 驚訝\", \"thought\": \"魚便宜的話，晚餐是不是可以買來燉湯？\", \"actions\": [{\"type\": \"none\", \"why\": \"只是聽到了魚便宜，不影響經營，不用特地去做什麼\"}]}",
+      "promptChars": 2595
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "港口今天的魚特別便宜",
+    "topic": "other",
+    "says": "unclear",
+    "category": "other",
+    "fact": null,
+    "asserts": null,
+    "origin": "e2",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.49,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "客人在店裡隨口說的，應該是真的"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「港口今天的魚特別便宜。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 20.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:14:18.962Z",
+   "ms": 34721
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 1566,
+   "completionTokens": 168,
+   "platformCost": 0.0000208138,
+   "estCost": 0.001287,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "other"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 0.3,
+  "llmCalls": 1,
+  "llmSeconds": 30.4,
+  "tokens": 1734,
+  "estCost": 0.001287,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

@@ -1,0 +1,432 @@
+{
+ "case": {
+  "id": "baker-vague",
+  "active": [
+   "baker",
+   "florist",
+   "journalist"
+  ],
+  "seedNpc": "baker",
+  "seedText": "今晚最好離舞台遠一點。",
+  "maxDecisions": 1,
+  "policy": "gemma",
+  "tags": [
+   "vague"
+  ]
+ },
+ "run": {
+  "config": {
+   "maxDecisions": 1,
+   "maxPerNpc": 4,
+   "seed": 1,
+   "policy": "gemma",
+   "variant": "single",
+   "id": "baker-vague",
+   "active": [
+    "baker",
+    "florist",
+    "journalist"
+   ],
+   "seedNpc": "baker",
+   "seedText": "今晚最好離舞台遠一點。",
+   "tags": [
+    "vague"
+   ],
+   "temperature": 0.7,
+   "label": "baker-vague"
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "今晚最好離舞台遠一點。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「今晚最好離舞台遠一點。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "今晚最好離舞台遠一點。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「今晚最好離舞台遠一點。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有客人警告今晚舞台危險，可能發生意外。",
+     "thought": "舞台怎麼了？要是出事就糟了，得問問美玲。",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ]
+    },
+    "zh": "阿德：舞台怎麼了？要是出事就糟了，得問問美玲。",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 137928
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.49,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "雖然不認識，但警告聽起來很認真"
+    },
+    "zh": "阿德對「今晚慶典的舞台可能有危險，建議遠離。」的信心：0.00 → 0.49（believe）",
+    "actor": "baker",
+    "w": 137928
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "阿德 😟 擔心",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 137928
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "美玲！我剛在店裡聽到個客人說今晚舞台危險，叫人遠離。妳有聽說什麼嗎？好擔心喔！",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給美玲：「美玲！我剛在店裡聽到個客人說今晚舞台危險，叫人遠離。妳有聽說什麼嗎？好擔心喔！」",
+    "actor": "baker",
+    "target": "florist",
+    "place": "bakery",
+    "w": 137928
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "美玲！我剛在店裡聽到個客人說今晚舞台危險，叫人遠離。妳有聽說什麼嗎？好擔心喔！",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "美玲在電話裡聽阿德說：「美玲！我剛在店裡聽到個客人說今晚舞台危險，叫人遠離。妳有聽說什麼嗎？好擔心喔！」",
+    "target": "florist",
+    "actor": "baker",
+    "place": "flower",
+    "w": 137928
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "budget": true
+    },
+    "zh": "美玲聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "florist",
+    "place": "flower",
+    "w": 137928
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "budget",
+     "festival": "scheduled"
+    },
+    "zh": "模擬達到決策上限。",
+    "w": 137928
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有客人警告今晚舞台危險，可能發生意外。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "今晚慶典的舞台可能有危險，建議遠離。",
+       "topic": "stage_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "雖然不認識，但警告聽起來很認真",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "舞台怎麼了？要是出事就糟了，得問問美玲。",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "florist",
+       "message": "美玲！我剛在店裡聽到個客人說今晚舞台危險，叫人遠離。妳有聽說什麼嗎？好擔心喔！",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 137928,
+      "latencyMs": 39438,
+      "attempts": 5,
+      "promptTokens": 1567,
+      "completionTokens": 216,
+      "platformCost": 0.0000241402,
+      "estCost": 0.0014315,
+      "status": 200,
+      "raw": "{\"understanding\": \"有客人警告今晚舞台危險，可能發生意外。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"今晚慶典的舞台可能有危險，建議遠離。\", \"topic\": \"stage_unsafe\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"believe\", \"confidence\": 0.6, \"why\": \"雖然不認識，但警告聽起來很認真\", \"cites\": [\"m1\"]}], \"feeling\": \"😟 擔心\", \"thought\": \"舞台怎麼了？要是出事就糟了，得問問美玲。\", \"actions\": [{\"type\": \"phone\", \"target\": \"florist\", \"message\": \"美玲！我剛在店裡聽到個客人說今晚舞台危險，叫人遠離。妳有聽說什麼嗎？好擔心喔！\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 2595
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "florist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e8"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "今晚慶典的舞台可能有危險，建議遠離。",
+    "topic": "stage_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "stage_uninspected",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.49,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "雖然不認識，但警告聽起來很認真"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「今晚最好離舞台遠一點。」",
+     "15:20 你決定：打電話給美玲說「美玲！我剛在店裡聽到個客人說今晚舞台危險，叫人遠離。妳有聽說什麼嗎？好擔心喔！」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:23 阿德說：「美玲！我剛在店裡聽到個客人說今晚舞台危險，叫人遠離。妳有聽說什麼嗎？好擔心喔！」（你沒有多想）"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "budget",
+   "t": 23.4
+  },
+  "wall": {
+   "startedAt": "2026-10-16T13:11:56.303Z",
+   "ms": 137928
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 5,
+   "promptTokens": 1567,
+   "completionTokens": 216,
+   "platformCost": 0.0000241402,
+   "estCost": 0.0014315,
+   "errors": 0,
+   "fallbacks": 1
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 2,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 0,
+  "actionsDone": {
+   "phone": 1
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "stage_unsafe"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "florist",
+    "text": "美玲！我剛在店裡聽到個客人說今晚舞台危險，叫人遠離。妳有聽說什麼嗎？好擔心喔！",
+    "similarity": 0.05
+   }
+  ],
+  "meanSimilarity": 0.05,
+  "explained": 1,
+  "visualEvents": 2,
+  "gameMinutes": 3.4,
+  "llmCalls": 1,
+  "llmSeconds": 39.4,
+  "tokens": 1783,
+  "estCost": 0.001432,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ }
+}

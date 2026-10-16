@@ -207,7 +207,7 @@ Also: the café umbrellas fade when a resident in shot stands under one (a 16:30
 | AMD streaming probe, short prompt: first token 3.4–9.0 s, then 54–82 tok/s | | [measured] |
 | AMD, 2,600-token prompt twice: first token 6.6 s → 2.7 s on the cached second call (2,600/2,601 tokens cached) | | [measured] |
 | AMD cache warm-up A/B, 4 pairs: first token cold mean 2.9 s (1.9–4.0) vs warm 2.4 s (1.7–2.7) — no clear effect | | [measured] |
-| Playtests P5–P9 (44 stories): first visible reaction batch means 3.5–5.4 s, first full thought 10.2–15.1 s, 9.5–11.8 beats/min | | [measured] |
+| Playtests P5–P9 (38 stories): first visible reaction batch means 3.5–5.4 s, first full thought 10.2–15.1 s, 9.5–11.8 beats/min | | [measured] |
 | Dramatic inputs changing the world, final configurations P7–P9: 11/18 (per batch 5/6, 2/6, 4/6) | | [measured] |
 | AMD platform cost for the whole night's testing: US$0.041 (daily limit US$1); a long story ≈ US$0.001–0.0015 | | [measured] |
 | Google AI Studio free tier, Gemma 4 31B, decision-sized call (1,849 in / 90 out): **177 s** | | [measured] |

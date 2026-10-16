@@ -127,7 +127,9 @@ export function storyOf(run: RunResult): StoryCard {
   const hops = events.filter((e) => (e.type === "talk" || e.type === "phone") && !e.data.missed && e.actor && e.target).map(hopOf);
 
   // the biggest real outcome, and the path of causes from the planted sentence to it
-  const top = events.reduce<SimEvent | null>((best, e) => (rank(e) > (best ? rank(best) : 0) ? e : best), null);
+  // the biggest happening; among equals the later one, which is usually the outcome (police sent, then the stage
+  // closed; a friend's shop shut, then the bakery itself)
+  const top = events.reduce<SimEvent | null>((best, e) => (rank(e) > 0 && rank(e) >= (best ? rank(best) : 0) ? e : best), null);
   let spine: Hop[] = [];
   if (top) {
     const prev = new Map<string, string>();
@@ -169,8 +171,16 @@ export function storyOf(run: RunResult): StoryCard {
     people.get(c.topic)!.add(c.by);
   }
   const dominant = [...people.entries()].filter(([t]) => t !== "other").sort((a, b) => b[1].size - a[1].size)[0];
-  if (dominant && dominant[1].size >= 2 && !seedTopics.has(dominant[0])) {
-    const first = claims.find((c) => c.topic === dominant[0])!;
+  // a different topic id is not drift if the player's own sentence already said it ("預算超支，漲價是為了補洞"
+  // has two topics): most of the claim's two-character pieces are in what the player said
+  const saidByPlayer = (statement: string) => {
+    const said = String(run.config.seedText ?? "");
+    const grams = [...statement.replace(/[，。！？、「」\s]/g, "")].map((ch, i, a) => ch + (a[i + 1] ?? "")).slice(0, -1);
+    return grams.length > 0 && grams.filter((g) => said.includes(g)).length / grams.length >= 0.5;
+  };
+  const firstOfDominant = dominant ? claims.find((c) => c.topic === dominant[0]) : undefined;
+  if (dominant && dominant[1].size >= 2 && !seedTopics.has(dominant[0]) && firstOfDominant && !saidByPlayer(firstOfDominant.statement)) {
+    const first = firstOfDominant;
     // the first retelling on the way from the planted sentence to that first claim is where the talk turned
     const origin = byId.get(first.origin);
     let pivot: Hop | undefined;

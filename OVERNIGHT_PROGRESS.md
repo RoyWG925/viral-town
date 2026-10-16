@@ -190,6 +190,15 @@ did not say so (the model only sees its own 0.6), he insisted, and after two tri
 Also: the café umbrellas fade when a resident in shot stands under one (a 16:30 café scene was all canopy); the
 "found" bubble now shows the "a glance can't tell" line that motivates the next inspection.
 
+### Round 12 — second samples (P8, P9): variance, the investigator's budget, three card fixes
+- P7 and P8 ran the *same* configuration: 5/6 vs 2/6 dramatic stories changed the world — single runs vary a lot.
+  P8's stage story stopped because the mayor asked 老周 to hold off (in character) and then 老周 used his 7th decision
+  on a second inspection. Per-resident cap 7 → 9 (global 22 unchanged). P9: 4/6; **P7–P9 together 11/18**.
+- Story card: "差一點" picks the surest resident and the relevant move (「老周明明可以封鎖舞台，最後卻選擇親自去檢查」);
+  no false "drift" when the player's sentence already said it; among equally big happenings the later (the outcome)
+  is the headline. Recording headlines recomputed (unchanged).
+- AMD usage check: US$0.041 of the US$1 daily limit used by the end of these batches (platform `/v1/usage`).
+
 ## 2. Measurements so far
 
 | What | Value | Kind |
@@ -198,7 +207,9 @@ Also: the café umbrellas fade when a resident in shot stands under one (a 16:30
 | AMD streaming probe, short prompt: first token 3.4–9.0 s, then 54–82 tok/s | | [measured] |
 | AMD, 2,600-token prompt twice: first token 6.6 s → 2.7 s on the cached second call (2,600/2,601 tokens cached) | | [measured] |
 | AMD cache warm-up A/B, 4 pairs: first token cold mean 2.9 s (1.9–4.0) vs warm 2.4 s (1.7–2.7) — no clear effect | | [measured] |
-| Playtests P5+P6 (16 stories): first visible reaction mean 4.3–5.4 s, first full thought 13.0–15.1 s, ≈10 beats/min | | [measured] |
+| Playtests P5–P9 (44 stories): first visible reaction batch means 3.5–5.4 s, first full thought 10.2–15.1 s, 9.5–11.8 beats/min | | [measured] |
+| Dramatic inputs changing the world, final configurations P7–P9: 11/18 (per batch 5/6, 2/6, 4/6) | | [measured] |
+| AMD platform cost for the whole night's testing: US$0.041 (daily limit US$1); a long story ≈ US$0.001–0.0015 | | [measured] |
 | Google AI Studio free tier, Gemma 4 31B, decision-sized call (1,849 in / 90 out): **177 s** | | [measured] |
 | First playtest story (pigeon-baker, AMD, streamed): first visible reaction **6.8 s**, first full decision 16.6 s | | [measured] |
 | Gemma 4 31B on one MI300X (vLLM): 58 tok/s bf16, 71 tok/s fp8 single request | | [3rd-party] (xbill, DEV, Oct 2026) |

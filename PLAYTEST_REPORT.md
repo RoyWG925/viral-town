@@ -265,3 +265,48 @@ the feeling the game is after), but 3/3 safety inputs in P7 ended on the stage. 
 closed 1, a vendors' rally 1, first-hand confirmation with no action 2, a small chat that stopped 4 (a story can have
 several). If repeated play matters more than first play, restrict the walk-through to
 festival topics or add a second hidden truth reachable from safety rumours.
+
+## Batch P8 — the six dramatic inputs again on the P7 configuration (a second sample)
+
+| Case | Ending (story card) | People | World changes | First visible | First thought | Wall time | Calls | Retries | Refused wishes | Platform cost |
+|---|---|---|---|---|---|---|---|---|---|---|
+| pigeon-baker | 🤐 美咲聽進去了，但沒有說出去 | 2 | – | 3.3 s | 9.4 s | 20 s | 3 | 0 | 0 | US$0.00017 |
+| car-vendor | 💬 一句話把 4 個人捲了進來 | 4 | – | 3.3 s | 7.2 s | 151 s | 15 | 0 | 0 | US$0.00078 |
+| stage-cafe | 🔍 老周親自查證：舞台沒有任何安全檢查紀錄… | 8 | – | 3.3 s | 8.5 s | 219 s | 22 | 0 | 0 | US$0.00108 |
+| oven-police | 🔍 老周親自查證：烤箱的安全檢查貼紙日期是兩個月前，已經過期。 | 7 | – | 3.2 s | 9.4 s | 232 s | 22 | 0 | 0 | US$0.00105 |
+| budget-journalist | 📰 〈燈籠節預算黑洞！公款超支三成，攤商漲價竟是幫鎮公所填坑？…〉 | 8 | article, gather | 3.9 s | 18.4 s | 220 s | 23 | 1 | 0 | US$0.00120 |
+| lantern-baker | 🚓 警察出動到慶典舞台 | 7 | police | 4.0 s | 8.1 s | 209 s | 23 | 1 | 0 | US$0.00116 |
+
+Summary: first visible 3.5 s, first full thought 10.2 s (means), longest single wait 24.1 s, ~10 beats/min.
+**2/6 changed the world (P7, same configuration: 5/6) → 7/12 over the two samples.** That spread is the honest
+picture of single runs.
+
+The stage story shows why it can stop short: 老周 inspected, found the strut, told 志明 to his face, phoned the mayor —
+and the mayor asked him 「請你先別採取強制措施，給我點時間」. He trusts his partner of many years (trust 0.8) and
+waited: a great near miss, in character. At 17:07 he went back to inspect again, saw the strut was still loose — and
+had used his **7th decision**. The investigator spends one on every look, inspect and call. → per-resident cap 9
+(global cap still 22, so cost and time bounds are unchanged); and the "差一點" line now picks the surest resident and
+the relevant move: 「老周明明可以封鎖舞台，最後卻選擇親自去檢查」 (a fixed order had picked the mayor at 0.6 before).
+
+## Batch P9 — the six dramatic inputs with the per-resident cap at 9
+
+| Case | Ending (story card at run time) | People | World changes | First visible | First thought | Wall time | Calls | Retries | Refused wishes | Platform cost |
+|---|---|---|---|---|---|---|---|---|---|---|
+| pigeon-baker | 💬 一句話把 3 個人捲了進來 | 3 | – | 3.8 s | 11.6 s | 123 s | 9 | 2 | 0 | US$0.00050 |
+| car-vendor | 📰 〈燈籠節預算驚爆超支三成！市長稱「調整中」…〉 | 8 | article | 3.8 s | 13.3 s | 233 s | 22 | 0 | 0 | US$0.00121 |
+| stage-cafe | 🚧 慶典舞台被封鎖 | 8 | stage | 3.8 s | 12.9 s | 233 s | 23 | 1 | 0 | US$0.00121 |
+| oven-police | 🔒 阿德麵包店暫停營業 (was 美玲花店 — see below) | 6 | two shops closed | 5.7 s | 14.9 s | 217 s | 22 | 0 | 0 | US$0.00104 |
+| budget-journalist | 💬 一句話把 3 個人捲了進來 (was a false 🔀 drift — see below) | 3 | – | 3.6 s | 15.2 s | 110 s | 10 | 0 | 0 | US$0.00050 |
+| lantern-baker | 🚧 慶典舞台被封鎖 | 8 | stage | 3.4 s | 14.5 s | 238 s | 23 | 1 | 0 | US$0.00118 |
+
+Summary: first visible 4.0 s, first full thought 13.7 s (means), longest single wait 22.9 s, **~11.8 beats/min**.
+**4/6 changed the world.** Over the last three batches (P7–P9, 18 dramatic stories) **11/18** did; weak inputs always
+stop at the first resident.
+
+- **oven-police — "she closed her shop to help, again"**: 美玲 closes the flower shop to go with 阿德 to the police
+  station; 阿德 closes the bakery to sort out the oven; 老周 arrives to find 「阿德麵包店今天暫停營業」.
+- Two story-card errors found and fixed: (1) a **false drift** headline 「你說『預算超支…』，最後鎮上在談『攤位費漲價是因為
+  預算超支要補…』」 — the player had said both; a different topic id is no longer called drift when most of the claim's
+  wording is in the player's sentence (real drifts — lantern→stage, car→budget, meme→stage — still show); (2) between
+  two equally big happenings the card now names the **later** one, usually the outcome (the bakery closing rather than
+  the friend's shop; the stage closed rather than the police sent there first).

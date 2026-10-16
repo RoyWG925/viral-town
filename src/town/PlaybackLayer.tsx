@@ -27,7 +27,8 @@ function Power({ npc }: { npc: string }) {
     if (!el) return;
     const st = show.stance[npc];
     const doneBig = show.order.slice(0, show.i).some((e) => e.actor === npc && ((e.type === "state" && ["police", "stage", "festival"].includes(String(e.data.key))) || e.type === "article"));
-    const on = show.status !== "idle" && !!st && st.conf >= 0.6 && !doneBig && !show.says.some((x) => (x.anchor ?? x.npc) === npc);
+    // suspense belongs to the show: off once the story has ended (results on screen)
+    const on = (show.status === "playing" || show.status === "paused") && !!st && st.conf >= 0.6 && !doneBig && !show.says.some((x) => (x.anchor ?? x.npc) === npc);
     el.style.opacity = on ? String(0.75 + Math.sin(performance.now() / 300) * 0.25) : "0";
   });
   return (

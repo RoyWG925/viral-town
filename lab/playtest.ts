@@ -42,7 +42,7 @@ async function one(c: (typeof CASES)[number]) {
     active: ALL8, seedNpc: c.npc, seedText: c.text, seed: 7, policy: "gemma", variant: "eager", temperature: 0.7,
     // stream every call so the early reaction can be timed like in the game
     chat: (msgs, opts = {}) => chat(msgs, { ...opts, onDelta: opts.onDelta ?? (() => {}) }),
-    maxDecisions: Number(process.env.LAB_MAX ?? 22), maxPerNpc: Number(process.env.LAB_PER_NPC ?? 5),
+    maxDecisions: Number(process.env.LAB_MAX ?? 22), maxPerNpc: Number(process.env.LAB_PER_NPC ?? 7),
     onThinking: (npc) => thinkStart.set(npc, Date.now()),
     onEarly: (npc, x) => {
       const ms = Date.now() - (thinkStart.get(npc) ?? t0);

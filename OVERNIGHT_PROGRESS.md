@@ -176,6 +176,20 @@ a 3-person pigeon chat. Changes: the card's subtitle now names the earlier big h
 no walk-home-and-back when the next decision is already queued (test verified to fail without the fix).
 Cache warm-up A/B: no clear effect (cold 2.9 s vs warm 2.4 s mean first token, n=4, overlapping) — not implemented.
 
+### Round 11 — a live playthrough ended at the first step; now the refusal is the story
+A headless *live* game (real Gemma, the oven sentence to 老周) ended after one decision: he wanted to send officers to
+the bakery at once; one stranger's sentence caps his certainty below the 0.5 that a dispatch needs; the retry message
+did not say so (the model only sees its own 0.6), he insisted, and after two tries the engine replaced everything with
+"😶 愣住（沒能做出判斷）". Two changes (tests from that exact answer):
+- Retry messages for big actions now state the engine-bounded confidence and why (「以你目前的消息來源，你對它的把握
+  其實只有 0.45：只是聽人說的…」).
+- If, after the tries, the resident's *reading* is valid and only an action breaks a rule, their real thinking and
+  belief are kept, allowed actions still run, and each refused one becomes a visible ✋ beat
+  (「老周想派警力到阿德麵包店，但把握還不夠」); the story card can end on it. Counted separately as `refusedWishes`
+  (not a fallback, not a retry). Model outages and unparseable answers still fall back to the honest "中斷" ending.
+Also: the café umbrellas fade when a resident in shot stands under one (a 16:30 café scene was all canopy); the
+"found" bubble now shows the "a glance can't tell" line that motivates the next inspection.
+
 ## 2. Measurements so far
 
 | What | Value | Kind |
@@ -221,4 +235,17 @@ intervention, D bets/predictions.
 
 ## 3. Open problems / next
 
-(updated as the night goes on)
+1. **No human playtest yet.** Entertainment value is argued from metrics (first reaction ~4–5 s, ~10 beats/min,
+   endings) and from reading every log, not from players. 3–5 people watching recordings + one live try would
+   settle "is it fun to watch" far better than more batches.
+2. **n = 1 per input per batch.** The same sentence ends differently on different runs (P2 vs P5 vs P6 oven). That is
+   the product working, but rates ("4/6 changed the world") are indicative only; run 3× per input before quoting
+   rates in the submission.
+3. **The 22-decision cap** is reached by most long stories (8 of 12 dramatic runs in P5–P6); endings are fine, but the
+   tail (e.g. the mayor's spin statement) gets cut. Options: prioritise residents with power when the budget runs low,
+   or 26–30 for recordings only. Not changed tonight.
+4. **Wall time** of long stories is 3–6.5 min; live play streams it, the demo uses recordings at 2–3×.
+5. **Dev-only warnings**: React StrictMode double-mounts drei `<Html>` → 8 console warnings in dev; production has 0.
+6. **Lint**: 23 React-Compiler rule hits in r3f frame-loop code; not runtime errors; left alone.
+7. **Needs your decision**: deployment target and when; public repo contents; the submission video (DEMO_SCRIPT.md
+   has a hook and walkthrough); MI300X self-hosting only if you add credit / approve cost.

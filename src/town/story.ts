@@ -108,11 +108,6 @@ export function storyOf(run: RunResult): StoryCard {
       .map((x) => String(x.data.text))
       .at(-1);
   };
-  // what the listener made of it: their first belief after hearing it
-  const verdictAfter = (npc: string, t: number) => {
-    const b = events.find((x) => x.type === "belief" && x.actor === npc && x.t >= t);
-    return b ? { verdict: String(b.data.verdict), conf: Number(b.data.to) } : {};
-  };
   // what the listener made of THIS message: the belief formed by the decision whose inbox held it
   const verdictOf = (hop: SimEvent): { verdict?: string; conf?: number } => {
     const del = events.find((x) => x.type === "deliver" && x.causes[0] === hop.id);

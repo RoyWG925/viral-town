@@ -104,3 +104,30 @@ US$0.0008 for a long story; the account's daily limit is US$1. Model errors: 0. 
   were unambiguous (no claims listed, `stance claim 2` can only mean belief c2). Fixed (mapped again; prompt allows
   `"c2"`); re-measured in P3 below.
 - Every validator rejection here was a stance-reference problem; no invalid actions, no secret leaks, no model errors.
+
+## Batch P3 — same 5 inputs as P2 (stance-reference fix, act library, streamed early gesture)
+
+| Case | Ending (story card) | People | First visible reaction | First thought | Longest call | Wall time | Calls | Validator retries | Platform cost |
+|---|---|---|---|---|---|---|---|---|---|
+| car-vendor | 🚧 慶典舞台被封鎖 | 8 | 6.1 s | 21.1 s | 34.7 s | 340 s | 24 | 2 | US$0.00117 |
+| stage-cafe | 🚧 慶典舞台被封鎖 (+ shops closed) | 8 | 6.2 s | 14.9 s | 30.1 s | 351 s | 22 | 0 | US$0.00108 |
+| oven-police | 🚧 慶典舞台被封鎖 | 8 | 6.0 s | 17.6 s | 34.0 s | 350 s | 22 | 0 | US$0.00114 |
+| budget-journalist | 📰 〈【獨家爆料】攤位費翻倍竟是為了「品質」？市長華麗辭令背後，隱藏著燈籠節預算大黑洞〉 | 8 | 3.5 s | 19.0 s | 21.3 s | 237 s | 22 | 0 | US$0.00109 |
+| lantern-baker | 🔍 老周親自去查：查無實據 | 5 | 5.2 s | 20.1 s | 25.5 s | 149 s | 10 | 0 | US$0.00048 |
+
+- **Validator retries: 2 in 100 calls** (P2: 27 in 112). The stance-reference fix worked; no fallbacks, no model errors.
+- **New problem: an attractor.** Three unrelated sentences (a car-fee scandal, a weak stage, a bakery oven) all ended
+  with the stage taped off. Reading the logs: the 17:00 police–organizer walk-through is a *routine meeting*, and it was
+  played out whenever either of them carried **any** belief. 志明 always carries something by 17:00, he oversells or
+  deflects, 老周 gets suspicious, inspects the stage, finds the loose strut (a true, authored fact) and closes it.
+  The chain is real model behaviour, but the same climax three times means the town is not reacting to *what* was said.
+- **budget-journalist** shows the opposite gap: 小雯 went to the town hall to find proof and saw only "一切如常" — the
+  truth (a 30% overrun) existed but there was no way to *find* it, so the story could only end on suspicion.
+- **Fix (system, not script), Round 7:**
+  1. Routine meetings carry an `about` list (the police walk-through: safety/crime/event; the fee payment:
+     policy/scandal; the flower delivery: event/safety/health; neighbours and the press interview: anything). A
+     meeting is played out only when someone carries a belief of a kind that belongs there, and its cause is *that*
+     belief, so the chain on the card stays truthful.
+  2. The budget overrun becomes a second discoverable truth: the journalist can `inspect` the town hall's public
+     accounts (an expert check, like the police inspecting the stage), and the engine shows what is in them.
+  Measured in P4 below.

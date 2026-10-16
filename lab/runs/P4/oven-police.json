@@ -1,0 +1,655 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "police",
+   "seedText": "聽說阿德麵包店的烤箱檢查早就過期了，隨時可能出事。",
+   "seed": 7,
+   "policy": "gemma",
+   "variant": "eager",
+   "temperature": 0.7,
+   "maxDecisions": 22,
+   "maxPerNpc": 5
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說阿德麵包店的烤箱檢查早就過期了，隨時可能出事。"
+    },
+    "zh": "一個念頭被植入老周耳中：「聽說阿德麵包店的烤箱檢查早就過期了，隨時可能出事。」",
+    "target": "police",
+    "place": "police",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說阿德麵包店的烤箱檢查早就過期了，隨時可能出事。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "老周聽到一位陌生客人說：「聽說阿德麵包店的烤箱檢查早就過期了，隨時可能出事。」",
+    "target": "police",
+    "place": "police",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人說麵包店烤箱有安全隱患，可能會出事。",
+     "thought": "今晚警力不足，絕對不能再出任何意外，得趕快確認。",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ]
+    },
+    "zh": "老周：今晚警力不足，絕對不能再出任何意外，得趕快確認。",
+    "actor": "police",
+    "place": "police",
+    "w": 18743
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.4275,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "安全問題不能掉以輕心",
+     "limit": {
+      "why": {
+       "kind": "hearsay",
+       "source": "unknown",
+       "trust": 0.3,
+       "sources": 1
+      },
+      "min": 0,
+      "max": 0.4275
+     }
+    },
+    "zh": "老周對「阿德麵包店的烤箱檢查過期，隨時可能出事。」的信心：0.00 → 0.43（believe）",
+    "actor": "police",
+    "w": 18743
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "老周 😟 擔心",
+    "actor": "police",
+    "place": "police",
+    "w": 18743
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "move",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "from": "police",
+     "to": "bakery",
+     "arrive": 21.7,
+     "home": false
+    },
+    "zh": "老周從警察局走向阿德麵包店",
+    "actor": "police",
+    "place": "police",
+    "w": 18744
+   },
+   {
+    "id": "e7",
+    "t": 21.7,
+    "type": "arrive",
+    "causes": [
+     "e6"
+    ],
+    "data": {},
+    "zh": "老周到了阿德麵包店",
+    "actor": "police",
+    "place": "bakery",
+    "w": 18744
+   },
+   {
+    "id": "e8",
+    "t": 21.7,
+    "type": "look",
+    "causes": [
+     "e3"
+    ],
+    "data": {},
+    "zh": "老周在阿德麵包店到處看看",
+    "actor": "police",
+    "place": "bakery",
+    "w": 18744
+   },
+   {
+    "id": "e9",
+    "t": 24.7,
+    "type": "look",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "found": "阿德麵包店看起來一切如常，沒看到什麼特別的。 阿德（麵包店老闆）在這裡。",
+     "highlight": "阿德麵包店看起來一切如常，沒看到什麼特別的。",
+     "learned": []
+    },
+    "zh": "老周看到：阿德麵包店看起來一切如常，沒看到什麼特別的。 阿德（麵包店老闆）在這裡。",
+    "actor": "police",
+    "place": "bakery",
+    "w": 18744
+   },
+   {
+    "id": "e10",
+    "t": 24.7,
+    "type": "deliver",
+    "causes": [
+     "e9"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "阿德麵包店看起來一切如常，沒看到什麼特別的。 阿德（麵包店老闆）在這裡。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "老周親眼看到：阿德麵包店看起來一切如常，沒看到什麼特別的。 阿德（麵包店老闆）在這裡。",
+    "target": "police",
+    "place": "bakery",
+    "w": 18744
+   },
+   {
+    "id": "e11",
+    "t": 24.7,
+    "type": "move",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "police",
+     "arrive": 25.2,
+     "home": true
+    },
+    "zh": "老周從阿德麵包店走回警察局",
+    "actor": "police",
+    "place": "bakery",
+    "w": 18744
+   },
+   {
+    "id": "e12",
+    "t": 25.2,
+    "type": "arrive",
+    "causes": [
+     "e11"
+    ],
+    "data": {},
+    "zh": "老周到了警察局",
+    "actor": "police",
+    "place": "police",
+    "w": 18744
+   },
+   {
+    "id": "e13",
+    "t": 25.2,
+    "type": "decide",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "親自檢查了麵包店，沒有發現任何明顯的安全問題。",
+     "thought": "看起來沒問題，但不能掉以輕心，得回局裡準備慶典警力。",
+     "feeling": "😐 平靜",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "老周：看起來沒問題，但不能掉以輕心，得回局裡準備慶典警力。",
+    "actor": "police",
+    "place": "police",
+    "w": 27436
+   },
+   {
+    "id": "e14",
+    "t": 25.2,
+    "type": "belief",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0.4275,
+     "to": 0.2,
+     "proposed": 0.2,
+     "verdict": "doubt",
+     "why": "親眼看到一切如常"
+    },
+    "zh": "老周對「阿德麵包店的烤箱檢查過期，隨時可能出事。」的信心：0.43 → 0.20（doubt）",
+    "actor": "police",
+    "w": 27436
+   },
+   {
+    "id": "e15",
+    "t": 25.3,
+    "type": "react",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "feeling": "😐 平靜"
+    },
+    "zh": "老周 😐 平靜",
+    "actor": "police",
+    "place": "police",
+    "w": 27436
+   },
+   {
+    "id": "e16",
+    "t": 26.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 27436
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "police",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人說麵包店烤箱有安全隱患，可能會出事。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "阿德麵包店的烤箱檢查過期，隨時可能出事。",
+       "topic": "oven_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "安全問題不能掉以輕心",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "今晚警力不足，絕對不能再出任何意外，得趕快確認。",
+     "act": "worried",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "bakery",
+       "intent": "inspect",
+       "message": "我要親自去檢查那個烤箱到底怎麼樣。",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "police",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 18742,
+      "latencyMs": 18742,
+      "attempts": 1,
+      "promptTokens": 2141,
+      "completionTokens": 288,
+      "platformCost": 0.0000475895,
+      "estCost": 0.0019345,
+      "status": 200,
+      "raw": "{\n  \"feeling\": \"😟 擔心\",\n  \"act\": \"worried\",\n  \"understanding\": \"有人說麵包店烤箱有安全隱患，可能會出事。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"阿德麵包店的烤箱檢查過期，隨時可能出事。\",\n      \"topic\": \"oven_unsafe\",\n      \"says\": \"yes\",\n      \"category\": \"safety\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": \"c0\",\n      \"verdict\": \"believe\",\n      \"confidence\": \"0.6\",\n      \"why\": \"安全問題不能掉以輕心\",\n      \"cites\": [\"m1\"]\n    }\n  ],\n  \"thought\": \"今晚警力不足，絕對不能再出任何意外，得趕快確認。\",\n  \"actions\": [\n    {\n      \"type\": \"go_look\",\n      \"place\": \"bakery\",\n      \"intent\": \"inspect\",\n      \"message\": \"我要親自去檢查那個烤箱到底怎麼樣。\",\n      \"cites\": [\"#0\"]\n    }\n  ]\n}",
+      "promptChars": 3491,
+      "ttftMs": 6295
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "police",
+    "t": 25.2,
+    "triggers": [
+     "e10",
+     "e10"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "親自檢查了麵包店，沒有發現任何明顯的安全問題。",
+     "claims": [
+      {
+       "ref": "c1",
+       "statement": "阿德麵包店的烤箱檢查過期，隨時可能出事。",
+       "topic": "oven_unsafe",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.2,
+       "why": "親眼看到一切如常",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "😐 平靜",
+     "thought": "看起來沒問題，但不能掉以輕心，得回局裡準備慶典警力。",
+     "act": "shrug",
+     "actions": [
+      {
+       "type": "none",
+       "why": "目前沒發現緊急威脅，先回警察局處理公務",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "stance claim c1 → index 0"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d2",
+      "npc": "police",
+      "stage": "single",
+      "wallStartMs": 18744,
+      "wallEndMs": 27436,
+      "latencyMs": 8692,
+      "attempts": 1,
+      "promptTokens": 2223,
+      "completionTokens": 187,
+      "platformCost": 0.0000434924,
+      "estCost": 0.0016725,
+      "status": 200,
+      "raw": "{\n  \"feeling\": \"😐 平靜\",\n  \"act\": \"shrug\",\n  \"understanding\": \"親自檢查了麵包店，沒有發現任何明顯的安全問題。\",\n  \"claims\": [],\n  \"stances\": [\n    {\n      \"claim\": \"c1\",\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.2,\n      \"why\": \"親眼看到一切如常\",\n      \"cites\": [\"m2\"]\n    }\n  ],\n  \"thought\": \"看起來沒問題，但不能掉以輕心，得回局裡準備慶典警力。\",\n  \"actions\": [\n    {\n      \"type\": \"none\",\n      \"why\": \"目前沒發現緊急威脅，先回警察局處理公務\"\n    }\n  ]\n}",
+      "promptChars": 3597,
+      "ttftMs": 4435
+     }
+    ],
+    "applied": [
+     "e13",
+     "e14",
+     "e15"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "阿德麵包店的烤箱檢查過期，隨時可能出事。",
+    "topic": "oven_unsafe",
+    "says": "yes",
+    "category": "safety",
+    "fact": "oven_expired",
+    "asserts": true,
+    "origin": "e2",
+    "by": "police"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.2,
+      "sources": [
+       "unknown",
+       "self"
+      ],
+      "updatedAt": 25.2,
+      "why": "親眼看到一切如常"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說阿德麵包店的烤箱檢查早就過期了，隨時可能出事。」",
+     "15:20 你決定：去阿德麵包店看看",
+     "15:25 你親眼看到：「阿德麵包店看起來一切如常，沒看到什麼特別的。 阿德（麵包店老闆）在這裡。」",
+     "15:25 你決定先不做什麼。"
+    ]
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 26.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T19:06:53.295Z",
+   "ms": 27436
+  },
+  "llm": {
+   "calls": 2,
+   "attempts": 2,
+   "promptTokens": 4364,
+   "completionTokens": 475,
+   "platformCost": 0.0000910819,
+   "estCost": 0.003607,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 2,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 2,
+  "noneDecisions": 1,
+  "actionsDone": {
+   "look": 2
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "oven_unsafe"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 8,
+  "gameMinutes": 6.3,
+  "llmCalls": 2,
+  "llmSeconds": 27.4,
+  "tokens": 4839,
+  "estCost": 0.003607,
+  "platformCost": 0.000091,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ },
+ "card": {
+  "icon": "🔍",
+  "headline": "老周親自去查：查無實據",
+  "sub": "「阿德麵包店看起來一切如常，沒看到什麼特別的。」",
+  "spine": [],
+  "reached": [
+   "police"
+  ],
+  "truth": {
+   "text": "麵包店烤箱的安全檢查已經過期兩個月。",
+   "value": true,
+   "secretOf": [
+    "baker"
+   ]
+  }
+ },
+ "early": [
+  {
+   "npc": "police",
+   "ms": 6295,
+   "feeling": "😟 擔心",
+   "act": "worried"
+  },
+  {
+   "npc": "police",
+   "ms": 4435,
+   "feeling": "😐 平靜",
+   "act": "shrug"
+  }
+ ]
+}

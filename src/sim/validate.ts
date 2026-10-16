@@ -55,10 +55,14 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
   const beliefs = new Set(view.beliefs.map((b) => b.id));
   const ids = new Set([...view.knowledge.map((k) => k.id), ...view.inbox.map((m) => m.id), ...beliefs]);
   const msgIds = new Set(view.inbox.map((m) => m.id));
-  const claims = out.claims.map((c) => {
+  // a new claim the model named itself ("c2" for something it just learned): keep the name so its stance and
+  // the actions citing it still find it (P4: a finding was dropped this way and the article could not cite it)
+  const invented = new Map<string, number>();
+  const claims = out.claims.map((c, k) => {
     let x = c;
     if (x.ref !== "new" && !beliefs.has(x.ref)) {
       notes.push(`claim ref ${String(x.ref)} → new`);
+      if (typeof x.ref === "string" && !invented.has(x.ref)) invented.set(x.ref, k);
       x = { ...x, ref: "new" };
     }
     if (x.source && !msgIds.has(x.source)) x = { ...x, source: undefined };
@@ -69,7 +73,7 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
     const conf = typeof s.confidence === "string" ? Number(s.confidence) : s.confidence;
     const cites = (Array.isArray(s.cites) ? s.cites : []).filter((c) => {
       const ok = ids.has(c);
-      if (!ok) notes.push(`stance cite ${c} dropped`);
+      if (!ok && !invented.has(c)) notes.push(`stance cite ${c} dropped`);
       return ok;
     });
     const verdict = VERDICT[String(s.verdict).toLowerCase()] ?? s.verdict;
@@ -106,6 +110,7 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
       const id = raw as string;
       const idx = claims.findIndex((c) => c.ref === id);
       if (idx >= 0) k = idx;
+      else if (invented.has(id)) k = invented.get(id)!;
       else if (beliefById.has(id)) {
         const b = beliefById.get(id)!;
         claims.push({ ref: id, statement: b.statement, topic: b.topic, says: b.says, category: b.category });
@@ -124,6 +129,9 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
   }
   stances.length = 0;
   stances.push(...fixed);
+  // actions citing a self-named new claim cite it by position
+  for (const act of out.actions)
+    if (Array.isArray(act.cites)) act.cites = act.cites.map((c) => (invented.has(c) ? `#${invented.get(c)}` : c));
   // a new claim with no stance says nothing about belief: drop it and renumber the "#k" references
   const keep = claims.map((c, k) => c.ref !== "new" || stances.some((st) => st.claim === k));
   if (keep.some((x) => !x)) {

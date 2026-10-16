@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import { simulate } from "../src/sim/engine.ts";
 import type { Chat, LlmCall } from "../src/sim/llm.ts";
 import { storyOf } from "../src/town/story.ts";
+import { FACTS } from "../src/sim/scenario.ts";
 
 const ALL8 = ["baker", "florist", "journalist", "cafe", "police", "mayor", "organizer", "vendor"];
 const call = (content: string | null, status = 200): LlmCall => ({
@@ -62,4 +63,48 @@ test("an empty story (nobody acts) still ends and gets a card", async () => {
   const card = storyOf(run);
   assert.ok(card.headline.length > 0);
   assert.ok(card.headline.includes("阿珠"), card.headline);
+});
+
+// Scripted (fake) answers for the first resident, then "none": checks engine rules, not Gemma.
+const firstThen = (first: object) => fake((n) => call(JSON.stringify(n === 0 ? first : { feeling: "😐 無感", act: "shrug", understanding: "x", thought: "y", claims: [], stances: [], actions: [{ type: "none", why: "x" }] })));
+const stageClaim = { ref: "new", source: "m1", statement: "舞台可能撐不住", topic: "stage_unsafe", says: "yes", category: "safety" };
+
+test("a glance is not an inspection: a casual look says what it could not show, and reveals nothing hidden", async () => {
+  const run = await simulate({
+    active: ALL8, seedNpc: "police", seedText: "聽說阿德麵包店的烤箱檢查早就過期了", seed: 6, policy: "gemma", maxDecisions: 3,
+    chat: firstThen({
+      feeling: "🤔 懷疑", act: "doubt", understanding: "烤箱可能有問題", thought: "去看看",
+      claims: [{ ref: "new", source: "m1", statement: "烤箱檢查過期", topic: "oven_unsafe", says: "yes", category: "safety" }],
+      stances: [{ claim: 0, verdict: "doubt", confidence: 0.4, why: "陌生人說的", cites: ["m1"] }],
+      actions: [{ type: "go_look", place: "bakery", why: "看看", cites: ["#0"] }],
+    }),
+  });
+  const look = run.events.find((e) => e.type === "look" && e.data.found);
+  assert.ok(look, "the look should finish");
+  assert.ok(String(look!.data.found).includes("光是看看是看不出來"), String(look!.data.found));
+  for (const f of FACTS.filter((x) => x.check?.place === "bakery" && x.check.by === "expert"))
+    assert.ok(!String(look!.data.found).includes(f.check!.zh) && !f.keywords.some((k) => String(look!.data.found).includes(k)), "a glance must not reveal or hint the hidden fact");
+});
+
+test("saying the same thing again is blocked, but the first time in person after a call is a scene", async () => {
+  const twoCalls = await simulate({
+    active: ALL8, seedNpc: "police", seedText: "舞台快塌了", seed: 8, policy: "gemma", maxDecisions: 3,
+    chat: firstThen({
+      feeling: "😟 擔心", act: "worried", understanding: "舞台危險", thought: "通知志明", claims: [stageClaim],
+      stances: [{ claim: 0, verdict: "believe", confidence: 0.4, why: "得確認", cites: ["m1"] }],
+      actions: [{ type: "phone", target: "organizer", message: "志明，舞台可能有問題", cites: ["#0"] }, { type: "phone", target: "organizer", message: "志明，舞台可能有問題！", cites: ["#0"] }],
+    }),
+  });
+  assert.equal(twoCalls.events.filter((e) => e.type === "phone" && e.actor === "police" && !e.data.missed).length, 1);
+  assert.ok(twoCalls.events.some((e) => e.type === "rejected" && String(e.data.why).includes("說過同一件事")));
+
+  const callThenVisit = await simulate({
+    active: ALL8, seedNpc: "police", seedText: "舞台快塌了", seed: 8, policy: "gemma", maxDecisions: 3,
+    chat: firstThen({
+      feeling: "😟 擔心", act: "worried", understanding: "舞台危險", thought: "通知志明再當面講", claims: [stageClaim],
+      stances: [{ claim: 0, verdict: "believe", confidence: 0.4, why: "得確認", cites: ["m1"] }],
+      actions: [{ type: "phone", target: "organizer", message: "志明，舞台可能有問題", cites: ["#0"] }, { type: "tell", target: "organizer", message: "我當面跟你說：舞台得處理", cites: ["#0"] }],
+    }),
+  });
+  assert.ok(callThenVisit.events.some((e) => e.type === "talk" && e.actor === "police" && e.target === "organizer"), "the visit after the call should happen");
 });

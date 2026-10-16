@@ -104,8 +104,9 @@ export interface Mind {
   memory: string[]; // short lines the NPC remembers having heard or done
   decisions: number;
   lastDecisionAt: Minutes;
-  /** who I already told what (claim ids), so the engine can stop repeats */
-  told: Map<NpcId, Set<string>>;
+  /** who I already told what (claim id → how often, how sure I was, whether in person), so the engine can stop
+   *  empty repeats but still let a changed mind or a first face-to-face confrontation through */
+  told: Map<NpcId, Map<string, { n: number; conf: number; face: boolean }>>;
   /** "from|claimId" pairs already received, so hearing the same thing from the same person adds nothing */
   heardKeys: Set<string>;
 }

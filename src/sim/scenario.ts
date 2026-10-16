@@ -203,6 +203,16 @@ export const PUBLIC_BIO: Record<string, { bio: string; examples: string[] }> = {
  * A few fixed meetings in everyone's evening. A meeting only becomes a decision when one of the two is
  * carrying something they half-believe (confidence >= 0.3); otherwise nothing happens and no model is called.
  */
+// What a casual look cannot tell you at a place (shown to anyone who only looks around there, whatever the rumour
+// and whether or not it is true, so it gives nothing away). Without it "everything looks normal" read as evidence
+// against an oven or a budget rumour that a glance could never have confirmed (P4: the police stopped there).
+export const LOOK_LIMITS: Partial<Record<string, string>> = {
+  // generic on purpose: it must not point at the hidden fact itself
+  stage: "一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。",
+  bakery: "店裡的設備安不安全，光是看看是看不出來的，要懂行的人仔細檢查才知道。",
+  townhall: "公家的錢怎麼花，不會寫在牆上，要有人去仔細翻閱公開資料才知道。",
+};
+
 // `about`: the kinds of talk that belong in this meeting. A meeting is played out (with model calls) only when one
 // of them carries a belief of that kind; otherwise it passes quietly. (Before: any belief at all triggered every
 // meeting, so the 17:00 stage walk-through fired in most stories and nearly every road led to the stage — P3.)

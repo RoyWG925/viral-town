@@ -190,3 +190,25 @@ test("with no claims listed, a bare stance number maps to that belief (not ambig
   assert.equal(n.out.claims[0]?.ref, "c2");
   assert.deepEqual(checkDecision(v, n.out).errors, []);
 });
+
+test("a new claim the model named itself (\"c2\") keeps its stance and can be cited (P4 regression)", () => {
+  // shape of the real failing answer: the journalist found the overrun, called it c2, re-listed belief c1 by id
+  const v = viewFor("journalist", {
+    beliefs: [{ id: "c1", statement: "市長拿攤位費買新車", topic: "mayor_embezzled", says: "yes", category: "scandal", confidence: 0.2, sources: ["vendor"], sourcesZh: "阿珠" }],
+    knowledge: [...viewFor("journalist").knowledge, { id: "budget_overrun", zh: "公開的慶典收支表上，實際支出比原本的預算多了三成。", secret: false, learned: true }],
+  });
+  v.known = { ...v.known, budget_overrun: true }; // as the engine does for a fact found by inspecting
+  const raw = base({
+    claims: [{ ref: "c2", statement: "燈籠節預算超支三成", topic: "budget_overrun", says: "yes", category: "scandal" }],
+    stances: [
+      { claim: "c2" as unknown as number, verdict: "believe", confidence: 0.95, why: "我親眼看到收支表", cites: ["budget_overrun"] },
+      { claim: "c1" as unknown as number, verdict: "doubt", confidence: 0.2, why: "沒證據", cites: [] },
+    ],
+    actions: [{ type: "publish_article", message: "燈籠節預算超支三成！", cites: ["c2", "budget_overrun"] }],
+  });
+  const n = normalize(v, raw);
+  assert.equal(n.out.claims[0].topic, "budget_overrun");
+  assert.equal(n.out.stances.find((s) => s.claim === 0)?.confidence, 0.95);
+  assert.ok(n.out.actions[0].cites?.includes("#0"), JSON.stringify(n.out.actions[0].cites));
+  assert.deepEqual(checkDecision(v, n.out).errors, []);
+});

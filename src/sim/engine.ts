@@ -1,7 +1,7 @@
 // VIRAL simulation engine: a discrete-event world that owns the truth.
 // Residents decide (Gemma or rules); the engine validates, moves them, delivers messages, resolves
 // inspections against the facts, changes world state and records every cause in the event log.
-import { TOPIC_CATEGORY, FACTS, FESTIVAL_AT, PERSONAS, PLACES, PUBLIC_INFO, ROUTINE, TOPICS, initialWorld } from "./scenario.ts";
+import { LOOK_LIMITS, TOPIC_CATEGORY, FACTS, FESTIVAL_AT, PERSONAS, PLACES, PUBLIC_INFO, ROUTINE, TOPICS, initialWorld } from "./scenario.ts";
 
 const TOPIC_TEXT = TOPICS.map((t) => t.q).join(" ");
 import { travelMinutes } from "./geo.ts";
@@ -368,6 +368,29 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     at(retry, () => whenFree(self, o, retry, give, run, since));
   }
 
+  // Saying the same thing to the same person again is blocked (it only burns model calls and loops), unless
+  // something changed: the speaker is now much surer or less sure (new evidence), or it is the first time they say
+  // it in person after a call — the confrontation at the stage is a scene, not a repeat (P4 lost exactly that one).
+  // At most 3 times per claim and person in any case.
+  function isRepeat(n: Npc, target: Npc, claimIds: string[], face: boolean) {
+    const told = n.mind.told.get(target.p.id);
+    if (!claimIds.length || !told || !claimIds.every((c) => told.has(c))) return false;
+    return !claimIds.some((c) => {
+      const r = told.get(c)!;
+      if (r.n >= 3) return false;
+      const conf = n.mind.beliefs.get(c)?.confidence ?? r.conf;
+      return Math.abs(conf - r.conf) >= 0.25 || (face && !r.face);
+    });
+  }
+  function markTold(n: Npc, target: Npc, claimIds: string[], face: boolean) {
+    const told = n.mind.told.get(target.p.id) ?? new Map<string, { n: number; conf: number; face: boolean }>();
+    for (const c of claimIds) {
+      const r = told.get(c);
+      told.set(c, { n: (r?.n ?? 0) + 1, conf: n.mind.beliefs.get(c)?.confidence ?? 0, face: face || !!r?.face });
+    }
+    n.mind.told.set(target.p.id, told);
+  }
+
   function reject(n: Npc, t: Minutes, cause: string, why: string, a: ActionIntent) {
     return emit("rejected", t, `${n.p.name}沒能${describe(a)}：${why}`, [cause], { actor: n.p.id, data: { action: a.type, why } });
   }
@@ -384,8 +407,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           reject(n, t, cause, "找不到這個人", a);
           return next(t);
         }
-        const told = n.mind.told.get(target.p.id) ?? new Set<string>();
-        if (a.type === "tell" && claimIds.length && claimIds.every((c) => told.has(c))) {
+        if (a.type === "tell" && isRepeat(n, target, claimIds, true)) {
           reject(n, t, cause, "已經跟對方說過同一件事了", a);
           return next(t);
         }
@@ -408,8 +430,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
             const ev = emit("talk", tb, `${n.p.name}對${target.p.name}說：「${a.message}」`, [cause], {
               actor: n.p.id, target: target.p.id, place: n.place, data: { text: a.message, intent: a.intent ?? (a.type === "ask" ? "ask" : "inform"), claims: claimIds },
             });
-            claimIds.forEach((c) => told.add(c));
-            n.mind.told.set(target.p.id, told);
+            markTold(n, target, claimIds, true);
             at(tb + TALK, () => {
               deliver(target, n.p.id, "face", a.intent ?? (a.type === "ask" ? "ask" : "inform"), a.message ?? "", claimIds, tb + TALK, ev);
               next(tb + TALK);
@@ -422,8 +443,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           reject(n, t, cause, "沒有對方的電話", a);
           return next(t);
         }
-        const toldBefore = n.mind.told.get(target.p.id);
-        if (claimIds.length && toldBefore && claimIds.every((c) => toldBefore.has(c))) {
+        if (isRepeat(n, target, claimIds, false)) {
           reject(n, t, cause, "已經跟對方說過同一件事了", a);
           return next(t);
         }
@@ -435,9 +455,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
         const ev = emit("phone", t, `${n.p.name}打電話給${target.p.name}：「${a.message}」`, [cause], {
           actor: n.p.id, target: target.p.id, place: n.place, data: { text: a.message, intent: a.intent ?? "inform", claims: claimIds },
         });
-        const told = n.mind.told.get(target.p.id) ?? new Set<string>();
-        claimIds.forEach((c) => told.add(c));
-        n.mind.told.set(target.p.id, told);
+        markTold(n, target, claimIds, false);
         at(t + PHONE, () => {
           deliver(target, n.p.id, "phone", a.intent ?? "inform", a.message ?? "", claimIds, t + PHONE, ev);
           next(t + PHONE);
@@ -470,7 +488,11 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
             if (world.shops[place] === "closed") seen.push(`${placeZh(place)}今天暫停營業。`);
             // who is around is part of what you see (and someone you could go and ask)
             const here = [...npcs.values()].filter((o) => o !== n && o.place === place && !o.dest).map((o) => `${o.p.name}（${o.p.roleZh}）`);
-            if (!seen.length) seen.push(`${placeZh(place)}看起來一切如常，沒看到什麼特別的。`);
+            // what this look could not have shown them (a glance is not an inspection; not their trade)
+            const missed = FACTS.some((f) => f.check?.place === place && f.check.by === "expert" && !checks.includes(f));
+            const limit = missed ? LOOK_LIMITS[place] : undefined;
+            if (!seen.length) seen.push(limit ? `${placeZh(place)}表面上看起來一切如常。` : `${placeZh(place)}看起來一切如常，沒看到什麼特別的。`);
+            if (limit) seen.push(limit);
             if (here.length) seen.push(`${here.join("、")}在這裡。`);
             const text = seen.join(" ");
             const done = emit(expert ? "inspect" : "look", ta + dur, `${n.p.name}看到：${text}`, [ev], { actor: n.p.id, place, data: { found: text, highlight: highlight ?? seen[0], learned: [...n.mind.learned.keys()] } });

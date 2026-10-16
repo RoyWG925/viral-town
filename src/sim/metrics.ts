@@ -47,6 +47,8 @@ export interface Metrics {
   validatorRetries: number;
   modelErrors: number;
   fallbacks: number;
+  /** decisions whose thinking was kept but whose wanted action the rules refused (after retries) */
+  refusedWishes: number;
 }
 
 export function measure(run: RunResult): Metrics {
@@ -117,5 +119,6 @@ export function measure(run: RunResult): Metrics {
     modelErrors: run.decisions.reduce((s, d) => s + d.validation.filter((v) => v.kind === "model" || v.errors.some((e) => e.startsWith("model error"))).length, 0),
     // planned decision caps are not failures; count only decisions the validator had to give up on
     fallbacks: run.decisions.filter((d) => d.fallback && !d.validation.some((v) => v.errors.includes("decision budget reached"))).length,
+    refusedWishes: run.decisions.filter((d) => d.validation.some((v) => v.kind === "salvaged")).length,
   };
 }

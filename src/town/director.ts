@@ -641,11 +641,14 @@ function apply(e: SimEvent) {
       hold = 2.5;
       break;
     }
-    case "rejected":
-      bubble(actor, "🤷", 2);
-      caption({ who: actor ?? "", icon: "🤷", tone: "system", text: e.zh });
-      hold = 1.6;
+    case "rejected": {
+      // ✋ they wanted to do something big and the rules held them back (a beat); 🤷 an action that just failed
+      const icon = d.wanted ? "✋" : "🤷";
+      bubble(actor, icon, d.wanted ? 2.6 : 2);
+      caption({ who: actor ?? "", icon, tone: "system", text: e.zh });
+      hold = d.wanted ? 2.4 : 1.6;
       break;
+    }
     case "end": {
       const fest = show.world.festival === "cancelled" ? "燈籠節被取消了。" : "燈籠節照常舉行。";
       const reason = String(d.reason);

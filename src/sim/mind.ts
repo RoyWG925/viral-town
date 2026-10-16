@@ -15,6 +15,18 @@ export interface MindResult {
   llm: LlmRecord[];
   validation: ValidationEntry[];
   fallback: boolean;
+  /** actions the resident wanted but the rules did not allow (their thinking was valid and is kept) */
+  refused?: { action: DecisionOutput["actions"][number]; why: string }[];
+}
+
+/** The gist of why the rules stopped an action, for a one-line beat on screen. */
+function refusalGist(errors: string[]): string {
+  const e = errors[0] ?? "";
+  if (/信心|把握|確定/.test(e)) return "把握還不夠";
+  if (/電話/.test(e)) return "沒有對方的電話";
+  if (/沒有聽說過|秘密/.test(e)) return "那不是能說出口的事";
+  if (/地點|place/.test(e)) return "去不了那裡";
+  return "這件事現在做不到";
 }
 
 const ACTION_ZH: Record<ActionKind, string> = {
@@ -161,8 +173,9 @@ async function ask(
   chat: Chat, messages: ChatMessage[], view: View, stage: "single" | "read" | "act", npcId: string, clock0: number, temperature: number,
   check: (o: DecisionOutput) => Checked, llm: LlmRecord[], validation: ValidationEntry[],
   onEarly?: (x: { feeling: string; act: string }) => void,
-): Promise<{ out: DecisionOutput; checked: Checked } | null> {
+): Promise<{ out: DecisionOutput; checked: Checked; refused?: MindResult["refused"] } | null> {
   let msgs = messages;
+  let last: DecisionOutput | null = null;
   // two chances for the model to give a valid answer; provider outages get extra tries on top
   let modelFailures = 0;
   for (let attempt = 1; attempt <= 2 + Math.min(modelFailures, 3); attempt++) {
@@ -206,9 +219,29 @@ async function ask(
     }
     validation.push({ attempt, stage, kind: errors.length ? "validator" : "ok", errors, notes: norm?.notes.length ? norm.notes : undefined });
     if (out && checked && errors.length === 0) return { out, checked };
+    if (out && !parsed.error) last = out;
     msgs = [...msgs, { role: "assistant", content: r.content }, { role: "user", content: `你的回覆沒有通過檢查：${errors.join("；")}。請修正後重新回覆完整的 JSON。` }];
   }
-  void view;
+  // Out of tries. If the resident's reading of the situation was valid and only what they wanted to *do* broke a
+  // rule (e.g. sending the police on one stranger's word), keep their real thinking, keep the actions that are
+  // allowed, and record the refused ones as a visible beat — instead of replacing everything with "😶 愣住".
+  if (last) {
+    const none = [{ type: "none" as const, why: "refused" }];
+    const reading = check({ ...last, actions: none });
+    if (!reading.errors.length) {
+      const keep: DecisionOutput["actions"] = [];
+      const refused: NonNullable<MindResult["refused"]> = [];
+      for (const a of last.actions) {
+        if (a.type === "none") continue;
+        const e = check({ ...last, actions: [a] }).errors;
+        if (e.length) refused.push({ action: a, why: refusalGist(e) });
+        else keep.push(a);
+      }
+      const out = { ...last, actions: keep.length ? keep : none };
+      validation.push({ attempt: 0, stage, kind: "salvaged", errors: refused.map((r) => `${r.action.type}: ${r.why}`) });
+      return { out, checked: check(out), refused };
+    }
+  }
   return null;
 }
 
@@ -224,6 +257,7 @@ export async function decideWithGemma(view: View, chat: Chat, opts: { variant: V
     ];
     const res = await ask(chat, msgs, view, "single", npcId, opts.clock0, opts.temperature, (o) => checkDecision(view, free ? { ...o, actions: [] } : o, { requireActions: !free }), llm, validation, opts.onEarly);
     if (!res) return { output: FALLBACK, checked: checkDecision(view, FALLBACK, { requireReading: false }), llm, validation, fallback: true };
+    if (res.refused?.length) return { output: res.out, checked: res.checked, llm, validation, fallback: false, refused: res.refused };
     if (free) {
       // free-form actions are recorded for the experiment but never executed
       const freeActs = res.out.actions;

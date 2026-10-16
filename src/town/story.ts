@@ -326,6 +326,8 @@ export function storyOf(run: RunResult): StoryCard {
       const bounced = hops.length >= 2 && talkers.size === 2;
       const [p1, p2] = [...talkers];
       const toldSomeone = hops.some((h) => h.from === lastDec.npc);
+      // they wanted to do something big and the rules stopped them: that is the ending, in the log's words
+      const wanted = events.filter((x) => x.type === "rejected" && x.data.wanted && x.actor === lastDec.npc).at(-1);
       Object.assign(card, {
         icon: bounced ? "🔁" : !lastB ? "❓" : dismissive ? "🧱" : "🤐",
         headline: bounced
@@ -339,6 +341,7 @@ export function storyOf(run: RunResult): StoryCard {
               : `${nameOf(lastDec.npc)}聽進去了，但沒有說出去`,
         sub: `「${stop.thought}」`,
       });
+      if (wanted) Object.assign(card, { icon: "✋", headline: wanted.zh });
     } else Object.assign(card, { icon: "🍃", headline: "這句話沒有激起任何漣漪", sub: "" });
   }
 

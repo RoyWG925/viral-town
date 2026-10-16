@@ -58,7 +58,7 @@ async function one(c: (typeof CASES)[number]) {
     id: c.id, npc: c.npc, text: c.text, provider: calls[0]?.provider ?? "?", wallMs: run.wall.ms,
     firstEarlyMs: firstEarly, firstDecisionMs: firstDecision ? Math.max(...firstDecision.llm.map((l) => l.wallEndMs)) : null,
     ttftMs: calls.map((l) => l.ttftMs ?? null), latencyMs: calls.map((l) => l.latencyMs),
-    calls: calls.length, tokens: m.tokens, estCost: m.estCost, retries: m.validatorRetries, modelErrors: m.modelErrors, fallbacks: m.fallbacks,
+    calls: calls.length, tokens: m.tokens, estCost: m.estCost, retries: m.validatorRetries, modelErrors: m.modelErrors, fallbacks: m.fallbacks, refusedWishes: m.refusedWishes,
     depth: m.depth, reach: m.reach, believers: m.believers, world: m.worldChanges, worldTypes: m.worldChangeTypes, ended: run.ended.reason,
     headline: `${card.icon} ${card.headline}`, sub: card.sub,
     acts: run.decisions.filter((d) => d.output).map((d) => `${d.npc}:${d.output!.act}`),

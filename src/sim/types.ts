@@ -249,7 +249,7 @@ export interface ValidationEntry {
   errors: string[];
   stage?: string;
   /** "model": the provider failed (not the model's fault); "validator": output rejected; "budget": planned cap */
-  kind?: "model" | "validator" | "budget" | "ok";
+  kind?: "model" | "validator" | "budget" | "ok" | "salvaged";
   /** harmless formatting corrections applied before checking (for transparency) */
   notes?: string[];
 }

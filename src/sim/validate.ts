@@ -292,26 +292,28 @@ export function checkDecision(view: View, out: DecisionOutput, opts: { requireAc
     }
     const grounds = citeConf(a.cites);
     const best = (pred: (x: { c: { topic: string; category: Category }; conf: number }) => boolean) => Math.max(0, ...grounds.filter(pred).map((g) => g.conf));
+    // the model only sees its own number; say what the engine allows it to be sure of, and why
+    const actually = (v: number) => (grounds.length ? `（以你目前的消息來源，你對它的把握其實只有 ${v.toFixed(2)}：只是聽人說的、沒有親眼證據，把握有上限）` : "");
     switch (a.type) {
       case "dispatch_police":
-        if (best((g) => ["safety", "crime"].includes(g.c.category)) < 0.5) errors.push("出動警力需要你有相當把握（信心 0.5 以上）的安全或治安疑慮，並在 cites 裡引用它；把握不夠的話，可以先去現場看看、問人，或先不行動");
+        if (best((g) => ["safety", "crime"].includes(g.c.category)) < 0.5) errors.push(`出動警力需要你有相當把握（信心 0.5 以上）的安全或治安疑慮，並在 cites 裡引用它${actually(best((g) => ["safety", "crime"].includes(g.c.category)))}；把握不夠的話，可以先去現場看看、問人，或先不行動`);
         break;
       case "cancel_festival": {
         const safety = best((g) => g.c.category === "safety");
         const strong = grounds.filter((g) => g.conf >= 0.5).length;
         if (!(safety >= 0.7 || (strong >= 2 && view.publicEvents.length > 0)))
-          errors.push("取消燈籠節需要很有把握的安全疑慮（0.7 以上），或兩個以上有把握的理由加上鎮上已經出現的公開壓力，並在 cites 裡引用；把握不夠的話，可以先查證、找人談，或發表聲明");
+          errors.push(`取消燈籠節需要很有把握的安全疑慮（0.7 以上），或兩個以上有把握的理由加上鎮上已經出現的公開壓力，並在 cites 裡引用${actually(safety)}；把握不夠的話，可以先查證、找人談，或發表聲明`);
         break;
       }
       case "publish_article":
         if (best(() => true) < 0.3) errors.push("發文需要引用至少一條你覺得有可能（信心 0.3 以上）的說法");
         break;
       case "rally":
-        if (best(() => true) < 0.5) errors.push("號召大家聚集需要你有把握（0.5 以上）的理由，並在 cites 裡引用");
+        if (best(() => true) < 0.5) errors.push(`號召大家聚集需要你有把握（0.5 以上）的理由，並在 cites 裡引用${actually(best(() => true))}`);
         break;
       case "close_stage": {
         const knowsDefect = view.known["stage_uninspected"] === true;
-        if (!knowsDefect && best((g) => g.c.topic === "stage_unsafe") < 0.6) errors.push("封鎖舞台需要你確定舞台有問題");
+        if (!knowsDefect && best((g) => g.c.topic === "stage_unsafe") < 0.6) errors.push(`封鎖舞台需要你確定舞台有問題${actually(best((g) => g.c.topic === "stage_unsafe"))}`);
         break;
       }
       case "close_shop":

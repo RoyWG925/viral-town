@@ -140,3 +140,27 @@ test("after a look, a resident whose next decision is coming does not walk home 
   const homeBetween = run.events.filter((e) => e.type === "move" && e.actor === "police" && e.data.home && e.t >= lookEnd!.t && e.t <= inspectStart!.t);
   assert.equal(homeBetween.length, 0, homeBetween.map((e) => e.zh).join(" / "));
 });
+
+test("wanting too much on a stranger's word keeps the thinking and shows the refusal (live run regression)", async () => {
+  // the real answer from a live run: 老周 wanted to send officers to the bakery on one stranger's sentence
+  const answer = {
+    feeling: "😟 擔心", act: "worried", understanding: "麵包店烤箱有安全隱患，可能會在慶典期間發生意外。",
+    claims: [{ ref: "c0", source: "m1", statement: "阿德麵包店的烤箱檢查過期，隨時可能出事", topic: "oven_unsafe", says: "yes", category: "safety" }],
+    stances: [{ claim: "c0", verdict: "believe", confidence: "0.6", why: "安全問題不能掉以輕心", cites: ["m1"] }],
+    thought: "今晚警力已經減半，不能再出任何意外，得趕快確認。",
+    actions: [{ type: "dispatch_police", place: "bakery", intent: "inform", message: "去阿德麵包店巡視一下", cites: ["c0"] }],
+  };
+  const run = await simulate({ active: ALL8, seedNpc: "police", seedText: "聽說阿德麵包店的烤箱檢查早就過期了，隨時可能出事。", seed: 11, policy: "gemma", maxDecisions: 3,
+    // the model insists on the same answer when sent back (as it did live), then later residents do nothing
+    chat: fake((n) => call(JSON.stringify(n < 2 ? answer : { feeling: "😐 無感", act: "shrug", understanding: "x", thought: "y", claims: [], stances: [], actions: [{ type: "none", why: "x" }] }))) });
+  const d = run.decisions[0];
+  assert.ok(!d.fallback, "valid thinking must not be thrown away");
+  assert.equal(d.output?.thought, answer.thought);
+  assert.ok(d.validation.some((v) => v.errors.some((e) => e.includes("其實只有"))), "the retry says what the engine allows");
+  assert.equal(run.world.police.deployed, false, "no police on a stranger's word");
+  assert.ok(run.events.some((e) => e.type === "belief" && e.actor === "police"), "the belief is kept");
+  const refused = run.events.find((e) => e.type === "rejected" && e.data.wanted);
+  assert.ok(refused && refused.zh.includes("派警力"), refused?.zh);
+  const card = storyOf(run);
+  assert.ok(card.headline.includes("派警力") && !card.headline.includes("中斷"), card.headline);
+});

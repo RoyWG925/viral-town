@@ -309,6 +309,9 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       n.beliefEvents.set(cid, bEv);
     });
     rec.applied.push(emit("react", t + 0.1, `${n.p.name} ${out.feeling}`, [dEv], { actor: n.p.id, place: n.place, data: { feeling: out.feeling } }));
+    // what they wanted to do but the rules did not allow: part of the story, shown honestly
+    for (const r of res.refused ?? [])
+      rec.applied.push(emit("rejected", t + 0.2, `${n.p.name}想${describe(r.action)}，但${r.why}`, [dEv], { actor: n.p.id, place: n.place, data: { action: r.action.type, why: r.why, wanted: true } }));
     for (const m of inbox) n.mind.memory.push(`${clockOf(m.at)} ${m.from === "self" ? "你親眼看到" : `${name(m.from)}${m.via === "phone" ? "打電話" : ""}說`}：「${m.text.slice(0, 60)}」`);
     // the plan replaces whatever was left of the previous one
     const plan = (out.actions ?? []).filter((a) => a.type !== "none").slice(0, 2);
@@ -348,6 +351,15 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       case "ask": return `去問${who}「${a.message ?? ""}」`;
       case "go_look": return `去${placeZh(a.place!)}看看`;
       case "inspect": return `去檢查${placeZh(a.place!)}`;
+      case "dispatch_police": return `派警力到${placeZh(a.place!)}`;
+      case "close_stage": return "封鎖舞台";
+      case "cancel_festival": return "取消燈籠節";
+      case "publish_article": return "發文爆料";
+      case "public_statement": return "發表聲明";
+      case "post_notice": return "貼公告";
+      case "rally": return "號召攤商聚集";
+      case "close_shop": return "關店";
+      case "open_shop": return "開店";
       default: return a.type;
     }
   };

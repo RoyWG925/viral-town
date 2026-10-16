@@ -37,9 +37,10 @@ world never changes before the full answer is validated.
 
 ## AMD / Gemma
 - Model: **Gemma-4-31B-IT on AMD Token Factory** (OpenAI-compatible endpoint), streamed, JSON mode.
-- Measured on our runs: a decision reads ~1.8k tokens and writes ~200; median 17.5 s per call; with streaming the first
-  visible reaction arrives in ~4–8 s; the platform's prompt cache hit rate was ~60%; the platform-reported cost of a
-  10-story playtest batch (95 calls) was US$0.0047.
+- Measured on our runs: a decision reads ~1.8k tokens and writes ~200; with streaming the first visible reaction
+  arrives in 2.7–9.9 s (mean 4.3 s over 10 stories in batch P5) and the first full decision in 5.8–36.7 s (mean 13–15 s);
+  the platform's prompt cache hit rate was ~60%; a long story (22–26 calls) costs US$0.0011–0.0015 as reported by the
+  platform. Warming the cache before the first call made no clear difference (A/B, n=4).
 - Prepared (not run): self-hosting on an AMD Instinct MI300X with vLLM — `deploy/amd-mi300x/`.
 
 ## Run it
@@ -55,10 +56,23 @@ npm run dev                         # then open the printed localhost URL
 - `node lab/playtest.ts P1` — real-model playtest batch (10 inputs incl. absurd, fragment, command); logs in `lab/runs/`.
 - `node lab/fun-metrics.ts lab/runs/P1` — first visible reaction, longest wait, beats/minute, endings.
 - `node lab/e2e.mjs live cafe "…"` — headless browser playthrough with screenshots (`lab/shots/`).
-- Tests: `node --test lab/test-validators.ts lab/test-engine.ts lab/test-story.ts`.
+- Tests (no model calls): `node --test lab/test-validators.ts lab/test-engine.ts lab/test-story.ts lab/test-faults.ts`
+  — validators, engine invariants, the results card only retelling the log, and model failures / engine rules with a
+  scripted fake model.
+- `node lab/e2e-prod.mjs http://localhost:3005` — UI-only smoke test against a production build (`next build && next start`).
 - Notes: `lab/LAB_NOTES.md` (experiments A–E), `PLAYTEST_REPORT.md`, `OVERNIGHT_PROGRESS.md`.
 
+## What the playtests showed
+Six dramatic sentences per batch, real Gemma each time (PLAYTEST_REPORT.md): in P5 they ended four different ways, in
+P6 four of six changed the world — e.g. a *false* rumour that the mayor bought a car with stall fees sent the reporter
+to the public accounts, where she found the *real* 30% overrun; her exposé made the mayor ask the police to "keep order"
+at the stalls, so the headline was 🚓 警察出動到章魚燒攤. Weak sentences (memes, fragments, commands) stop at the first
+resident within seconds, by design.
+
 ## Known limits
-- Waits: a long story needs ~2–4 minutes of model time; playback streams while it runs (thinking beats, cutaways).
+- Waits: a long story needs ~3–6 minutes of model time; playback streams while it runs (thinking beats, cutaways),
+  and recordings replay at 2–3×.
+- A story stops at 22 model decisions (5 per resident) to bound time and cost; long stories often reach it and the
+  card says so honestly.
 - Many sentences fizzle at the first resident — by design; the town does not have to care.
 - Entertainment value has been assessed with metrics and AI-assisted ratings, not yet with human playtesters.

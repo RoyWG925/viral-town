@@ -65,6 +65,41 @@ Built:
 
 ---
 
+### Round 4 — independent code review of tonight's work (3 lenses, every finding re-verified)
+28 findings, **19 confirmed real and fixed** (`c914a4a`). The ones that mattered most for honesty:
+- the story card's "topic changed" check never found the player's own topic, so 7/10 P1 cards claimed a drift that
+  did not happen (my bug) → claims are matched to the message that triggered the decision; drift now fires only on
+  the 2 runs where the talk really moved (meme → stage, oven → stage);
+- bubbles showed a routine-meeting schedule line ("阿德送麵包到咖啡廳") as "聽到的是…" before an unrelated rumour →
+  meeting/crowd lines are no longer treated as what someone heard;
+- a model failure (fallback) could be shown as the resident's choice ("謠言在 X 這裡踢到鐵板「（沒能做出判斷）」") →
+  now "故事在 X 這裡中斷 — 模型沒有給出有效回答";
+- belief pills and thread colours showed the listener's latest stance, not their reaction to that message → per message;
+- "自己也只信 X%，卻照傳" used the wrong claim and appeared on denials → only when passing on (inform/warn), with the
+  confidence in the claim actually carried;
+- phone line disappeared at the cut to the listener → it moves over; the player can always take the camera, and a
+  new story brings the director back; audio unlocks on every path into playback.
+
+### Round 5 — P2: does the bigger budget let climaxes land?
+Same seeds, decision cap 22 / 5 per resident (`lab/runs/P2`). **World changes went from 0/10 (P1) to 2 of the first 3**:
+- stage-cafe → **🚧 老周 closed the stage**; 8 residents involved; 志明 tells 阿珠 it is 「例行性的最後安全檢查」; 小雯 investigates.
+- oven-police → 老周 looks (nothing), doubts, inspects, **finds the expired sticker** (0.30→0.98), warns the mayor; the
+  mayor asks 志明, who only glances (「一切正常」) and reassures him; at the 17:30 interview the relieved mayor brags
+  「準備得非常完美」; 小雯 is suspicious, 阿珠 vents about fees → **📰 小雯 publishes 〈完美慶典還是血汗斂財？…〉**.
+  A rumour about an oven ended as an exposé about stall fees — every step is in the log.
+- Cost of this: ~6.5 min wall time for a long story (28 calls) and 5–7 validator retries per story, caused by my
+  stricter stance-index rule (Round 3) → **numbers that can only mean a belief (no claims listed) are mapped again,
+  and the prompt now allows `"c2"`** (test 24/24). To be measured in P3.
+
+### Cost correction
+The "$" figures in my first report were list-rate *points*. The platform's own `usage.cost` for all 95 P1 calls was
+**US$0.0047** (≈ US$0.0008 per long story); today's account usage after ~200 calls: **US$0.0096 of the US$1 limit**.
+The provider's prompt-cache hit rate today: **59%** (reported by `/v1/usage`). UI and reports now show the real figure.
+
+### Demo recordings (instant, labelled "📼 錄製的實驗", real Gemma output, no model calls)
+`public/recorded/`: P2 stage closed · P2 oven→fee exposé · P1 meme → stage defect (topic drift) · P1 car rumour
+checked and found baseless · P1 command → the mayor's suspicion · C1 stage closed (earlier engine version).
+
 ## 2. Measurements so far
 
 | What | Value | Kind |

@@ -14,7 +14,7 @@ import { ui } from "./ui";
 import { storyOf } from "./story";
 import { isMuted, setMuted, unlockAudio } from "./sfx";
 import StoryCardView from "./StoryCardView";
-import { downloadShareCard } from "./shareCard";
+import { downloadShareCard, drawShareCard } from "./shareCard";
 
 type Phase = "explore" | "compose" | "simulating" | "playing" | "results";
 type Mode = "stream" | "full";
@@ -245,6 +245,12 @@ function Results({ saved, previous, onWhatIf, onReplay, onClose }: { saved: Save
   const hl = useMemo(() => highlights(run, m), [run, m]);
   const story = useMemo(() => storyOf(run), [run]);
   const [tech, setTech] = useState(false);
+  // dev-only: lets the automated playthrough save the share card it would download
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    (window as unknown as { __shareCard?: () => string }).__shareCard = () =>
+      drawShareCard(story, saved.npc, saved.text, { reach: story.reached.length, depth: m.depth, world: m.worldChanges, festival: run.world.festival === "cancelled" ? "取消" : "照常" }).toDataURL("image/png");
+  }, [story, saved, m, run]);
   const [copied, setCopied] = useState(false);
   const shareText = useMemo(() => {
     const lines = [`我在 VIRAL 霧港鎮對${nameOf(saved.npc)}說了一句：「${saved.text}」`, `結果：${story.icon} ${story.headline}`];

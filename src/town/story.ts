@@ -35,6 +35,8 @@ export interface StoryCard {
   closest?: { npc: string; could: string; did: string; conf?: number };
   /** the retelling that drifted furthest from what was heard */
   wildest?: Hop & { similarity: number };
+  /** the world's actual truth about what the player said (authored fact), and whose secret it was */
+  truth?: { text: string; value: boolean; secretOf: string[] };
   /** the town ended up talking about something else than the planted sentence: from what, to what, and where it turned */
   drift?: { from: string; to: string; pivot?: Hop };
   reached: string[];
@@ -285,6 +287,17 @@ export function storyOf(run: RunResult): StoryCard {
         sub: `「${stop.thought}」`,
       });
     } else Object.assign(card, { icon: "🍃", headline: "這句話沒有激起任何漣漪", sub: "" });
+  }
+
+  // the reveal: what was actually true about the topic the player raised (from the world's authored facts)
+  const seedFact = seedClaims.map((c) => topicFact(c.topic)).find(Boolean);
+  const fact = seedFact ? FACTS.find((f) => f.id === seedFact) : undefined;
+  if (fact && !fact.public) {
+    card.truth = {
+      text: fact.value ? fact.zh : (fact.notZh ?? `其實並沒有這回事：${fact.zh}`),
+      value: fact.value,
+      secretOf: PERSONAS.filter((p) => p.secrets.includes(fact.id)).map((p) => p.id),
+    };
   }
 
   // the closest call: someone who could have done something big, and what they actually did

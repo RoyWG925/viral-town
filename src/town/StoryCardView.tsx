@@ -55,7 +55,14 @@ export default function StoryCardView({ card, seedNpc, seedText }: { card: Story
           📌 差一點：{nameOf(card.closest.npc)}聽到了{card.closest.conf !== undefined ? `（信 ${pct(card.closest.conf)}）` : ""}，他可以{card.closest.could}，但他選擇{card.closest.did}。
         </p>
       )}
-      <p className="mt-2 text-[10px] text-slate-400">以上全部來自這次模擬的事件紀錄，沒有額外生成或改寫。</p>
+      {card.truth && (
+        <p className="mt-3 rounded-xl bg-slate-800 px-3 py-2 text-xs leading-snug text-white">
+          🔎 真相揭曉：{card.truth.text}
+          {card.truth.secretOf.length ? `（這是${card.truth.secretOf.map(nameOf).join("和")}的秘密）` : ""}
+          {card.truth.value ? "" : " 這個傳聞本來就不是真的。"}
+        </p>
+      )}
+      <p className="mt-2 text-[10px] text-slate-400">以上全部來自這次模擬的事件紀錄與小鎮設定的真相，沒有額外生成或改寫。</p>
     </div>
   );
 }

@@ -260,7 +260,8 @@ Summary over 10 runs: **first visible reaction 4.4 s, first full thought 11.4 s*
 Observation, not fixed: **safety stories gravitate to the stage.** oven-police reached the stage through the 17:00
 safety walk-through — 老周, primed by the oven he had just found, inspected the stage carefully and found the real
 loose strut. Each step is coherent (and "I told the police about an oven and the festival stage got shut" is exactly
-the feeling the game is after), but 3/3 safety inputs in P7 ended on the stage. Across P5–P7 the 17 dramatic stories
-ended: stage closed 6, exposé 5 (+1 rally), police sent somewhere 4, first-hand confirmation with no action 3, small
-chat 2 (some stories have more than one). If repeated play matters more than first play, restrict the walk-through to
+the feeling the game is after), but 3/3 safety inputs in P7 ended on the stage. Across P5–P7 the 18 dramatic stories
+(6 inputs × 3 batches, counted from the summaries) involved: stage closed 6, exposé 5, police sent somewhere 4, a shop
+closed 1, a vendors' rally 1, first-hand confirmation with no action 2, a small chat that stopped 4 (a story can have
+several). If repeated play matters more than first play, restrict the walk-through to
 festival topics or add a second hidden truth reachable from safety rumours.

@@ -44,6 +44,12 @@ export default function StoryCardView({ card, seedNpc, seedText }: { card: Story
         ))}
       </div>
 
+      {card.drift && !card.headline.startsWith("你說") && (
+        <p className="mt-3 rounded-xl bg-white px-3 py-2 text-xs leading-snug text-slate-600 shadow-sm">
+          🔀 話題變了：你說的是「{clip(card.drift.from, 16)}」，後來大家在談「{clip(card.drift.to, 20)}」
+          {card.drift.pivot ? `（轉折：${nameOf(card.drift.pivot.from)}對${nameOf(card.drift.pivot.to)}說的話）` : ""}。
+        </p>
+      )}
       {card.closest && (
         <p className="mt-3 rounded-xl bg-white px-3 py-2 text-xs leading-snug text-slate-600 shadow-sm">
           📌 差一點：{nameOf(card.closest.npc)}聽到了{card.closest.conf !== undefined ? `（信 ${pct(card.closest.conf)}）` : ""}，他可以{card.closest.could}，但他選擇{card.closest.did}。

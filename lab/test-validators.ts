@@ -154,3 +154,12 @@ test("only none, never none plus another action", () => {
   const r = checkDecision(viewFor("baker"), base({ actions: [{ type: "none" }, { type: "tell", target: "florist", message: "嘿", cites: ["#0"] }] }));
   assert.ok(r.errors.some((e) => e.includes("none")));
 });
+
+test("the chosen act survives parsing; an unknown act is read off the feeling", async () => {
+  const { coerce, normalize } = await import("../src/sim/validate.ts");
+  const raw = { feeling: "😡 生氣", act: "angry", understanding: "x", claims: [], stances: [], thought: "y", actions: [{ type: "none" }] };
+  const kept = normalize(viewFor("baker"), coerce(raw).out!).out;
+  assert.equal(kept.act, "angry");
+  const mapped = normalize(viewFor("baker"), coerce({ ...raw, act: "breakdance" }).out!).out;
+  assert.equal(mapped.act, "angry");
+});

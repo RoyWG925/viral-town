@@ -1,0 +1,680 @@
+{
+  "summary": "Research latency fixes for Gemma 4 31B on AMD and LLM-native game references for VIRAL",
+  "agentCount": 3,
+  "logs": [],
+  "result": [
+    {
+      "key": "amd-selfhost",
+      "summary": "The hosted endpoint's latency comes from queueing and rate limits, not from Gemma 4 31B itself. VIRAL's own lab log (viral-town/lab/runs/B1v14/pigeon-journalist.json) shows calls of about 1,560–1,850 prompt tokens and 116–277 completion tokens, yet each took 22–100 s. That works out to roughly 3–9 tokens/s.\n\nGemma 4 31B on one MI300X has been measured by a third party (xbill, GDE, Oct 2026, vLLM 0.31.1rc1). One request alone generates 58 tok/s in bf16 and 71 tok/s in fp8. With 8 concurrent requests the total is 306 / 432 tok/s, and with 64 it is 950 / 1,219 tok/s (peak 1,749 / 2,340). A VIRAL decision would therefore take about 3–4 s instead of 20–60 s (my estimate). The pigeon-journalist story's 6 calls (1,032 completion tokens) would need about 15–20 s of model time instead of 258 s. The first streamed JSON token should arrive in under about 0.5 s (estimate) instead of about 37 s.\n\nSpeculative decoding (MTP) could add more speed. On an H100 it took 31B from 42.6 to 135.9 tok/s (3.19x, vLLM PR #41745), and the drafter `google/gemma-4-31B-it-assistant` exists. On ROCm it has been shown working only for 26B-A4B on MI300X; for 31B it is unverified.\n\nGetting the hardware: the event itself provides only the hosted API. MI300X time comes from the AMD Developer Cloud, which offers a 1x MI300X droplet (192 GB) at $1.99/hr, ready in about 2–4 min. AI Developer Program members get $100 credit, but AMD says credit can take up to 3 business days to arrive after approval. A payment method is required either way, so the only same-day route is pay-as-you-go if the credit is not already in the account. AMD Developer Cloud lists only MI300X, not MI325X or MI355X.\n\nMain ROCm caveat: Gemma 4 has 256- and 512-wide attention heads, so vLLM on ROCm falls back to Triton attention. Use a Gemma-4-capable ROCm image and do not turn on AITER.\n\nSmaller models: Gemma 4 26B-A4B (MoE, 3.8B active) runs at 224 tok/s for one request on MI300X with stock vLLM, scores close to 31B (MMLU-Pro 82.6 vs 85.2), and is the natural model for minor NPCs. E2B and E4B reach 343 and 239 tok/s.\n\nThe reported '1,118 output tokens/s on MI300X' from another ACT III entry could not be found anywhere. That figure fits total throughput across many concurrent requests (the 31B measurements give 950–1,219 at 64 concurrent), not the speed of a single request.",
+      "findings": [
+        {
+          "title": "What ACT III itself provides: only the hosted API, plus optional $100 AMD credit",
+          "detail": "The lablab ACT III page says the event is hosted on notebooks.amd.com/tokenfactory and that the provided compute is just the API from the tokenfactory. It also says no billing or credit card is needed, that new AMD AI Developer Program members get $100 free AMD credits, and that the credit is not needed to take part. Allowed infrastructure includes AMD Developer Cloud, Instinct accelerators, ROCm, Ryzen AI and Radeon. Every project must run a meaningful part of its workload on AMD, and that part must be visible in the demo. The Evolus partner track text mentions running 'your own vLLM endpoint on AMD Developer Cloud', so self-hosting is an accepted pattern. Gemma use makes a team eligible for the $5,000 Google prize. The page names no GPU model, hours or MI300X allocation.",
+          "relevance": "Self-hosting Gemma on an AMD Developer Cloud MI300X fits the rules and arguably strengthens the 'Application of Technology' criterion, since the model visibly runs on Instinct. The GPU is not handed out by the event, though, so it comes from the user's own Developer Cloud credit or a card.",
+          "sources": [
+            "https://lablab.ai/ai-hackathons/amd-developer-hackathon-act-iii"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "AMD Developer Cloud: MI300X only, $100 credit with a possible 3-business-day delay, about 2–4 min to provision",
+          "detail": "AMD's official page lists two MI300X configurations. The 1x setup has 192 GB HBM3, 20 vCPU, 240 GB RAM, a 720 GB boot disk and 5 TB scratch. The 8x setup has 1,536 GB. MI325X and MI355X are not listed. AI Developer Program members get $100 complimentary credit, valid only on MI300X, expiring 30 days after deposit. The FAQ says credits are deposited within 3 business days after approval and show on the 'My AMD Home' page. A powered-off VM is still billed until destroyed, and when credit runs out with no card on file the VM and its data are destroyed. Pay-as-you-go via DigitalOcean or Vultr is offered as an instant alternative. lablab's tutorial says the Create GPU Droplet button stays disabled until a payment method is added, even with credit. It gives MI300X 1x at $1.99/hr, droplet provisioning in about 2–4 min, the 'vLLM Quick Start' image with a container named `rocm`, and region ATL1. xbill read $1.99/hr from the DigitalOcean API in Sep–Oct 2026, and Phoronix gives $1.99/hr for 1x and $15.92/hr for 8x. Conflict: DigitalOcean's own docs page shows $2.59/hr and $20.72/hr, but it was last verified 3 Jun 2025. Vultr MI300X is about $1.85/GPU-hr per aggregators but sold as 8-GPU nodes (about $14.80/hr).",
+          "relevance": "First check whether the $100 is already on 'My AMD Home'. If it is not, the only way to get a GPU today is adding a card (pay-as-you-go). Budget: $1.99/hr × about 36 h is about $72, within $100. Destroy the droplet, don't just power it off. If judges need a live URL after the deadline, the credit can run out and the VM is then destroyed, so keep the hosted API as a fallback.",
+          "sources": [
+            "https://www.amd.com/en/developer/resources/cloud-access/amd-developer-cloud.html",
+            "https://lablab.ai/ai-tutorials/amd-developer-cloud-host-llm-vllm",
+            "https://lablab.ai/ai-articles/from-zero-to-ai-builder-amd-developer-program",
+            "https://phoronix.com/review/amd-developer-cloud",
+            "https://docs.digitalocean.com/products/amd/details/pricing/",
+            "https://computeprices.com/providers/vultr/gpus/mi300x"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Measured Gemma 4 31B on one MI300X with vLLM ROCm: 58 tok/s (bf16) / 71 tok/s (fp8) for one request; 1,219 tok/s total at 64 concurrent",
+          "detail": "xbill (Google Developer Expert, DEV Community) ran a sweep on 2026-10-07 to 10-09 on one AMD Developer Cloud MI300X droplet (gpu-mi300x1-192gb, atl1). Setup: vLLM 0.31.1rc1.dev23, image vllm/vllm-openai-rocm (pinned digest), --max-model-len 32768, --gpu-memory-utilization 0.90, prefix caching on, 512 output tokens, 3 repeats. Gemma 4 31B output tok/s, quoted as 1 request at a 128-token prompt / 8 requests at 1,024 / 64 requests at 1,024. bf16 (google/gemma-4-31B-it): 58 / 306 / 950. fp8 (unofficial xbill9/gemma-4-31B-it-qat-q4_0-fp8-text): 71 / 432 / 1,219. int4 W4A16: 11 / 80 / 512, i.e. slower on MI300X, so avoid it. fp8 beat bf16 by 1.20–1.45x in all 9 cells (1.23x for one request). Peak totals in the repo rollup: 1,749 (bf16) and 2,340 (fp8). Memory: bf16 weights 58.99 GiB with 121,290 KV-cache tokens; fp8 30.63 GiB with 155,730 tokens. Time to first token for 31B was not published. For comparison, the same author measured E2B time to first token at 13 ms (128-token prompt), 33 ms (1,024) and 170 ms (8,192).",
+          "relevance": "This is the best available number for VIRAL's exact model on AMD. One request at a time, a 200-token JSON decision takes about 2.8 s (fp8) or 3.5 s (bf16) to generate. With 8 NPCs deciding in parallel, each request still runs at about 38–54 tok/s.",
+          "sources": [
+            "https://dev.to/gde/gemma-4-from-e2b-to-31b-on-an-amd-mi300x-fp8-overtakes-bf16-from-12b-up-h4e",
+            "https://github.com/xbill9/gemma4-dev/blob/main/benchmarks/ROLLUP.md",
+            "https://dev.to/gde/serving-gemma-4-on-an-amd-mi300x-what-199-an-hour-buys-52h9"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Estimated latency for VIRAL's actual workload if self-hosted",
+          "detail": "Basis is the local log viral-town/lab/runs/B1v14/pigeon-journalist.json (and summary.jsonl): 6 calls, prompt tokens 1,562–1,855, completion tokens 116–277, per-call latency 22.1–99.5 s, llmSeconds 257.6, first decision at 172 s. The implied effective speed of about 3–9 tok/s means queueing and throttling dominate, not compute. Estimates for a dedicated MI300X running 31B, all my own calculations: prefill of about 1.7K tokens takes about 0.3–0.5 s (scaled from E2B's measured 33 ms at 1,024 tokens and 26B-A4B's ~29 ms short-prompt time to first token). Generation takes 116–277 tokens / 71 tok/s, about 1.6–3.9 s. So each call is about 2–4.5 s instead of 22–100 s. The whole 6-call story is about 15–20 s of model time instead of 258 s. The first streamed JSON token arrives in about 0.5 s instead of a median of about 37 s. The 20 requests/min and USD 1/day limits disappear.",
+          "relevance": "Waiting for the model would roughly match playback time (about 40 s of content), so a story could play almost live. These numbers are estimates and should be confirmed with one `vllm bench serve` run (or the app's own lab runner) right after setup.",
+          "sources": [
+            "https://dev.to/gde/gemma-4-from-e2b-to-31b-on-an-amd-mi300x-fp8-overtakes-bf16-from-12b-up-h4e",
+            "https://dev.to/gde/serving-gemma-4-on-an-amd-mi300x-what-199-an-hour-buys-52h9",
+            "https://github.com/jishu-star/gemma4-mi300x-serving"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Other entries' throughput claims, including the unverified '1,118 tok/s'",
+          "detail": "No public page with '1,118 output tokens/s' on MI300X could be found after several searches. The value fits total throughput across many concurrent requests for 31B (950 bf16 / 1,219 fp8 at 64 concurrent), not single-request speed. Other self-reported AMD hackathon numbers: Counsel-in-a-Box got 89 tok/s with Qwen3-32B on vLLM/ROCm 7 on MI300X (concurrency and precision not stated, 121 of 192 GB used, $1.99/hr). MachinaCheck ran Qwen2.5-7B on the vLLM Quick Start image with under 3 s per agent call and 25–40 s for a 4-agent pipeline. A third-party repo (jishu-star/gemma4-mi300x-serving, not a hackathon entry) tuned Gemma 4 26B-A4B in fp8 with MTP on MI300X: single-request 230 tok/s stock vs 445 tok/s tuned, 64-request total about 5,325 stock vs 10,470 tuned.",
+          "relevance": "When comparing with other teams, compare single-request speed with single-request speed. VIRAL's bottleneck is the speed of one dependent chain of calls, not total throughput.",
+          "sources": [
+            "https://lablab.ai/ai-hackathons/amd-developer/sayedmo77/counsel-in-a-box-legal-ai-on-mi300x",
+            "https://huggingface.co/blog/lablab-ai-amd-developer-hackathon/machinacheck",
+            "https://github.com/jishu-star/gemma4-mi300x-serving"
+          ],
+          "confidence": "unverified"
+        },
+        {
+          "title": "Speculative decoding (MTP drafter) for Gemma 4: 3.19x on 31B on H100; on ROCm proven only for 26B-A4B",
+          "detail": "vLLM PR #41745 (merged 6 May 2026) added Gemma 4 MTP for E2B, E4B, 26B-A4B and 31B. H100, one request, SPEED-Bench, temperature 0: 31B went from 42.6 to 135.9 tok/s with 8 draft tokens (3.19x); 26B-A4B from 169.2 to 270.2 with 4; E4B from 171.0 to 304.7 with 4; E2B from 266.5 to 347.7 with 2. The PR does not mention ROCm. The vLLM recipe gives the drafter as `google/gemma-4-31B-it-assistant` and recommends 4–8 draft tokens. Its example is `--speculative-config '{\"model\":\"google/gemma-4-31B-it-assistant\",\"num_speculative_tokens\":4}'`; the docs use `\"method\":\"mtp\"`. It warns MTP needs a nightly or recent build, not older stable tags. ROCm evidence: jishu-star ran 26B-A4B with MTP (3 draft tokens) on MI300X, with acceptance length about 2.71; if the drafter fails to load, acceptance drops to 1.0 and costs about 23%. AMD's ROCm guide calls speculative decoding experimental, helpful mainly at low concurrency, and advises 2 or fewer draft tokens for EAGLE. AMD's MI300X blog measured 1.5–2.9x at batch 1 in vLLM (graph mode) for Llama pairs. N-gram speculation is also available (`{\"method\":\"ngram\",\"num_speculative_tokens\":4,\"prompt_lookup_min\":2,\"prompt_lookup_max\":5}`) but gives smaller gains.",
+          "relevance": "This is the largest extra lever after dedicated hardware. If it works on ROCm for 31B, one request could run at roughly 120–200 tok/s (estimate) and a decision would take about 1–2 s. Treat it as stage 2: first get plain bf16 serving, then add MTP and check acceptance in the logs. Temperature 0.7 lowers acceptance compared with the temperature-0 benchmark.",
+          "sources": [
+            "https://github.com/vllm-project/vllm/pull/41745",
+            "https://github.com/vllm-project/recipes/blob/main/Google/Gemma4.md",
+            "https://recipes.vllm.ai/Google/gemma-4-31B-it",
+            "https://docs.vllm.ai/en/latest/features/speculative_decoding/mtp/",
+            "https://docs.vllm.ai/en/latest/features/speculative_decoding/",
+            "https://rocm.docs.amd.com/projects/ai-ecosystem/en/latest/optimization/vllm-v1-optimization.html",
+            "https://rocm.blogs.amd.com/artificial-intelligence/spec_decode_mi300x/README.html",
+            "https://github.com/jishu-star/gemma4-mi300x-serving"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Structured outputs (JSON schema) in vLLM: guaranteed-parseable JSON, no retries",
+          "detail": "vLLM's OpenAI-compatible server accepts `response_format: {type: 'json_schema', json_schema: {name, schema}}`, or `structured_outputs` via extra_body. The old `guided_json` field was removed in v0.12.0. Backends are xgrammar and guidance, with `auto` as the default. The vLLM Gemma 4 recipe notes that the model does not see the schema's descriptions, so semantic rules must stay in the system prompt, and that structured output can be combined with thinking via chat_template_kwargs. vLLM's xgrammar code advances and rolls back the grammar state for each speculative token, which suggests structured output works together with speculative decoding. No explicit compatibility table was found.",
+          "relevance": "Constrained decoding removes JSON-repair retries (the logged run had 1 retry costing 99.5 s) and lets the client parse streamed partial JSON, so the town can react as soon as the 'understanding' field arrives. Keep Gemma 4 thinking off (enable_thinking false) so no hidden reasoning tokens are generated.",
+          "sources": [
+            "https://docs.vllm.ai/en/latest/features/structured_outputs.html",
+            "https://github.com/vllm-project/recipes/blob/main/Google/Gemma4.md",
+            "https://docs.vllm.ai/en/v0.9.1/api/vllm/v1/structured_output/index.html"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Prefix caching, streaming and concurrency settings",
+          "detail": "Automatic prefix caching reuses shared prompt prefixes, but vLLM's docs say it only saves prefill and does not speed up generating new tokens. Secondary sources (packet.ai, Modular) say it is on by default in V1, and xbill's runs had it on. AMD's ROCm vLLM guide recommends --max-num-batched-tokens of 8k–16k for low time to first token, turning --async-scheduling off for latency-sensitive serving, and the default FULL_AND_PIECEWISE CUDA-graph mode for best performance. The vLLM recipe's minimum-latency profile is TP 4–8 with max-num-seqs 8–16. On one MI300X the KV cache holds about 121K tokens (bf16) or about 156K (fp8) at 32K max-model-len, which is roughly 60–75 concurrent 2K-token requests. Streaming is standard (`stream: true`) on the OpenAI-compatible server. AMD's own MI300X numbers show how well batching scales: Llama 3.1 70B FP8 at TP8, 128 tokens in / 2,048 out, takes 16.0 s at batch 1 (about 128 tok/s per request) and 33.0 s at batch 64 (about 3,970 tok/s total).",
+          "relevance": "With roughly 1.7K-token prompts on MI300X, prefix caching saves only a few hundred ms per call (estimate). Still, order prompts as global rules first, then the static NPC persona, then the dynamic messages. Batching means independent NPC reactions can run in parallel with little per-request slowdown, so the dependency chain becomes the only real limit.",
+          "sources": [
+            "https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html",
+            "https://packet.ai/blog/vllm-prefix-caching",
+            "https://rocm.docs.amd.com/projects/ai-ecosystem/en/latest/optimization/vllm-v1-optimization.html",
+            "https://recipes.vllm.ai/Google/gemma-4-31B-it",
+            "https://www.amd.com/en/developer/resources/rocm-hub/dev-ai/performance-results.html"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Smaller Gemma 4 models for minor NPC reactions: 26B-A4B is the strongest candidate",
+          "detail": "Google's model card: 31B dense (30.7B params); 26B A4B MoE (25.2B total, 3.8B active, 8 of 128 experts plus 1 shared); 12B Unified (11.95B); E4B (4.5B effective); E2B (2.3B effective). Quality, 31B / 26B-A4B / 12B / E4B: MMLU-Pro 85.2 / 82.6 / 77.2 / 69.4; Tau2 76.9 / 68.2 / 69.0 / 42.2; MMMLU 88.4 / 86.3 / 83.4 / 76.6. Measured on one MI300X with vLLM (xbill), output tok/s for 1 request, 8 requests at 1,024 tokens, and 64 requests at 1,024 tokens: 26B-A4B bf16 224 / 979 / 2,585; 12B fp8 152 / 911 / 2,767; E4B bf16 239 / 1,284 / 5,778; E2B bf16 343 / 1,795 / 8,951. E2B time to first token is 13–33 ms. The tuned 26B-A4B with MTP reached 445 tok/s for one request (jishu-star). MTP drafters exist for every size. 31B fp8 (about 31 GiB) and 26B-A4B (about 50 GB in bf16, estimate) both fit on one 192 GB MI300X as two vLLM processes with split --gpu-memory-utilization.",
+          "relevance": "Routing minor reactions or second-hop NPCs to 26B-A4B gives about 3x faster requests (about 0.7–1 s per decision, estimate) with only a small quality drop, so it remains 'Gemma on AMD'. E2B/E4B are fine for tiny flavour lines but much weaker at reasoning (Tau2 24–42%).",
+          "sources": [
+            "https://ai.google.dev/gemma/docs/core/model_card_4",
+            "https://dev.to/gde/gemma-4-from-e2b-to-31b-on-an-amd-mi300x-fp8-overtakes-bf16-from-12b-up-h4e",
+            "https://dev.to/gde/serving-gemma-4-on-an-amd-mi300x-what-199-an-hour-buys-52h9",
+            "https://github.com/jishu-star/gemma4-mi300x-serving",
+            "https://recipes.vllm.ai/Google/gemma-4-12B-it"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Setup gotchas for Gemma 4 on ROCm vLLM",
+          "detail": "(1) Image: AMD's Day 0 article (2 Apr 2026) says to use `docker pull vllm/vllm-openai-rocm:gemma4` and `vllm serve <model> --attention-backend TRITON_ATTN`; better attention backends for MI300 and MI350 are only 'planned'. The vLLM recipe lists `vllm/vllm-openai-rocm:latest` (ROCm 7.2.1, Python 3.12) for MI300X, MI325X, MI350X and MI355X, with --device=/dev/kfd --device=/dev/dri --group-add video --security-opt seccomp=unconfined --shm-size 16G --ipc=host. xbill notes that not every ROCm vLLM image loads Gemma 4, because of 256-wide heads on sliding layers and 512-wide on full-attention layers. Check `vllm --version` inside the droplet's Quick Start image and pull a newer image if needed. (2) Attention: Gemma 4 on ROCm stays on TRITON_ATTN. ROCm's CK flash-attn only supports head_dim up to 256 (vLLM PR #53231), and AITER head_dim-512 fusion is still in progress (issue #58841, opened 26 Sep 2026). Do not force ROCM_AITER_FA. (3) `VLLM_ROCM_USE_AITER=1` made Gemma 4 12B fp8 0.6–2.6% slower on MI300X in all 9 cells, so leave it off. (4) MTP needs a recent or nightly build; the stable `:latest` lacked it in the recipe. (5) fp8: xbill used a pre-quantized community checkpoint. Online `--quantization fp8` or ptpc_fp8 adds 2–5 min at startup (ROCm guide). `RedHatAI/gemma-4-31B-it-FP8-dynamic` is documented only for Hopper and Blackwell, so it is unverified on MI300X. (6) Startup: E2B took about 160 s from `docker run` to a ready endpoint (load, torch.compile, graph capture). 31B will take longer, and the about 62 GB bf16 download time is unmeasured. (7) For text-only serving, use `--limit-mm-per-prompt '{\"image\":0,\"audio\":0}'` and a small `--max-model-len` such as 8192. Audio is unsupported on ROCm images. (8) Security: vLLM has no auth by default, and Docker port mapping bypasses UFW, so port 8000 is public. Use `--api-key` or an SSH tunnel. (9) Calling `http://IP:8000` from an HTTPS-hosted page is blocked as mixed content and needs CORS, so call the endpoint from the Next.js server route instead of the browser.",
+          "relevance": "Leave 1–2 h for setup and debugging. In the best case it is about 20–40 min (estimate). Stage it: (a) bf16 31B plain, a known-working 58 tok/s; (b) add a JSON schema; (c) try MTP; (d) try fp8. Keep the current hosted-API path behind a config flag as the fallback.",
+          "sources": [
+            "https://www.amd.com/en/developer/resources/technical-articles/2026/day-0-support-for-gemma-4-on-amd-processors-and-gpus.html",
+            "https://recipes.vllm.ai/Google/gemma-4-31B-it",
+            "https://github.com/vllm-project/recipes/blob/main/Google/Gemma4.md",
+            "https://dev.to/gde/vllmrocmuseaiter1-slows-gemma-4-on-an-amd-mi300x-what-the-flag-changes-and-why-69f",
+            "https://github.com/vllm-project/vllm/pull/53231",
+            "https://github.com/vllm-project/vllm/issues/58841",
+            "https://rocm.docs.amd.com/projects/ai-ecosystem/en/latest/optimization/vllm-v1-optimization.html",
+            "https://dev.to/gde/serving-gemma-4-on-an-amd-mi300x-what-199-an-hour-buys-52h9",
+            "https://lablab.ai/ai-tutorials/amd-developer-cloud-host-llm-vllm"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Suggested serve command (a starting point to test, not yet run on 31B)",
+          "detail": "On the MI300X droplet: `docker run -d --name gemma --ipc=host --network=host --device=/dev/kfd --device=/dev/dri --group-add video --security-opt seccomp=unconfined --shm-size 16G vllm/vllm-openai-rocm:<recent tag with Gemma 4 + MTP> vllm serve google/gemma-4-31B-it --max-model-len 8192 --gpu-memory-utilization 0.90 --max-num-seqs 16 --limit-mm-per-prompt '{\"image\":0,\"audio\":0}' --api-key <secret>`. Stage 2 adds `--speculative-config '{\"method\":\"mtp\",\"model\":\"google/gemma-4-31B-it-assistant\",\"num_speculative_tokens\":4}'`. Stage 3 tries fp8 (online `--quantization fp8`, or a pre-quantized fp8 checkpoint). An optional 8x MI300X droplet ($15.92/hr per Phoronix) with TP 4–8 matches the recipe's minimum-latency profile, but it would burn $100 in about 6 h and its gains for Gemma 4 on ROCm are unmeasured.",
+          "relevance": "The flags come from the AMD article, the vLLM recipe and the measured setups above. Point the app's OpenAI-compatible base URL at the server-side proxy, keep the model name `google/gemma-4-31B-it`, and send response_format json_schema with `stream: true`.",
+          "sources": [
+            "https://recipes.vllm.ai/Google/gemma-4-31B-it",
+            "https://github.com/vllm-project/recipes/blob/main/Google/Gemma4.md",
+            "https://www.amd.com/en/developer/resources/technical-articles/2026/day-0-support-for-gemma-4-on-amd-processors-and-gpus.html",
+            "https://phoronix.com/review/amd-developer-cloud"
+          ],
+          "confidence": "likely"
+        }
+      ]
+    },
+    {
+      "key": "latency-patterns",
+      "summary": "Bottom line: the latency can't be removed while VIRAL stays on the shared AMD endpoint, but its visible effect can be cut a lot. Several fixes take a few hours each, and one bigger infrastructure fix is too risky to adopt before the deadline.\n\nVIRAL's own logs settle where the time goes. I checked 330 single-attempt Gemma calls in C:\\Users\\User\\Downloads\\ACT_III_top7_validation_package\\viral-town\\lab\\runs. A typical call reads about 1,776 tokens and writes about 200, and takes 19.3 s at the median (p90 41.5 s). The time grows almost in step with output length: calls under 120 output tokens take about 8.3 s at the median, calls with 250–320 take about 29 s. Writing the answer dominates; reading the prompt is a small share. So the levers that matter are on the output side: stream it, show the visible line first, and make it shorter. Prompt caching and batching residents into one call won't help much here.\n\nThree facts change the picture:\n- **Streaming is available.** AMD's own docs say the shared API accepts `stream: true` and does not buffer the stream. VIRAL's model client (src/sim/llm.ts) does not use it today.\n- **The visible line comes late.** In real outputs, the resident's feeling and thought (the text shown in the speech bubble) start about 60% of the way through the answer, after the claims and stances.\n- **Faster hosting exists.** AMD also offers dedicated vLLM endpoints with no per-minute request limit or daily spend cap. That is the real infrastructure fix, but it is too risky to adopt in about a day.\n\nRecommended order for the time left (all savings below are my estimates):\n1. **Stream the output and move feeling and thought to the front of the JSON.** About 3–5 h. The first visible line actually written by Gemma would appear after roughly 4–8 s instead of about 37 s. Total model time stays the same.\n2. **Cut output from about 200 to about 120 tokens.** About 1–2 h plus a quick quality check with real Gemma runs. Each call drops to roughly 11–14 s, and model time per story drops from about 207 s to roughly 120–145 s.\n3. **Add a first-token watchdog with a delayed duplicate request.** About 1–2 h. This mainly shortens the slow tail and the 60-second timeouts. It costs extra requests against the 20-per-minute limit and the daily spend cap.\n4. **Design the wait in-character instead of showing a progress label.** In a 54-person study, natural thinking gestures and fillers improved perceived response time at 4–6.5 s delays, while a spinner with a sound was no better than nothing. Other cheap options with no model calls: a town narrator or radio driven by the engine, a \"predict what happens\" bet during the wait, and planting two or three rumours that run in parallel.\n5. **Pre-run the suggested sentences and clearly label them as recorded.** Those play with no wait, and the demo still works if the endpoint is down during judging.\n\nThings to skip: putting several residents' turns in one call (it lengthens each answer and breaks each resident's private knowledge; residents deciding at the same moment already run in parallel), starting the next resident before the current answer finishes (little gain unless actions move ahead of stances, and risky in the engine), prompt caching (well under 1 s per call), and a smaller second model (no Gemma model is listed in the shared catalog in AMD's public docs, and the track requires Gemma).\n\nWhat shipped games did:\n- **Suck Up!:** the developer said 1–2 s per response, avoided multi-pass checks that cost 5–10 s, and planned streaming. It is rated Mixed (63% positive) on Steam.\n- **Whispers from the Star:** server-side, about 1.5 s lag in one review. Players describe deliberate real-time waits between calls (minutes in Fast mode, hours in Standard), reportedly so you \"value the call\".\n- **inZOI Smart Zoi:** runs a 0.5B model on the player's own GPU.\n- **Covert Protocol (Inworld and NVIDIA demo):** about 3 s wait reported in one hands-on.\n- **Vaudeville (Inworld):** suffered outages, and a reviewer criticised NPCs stalling by repeating the question. It moved to an offline engine with long loading times.\n- **1001 Nights:** uses both DeepSeek V4 Pro and V4 Flash.\n\nFor calibration, the Dejaboom! study found a 15-second lag frustrated 40% of 28 players.\n\nTwo checks are still needed, one real call each: that streaming works with JSON mode for Gemma on the shared endpoint, and that Gemma isn't silently producing hidden reasoning. The token-to-character ratio in the logs (about 2.2 characters per token) suggests it isn't.",
+      "findings": [
+        {
+          "title": "VIRAL's own logs: time is spent writing the answer, not reading the prompt",
+          "detail": "Source: recorded runs in C:\\Users\\User\\Downloads\\ACT_III_top7_validation_package\\viral-town\\lab\\runs (330 single-attempt calls).\n- Typical call: prompt about 1,776 tokens (p10 1,566, p90 2,042), output about 200 tokens (p10 116, p90 309).\n- Latency percentiles: p10 6.7 s, p25 10.0 s, median 19.3 s, p75 32.6 s, p90 41.5 s.\n- Median latency by output length: under 120 tokens 8.3 s; 120–160 tokens 15.0 s; 160–200 tokens 18.6 s; 200–250 tokens 23.6 s; 250–320 tokens 29.0 s; over 320 tokens 33.8 s.\n- Fastest calls: 3.1 s at under 120 tokens and 7.9 s at 250–320 tokens. That implies roughly 40 tokens/s at best and about 9–10 tokens/s under typical load, with time-to-first-token (TTFT) of only about 1 s.\n- Hidden thinking tokens: output averages about 2.2 characters per completion token (range 1.7–2.5) across 409 outputs, which fits plain JSON with Chinese values. Gemma does not appear to be emitting hidden reasoning tokens.\n- Where the visible line sits: in 388 real outputs, \"feeling\"/\"thought\" start at a median of 60% of the output characters (p25 48%, p75 64%), because the schema in src/sim/mind.ts puts understanding, claims and stances first.\n- Current client: src/sim/llm.ts calls the endpoint without streaming, uses response_format json_object, a 60 s timeout and up to 8 retries.\n- Existing parallelism: src/sim/engine.ts line 643 already runs decisions inside the same 1-game-minute window in parallel (Promise.all).",
+          "relevance": "This decides which techniques matter. Levers that cut or reveal output tokens (streaming, field order, shorter output, hedging the slow tail) act on most of the latency. Prompt-side levers (prefix caching, shorter input) can only save a second or so per call. Same-moment residents are already parallel, so 'parallelize' is done.",
+          "sources": [
+            "C:\\Users\\User\\Downloads\\ACT_III_top7_validation_package\\viral-town\\lab\\runs",
+            "C:\\Users\\User\\Downloads\\ACT_III_top7_validation_package\\viral-town\\lab\\LAB_NOTES.md",
+            "C:\\Users\\User\\Downloads\\ACT_III_top7_validation_package\\viral-town\\src\\sim\\llm.ts",
+            "C:\\Users\\User\\Downloads\\ACT_III_top7_validation_package\\viral-town\\src\\sim\\mind.ts",
+            "C:\\Users\\User\\Downloads\\ACT_III_top7_validation_package\\viral-town\\src\\sim\\engine.ts"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "AMD's own platform docs: streaming is supported, plus the shared-API limits",
+          "detail": "These are AMD's Radeon cloud docs, linked from developer.amd.com.cn, not tokenfactory.cn.\n- Chat completions accept `stream` (\"Stream the response as server-sent events\"); each event carries a delta and the stream ends with `data: [DONE]`.\n- The platform does not buffer streamed responses.\n- For streams, the 10-minute timeout applies to the gap between chunks, not the whole generation.\n- `response_format` accepts json_object or json_schema; unknown fields are silently dropped, and `stop` is dropped.\n- Shared-API limits: 30 requests/min per key, 120/min per IP, 8 concurrent requests per key, 20 requests/min per account (60-second sliding window), and a daily spend cap that resets at 00:00 Beijing time.\n- Rate-limit headers report the per-minute allowance and the remaining daily USD.\n- Dedicated endpoints have no per-minute limit, no concurrency allowance and no spend cap; requests queue on your own instance, which runs vLLM or SGLang and bills credits per hour while running.\n- The public model catalog lists DeepSeek, Qwen, GLM, MiMo and MiniCPM models, with no Gemma listed. The hackathon's Gemma-4-31B-IT access appears to be a separate arrangement.\n- Not verified: whether streaming together with json_object works for Gemma-4-31B-IT on this endpoint. A single test call would settle it.",
+          "relevance": "Token streaming is allowed on the endpoint VIRAL already uses, so the largest perceived-latency fix needs no infrastructure change. The 8-concurrent / 20-per-minute limits leave room for a small amount of request hedging or two or three parallel rumour chains during a single-player demo.",
+          "sources": [
+            "https://amd-aim.github.io/radeon-cloud-docs/api/chat-completions/",
+            "https://amd-aim.github.io/radeon-cloud-docs/api/rate-limits/",
+            "https://amd-aim.github.io/radeon-cloud-docs/api/dedicated-endpoints/",
+            "https://amd-aim.github.io/radeon-cloud-docs/api/overview/",
+            "https://amd-aim.github.io/radeon-cloud-docs/models/overview/"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Technique 1: stream tokens, parse partial JSON, put the visible line first",
+          "detail": "Evidence:\n- OpenAI's latency guide calls streaming \"the single most effective approach\" for perceived latency: \"a huge difference between waiting and watching progress happen.\"\n- a16z AI Town streams LLM chat text into tables kept separate from its deterministic engine, precisely because \"messages are updated very frequently (when streamed out from OpenAI)\". That is the same split VIRAL needs: streamed text is for display only, and only the validated JSON enters the cause-and-effect log.\n- Vercel AI SDK documents the trade-off: partial objects \"cannot be validated\", while completed array elements are validated as they arrive.\n- Suck Up!'s developer said they structured prompts so responses could stream \"almost immediately\".\n\nApplied to VIRAL (estimates):\n- Add stream:true in llm.ts, forward the server-sent events (SSE) through src/app/api/gemma/route.ts, and read the stream in remoteChat.ts.\n- Parse partially with a lenient JSON parser, or simply regex out the \"thought\" string once it closes.\n- Reorder the schema to feeling → thought → understanding → claims → stances → actions.\n- With streaming alone (current order), the bubble appears at about 60% of the call. First visible reaction drops from about 37 s to about 25–30 s.\n- With streaming plus reordering, the thought (about 25–40 tokens) appears after TTFT plus about 3–5 s under typical load. First visible Gemma-authored reaction drops from about 37 s to about 4–8 s.\n- Total model time per story (about 207 s) is unchanged, but every wait now shows Gemma's real inner monologue typing out instead of an idle bubble.",
+          "relevance": "This is the highest-value item for the remaining ~1.5 days. Effort is about 3–5 h across llm.ts, route.ts, remoteChat.ts and a display-only 'partial thought' hook in the director/UI.\n\nRisks:\n- The thought is generated before the stances, so check about 10 cases to confirm the reorder doesn't hurt the quality scores.\n- If the validator rejects the answer and retries, the bubble has already been shown. Keep it, since a thought changes nothing in the world, or mark it as revised.\n- Verify with one call that streaming works with json_object on the AMD endpoint.",
+          "sources": [
+            "https://developers.openai.com/api/docs/guides/latency-optimization",
+            "https://github.com/a16z-infra/ai-town/blob/main/ARCHITECTURE.md",
+            "https://ai-sdk.dev/docs/reference/ai-sdk-core/stream-object",
+            "https://community.openai.com/t/vampire-game-where-you-convince-llm-to-let-you-in/604295",
+            "https://amd-aim.github.io/radeon-cloud-docs/api/chat-completions/"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Technique 2: shorten the output",
+          "detail": "Evidence:\n- OpenAI's latency guide: \"cutting 50% of your output tokens may cut ~50% of your latency\", whereas \"cutting 50% of your prompt may only result in a 1–5% latency improvement\".\n- The same guide reports that shortening JSON field names alone \"removed 19 output tokens\".\n- VIRAL's own data matches: median 8.3 s under 120 tokens versus 18.6–23.6 s at 160–250 tokens.\n\nWhere VIRAL's output could shrink:\n- Stance `why` (20 characters per stance).\n- `category`: validate.ts only uses it as a fallback (catOf) behind the engine's topic→category table.\n- Long English keys: use short keys and map them back in normalize().\n- `message`: cap at 60–80 characters instead of 140 for phone calls and face-to-face talk.\n- `understanding` and `thought` could merge.\n\nEstimate:\n- Going from about 200 to about 110–130 output tokens brings per-call median from about 19 s to about 11–14 s.\n- Story model time drops from about 207 s to about 120–145 s.\n- First reaction without streaming drops from about 37 s to about 24–28 s.\n\nSuck Up!'s developer made the same trade-off: they avoided multi-pass accuracy checks that \"can add 5-10 seconds\" in order to keep 1–2 s responses.",
+          "relevance": "Low difficulty: about 1–2 h of prompt, validator and normalize() changes. The cost is rerunning the validator tests plus about 10 real Gemma cases to confirm the quality scores hold. Dropping `why` reduces explanations on the results page, so either keep a short one for big actions only, or let the engine generate the explanation.",
+          "sources": [
+            "https://developers.openai.com/api/docs/guides/latency-optimization",
+            "C:\\Users\\User\\Downloads\\ACT_III_top7_validation_package\\viral-town\\src\\sim\\validate.ts",
+            "C:\\Users\\User\\Downloads\\ACT_III_top7_validation_package\\viral-town\\src\\sim\\mind.ts",
+            "https://community.openai.com/t/vampire-game-where-you-convince-llm-to-let-you-in/604295"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Technique 3: cut the slow tail with a first-token watchdog and a delayed duplicate request",
+          "detail": "Background: 'The Tail at Scale' (Dean & Barroso, CACM 2013) introduced hedged requests. Send a second copy only after the first has been outstanding past about the 95th-percentile latency, keep whichever answers first, and the extra load stays around 5%.\n\nVIRAL's distribution has a heavy tail:\n- Single calls: median 19.3 s versus p90 41.5 s.\n- The Phase-1 probe saw 9 of 45 calls hit the 60 s timeout and 25 of 45 return HTTP 500 no_available_workers.\n\nWith streaming you can watch for the first token. If none arrives within about 8–12 s, or a call passes about 30 s (VIRAL's p75), fire a duplicate and abort the loser with AbortController. This replaces today's 60 s timeout plus exponential backoff.\n\nEstimate:\n- If two attempts were independent, the median of the faster one would be about the single-call p29 (10.8 s versus 19.3 s). Shared congestion makes attempts correlated, so the real gain is smaller: roughly 15–40% per call, concentrated in the tail.\n- Story model time drops from about 207 s to about 130–175 s; first reaction drops from about 37 s to about 25–30 s.\n- Cost: up to 1.3–2× requests. One story's critical path uses only about 3–6 requests/min, against the 20 per account and 8 concurrent per key, but each hedge also counts against the daily spend cap.",
+          "relevance": "Effort is about 1–2 h and it is safe, as long as hedging stays limited (only on no-first-token or past p75) so the demo doesn't add load to an already congested shared pool. The first-token watchdog alone is worth having, because it turns 60 s stalls into roughly 10 s retries.",
+          "sources": [
+            "https://research.google/pubs/pub40801/",
+            "https://blog.acolyer.org/2015/01/15/the-tail-at-scale/",
+            "C:\\Users\\User\\Downloads\\ACT_III_top7_validation_package\\viral-town\\lab\\LAB_NOTES.md",
+            "https://amd-aim.github.io/radeon-cloud-docs/api/rate-limits/"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Technique 4: several residents' turns in one call per tick (Generative Agents, AI Town) — not a fit for VIRAL",
+          "detail": "Stanford Generative Agents:\n- Ran 25 agents \"sequentially in roughly real-time game time (where one second real time is one minute game time)\".\n- Simulating two game days cost \"thousands of dollars in token credits and taking multiple days to complete\".\n- The authors proposed \"parallelizing agents\" and that one might \"batch dialogue generation as a joint prompt\".\n- The public Smallville demo was a pre-computed replay, not live.\n\na16z AI Town: runs 60 ticks/s but only 1 engine step/s. LLM calls are \"operations\" started outside the game loop (startOperation), with one in-progress operation per agent, and default input latency is about 1.5 s.\n\nApplied to VIRAL:\n- Decisions in the same game minute already run as parallel calls.\n- Merging them into one prompt saves requests but makes one longer output, which is slower for a decode-bound endpoint.\n- It also breaks the core rule that each resident sees only its own knowledge.\n- Estimated effect: 0 or worse for both first reaction and model time.",
+          "relevance": "Skip for the main chain. The only acceptable use is a single call that writes ambient crowd lines, which never enter the cause-and-effect log, or engine templates instead. Cite Generative Agents' replay and 1 s = 1 min as precedent that even the reference simulation was not real-time.",
+          "sources": [
+            "https://arxiv.org/html/2304.03442v2",
+            "https://www.theregister.com/2023/04/11/sims_ai_generation/",
+            "https://github.com/a16z-infra/ai-town/blob/main/ARCHITECTURE.md"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Technique 5: speculative and pre-emptive generation (while the player types, or before the speaker's answer finishes)",
+          "detail": "Precedents:\n- LiveKit Agents: preemptive generation \"speculatively starts an LLM response before the user's end of turn is confirmed\" and is enabled by default. The speculative response is thrown away if context changes, which raises token use, and the docs warn it doesn't guarantee lower latency.\n- 'Speculative Actions' (Columbia, ICLR 2026): faster models guess the agent's next action and run it in parallel, committing only on a match. Reported: up to 55% next-action prediction accuracy and up to 20% end-to-end latency reduction.\n\nApplied to VIRAL (estimates):\n- (a) While the player types: after about 1–1.5 s without keystrokes, start the first resident's call with the current text; reuse it if the submitted text is identical. Saves only the pause before submit, about 1–5 s, at the cost of wasted requests against the 20/min limit.\n- (b) Start resident B's call as soon as A's action message string closes in the stream. With actions last in the schema this saves almost nothing. Moving actions before claims/stances could save about 30–40% of A's output time per hop, but the validator's confidence thresholds need the stances, so B's call would have to be cancelled if A's answer is later rejected.",
+          "relevance": "Low priority for 1 day. (a) is medium effort for a few seconds. (b) touches the engine's guarantee that events play in causal order (the frontier) and the validator, so the risk is high. A free alternative: start the call at submit and cover the first 3–6 s with a diegetic whisper animation.",
+          "sources": [
+            "https://docs.livekit.io/agents/build/speech/",
+            "https://docs.livekit.io/agents/logic/turns/tuning.md",
+            "https://arxiv.org/abs/2510.04371",
+            "https://iclr.cc/virtual/2026/poster/10009726"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Technique 6: prefix caching — negligible for VIRAL",
+          "detail": "vLLM's automatic prefix caching reuses the stored attention state (KV cache) of a shared prompt prefix, but it \"only reduces the time of processing the queries (the prefilling phase)\" and \"does not reduce the time of generating new tokens\".\n\nOpenAI recommends putting dynamic content later in the prompt to improve cache reuse, while noting that input cuts give only 1–5% latency gains.\n\nVIRAL's prompt is about 1.8k tokens, and the best-case calls (3.1 s at under 120 output tokens) show reading the prompt costs about 1 s or less. AMD's shared-API docs say nothing about caching; whether caching is on is unknown.\n\nEstimate: 0–5% on both metrics. The static rules, topic list and places already come first in the system prompt.",
+          "relevance": "Don't spend time here. Only worth revisiting if VIRAL self-hosts vLLM, where caching is a single flag.",
+          "sources": [
+            "https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html",
+            "https://developers.openai.com/api/docs/guides/latency-optimization"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Technique 7: tiered models — small or non-LLM tier for minor reactions, big model for key decisions",
+          "detail": "Precedents:\n- **inZOI Smart Zoi:** a 0.5B Mistral-NeMo-Minitron small model running on the player's GPU governs \"actions and inner thoughts\" shown in real time. Third-party guides list about an RTX 3060 / 8 GB VRAM minimum, and a player-reported lag spike when many Zois decide at once (unverified).\n- **NVIDIA:** says its small on-device models trade parameters and precision for \"faster time to first token\", with no figures.\n- **Project Sid (PIANO):** 10 modules run concurrently at different time scales; fast reflex modules use \"small, fast non-LLM neural networks\", and slow deliberation must not block fast responses.\n- **Lyfe Agents:** the LLM chooses a high-level option, and non-LLM checks decide when it ends. Reported $0.5 per agent per human-hour versus about $25 estimated for Generative Agents, claimed 10–100× cheaper.\n- **1001 Nights:** says it uses \"both V4 Pro and V4 Flash\" (DeepSeek), without saying which does what.\n\nGemma 4 sizes per Google: E2B, E4B, 12B, 31B, and 26B A4B (4B active per token).\n\nTrack-4 constraint: any small model should be Gemma on AMD. No small Gemma is listed in the shared catalog in AMD's public docs; GET /v1/models would confirm.\n\nEstimate: no change to the critical path unless some trivial decisions currently use the model. Its value is filling the waits with ambient reactions.",
+          "relevance": "For 1 day, the practical tier is non-LLM: engine-driven gestures, routine life and canned reactions (about 1–3 h). A small-Gemma tier is only feasible if a small Gemma is already served to VIRAL; otherwise skip.",
+          "sources": [
+            "https://www.nvidia.com/en-gb/geforce/news/nvidia-ace-naraka-bladepoint-inzoi-launch-this-month/",
+            "https://blogs.nvidia.com/blog/ai-decoded-gamescom-ace-nemotron-instruct",
+            "https://forum.playinzoi.com/t/topic/13794",
+            "https://arxiv.org/html/2411.00114v1",
+            "https://arxiv.org/html/2310.02172v1",
+            "https://store.steampowered.com/app/2542850/1001_Nights/",
+            "https://ai.google.dev/gemma/docs/core"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "The real infrastructure fix (beyond the deadline): a dedicated Gemma 4 endpoint on AMD with vLLM, speculative decoding and caching",
+          "detail": "AMD's Radeon cloud offers dedicated endpoints: vLLM or SGLang on your own instance, with no per-minute limit and no spend cap, billed in credits per hour.\n\nWhat the docs and specs say:\n- The docs don't name the GPU (\"AMD Radeon GPU\"; example size \"1 GPU · 16 cores · 55GB · 1 credit / hour\").\n- Instances download weights on first start (\"several minutes\") and idle ones are reclaimed.\n- Google: every Gemma 4 size ships with a dedicated draft model for speculative decoding (\"significantly faster inference with no quality loss\"; no number given).\n- vLLM supports these through its MTP speculative-decoding path, including the 31B and 26B-A4B models.\n- MI300X has 192 GB of HBM3 at 5.3 TB/s. 31B weights in BF16 are about 62 GB, so single-stream decode is capped at roughly 85 tokens/s by memory bandwidth.\n\nEstimates:\n- A realistic 30–60 tokens/s with no shared queue is 3–6× VIRAL's typical 9–10 tokens/s.\n- Story model time would drop from about 207 s to about 40–70 s; with streaming, the first thought would appear in about 1–3 s.\n- A 32 GB Radeon card would need 4-bit 31B or the 26B-A4B MoE.",
+          "relevance": "This directly answers the user's question about whether latency can be solved. Yes, mostly, by moving off the congested shared pool, but it is high risk with about 1 day left (credits, GPU type, VRAM fit, startup time, stability during judging). Recommend: mention it in the submission as the production path; try it only if credits and an MI300X-class instance are already available.",
+          "sources": [
+            "https://amd-aim.github.io/radeon-cloud-docs/api/dedicated-endpoints/",
+            "https://amd-aim.github.io/radeon-cloud-docs/api/rate-limits/",
+            "https://amd-aim.github.io/radeon-cloud-docs/guides/instances/",
+            "https://amd-aim.github.io/radeon-cloud-docs/guides/credits/",
+            "https://ai.google.dev/gemma/docs/core",
+            "https://docs.vllm.ai/en/latest/features/speculative_decoding/mtp/",
+            "https://news.asbis.com/news/suppliers/amd-delivers-leadership-portfolio-of-data-center-ai-solutions-with-amd-instinct-mi300-series/",
+            "https://inferencex.semianalysis.com/chips/mi300x"
+          ],
+          "confidence": "unverified"
+        },
+        {
+          "title": "Technique 8: simulate ahead and pre-record (replay and shared result store)",
+          "detail": "Precedents:\n- Generative Agents' public demo was a pre-computed replay; the repo replays stored simulations at speed 1–5.\n- Infinite Craft checks \"from its database if these two elements have already been combined before\", and only new combinations call the model. Every player gets the same result, and each result is generated once.\n\nVIRAL's own architecture experiment (arch.ts, 20 real simulations):\n- Full pre-simulation: first reaction at average 211 s (median 120).\n- Streaming playback: average 42 s (median 37).\n- A 5-second lead buffer gave no gain.\n- So running further ahead does not help a free-text input whose decisions depend on each other.\n\nWhat does help:\n- Offer 6–8 suggested whispers whose real Gemma runs are pre-recorded and clearly labelled 'recorded', which play with 0 s wait.\n- Cache by exact (resident, sentence, scenario version).\n- Keep live runs for free text.",
+          "relevance": "Low effort, since recordings already exist (lab notes mention a recorded no-wait viewing option). It gives judges an instant first impression and protects the demo if the shared endpoint is down (the Phase-1 probe saw 24% success). It must stay honestly labelled. Free-text latency is unchanged.",
+          "sources": [
+            "https://www.theregister.com/2023/04/11/sims_ai_generation/",
+            "https://github.com/joonspk-research/generative_agents",
+            "https://en.wikipedia.org/wiki/Infinite_Craft",
+            "C:\\Users\\User\\Downloads\\ACT_III_top7_validation_package\\viral-town\\lab\\LAB_NOTES.md"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Technique 9: design the wait into play (fillers, diegetic pacing, narrator, predictions, parallel rumours)",
+          "detail": "Evidence:\n- **Delay-filler study (arXiv 2507.22352, 54 participants):** delays of 1.5 / 4.0 / 6.5 s. \"Latency above 4 seconds degrades quality of experience.\" Natural fillers (a thinking gesture plus \"Hmm, let's see…\") improved perceived response time at 4.0 s and 6.5 s. A spinner plus processing sound did not differ from no feedback on any measure.\n- **Dejaboom! (28 players, GPT-4):** a \"noticeable 15s lag\" frustrated 40% of players.\n- **Vaudeville preview:** criticised \"lots of stalling\", with NPCs often opening by repeating the question.\n- **Whispers from the Star:** players report deliberate real-time waits between calls (Fast mode: minutes; Standard: \"hours\"), reportedly so players \"value the call\". This comes from a forum relay, not an official statement.\n- **AI Town:** shows a typing state.\n- **Generative Agents:** compresses time (1 s real = 1 game minute).\n- **Twitch Predictions:** viewers stake points on 2–10 outcomes while the stream continues.\n\nFor VIRAL:\n- (a) Replace the 'Gemma is reasoning, X s' label with varied in-character gestures (scratching head, pacing, checking phone) plus the streamed monologue, and never repeat the same filler line.\n- (b) Keep ambient town life and routines running, with the clock slowed, instead of freezing at the frontier.\n- (c) A town radio or narrator line generated by the engine from state, with no LLM call.\n- (d) At whisper time, the player predicts outcomes (who hears it next, does the festival get cancelled), scored at the end.\n- (e) Let the player plant 2–3 whispers that run as parallel chains, with the camera cutting to whichever chain has new events. At about 3–6 requests/min per chain this fits within 20/min and gives roughly 2–3× watchable content per wall-clock second (estimate).\n\nNone of these shortens real latency. The study evidence says the perceived wait improves when fillers are natural, and gets worse with spinners or repetition.",
+          "relevance": "These are mostly front-end changes, about 1–4 h each, using no model calls; (d) and (e) also add LLM-native gameplay. Prioritise (a), then (d), then (c). (e) needs a quick RPM and cost check.",
+          "sources": [
+            "https://arxiv.org/html/2507.22352",
+            "https://arxiv.org/html/2404.17027",
+            "https://keengamer.com/articles/previews/vaudeville-preview-the-ai-questioning-to-nowhere/",
+            "https://steamcommunity.com/app/3730100/discussions/0/506216918922069229/",
+            "https://github.com/a16z-infra/ai-town/blob/main/ARCHITECTURE.md",
+            "https://arxiv.org/html/2304.03442v2",
+            "https://dev.twitch.tv/docs/api/predictions/"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Shipped game: Suck Up! (Proxima) — latency approach and player reaction",
+          "detail": "- The Steam page discloses \"ChatGPT from OpenAI\", voice input, and a broadband connection requirement.\n- The developer's OpenAI-forum post: \"Our model currently takes just 1-2 seconds to generate a response.\" Fixing hallucinations with multiple passes \"can add 5-10 seconds\", so they avoided it. Prompts were structured for future streaming.\n- Each conversation is short by design: one door, invite or slam. That keeps the number of turns per round small.\n- Steam: Mixed, 63% of 215 reviews positive (80% of 10 recent).\n- I found no review that specifically complains about latency.",
+          "relevance": "Lessons for VIRAL: one short turn with a dramatic result, a response time budget of about 1–2 s, and refusing quality passes that add seconds. VIRAL's validator retries (about 20 s each) are the equivalent cost; keep normalize() lenient.",
+          "sources": [
+            "https://community.openai.com/t/vampire-game-where-you-convince-llm-to-let-you-in/604295",
+            "https://store.steampowered.com/app/2726370/Suck_Up/"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Shipped games: Whispers from the Star, Covert Protocol / Inworld, Vaudeville",
+          "detail": "**Whispers from the Star (Anuttacon):**\n- The AI runs server-side; the FAQ mentions server-deployment optimisation planned for September 2025.\n- A critic lists \"slight response lag of up to 1.5 seconds\" that \"may break immersion\".\n- Players say Stella is \"a bit late sometimes\" replying to voice messages.\n- The game sometimes switches to text chat to save rendering, and adds real-time waits between calls (Fast versus Standard pacing).\n\n**Covert Protocol (Inworld and NVIDIA ACE, GDC 2024):** one hands-on reported speaking with push-to-talk, then \"about a three-second wait\" before the NPC answered. That article now returns HTTP 410; only the search snippet remains.\n\n**Vaudeville (Inworld, cloud):**\n- The service was \"unreachable on several occasions\" under streamer-driven load, with a \"substantial bill from Inworld\".\n- Steam reviews are \"evenly split\".\n- A preview criticised NPC stalling and looping.\n- The studio later moved to an offline local engine, warning of \"long loading times\".",
+          "relevance": "Shipped voice-chat games run at about 1.5–3 s and still get latency complaints. VIRAL's 20–40 s per decision cannot be presented as a chat; it must be presented as a watched simulation with designed beats.\n\nThe Vaudeville outage is a warning for judging day: keep labelled recorded runs as a fallback.",
+          "sources": [
+            "https://www.gamescreed.com/reviews/whispers-from-the-star-review",
+            "https://steamcommunity.com/app/3730100/discussions/0/608668111724437143/",
+            "https://steamcommunity.com/app/3730100/discussions/0/603044859897768379/",
+            "https://steamcommunity.com/app/3730100/discussions/0/506216918922069229/",
+            "https://videogames.si.com/features/covert-protocol-hands-on",
+            "https://www.gamedeveloper.com/press-release/vaudeville-a-pre-mortem",
+            "https://keengamer.com/articles/previews/vaudeville-preview-the-ai-questioning-to-nowhere/",
+            "https://gamespress.com/Bumblebee-presents-its-new-offline-Smart-NPCs-engine"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Shipped games and mods: inZOI Smart Zoi, 1001 Nights, Mantella / SkyrimNet",
+          "detail": "**inZOI Smart Zoi:**\n- Latency is avoided by running a 0.5B small model on the player's own GPU.\n- Thoughts are shown live, and each Zoi re-plans its schedule once a day rather than every moment.\n- The in-game gate (quoted in a forum thread) requires an RTX 3000-series card with 8 GB or more, or an AMD RX 6000-series card with 12 GB or more.\n\n**1001 Nights:**\n- Turn-based storytelling: the King answers each of the player's turns.\n- The academic papers name GPT-4; the current Steam disclosure says DeepSeek \"V4 Pro and V4 Flash\", a tiered setup, with the split not described.\n- Not yet released on Steam.\n\n**Mantella (Skyrim):**\n- UploadVR noted \"noticeable latency\".\n- A 2024 r/skyrimvr thread reports about 3–5 s with a 7B or smaller local model (anecdotal).\n- SkyrimNet, a separate plugin, describes starting text-to-speech on the first sentence while the model writes the next (from a search summary, not verified).",
+          "relevance": "These all reinforce two patterns: start presenting as soon as the first meaningful chunk exists (sentence- or field-level streaming), and reserve the big model for turns that matter. For VIRAL, field-level streaming of feeling and thought is the equivalent of SkyrimNet's first-sentence speech.",
+          "sources": [
+            "https://www.nvidia.com/en-gb/geforce/news/nvidia-ace-naraka-bladepoint-inzoi-launch-this-month/",
+            "https://forum.playinzoi.com/t/topic/13794",
+            "https://store.steampowered.com/app/2542850/1001_Nights/",
+            "https://arxiv.org/abs/2308.12915",
+            "https://www.uploadvr.com/playing-skyrim-vr-with-chatgpt-powering-npc-conversations/",
+            "https://github.com/MinLL/SkyrimNet-GamePlugin"
+          ],
+          "confidence": "likely"
+        }
+      ]
+    },
+    {
+      "key": "llm-native-games",
+      "summary": "Bottom line: the report's claim that \"every LLM game is one-on-one chat; none is built around propagation\" is false as worded, but a narrower version holds. LLM characters already pass information to each other in several projects:\n- Stanford Generative Agents: a party idea seeded by one user spread from 1 to 13 of 25 agents.\n- Sindome (2023): ChatGPT retells each rumour in each NPC's own voice.\n- Project Sid: a parody religion spread through up to 1,000 agents.\n- Metta-AI \"Rumor\": 10 LLM agents on a hidden social graph, with saboteurs.\n- LLM Werewolf/Mafia games (Mentiss, Wolfcha, Google's Werewolf Arena), AI Diplomacy, AI People, Mantella/SkyrimNet, inZOI Smart Zoi and Pax Historia.\n\nWhat I could not find is a shipped, player-facing game where the only lever is one indirect sentence and you win by the belief state that spreads through a network of LLM characters. That gap is VIRAL's defensible claim. It is an absence, so it is unverified by nature. The commercial hits (Suck Up!, Whispers from the Star, AI2U, Doki Doki AI Interrogation, Death by AI, Infinite Craft, Gandalf, Pax Historia) succeed when:\n- language is the only way to reach the goal;\n- the result is a sharp verdict;\n- the LLM's interpretation is visible;\n- authoritative state is kept outside the LLM.\n\nThe misses (Vaudeville 47% positive, Verbal Verdict 9 reviews, Hidden Door, Where Winds Meet exploits) fail on contradictions, no grounding, outcomes that always succeed, or players being able to state outcomes into existence.\n\nScripted games already did propagation: Prom Week (5,000+ hand-authored social rules), Persona 2's rumour system, Dwarf Fortress rumours. So the part only an LLM can do is: each resident reads an arbitrary sentence differently, retells it in a mutated way, and judges it against private knowledge. VIRAL should put that divergence and mutation on screen.\n\nOn latency, the reference games hide or restructure the wait rather than eliminate it:\n- Infinite Craft caches every result globally.\n- Smallville's public demos are replays of saved runs; its own 25-agent, 2-day run cost thousands of dollars and took days.\n- Metta Rumor runs all seats as one parallel batch per round.\n- Whispers from the Star shows an in-story \"transmitting\" indicator.\n- Pax Historia uses turn-based time jumps.\n- Death by AI is asynchronous, with JSON outputs and retries.\n\nStore numbers were read from live store pages on 2026-10-17. Third-party sales estimates and aggregator sentiment are labelled as such.",
+      "findings": [
+        {
+          "title": "Claim check: 'every LLM game is 1-on-1 chat; none is built around propagation' is false as worded",
+          "detail": "Counterexamples where LLM characters pass information to other LLM characters: (1) Stanford Generative Agents (2023). The user speaks as an agent's 'inner voice'. One seeded idea, a Valentine's party, spread with no further intervention: party knowledge went from 1 agent (4%) to 13 (52%) per arXiv v2, while press quoting v1 says 12 (48%). Sam's mayoral candidacy went from 1 (4%) to 8 (32%), and none of the claims were hallucinated. (2) Sindome, a live MOO, March 2023: each rumour is sent to ChatGPT with each NPC's facts and speaking style, so every bartender retells it differently. (3) Project Sid (Altera, 2024): up to 1,000 GPT-4o-based agents in Minecraft; the Pastafarian parody religion spread via a priest who bribed townsfolk. (4) Metta-AI cogame-rumor (2026): 10 LLM agents on a hidden social graph, talk limited to neighbours, 2-3 paid saboteurs, a sealed vote. (5) LLM Werewolf/Mafia: Mentiss Werewolf (Steam Early Access, 'coming soon'), Wolfcha (open source), Google Werewolf Arena (2024). (6) AI Diplomacy (Every / Good Start Labs, 2025): 7 models, dozens of games up to 36 h, streamed on Twitch. (7) NPC-to-NPC talk: AI People (GoodAI), Mantella 'radiant dialogue', SkyrimNet, inZOI Smart Zoi. Narrower version that survives: none of these is a shipped, player-facing game where the player's single indirect message must spread through a network of LLM residents and success is the end-state of beliefs. Metta Rumor comes closest mechanically, but it is an agent-vs-agent environment with no human-facing game; Werewolf is one room, not a network.",
+          "relevance": "Rewrite the claim in the pitch and README before judges see it. Suggested wording: 'Commercial LLM games are almost all 1:1 conversations. Information spreading between LLM agents exists in research sims (Smallville, Project Sid) and agent-vs-agent games, but we found no shipped game where the player's only move is one whisper whose effect must spread through a town of LLM residents.' Cite Smallville as the ancestor: VIRAL turns its 'information diffusion' experiment into a goal-driven game.",
+          "sources": [
+            "https://arxiv.org/abs/2304.03442",
+            "https://arxiv.org/html/2304.03442v2",
+            "https://www.sindome.org/bgbb/game-discussion/new-game-features/-march--23--improvements-n-bug-fixes-480/",
+            "https://www.sciencefocus.com/future-technology/ai-agents-village",
+            "https://github.com/Metta-AI/cogame-rumor",
+            "https://store.steampowered.com/app/4586780/",
+            "https://www.producthunt.com/p/wolfcha",
+            "https://arxiv.org/abs/2407.13943v1",
+            "https://every.to/context-window/would-your-llm-ever-lie-to-you",
+            "https://goodai.com/ai-people-alpha-officially-released",
+            "https://nexusmods.com/skyrimspecialedition/mods/98631",
+            "https://www.nvidia.com/en-gb/geforce/news/nvidia-ace-naraka-bladepoint-inzoi-launch-this-month"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Stanford Generative Agents (Smallville) and AI Town: VIRAL's direct ancestor, and the cost of doing it live",
+          "detail": "25 agents ran over 2 game days. The paper says the run cost 'thousands of dollars in token credits' and took 'multiple days to complete'. The architecture 'runs sequentially in roughly real-time game time'. The authors propose parallelizing agents and batching dialogue as a joint prompt. The public repo has a replay mode and a compressed demo mode that plays back saved simulations at speeds 1-5. The README warns that the OpenAI API hangs at the hourly rate limit. Users influence agents by speaking as their 'inner voice', which is essentially VIRAL's whisper. a16z AI Town is an open-source remake with about 10.7k GitHub stars, defaulting to llama3 via Ollama.",
+          "relevance": "Framing for judges: 'Smallville showed rumours spread among LLM agents, but it took days and thousands of dollars and had no player goal. VIRAL makes one whisper a playable move with a win condition.' Practical point for the deadline: copy Smallville's replay approach. Ship 2-3 pre-recorded 'golden' stories from real Gemma runs that play instantly, and run live whispers alongside them.",
+          "sources": [
+            "https://arxiv.org/html/2304.03442v2",
+            "https://github.com/joonspk-research/generative_agents",
+            "https://github.com/a16z-infra/ai-town"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Sindome (2023): each NPC retells the rumour in its own words, with a consistent answer per NPC",
+          "detail": "Posted 7 March 2023, a beta feature. A rumour from players or GMs is sent to ChatGPT 'plus context about the NPC (such as their facts and how they talk)', so different bartenders tell it differently. Each NPC remembers its own version and gives the same answer to everyone who asks. If ChatGPT is down, the original rumour text is used unchanged.",
+          "relevance": "This is the clearest example of interpretation divergence that only an LLM can produce. VIRAL already has 'understanding/thought/claims' per resident. Display the hop-by-hop retelling as a 'rumour mutation trail' (what A heard, what A told B, what B believes). Cache each resident's version so replays stay consistent. Keep a fallback that relays the original text unchanged when a call fails.",
+          "sources": [
+            "https://www.sindome.org/bgbb/game-discussion/new-game-features/-march--23--improvements-n-bug-fixes-480/"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Metta-AI 'Rumor' and LLM Werewolf/Diplomacy: rumour spread and social deduction among AI agents",
+          "detail": "Metta Rumor rules:\n- 10 LLM seats, each with a private clue that is right about 2 times in 3.\n- The graph changes per episode: ring with chords, small world, two clusters joined by a bridge, or hubs.\n- Agents message neighbours only, one hop per round, for 5 rounds; then a sealed vote.\n- 2-3 saboteurs are rewarded when honest seats vote wrong.\n- Claude runs all 10 seats as one parallel batch per turn, with a rate governor.\n\nWerewolf and Diplomacy:\n- Werewolf Arena (Google, 2024) uses bids from 0 to 4 to decide who speaks next.\n- Mentiss Werewolf (Steam Early Access, coming soon): Claude, GPT, Gemini, Grok, DeepSeek and Kimi seats; 6/9/10-player games; 18 roles; 3 free games per day, then paid AI credits; bring-your-own-model option.\n- Wolfcha: open source, from the Watcha x ModelScope hackathon, about 604 stars per a third-party index.\n- AI Diplomacy: o3 kept false alliances for dozens of turns before betraying; Claude models preferred peace even when it meant losing.\n\nReception: none of these has meaningful player reviews yet. Mentiss had 0 user reviews when its Steam page was read. AI Diplomacy's audience was spectators on Twitch, with no viewer numbers published.",
+          "relevance": "Two ideas to borrow cheaply:\n- Run propagation in synchronous rounds. Every resident who received something in round k replies in parallel in round k+1, instead of one strict chain. This uses VIRAL's 20 requests/min budget better; the wall-clock gain is my estimate, not measured.\n- Add a saboteur or skeptic resident whose private knowledge contradicts the rumour, so belief can visibly fail.\n\nWerewolf-style bidding also suggests only calling the residents who would actually react.",
+          "sources": [
+            "https://github.com/Metta-AI/cogame-rumor",
+            "https://arxiv.org/abs/2407.13943v1",
+            "https://store.steampowered.com/app/4586780/",
+            "https://www.producthunt.com/p/wolfcha",
+            "https://www.sourcepulse.org/projects/23163788",
+            "https://every.to/context-window/would-your-llm-ever-lie-to-you"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Suck Up! (Proxima): persuasion where your wording and costume decide whether the door opens",
+          "detail": "What it is: a vampire talks AI residents into inviting it inside, using voice or text. Disguises and held items are part of the context sent to the model.\n\nHow the LLM is used: ChatGPT. Version 1.0 launched on 'ChatGPT 5' per Hypergrid's review. Each conversation is short and ends in a binary verdict: invited in (win) or door slammed (lose).\n\nRelease history:\n- 12 Dec 2023: sold directly, because Steam did not then allow runtime-AI games (per CEO Ran Mo).\n- 1 Oct 2025: Steam release.\n\nReception:\n- Steam all-time: Mixed, 63% of 215 reviews. Last 30 days: 80% of 10.\n- Raijin estimates about 5.6K Steam copies and about $57.6K gross. Unverified, and it excludes direct sales.\n- Huge creator reach. Know Your Meme: MadMorph's let's play had about 1.1M views in a month; a TikTok had about 1.7M. Ran Mo claims 'a few hundred million streams' (machine transcript, unverified).\n- Praise: funny dialogue. Complaints: repetitive after a few houses, overcomplicated disguises, privacy concerns.\n\nCosts and design quotes from Ran Mo:\n- Speedrunners cost $5-10 of compute per hour.\n- Model cost for the same model fell 75-80% within about a year.\n- 'the star is not the AI, the star is the content creators.'\n- The developer told Hypergrid: 'The more complex the prompts, the less fun it is.'",
+          "relevance": "Lessons for VIRAL:\n- Make the result binary and dramatic. End each story with a front-page headline or the target's decision, the equivalent of the door opening or slamming.\n- Use recognizable archetypes (gossip, skeptic, journalist).\n- Keep resident prompts simple.\n- Design for funny clips: the player's clever whisper should be the star, not the model.",
+          "sources": [
+            "https://store.steampowered.com/app/2726370/Suck_Up/",
+            "https://www.hypergridbusiness.com/?p=79055",
+            "https://naavik.co/podcast/finding-success-with-ai-agents-and-content-creators/",
+            "https://knowyourmeme.com/memes/subcultures/suck-up",
+            "https://raijin.gg/app/2726370/Suck_Up",
+            "https://playpile.gg/games/suck-up"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "1001 Nights (Yuqian Sun / Ada Eden): the goal is reached only through another character's mouth",
+          "detail": "Mechanic: you tell stories to steer an LLM King. When the King himself says a keyword such as 'sword' or 'shield', it becomes a real weapon you can use against him. Indirect influence is the whole game.\n\nAIIDE 2023 paper ('Language as Reality'):\n- GPT-4 evaluates and continues the story using chain-of-thought and ReAct-style reasoning.\n- The King rejects anachronisms such as guns, ignores meaningless input, and warns players who insult him.\n- V1 analysed 2,000+ play instances and 200+ players. V2 had 200+ players at Gamescom 2023, and none jailbroke the King.\n- Weakness: combat was a guaranteed win once all weapons were collected.\n\nLater development (KrASIA, 2026; now 'Book of Infinity', headed to Steam):\n- The team added 'Inspiration Cards' because players who aren't natural storytellers struggled to start.\n- They made the King's mood visible because players didn't notice when they had angered him.\n- They cut real-time scene generation after weak demo responses.",
+          "relevance": "This is the closest design ancestor of 'you never talk to the target'. Lessons for VIRAL:\n- Give 2-3 example whispers or a prompt card per scenario so players aren't facing a blank box.\n- Show each resident's current stance and mood visibly.\n- Make failure real: an over-obvious lie gets the whisperer distrusted, the way the King executes players whose intentions are too obvious.",
+          "sources": [
+            "https://ojs.aaai.org/index.php/AIIDE/article/view/27539",
+            "https://ar5iv.labs.arxiv.org/html/2308.12915",
+            "https://kr-asia.com/how-book-of-infinity-1001-nights-uses-ai-to-let-players-tell-their-own-stories"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Whispers from the Star (Anuttacon): indirect influence through one stranded character, with an in-story waiting indicator",
+          "detail": "Release and access: Steam, 14 Aug 2025, NT$159 (17173 reports $9.99 overseas). Needs a broadband connection and an Anuttacon account.\n\nHow it plays: you are the only contact of astronaut Stella. You talk by voice, video or text, and she makes the choices that decide whether she survives. Dialogue is unscripted, with AI-voiced performances made together with an actor.\n\nReception:\n- Steam: Very Positive, 80% of 1,662 reviews.\n- Main praise (Vaporlens aggregator, indicative only): realistic interaction with Stella.\n- Top complaints: unnatural or repetitive conversation (Stella asks personal questions after almost every line), crashes and disconnections, a linear short plot of about 2-3 h, English only.\n- 17173 notes: a 'transmitting' indicator appears after you speak; the forced return to the main plot breaks immersion; many players spend their time trying to break the AI.",
+          "relevance": "It shows players will accept a slow, indirect relationship when the delay fits the fiction. VIRAL can present its 20-60 s calls the same way: a phone ringing, someone walking over to whisper, a newspaper being printed. Avoid the repetition complaint by varying resident behaviour and keeping stories short.",
+          "sources": [
+            "https://store.steampowered.com/app/3730100/",
+            "https://vaporlens.app/app/3730100/whispers_from_the_star.md",
+            "https://news.17173.com/content/08182025/110153077.shtml"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Dead Meat (Meaning Machine): showing the suspect's thoughts next to their words",
+          "detail": "Status: an interrogation 'First Person Talker' where you question suspects in your own words. The Steam page says it is planned for 2026 and is not yet released.\n\nKey mechanic: two layers per answer. The suspect's spoken reply is often defensive, and the 'Mind Reader 3000' reveals the internal monologue. Players use those hidden truths to corner the suspect.\n\nPlaytests:\n- EGX demo: average play time about 40 minutes, and staff had to move players along.\n- University of Bristol study (reported March 2026), 68 players: 95% found it enjoyable, 97% rewarding, 75% felt they could express themselves. Downside: the open-ended freedom could feel overwhelming without direction.\n\nDesign view (Tom Keane): 'AI-enabled dialogue is only as good as the humans behind it'; writers set the characters and ground truth.",
+          "relevance": "VIRAL already generates 'understanding' and 'thought' separately from 'claims'. Put them side by side: what the resident says versus what they actually think, plus how sure they are. That visible split is the moment where VIRAL feels like something only an LLM could do. Pair it with one clear goal so the freedom isn't overwhelming.",
+          "sources": [
+            "https://premortem.games/?p=4206",
+            "https://respawn.outlookindia.com/gaming/gaming-news/study-finds-strong-player-response-to-ai-powered-npc-interactions",
+            "https://store.steampowered.com/app/2628740/",
+            "https://adventuregamehotspot.com/announcement/641/dead-meat-being-seasoned-for-pc-release"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Vaudeville, Verbal Verdict, Doki Doki AI Interrogation, AI2U: what worked and failed in AI interrogation and persuasion games",
+          "detail": "Vaudeville (Bumblebee Studios):\n- Early access 30 Jun 2023, 1.0 on 28 Nov 2025. Steam: Mixed, 47% of 284.\n- About 7,500 copies sold by January 2024 (developer pre-mortem). Game8 scored it 40/100.\n- Complaints: characters contradict each other on facts (two of them give different names, each insisting they're right), stalling, ignoring the question, flat voices.\n- The external API (Inworld) went down during a streamer spike.\n\nVerbal Verdict (Savanna Developments):\n- Early access 23 Mar 2024. Runs a local LLM; the demo download was over 7 GB; minimum GPU RTX 2060.\n- Only 9 Steam reviews, and the page says the last update was over two years ago.\n- 404 Media praised it as LLMs possibly 'killing the dialogue tree'.\n\nDoki Doki AI Interrogation (YAMADA):\n- 24 May 2024, ChatGPT. Very Positive, 81% of 488.\n- 10-15 minute story. A visible heartbeat meter rises until the suspect confesses.\n\nAI2U: With You 'Til the End (AlterStaff):\n- Early access Jan 2025, 1.0 on 12 Aug 2026. Azure OpenAI, Gemini and Minimax TTS.\n- Very Positive: 88% of 1,070 English reviews; 82% of 269 recent.\n- You persuade a yandere captor to let you go. Complaints: unreliable AI memory, crashes, repetition.",
+          "relevance": "The pattern across these: games succeed when they are short, have one goal, and show a meter (Doki Doki, AI2U). They fail when the facts live inside the LLM and contradict each other (Vaudeville). VIRAL's deterministic engine and per-resident knowledge already avoid the Vaudeville failure; keep facts authoritative outside the model. Add one visible meter: rumour reach or belief in the target.",
+          "sources": [
+            "https://store.steampowered.com/app/2240920/",
+            "https://www.gamedeveloper.com/design/vaudeville-pre-mortem",
+            "https://keengamer.com/articles/previews/vaudeville-preview-the-ai-questioning-to-nowhere/",
+            "https://game8.co/articles/reviews/vaudeville-review",
+            "https://store.steampowered.com/app/2778780/Verbal_Verdict/",
+            "https://www.404media.co/a-small-steam-game-shows-how-llms-could-kill-the-dialogue-tree/",
+            "https://store.steampowered.com/app/2844700/",
+            "https://store.steampowered.com/app/2880730/"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Infinite Craft (Neal Agarwal): every result is cached globally, so most actions cost no model call",
+          "detail": "Release: web on 31 Jan 2024; iOS and Android in spring 2024. Uses Llama 2 (Wikipedia also lists Mistral) hosted on Together AI.\n\nHow it works: the game checks a database for the pair first. Only new pairs call the LLM, and the result is saved, so every player gets the same answer. The first player to create something gets a 'First Discovery' label.\n\nReception: 200,000 unique combinations were tried on launch day (Agarwal via Dot Esports). The launch post drew about 15M views in a week (Know Your Meme). Critics praised the surprise: the NYT said it felt 'like peering into an A.I.'s brain'. Complaints are minor (occasional nonsense results).",
+          "relevance": "This is the most direct latency trick for VIRAL. Cache results keyed by resident, normalized input and relevant state, so repeat whispers and demo paths replay instantly from real Gemma output. A 'first to cause X' badge also makes the outcome space feel open-ended.",
+          "sources": [
+            "https://en.wikipedia.org/wiki/Infinite_Craft",
+            "https://dotesports.com/general/news/how-many-items-are-in-infinite-craft",
+            "https://kotaku.com/games/infinite-craft",
+            "https://knowyourmeme.com/memes/sites/infinite-craft"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Retail Mage and Hidden Door: the LLM as game engine versus the LLM as storyteller",
+          "detail": "Retail Mage (Jam & Tea, 12 Nov 2024):\n- $4.99; Steam Mostly Positive, 79% of 44 reviews.\n- The LLM interprets free-form player actions on store items for up to 4 co-op players.\n- The developers state AI was not used for customers' motivations, personalities or quests; those are authored.\n\nHidden Door (early access 2025; worlds include Oz and Pride and Prejudice):\n- Story state is held in 'cards'. Ian Bicking's August 2025 design review found no grounding: a chest has no contents until opened.\n- Other problems: continuity errors, objectives that complete themselves, and player actions that almost always succeed, making it collaborative fiction rather than a game.\n- His fixes: keep explicit world state, plan outcomes before writing prose, allow real failure, and decouple UI pacing from the LLM. For example, show a one-sentence outcome immediately while the detail streams in.",
+          "relevance": "Keep VIRAL's split: an authored world plus a deterministic engine, with the LLM only interpreting and choosing actions. On screen, show a one-line verdict first ('Mara believes it, 0.7'), then let the fuller thought and dialogue stream after. Make sure some whispers fail.",
+          "sources": [
+            "https://store.steampowered.com/app/3224380/",
+            "https://ianbicking.org/blog/2025/08/hidden-door-design-review-llm-driven-game",
+            "https://www.publishersweekly.com/pw/by-topic/industry-news/licensing/article/98406-hidden-door-rolls-out-literary-roleplaying-platform.html",
+            "https://fortune.com/2024/09/25/video-game-studios-npc-ai-interactions-more-like-actual-conversations"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Death by AI and Pax Historia: free text in, judged outcome out, at scale",
+          "detail": "Death by AI (Playroom, Discord activity):\n- Players write a survival plan for a deadly scenario, and an AI game master gives the verdict.\n- Almost 7M users within weeks (6.9M unique, about 400K daily actives early). Over 30% of players still playing 7 days later. Peak usage was over 1.2B text tokens per day.\n- Engineering: JSON-mode responses, retries, different prompts per model, asynchronous turn-based play.\n\nPax Historia (Y Combinator, Winter 2026 batch):\n- An alternate-history strategy game. You write free-text actions and diplomacy, then jump forward in time; AI-controlled nations and actors react and the map updates.\n- About 35K daily users and over 100B tokens in a week (YC). Over 4,000 community presets.\n- A review counts 20M+ rounds and says one free token buys about 15-20 minutes of play.\n- Criticism: 'prompt engineering dressed up as a grand strategy game'; outcomes are inferred by the AI rather than computed, so they can be inconsistent.",
+          "relevance": "Both build the wait into the loop: Death by AI with a shared reveal after everyone submits, Pax Historia with a time jump. VIRAL's ~40 s of playback per ~200 s of model time fits a 'whisper, then the town plays it out overnight, then the morning paper' structure. Also show why something happened (which resident, which claim), so it never feels like prompt luck.",
+          "sources": [
+            "https://discord.com/build-case-studies/playroom",
+            "https://playroom.substack.com/p/5m-players-on-discord-game",
+            "https://www.ycombinator.com/companies/pax-historia",
+            "https://www.startuphub.ai/ai-news/reviews/2026/pax-historia-review-ai-grand-strategy-game"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Gandalf, Tensor Trust, Human or Not: wording as the skill, at scale",
+          "detail": "Gandalf (Lakera): you trick an LLM into revealing a password. Over 1M players and 40M+ prompts; Lakera says about 17% reached the final level.\n\nTensor Trust (ICLR 2024): an attack-and-defend prompt game with 563K+ attacks and 118K+ defenses.\n\nHuman or Not (AI21, 2023): a 2-minute chat, then you guess whether the other side was human or AI. 15M+ conversations and 2M+ participants. Players were right 68% of the time overall: 73% against humans, 60% against bots.",
+          "relevance": "These show large audiences enjoy language-as-skill when the goal is crisp and success is checkable. For VIRAL, show the score as a function of wording. Show what the target ended up believing, with confidence, and how many hops the rumour took. That way players iterate on phrasing the way Gandalf players iterate on prompts.",
+          "sources": [
+            "https://www.lakera.ai/news/gandalf-new-ui-and-enhanced-ai-security-education",
+            "https://zilliz.com/blog/insights-into-llm-security-from-the-worlds-largest-red-team",
+            "https://proceedings.iclr.cc/paper_files/paper/2024/hash/519c51529c3544b3430bd8b17d400365-Abstract-Conference.html",
+            "https://www.ai21.com/blog/human-or-not-results"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Multi-NPC LLM simulations with a player: AI People, inZOI Smart Zoi, Mantella and SkyrimNet, Project Sid",
+          "detail": "AI People (GoodAI):\n- Alpha 19 Sep 2024 on GoodAI's own platform, not Steam.\n- NPCs talk with each other and with the player, coordinated by an 'AI Director'.\n- $10/month buys 1,000 credits, citing cloud cost. Sessions are capped at 10 minutes, and GoodAI admits 'challenges are currently minimal'. A local-LLM option was added in December 2024.\n\ninZOI Smart Zoi (Krafton, March 2025):\n- An on-device small language model built with NVIDIA ACE.\n- Players can watch a Zoi's inner thoughts in real time and change its goals with free-form text.\n\nMantella (Skyrim/Fallout mod): NPCs start group 'radiant' conversations with each other.\n\nSkyrimNet: NPCs react only to what they could plausibly see or hear.\n\nProject Sid: memes and religion spread across agents. Results vary run to run, and critics question how autonomous the agents really are.",
+          "relevance": "These are the closest multi-NPC references, and they share one weakness: no clear goal or challenge. VIRAL's advantage is a sharp objective. inZOI and SkyrimNet confirm two of VIRAL's choices: visible thoughts, and residents limited to what they could plausibly know.",
+          "sources": [
+            "https://goodai.com/ai-people-alpha-officially-released",
+            "https://blog.marekrosa.org/2024/12/ai-people-now-with-local-llm/",
+            "https://www.nvidia.com/en-gb/geforce/news/nvidia-ace-naraka-bladepoint-inzoi-launch-this-month",
+            "https://github.com/art-from-the-machine/Mantella",
+            "https://github.com/MinLL/SkyrimNet-GamePlugin",
+            "https://www.sciencefocus.com/future-technology/ai-agents-village"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Research on rumours and misinformation spreading between LLM agents: evidence and risks for VIRAL",
+          "detail": "Breaking the News (arXiv 2502.04931):\n- A two-player game: one player is an influencer, the other a debunker. Five GPT-4o personas give trust scores from 0 to 10.\n- N=47 (24 pairs). Misinformation discernment (MIST-20) improved, p=.007.\n- Beliefs do not spread between the personas; it is a crowd, not a network.\n\nSimulating Rumor Spreading (arXiv 2502.01450): 100+ agents on 4 network types. Reach ranged from 0% to 83% depending on network structure, personas and spreading scheme.\n\nOASIS (CAMEL-AI): up to 1M agents. Fabricated news drew more posts than the official version on all 4 topics. 196 core accounts, 60 time steps, 24 A100 GPUs for a week.\n\n'When LLMs Play the Telephone Game' (arXiv 2407.04503):\n- Text passed along chains of LLMs drifts toward 'attractors'.\n- Open-ended instructions such as 'continue the story' drift more than constrained ones such as 'rephrase'.\n- Toxicity is a strong attractor, and some models drift toward more positive text.",
+          "relevance": "A design risk to test today: chains of Gemma retellings may flatten every rumour into the same polite, positive version. To counter it:\n- Give each resident a persona-specific bias.\n- Constrain the retelling (e.g. 'retell in under 20 words from your point of view, keep or change one detail').\n- Display the mutation as content.\n\nThe papers also support the pitch that network shape and who you whisper to matter, which makes for a strategy layer.",
+          "sources": [
+            "https://arxiv.org/html/2502.04931v1",
+            "https://arxiv.org/abs/2502.01450",
+            "https://arxiv.org/pdf/2411.11581",
+            "https://arxiv.org/abs/2407.04503v2"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Anti-pattern: Where Winds Meet (late 2025) players state their way past LLM quest NPCs",
+          "detail": "Players found two exploits in NetEase/Everstone's LLM-driven quest NPCs:\n- Writing actions in parentheses to state facts as true, for example declaring an NPC's missing brothers 'found'. The NPC accepted it and completed the quest.\n- The 'Solid Snake method': repeating the NPC's last words back as a question until it thanks the player and ends the conversation.\n\nCoverage is gaming news relaying Reddit posts; patch status is unknown.",
+          "relevance": "VIRAL's deterministic validation, with residents reading only their own knowledge, is the right defence. Make it visible: when a whisper tries to state facts as true, show the resident doubting or rejecting it, for example 'I never saw that.' Visible rejection is gameplay, not an error.",
+          "sources": [
+            "https://respawn.outlookindia.com/gaming/gaming-news/where-winds-meet-ai-exploit-lets-players-skip-quests",
+            "https://www.gamepro.de/artikel/in-where-winds-meet-belohnungen-abstauben-mit-der-solid-snake-methode,3443764",
+            "https://www.gosugamers.net/entertainment/news/77655-where-winds-meet-players-outsmart-ai-npcs-to-easily-get-sidequest-rewards"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "Scripted precedents show what is LLM-only in VIRAL",
+          "detail": "Rumour spread and social influence existed before LLMs:\n- Prom Week (UCSC, 2012): 18 characters, 'over 5,000 social considerations', and actions chosen from a menu. One action, such as flirting with someone, changes later outcomes with that person's friends.\n- Persona 2 (1999): spreading a rumour heard from an NPC makes it come true in the world.\n- Dwarf Fortress: witnesses become rumour sources, others pass rumours on, and knowledge decays.\n\nThe common limit: all of them propagate predefined tokens or menu actions; none can take an arbitrary sentence.",
+          "relevance": "Answer to the user's worry about whether VIRAL is 'something only an LLM can do': the spread graph itself is not LLM-only, but the payload is. The player writes any sentence, and each resident reads it against private knowledge, assigns a confidence, and retells a mutated version that no designer authored. The pitch and UI should put that interpretation and mutation in the foreground, not just dots moving between houses.",
+          "sources": [
+            "https://promweek.soe.ucsc.edu/?p=9",
+            "https://grandtextauto.soe.ucsc.edu/author/mike-treanor",
+            "https://en.wikipedia.org/wiki/Persona_2:_Innocent_Sin",
+            "https://dwarffortresswiki.org/index.php/Rumor"
+          ],
+          "confidence": "verified"
+        },
+        {
+          "title": "Design patterns that make an LLM game feel new rather than a decision tree with nicer text",
+          "detail": "Each pattern below is grounded in a game or paper above.\n\n1. Wording as strategy. The exact phrasing changes the outcome, and players learn it as a skill (Gandalf, Tensor Trust, Suck Up!).\n2. Goals reachable only through language, ideally through another character's mouth (1001 Nights keywords, Whispers from the Star, Smallville's inner voice).\n3. Visible interpretation divergence: show what a character heard, thinks and says, side by side (Dead Meat Mind Reader, inZOI thoughts, Sindome per-NPC retellings). Treanor et al. (FDG 2015) list 'AI is Visualized' and 'AI as Spectacle' among nine AI-based game design patterns.\n4. Mutation as content: show the telephone-game drift (Sindome, telephone-game paper).\n5. Authoritative state outside the LLM, with the LLM only interpreting (Retail Mage, Infinite Craft's cache, Death by AI's JSON). Cautionary cases: Vaudeville, Hidden Door, Where Winds Meet.\n6. A sharp verdict or meter with real failure (Suck Up! door, Doki Doki heartbeat, AI2U endings; Bicking's 'allow real failure').\n7. Short loops of 10-15 minutes (Doki Doki, AI People's 10-minute cap; Suck Up! conversations end quickly).\n8. Performance and spectator value: the player's cleverness is the star (Ran Mo; AI Diplomacy on Twitch; Death by AI parties).\n9. A shared, persistent world with 'first discovery' credit (Infinite Craft).\n10. Starting scaffolds so players aren't facing a blank box (1001 Nights' Inspiration Cards; Dead Meat players felt overwhelmed).\n11. Waiting that fits the fiction (Whispers' 'transmitting'; Pax Historia's time jump).\n\nMicrosoft's Dejaboom study (IEEE Conference on Games 2024, 28 players) found that players who like discovery created the most emergent story moments not in the authored narrative.",
+          "relevance": "Patterns 2, 3 and 4 are VIRAL's strongest claim to novelty and are cheap to surface in the UI. Pattern 6 (the verdict) and pattern 11 (diegetic waiting) fix the pacing problem.",
+          "sources": [
+            "https://strathprints.strath.ac.uk/57219/",
+            "https://arxiv.org/abs/2101.06220",
+            "https://arxiv.org/abs/2404.17027",
+            "https://premortem.games/?p=4206",
+            "https://ar5iv.labs.arxiv.org/html/2308.12915",
+            "https://www.sindome.org/bgbb/game-discussion/new-game-features/-march--23--improvements-n-bug-fixes-480/",
+            "https://en.wikipedia.org/wiki/Infinite_Craft",
+            "https://naavik.co/podcast/finding-success-with-ai-agents-and-content-creators/"
+          ],
+          "confidence": "likely"
+        },
+        {
+          "title": "How the reference games cope with latency (for the user's latency question)",
+          "detail": "None of these games removes LLM latency. They hide it or restructure around it:\n- Infinite Craft: global cache, so each combination is computed once.\n- Smallville: public demos are replays of saved runs. The authors suggest running agents in parallel and batching dialogue into one joint prompt; their own run was sequential, cost thousands of dollars and took days.\n- Metta Rumor: synchronous rounds, with all 10 agents in one parallel batch and a rate governor.\n- Werewolf Arena: speaking bids, so only the most urgent speaker gets a call.\n- Whispers from the Star: an in-story 'transmitting' indicator.\n- Pax Historia: turn-based time jumps.\n- Death by AI: asynchronous turns, JSON mode, retries.\n- Hidden Door critique (Bicking): show a one-sentence outcome first, then stream the rest.\n- Suck Up!: compute cost for the same model fell about 75-80% within a year.",
+          "relevance": "Options that fit 1.5 days, as estimates and not measured on VIRAL:\n(a) Pre-record 2-3 golden stories from real Gemma runs as an instant replay mode, and label it honestly.\n(b) Cache responses keyed by resident, normalized input and state.\n(c) Restructure the chain into rounds and fire all independent residents of a round in parallel within the 20 requests/min budget.\n(d) Ask Gemma for a minimal JSON verdict first (stance plus one action) and fill flavour text afterwards.\n(e) Cover the wait with in-story animation: walking to whisper, phone calls, the newspaper press.",
+          "sources": [
+            "https://en.wikipedia.org/wiki/Infinite_Craft",
+            "https://arxiv.org/html/2304.03442v2",
+            "https://github.com/joonspk-research/generative_agents",
+            "https://github.com/Metta-AI/cogame-rumor",
+            "https://arxiv.org/abs/2407.13943v1",
+            "https://news.17173.com/content/08182025/110153077.shtml",
+            "https://discord.com/build-case-studies/playroom",
+            "https://ianbicking.org/blog/2025/08/hidden-door-design-review-llm-driven-game",
+            "https://naavik.co/podcast/finding-success-with-ai-agents-and-content-creators/"
+          ],
+          "confidence": "likely"
+        }
+      ]
+    }
+  ],
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Research"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "research:amd-selfhost",
+      "phaseIndex": 1,
+      "phaseTitle": "Research",
+      "agentId": "a1b776806956bf0dc",
+      "model": "claude-opus-5-5",
+      "state": "done",
+      "startedAt": 1792170212593,
+      "queuedAt": 1792170212558,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "The hosted endpoint's latency comes from queueing and rate …",
+      "promptPreview": "Project: VIRAL, an AMD Developer Hackathon ACT III (Track 4: Gemma on AMD) entry, deadline 2026-10-18 18:00 Taipei (about 1.5 days from now). A web game: the player whispers one free-text sentence to one of 8 AI residents in a 3D town; each resident is a Gemma-4-31B-IT call that reads only its own knowledge/beliefs/messages and returns JSON (understanding, thought, claims, stances with confidence,…",
+      "promptFramed": true,
+      "lastProgressAt": 1792171193029,
+      "tokens": 155126,
+      "toolCalls": 68,
+      "durationMs": 980434,
+      "resultPreview": "{\"summary\":\"The hosted endpoint's latency comes from queueing and rate limits, not from Gemma 4 31B itself. VIRAL's own lab log (viral-town/lab/runs/B1v14/pigeon-journalist.json) shows calls of about 1,560–1,850 prompt tokens and 116–277 completion tokens, yet each took 22–100 s. That works out to roughly 3–9 tokens/s.\\n\\nGemma 4 31B on one MI300X has been measured by a third party (xbill, GDE, Oc…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "research:latency-patterns",
+      "phaseIndex": 1,
+      "phaseTitle": "Research",
+      "agentId": "ab9257a33c0c1f765",
+      "model": "claude-opus-5-5",
+      "state": "done",
+      "startedAt": 1792170212594,
+      "queuedAt": 1792170212558,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Bottom line: the latency can't be removed while VIRAL stays…",
+      "promptPreview": "Project: VIRAL, an AMD Developer Hackathon ACT III (Track 4: Gemma on AMD) entry, deadline 2026-10-18 18:00 Taipei (about 1.5 days from now). A web game: the player whispers one free-text sentence to one of 8 AI residents in a 3D town; each resident is a Gemma-4-31B-IT call that reads only its own knowledge/beliefs/messages and returns JSON (understanding, thought, claims, stances with confidence,…",
+      "promptFramed": true,
+      "lastProgressAt": 1792171330863,
+      "tokens": 201159,
+      "toolCalls": 106,
+      "durationMs": 1114262,
+      "resultPreview": "{\"summary\":\"Bottom line: the latency can't be removed while VIRAL stays on the shared AMD endpoint, but its visible effect can be cut a lot. Several fixes take a few hours each, and one bigger infrastructure fix is too risky to adopt before the deadline.\\n\\nVIRAL's own logs settle where the time goes. I checked 330 single-attempt Gemma calls in C:\\\\Users\\\\User\\\\Downloads\\\\ACT_III_top7_validation_p…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "research:llm-native-games",
+      "phaseIndex": 1,
+      "phaseTitle": "Research",
+      "agentId": "afb4f397cf599f0df",
+      "model": "claude-opus-5-5",
+      "state": "done",
+      "startedAt": 1792170212594,
+      "queuedAt": 1792170212559,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Bottom line: the report's claim that \"every LLM game is one…",
+      "promptPreview": "Project: VIRAL, an AMD Developer Hackathon ACT III (Track 4: Gemma on AMD) entry, deadline 2026-10-18 18:00 Taipei (about 1.5 days from now). A web game: the player whispers one free-text sentence to one of 8 AI residents in a 3D town; each resident is a Gemma-4-31B-IT call that reads only its own knowledge/beliefs/messages and returns JSON (understanding, thought, claims, stances with confidence,…",
+      "promptFramed": true,
+      "lastProgressAt": 1792171244522,
+      "tokens": 196057,
+      "toolCalls": 118,
+      "durationMs": 1027920,
+      "resultPreview": "{\"summary\":\"Bottom line: the report's claim that \\\"every LLM game is one-on-one chat; none is built around propagation\\\" is false as worded, but a narrower version holds. LLM characters already pass information to each other in several projects:\\n- Stanford Generative Agents: a party idea seeded by one user spread from 1 to 13 of 25 agents.\\n- Sindome (2023): ChatGPT retells each rumour in each NP…"
+    }
+  ],
+  "totalTokens": 552342,
+  "totalToolCalls": 292
+}

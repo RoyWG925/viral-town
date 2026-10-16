@@ -3,7 +3,8 @@
 // when it died, and the wildest retelling. Built only from recorded, validated events and fixed
 // templates — no model writes or embellishes it.
 import type { RunResult } from "../sim/engine.ts";
-import { PERSONAS, PLACES } from "../sim/scenario.ts";
+import { FACTS, PERSONAS, PLACES } from "../sim/scenario.ts";
+import { topicFact } from "../sim/view.ts";
 import type { SimEvent } from "../sim/types.ts";
 
 const nameOf = (id: string) => PERSONAS.find((p) => p.id === id)?.name ?? id;
@@ -34,6 +35,8 @@ export interface StoryCard {
   closest?: { npc: string; could: string; did: string; conf?: number };
   /** the retelling that drifted furthest from what was heard */
   wildest?: Hop & { similarity: number };
+  /** the town ended up talking about something else than the planted sentence: from what, to what, and where it turned */
+  drift?: { from: string; to: string; pivot?: Hop };
   reached: string[];
 }
 
@@ -140,6 +143,66 @@ export function storyOf(run: RunResult): StoryCard {
     .sort((a, b) => a.similarity - b.similarity)[0];
 
   const card: StoryCard = { icon: "💬", headline: "", sub: "", spine, reached, wildest: wildest && wildest.similarity < 0.55 ? wildest : undefined };
+
+  // topic drift: what the seed listener made of the sentence vs. what most people ended up holding beliefs about
+  const claims = run.claims ?? [];
+  const seedTopics = new Set(claims.filter((c) => c.by === seedNpc).slice(0, 2).map((c) => c.topic));
+  const people = new Map<string, Set<string>>();
+  for (const c of claims) {
+    if (!people.has(c.topic)) people.set(c.topic, new Set());
+    people.get(c.topic)!.add(c.by);
+  }
+  const dominant = [...people.entries()].filter(([t]) => t !== "other").sort((a, b) => b[1].size - a[1].size)[0];
+  if (dominant && dominant[1].size >= 2 && !seedTopics.has(dominant[0])) {
+    const first = claims.find((c) => c.topic === dominant[0])!;
+    // the first retelling on the way from the planted sentence to that first claim is where the talk turned
+    const origin = byId.get(first.origin);
+    let pivot: Hop | undefined;
+    if (origin && seed) {
+      const prev = new Map<string, string>();
+      const queue = [origin.id];
+      const seen = new Set(queue);
+      while (queue.length) {
+        const id = queue.shift()!;
+        if (id === seed.id) break;
+        for (const c of byId.get(id)?.causes ?? []) if (!seen.has(c)) (seen.add(c), prev.set(c, id), queue.push(c));
+      }
+      for (let id: string | undefined = seed.id; id; id = prev.get(id)) {
+        const e = byId.get(id);
+        if (e && (e.type === "talk" || e.type === "phone") && !e.data.missed) {
+          pivot = hopOf(e);
+          break;
+        }
+      }
+    }
+    card.drift = { from: seedText, to: first.statement, pivot };
+  }
+  // the most telling first-hand check: someone went to look and the engine showed them the real state of
+  // something the story is about (the planted topic, the topic most people ended up on, or what they believed)
+  const clipS = (t: string, n: number) => (t.length > n ? `${t.slice(0, n)}…` : t);
+  const storyTopics = new Set<string>([...(run.claims ?? []).filter((c) => c.by === seedNpc).map((c) => c.topic)]);
+  {
+    const counts = new Map<string, Set<string>>();
+    for (const c of run.claims ?? []) if (c.topic !== "other") (counts.get(c.topic) ?? counts.set(c.topic, new Set()).get(c.topic)!).add(c.by);
+    const dom = [...counts.entries()].sort((x, y) => y[1].size - x[1].size)[0];
+    if (dom) storyTopics.add(dom[0]);
+  }
+  const storyFacts = new Set([...storyTopics].map((t) => topicFact(t)).filter(Boolean) as string[]);
+  let checked: { e: SimEvent; text: string; dir: "up" | "down"; coverUp: boolean } | null = null;
+  for (const e of events.filter((x) => x.type === "inspect" || x.type === "look").sort((x, y) => (x.type === "inspect" ? -1 : 0) - (y.type === "inspect" ? -1 : 0))) {
+    const found = String(e.data.found ?? "");
+    if (!found) continue;
+    const fact = FACTS.find((f) => f.check && storyFacts.has(f.id) && found.includes(f.check.zh));
+    const nothing = /一切如常/.test(found);
+    if (!fact && !nothing) continue;
+    const before = events.filter((x) => x.type === "belief" && x.actor === e.actor && x.t < e.t).at(-1);
+    const after = events.find((x) => x.type === "belief" && x.actor === e.actor && x.t >= e.t);
+    const dir: "up" | "down" = nothing || (fact && !fact.value) || (before && after && Number(after.data.to) < Number(before.data.to) - 0.1) ? "down" : "up";
+    if (nothing && !(before && Number(before.data.to) >= 0.3)) continue; // finding nothing only matters if they had something to check
+    const coverUp = hops.some((h) => /壓下來|壓住|別說|不要說出去|敷衍|私下處理|低調/.test(h.text));
+    checked = { e, text: fact ? fact.check!.zh : found.split(/\s+/)[0], dir, coverUp };
+    break;
+  }
   const d = (top?.data ?? {}) as Record<string, unknown>;
   const actor = top?.actor ? nameOf(top.actor) : "";
   const hopsN = spine.length;
@@ -153,8 +216,23 @@ export function storyOf(run: RunResult): StoryCard {
     else if (top.type === "statement") Object.assign(card, { icon: "📣", headline: `${actor}出面發表聲明`, sub: `「${String(d.text).slice(0, 40)}」` });
     else if (top.type === "gather") Object.assign(card, { icon: "✊", headline: "攤商聚集討公道", sub: `${actor}號召大家${via}。` });
     else if (top.type === "notice") Object.assign(card, { icon: "📋", headline: "廣場布告欄貼出公告", sub: `「${String(d.text).slice(0, 40)}」` });
+  } else if (checked) {
+    // no world change, but someone went and saw the truth for themselves: that is the payoff
+    const who = nameOf(checked.e.actor!);
+    Object.assign(card, {
+      icon: "🔍",
+      headline: checked.dir === "down" ? `${who}親自去查：查無實據` : `${who}親自查證：${clipS(checked.text, 22)}`,
+      sub: checked.dir === "down" ? `「${clipS(checked.text, 40)}」` : checked.coverUp ? "有人急著想把事情壓下來，但真相已經被看見了。" : `${reached.length} 個人被捲了進來，但目前還沒有人採取大動作。`,
+    });
+  } else if (card.drift && reached.length >= 3) {
+    const clip = (t: string, n: number) => (t.length > n ? `${t.slice(0, n)}…` : t);
+    Object.assign(card, {
+      icon: "🔀",
+      headline: `你說「${clip(seedText, 10)}」，最後鎮上在談「${clip(card.drift.to, 14)}」`,
+      sub: card.drift.pivot ? `話題在 ${nameOf(card.drift.pivot.from)}對${nameOf(card.drift.pivot.to)}說「${clip(card.drift.pivot.text, 26)}」時轉了彎。` : `${reached.length} 個人被捲了進來。`,
+    });
   } else if (reached.length >= 3) {
-    Object.assign(card, { icon: "💬", headline: `一句話傳到了 ${reached.length} 個人耳裡`, sub: "鎮上議論紛紛，但還沒有人真的採取大動作。" });
+    Object.assign(card, { icon: "💬", headline: `一句話把 ${reached.length} 個人捲了進來`, sub: "鎮上議論紛紛，但還沒有人真的採取大動作。" });
   }
 
   if (!card.headline) {
@@ -167,9 +245,22 @@ export function storyOf(run: RunResult): StoryCard {
       const b = lastB ? { verdict: String(lastB.data.verdict), conf: Number(lastB.data.to) } : {};
       card.stopper = { npc: lastDec.npc, thought: stop.thought, ...b };
       const dismissive = !b.conf || b.conf < 0.35;
+      // the same two people talking it over is not spreading: say so instead of "didn't tell anyone"
+      const talkers = new Set(hops.flatMap((h) => [h.from, h.to]));
+      const bounced = hops.length >= 2 && talkers.size === 2;
+      const [p1, p2] = [...talkers];
+      const toldSomeone = hops.some((h) => h.from === lastDec.npc);
       Object.assign(card, {
-        icon: dismissive ? "🧱" : "🤐",
-        headline: dismissive ? `謠言在${nameOf(lastDec.npc)}這裡踢到鐵板` : `${nameOf(lastDec.npc)}聽進去了，但沒有說出去`,
+        icon: bounced ? "🔁" : !lastB ? "❓" : dismissive ? "🧱" : "🤐",
+        headline: bounced
+          ? `話在${nameOf(p1)}和${nameOf(p2)}之間打轉，沒有再傳出去`
+          : !lastB
+            ? `${nameOf(lastDec.npc)}聽得一頭霧水，就這樣算了`
+            : dismissive
+            ? `謠言在${nameOf(lastDec.npc)}這裡踢到鐵板`
+            : toldSomeone
+              ? `${nameOf(lastDec.npc)}說完就沒有下文了`
+              : `${nameOf(lastDec.npc)}聽進去了，但沒有說出去`,
         sub: `「${stop.thought}」`,
       });
     } else Object.assign(card, { icon: "🍃", headline: "這句話沒有激起任何漣漪", sub: "" });

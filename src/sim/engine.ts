@@ -35,6 +35,8 @@ export interface SimConfig {
   onFrontier?: (t: Minutes) => void;
   /** A resident started thinking (a model call is under way). */
   onThinking?: (npc: NpcId, t: Minutes) => void;
+  /** streamed: a resident's first visible reaction (feeling and act) before the decision is complete — presentation only */
+  onEarly?: (npc: string, x: { feeling: string; act: string }) => void;
   /** include the fixed daily meetings (default true) */
   routine?: boolean;
 }
@@ -252,7 +254,8 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     n.mind.lastDecisionAt = t;
     const v = view(n, t, inbox);
     if (policy === "gemma") cfg.onThinking?.(n.p.id, t);
-    const res: MindResult = policy === "rules" ? decideWithRules(v) : await decideWithGemma(v, cfg.chat!, { variant, temperature, clock0 });
+    const res: MindResult =
+      policy === "rules" ? decideWithRules(v) : await decideWithGemma(v, cfg.chat!, { variant, temperature, clock0, onEarly: cfg.onEarly ? (x) => cfg.onEarly!(n.p.id, x) : undefined });
     for (const l of res.llm) l.decision = id;
     rec.llm = res.llm;
     rec.validation = res.validation;

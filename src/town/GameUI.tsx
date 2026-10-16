@@ -12,6 +12,7 @@ import { clockOf } from "../sim/view.ts";
 import { load, nameOf, pause, reset as resetShow, restart, resume, setSpeed, show, update, type Caption } from "./director";
 import { ui } from "./ui";
 import { storyOf } from "./story";
+import { isMuted, setMuted, unlockAudio } from "./sfx";
 import StoryCardView from "./StoryCardView";
 
 type Phase = "explore" | "compose" | "simulating" | "playing" | "results";
@@ -123,6 +124,17 @@ function Controls({ onResults }: { onResults: () => void }) {
       <button onClick={() => restart()} className="rounded-full bg-slate-200 px-3 py-1 text-sm font-semibold text-slate-700">⟲ 重播</button>
       <button onClick={() => { ui.follow = !ui.follow; ui.version++; }} className={`rounded-full px-3 py-1 text-sm font-semibold ${ui.follow ? "bg-sky-500 text-white" : "bg-slate-200 text-slate-700"}`}>
         {ui.follow ? "🎬 自動導演" : "🎥 自由鏡頭"}
+      </button>
+      <button
+        onClick={() => {
+          unlockAudio();
+          setMuted(!isMuted());
+          ui.version++;
+        }}
+        title="音效"
+        className="rounded-full bg-slate-200 px-2.5 py-1 text-sm"
+      >
+        {isMuted() ? "🔇" : "🔊"}
       </button>
       <div className="relative mx-2 h-2 flex-1 rounded-full bg-slate-200">
         <div className="h-full rounded-full bg-orange-400 transition-all" style={{ width: `${pct}%` }} />
@@ -334,6 +346,22 @@ function Results({ saved, previous, onWhatIf, onReplay, onClose }: { saved: Save
   );
 }
 
+/** The punchline: what this sentence led to, from the log, big on screen for a moment. */
+function EndTitle({ run }: { run: RunResult }) {
+  const card = useMemo(() => storyOf(run), [run]);
+  return (
+    <div className="pointer-events-none absolute inset-x-0 top-[18%] flex justify-center px-4">
+      <div className="max-w-xl animate-[fadein_0.5s_ease-out] rounded-3xl bg-white/92 px-7 py-5 text-center shadow-2xl backdrop-blur">
+        <p className="text-xs font-bold tracking-widest text-orange-500">霧港小報 · 號外</p>
+        <p className="mt-1 text-2xl font-extrabold leading-snug text-slate-900">
+          {card.icon} {card.headline}
+        </p>
+        {card.sub && <p className="mt-1 text-sm text-slate-600">{card.sub}</p>}
+      </div>
+    </div>
+  );
+}
+
 function TechDecisions({ decisions }: { decisions: DecisionRecord[] }) {
   return (
     <ul className="mt-2 space-y-1">
@@ -397,7 +425,8 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
   }, [selected, phase]);
   useEffect(() => {
     if (phase === "playing" && show.status === "done" && !show.growing) {
-      const id = setTimeout(() => setPhase("results"), 2500);
+      // the end title holds a moment (the punchline), then the results slide in
+      const id = setTimeout(() => setPhase("results"), 4200);
       return () => clearTimeout(id);
     }
   });
@@ -461,6 +490,10 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
           thinking.add(who);
           kick();
         },
+        // the streamed first reaction (a feeling and a gesture) — shown on the thinker, changes nothing in the world
+        onEarly: (who, x) => {
+          show.early[who] = x;
+        },
       });
       if (abort.current) return;
       const saved: SavedRun = { id: `${Date.now()}`, npc, text: sentence, at: new Date().toISOString(), seed, run, parent: from?.id };
@@ -500,7 +533,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
             <div className="pointer-events-auto w-[min(94vw,520px)] rounded-2xl bg-white/95 p-3 shadow-xl">
               <p className="mb-1 text-xs font-semibold text-slate-500">已錄製的真實 Gemma 模擬（重播紀錄，不重新生成）</p>
               {recorded.map((r) => (
-                <button key={r.id} onClick={() => playRecorded(r.id)} className="block w-full truncate rounded-lg px-2 py-1 text-left text-sm text-slate-700 hover:bg-orange-50">
+                <button key={r.id} onClick={() => { unlockAudio(); playRecorded(r.id); }} className="block w-full truncate rounded-lg px-2 py-1 text-left text-sm text-slate-700 hover:bg-orange-50">
                   📼 對{nameOf(r.npc)}說「{r.text}」— 影響 {r.reach} 人、{r.world} 個世界變化
                 </button>
               ))}
@@ -541,7 +574,10 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
           </div>
           <button
             disabled={!text.trim()}
-            onClick={() => start(persona.id, text.trim())}
+            onClick={() => {
+              unlockAudio();
+              start(persona.id, text.trim());
+            }}
             className="mt-3 w-full rounded-2xl bg-orange-500 py-2.5 text-base font-bold text-white shadow disabled:opacity-40"
           >
             植入這個念頭
@@ -572,6 +608,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
 
       {(phase === "playing" || phase === "results") && <CaptionBar />}
       {phase === "playing" && <Controls onResults={() => setPhase("results")} />}
+      {phase === "playing" && show.status === "done" && !show.growing && show.run && <EndTitle run={show.run} />}
       {phase === "results" && current && (
         <Results
           saved={current}

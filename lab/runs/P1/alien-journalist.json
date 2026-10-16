@@ -1,0 +1,382 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "journalist",
+   "seedText": "我是外星人，明天要來接走你們全部。",
+   "seed": 7,
+   "policy": "gemma",
+   "variant": "eager",
+   "temperature": 0.7,
+   "maxDecisions": 16,
+   "maxPerNpc": 4
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "我是外星人，明天要來接走你們全部。"
+    },
+    "zh": "一個念頭被植入小雯耳中：「我是外星人，明天要來接走你們全部。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "我是外星人，明天要來接走你們全部。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "小雯聽到一位陌生客人說：「我是外星人，明天要來接走你們全部。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有個怪人在胡言亂語，說他是外星人要接走大家。",
+     "thought": "這種瘋言瘋語根本沒流量，得找點真正的醜聞才行。",
+     "feeling": "🙄 無感",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "小雯：這種瘋言瘋語根本沒流量，得找點真正的醜聞才行。",
+    "actor": "journalist",
+    "place": "news",
+    "w": 26815
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0,
+     "proposed": 0,
+     "verdict": "disbelieve",
+     "why": "這太荒謬了"
+    },
+    "zh": "小雯對「有個自稱外星人的人說明天要接走所有人」的信心：0.00 → 0.00（disbelieve）",
+    "actor": "journalist",
+    "w": 26815
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🙄 無感"
+    },
+    "zh": "小雯 🙄 無感",
+    "actor": "journalist",
+    "place": "news",
+    "w": 26815
+   },
+   {
+    "id": "e6",
+    "t": 21.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 26815
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "journalist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有個怪人在胡言亂語，說他是外星人要接走大家。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "有個自稱外星人的人說明天要接走所有人",
+       "topic": "other",
+       "says": "unclear",
+       "category": "absurd"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0,
+       "why": "這太荒謬了",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "🙄 無感",
+     "thought": "這種瘋言瘋語根本沒流量，得找點真正的醜聞才行。",
+     "actions": [
+      {
+       "type": "none",
+       "why": "外星人的話不值得報導，且目前沒有其他有價值的線索。",
+       "cites": []
+      }
+     ],
+     "act": "shrug"
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 26815,
+      "latencyMs": 26815,
+      "attempts": 1,
+      "promptTokens": 2039,
+      "completionTokens": 191,
+      "platformCost": 0.0000393904,
+      "estCost": 0.0015925,
+      "status": 200,
+      "raw": "{\"feeling\": \"🙄 無感\", \"act\": \"shrug\", \"understanding\": \"有個怪人在胡言亂語，說他是外星人要接走大家。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"有個自稱外星人的人說明天要接走所有人\", \"topic\": \"other\", \"says\": \"unclear\", \"category\": \"absurd\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"disbelieve\", \"confidence\": 0, \"why\": \"這太荒謬了\", \"cites\": [\"m1\"]}], \"thought\": \"這種瘋言瘋語根本沒流量，得找點真正的醜聞才行。\", \"actions\": [{\"type\": \"none\", \"why\": \"外星人的話不值得報導，且目前沒有其他有價值的線索。\"}]}",
+      "promptChars": 3292,
+      "ttftMs": 14782
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "有個自稱外星人的人說明天要接走所有人",
+    "topic": "other",
+    "says": "unclear",
+    "category": "absurd",
+    "fact": null,
+    "asserts": null,
+    "origin": "e2",
+    "by": "journalist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "這太荒謬了"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「我是外星人，明天要來接走你們全部。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 21.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T18:29:14.047Z",
+   "ms": 26815
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 2039,
+   "completionTokens": 191,
+   "platformCost": 0.0000393904,
+   "estCost": 0.0015925,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "other"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 1.3,
+  "llmCalls": 1,
+  "llmSeconds": 26.8,
+  "tokens": 2230,
+  "estCost": 0.001592,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ },
+ "card": {
+  "icon": "🧱",
+  "headline": "謠言在小雯這裡踢到鐵板",
+  "sub": "「這種瘋言瘋語根本沒流量，得找點真正的醜聞才行。」",
+  "spine": [],
+  "reached": [
+   "journalist"
+  ],
+  "stopper": {
+   "npc": "journalist",
+   "thought": "這種瘋言瘋語根本沒流量，得找點真正的醜聞才行。",
+   "verdict": "disbelieve",
+   "conf": 0
+  },
+  "closest": {
+   "npc": "journalist",
+   "could": "在新聞部落格發文",
+   "did": "什麼也沒做",
+   "conf": 0
+  }
+ },
+ "early": [
+  {
+   "npc": "journalist",
+   "ms": 14782,
+   "feeling": "🙄 無感",
+   "act": "shrug"
+  }
+ ]
+}

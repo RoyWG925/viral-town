@@ -8,6 +8,7 @@ import type { SimEvent } from "../sim/types.ts";
 import { clockOf } from "../sim/view.ts";
 import { actFrom, DAWDLE, HURRY, type Act } from "../sim/acts.ts";
 import { agentAt, crowd, faceToward, perform, releaseScript, scriptGoto, scriptHold, type Agent } from "./crowdSim";
+import { sting, voice } from "./sfx";
 
 /** Which crowd agent plays each core resident. */
 export const NPC_POST: Record<string, string> = {
@@ -55,6 +56,8 @@ export interface Say {
   to?: string;
   understanding?: string;
   belief?: { verdict: string; conf: number };
+  /** the speaker's own confidence when they said it (from their stored belief) */
+  speakerConf?: number;
   until: number;
 }
 
@@ -101,6 +104,8 @@ export const show = {
   /** where each resident stands on the rumour now (from the engine's belief records, as they play) */
   stance: {} as Record<string, { verdict: string; conf: number }>,
   thinkingSince: {} as Record<string, number>,
+  /** streamed first reaction while the decision is still being written (presentation only) */
+  early: {} as Record<string, { feeling: string; act: string }>,
   lastAct: {} as Record<string, Act>,
   /** counts load() calls, so the camera can tell a new story (or a replay) from a streamed update */
   loads: 0,
@@ -163,7 +168,7 @@ export function reset() {
   Object.assign(show, {
     status: "idle", run: null, growing: false, order: [], i: 0, clock: 0, gameT: 0, gapUntil: null, stepUntil: 0, waitFor: null, stepStarted: 0,
     captions: [], world: freshWorld(), focus: null, infected: new Set(), links: [], extras: new Set(), stalled: false, frontier: Infinity, props: [], focusLater: null,
-    thinking: new Set(), thinkingShown: "", shot: null, says: [], lastAct: {}, stance: {}, thinkingSince: {},
+    thinking: new Set(), thinkingShown: "", shot: null, says: [], lastAct: {}, stance: {}, thinkingSince: {}, early: {},
   });
   show.version++;
 }
@@ -311,6 +316,7 @@ function apply(e: SimEvent) {
       bubble(target, "💭", 3.5);
       caption({ who: target!, icon: "💭", tone: "seed", text: `一個念頭鑽進了${nameOf(target!)}的腦袋`, sub: `「${String(d.text)}」` });
       say(target!, "seed", String(d.text), 4);
+      sting.whisper();
       show.captions[show.captions.length - 1].bubbled = true;
       setShot("close", { a: target, prio: 2 });
       hold = 3.2;
@@ -352,8 +358,13 @@ function apply(e: SimEvent) {
       show.lastAct[actor!] = act;
       if (a) perform(a, act, Math.max(2.4, hold));
       const belief = show.run?.events.find((x) => x.type === "belief" && x.causes[0] === e.id);
-      if (belief) show.stance[actor!] = { verdict: String(belief.data.verdict), conf: Number(belief.data.to) };
+      if (belief) {
+        show.stance[actor!] = { verdict: String(belief.data.verdict), conf: Number(belief.data.to) };
+        if (Number(belief.data.to) >= 0.5) sting.believe();
+        else sting.doubt();
+      }
       delete show.thinkingSince[actor!];
+      delete show.early[actor!];
       say(actor!, "thought", out.thought, hold + 1.2, {
         understanding: out.understanding,
         belief: belief ? { verdict: VERDICT_ZH[String(belief.data.verdict)] ?? String(belief.data.verdict), conf: Number(belief.data.to) } : undefined,
@@ -402,7 +413,8 @@ function apply(e: SimEvent) {
       const talkHold = readTime(String(d.text), 2.6, 1 / 13, 6.5);
       if (a) perform(a, `talk:${String(d.intent)}`, talkHold);
       if (b) perform(b, "listen", talkHold);
-      say(actor!, "speech", String(d.text), talkHold + 1, { heard: heardBefore(e), to: target });
+      say(actor!, "speech", String(d.text), talkHold + 1, { heard: heardBefore(e), to: target, speakerConf: show.stance[actor!]?.conf });
+      voice(actor!, String(d.text));
       setShot("two", { a: actor, b: target, prio: 2 });
       bubble(actor, INTENT_ICON[String(d.intent)] ?? "💬", 4);
       bubble(target, "👂", 4);
@@ -440,7 +452,9 @@ function apply(e: SimEvent) {
         const cb = target ? agentFor(target) : null;
         if (ca) perform(ca, `talk:${String(d.intent)}`, callHold);
         if (cb) perform(cb, "listen", callHold);
-        say(actor!, "phone", String(d.text), callHold + 1, { heard: heardBefore(e), to: target });
+        say(actor!, "phone", String(d.text), callHold + 1, { heard: heardBefore(e), to: target, speakerConf: show.stance[actor!]?.conf });
+        sting.ring();
+        voice(actor!, String(d.text), true);
       }
       setShot("close", { a: actor, prio: 2 });
       caption({ who: actor!, icon: "📞", tone: d.missed ? "system" : "speech", text: d.missed ? `${nameOf(actor!)}打給${nameOf(target!)}，沒人接` : `「${String(d.text)}」`, sub: d.missed ? undefined : `${nameOf(actor!)} 打電話給 ${nameOf(target!)}` });
@@ -493,6 +507,7 @@ function apply(e: SimEvent) {
       } else caption({ who: actor ?? "", icon: "✨", tone: "world", text: e.zh });
       show.focus = actor ?? show.focus;
       setShot("wide", { a: actor, at: e.place ? SPOTS[e.place] : undefined, prio: 3 });
+      if (key !== "writing") (key === "festival" || key === "stage" || key === "police" ? sting.big : sting.world)();
       {
         const pa = actor ? agentFor(actor) : null;
         const spotAt = e.place ? SPOTS[e.place] : pa ? { x: pa.x, z: pa.z } : null;
@@ -577,6 +592,7 @@ function apply(e: SimEvent) {
       const text = reason === "budget" ? "這個晚上的故事，先看到這裡。" : reason === "time" ? "20:00，燈籠節的時間到了。" : String(e.zh);
       caption({ who: "", icon: "🏁", tone: "system", text, sub: fest });
       setShot("overview", { prio: 4 });
+      sting.end();
       hold = 2.5;
       break;
     }
@@ -620,7 +636,10 @@ export function tick(dt: number) {
       for (const npc of show.thinking) {
         const a = agentFor(npc);
         show.thinkingSince[npc] ??= Date.now();
-        if (a && !a.act) perform(a, "ponder", 3);
+        const early = show.early[npc];
+        if (a && !a.act) perform(a, early ? actFrom(early.act, early.feeling) : "ponder", 3);
+        const line = show.says.find((x) => x.npc === npc && x.kind === "thinking");
+        if (line && early && !line.text) line.text = emoji(early.feeling);
         if (!show.says.some((x) => x.npc === npc && x.kind === "thinking")) say(npc, "thinking", "", 9999, { since: show.thinkingSince[npc] });
       }
       show.says = show.says.filter((x) => x.kind !== "thinking" || show.thinking.has(x.npc));

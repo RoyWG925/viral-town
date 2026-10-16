@@ -39,12 +39,14 @@ export interface LlmCall {
   queueMs?: number;
   error?: string;
   rateHeaders: Record<string, string>;
+  /** streamed calls: ms from sending the request to the first generated text */
+  ttftMs?: number;
   /** which service answered: "amd" (Token Factory) or "google" (AI Studio free tier, used for lab volume tests) */
   provider?: string;
 }
 
 /** Callers that need a model: the lab passes a real client, tests pass a recorded one. */
-export type Chat = (messages: ChatMessage[], opts?: { temperature?: number; maxTokens?: number }) => Promise<LlmCall>;
+export type Chat = (messages: ChatMessage[], opts?: { temperature?: number; maxTokens?: number; onDelta?: (textSoFar: string) => void }) => Promise<LlmCall>;
 
 const KEY_RE = /rc-[0-9A-Za-z]{8,}|AIza[0-9A-Za-z_-]{20,}/g;
 export const redact = (s: string) => s.replace(KEY_RE, "[REDACTED_KEY]");
@@ -83,18 +85,22 @@ export function makeChat(cfg: LlmConfig, limit?: <T>(fn: () => Promise<T>) => Pr
   const model = cfg.model ?? DEFAULT_MODEL;
   const run = limit ?? (<T,>(fn: () => Promise<T>) => fn());
   return async (messages, opts = {}) => {
+    const stream = !!opts.onDelta;
     const body = JSON.stringify({
       model,
       messages,
       max_tokens: opts.maxTokens ?? cfg.maxTokens ?? 900,
       temperature: opts.temperature ?? cfg.temperature ?? 0.7,
       response_format: { type: "json_object" },
+      ...(stream ? { stream: true, stream_options: { include_usage: true } } : {}),
     });
     let attempts = 0;
     let totalLatency = 0;
     let queueMs = 0;
+    let ttftMs: number | undefined;
     for (;;) {
       attempts++;
+      ttftMs = undefined;
       const queued = Date.now();
       let t0 = Date.now();
       let status = 0;
@@ -116,7 +122,39 @@ export function makeChat(cfg: LlmConfig, limit?: <T>(fn: () => Promise<T>) => Pr
         res.headers.forEach((v, k) => {
           if (k.toLowerCase().startsWith("x-ratelimit")) rateHeaders[k] = v;
         });
-        json = await res.json().catch(() => null);
+        if (stream && status === 200 && res.body) {
+          // server-sent events: collect the text, report it as it grows, keep the final usage
+          opts.onDelta!("");
+          let text = "";
+          let usage: Record<string, number> | undefined;
+          let buf = "";
+          const dec = new TextDecoder();
+          for await (const part of res.body as unknown as AsyncIterable<Uint8Array>) {
+            buf += dec.decode(part, { stream: true });
+            let nl;
+            while ((nl = buf.indexOf("\n")) >= 0) {
+              const line = buf.slice(0, nl).trim();
+              buf = buf.slice(nl + 1);
+              if (!line.startsWith("data:")) continue;
+              const data = line.slice(5).trim();
+              if (data === "[DONE]") continue;
+              try {
+                const j = JSON.parse(data) as { choices?: { delta?: { content?: string } }[]; usage?: Record<string, number> };
+                const d = j.choices?.[0]?.delta?.content;
+                if (d) {
+                  if (ttftMs === undefined) ttftMs = Date.now() - t0;
+                  text += d;
+                  opts.onDelta!(text);
+                }
+                if (j.usage) usage = j.usage;
+              } catch {
+                /* a partial line; the rest arrives with the next chunk */
+              }
+            }
+          }
+          json = { choices: [{ message: { content: text } }], usage: usage ?? {} };
+          if (!text) status = 0; // an empty stream is a failed call
+        } else json = await res.json().catch(() => null);
       } catch (e) {
         error = redact(String(e));
       }
@@ -144,6 +182,7 @@ export function makeChat(cfg: LlmConfig, limit?: <T>(fn: () => Promise<T>) => Pr
         queueMs,
         error,
         rateHeaders,
+        ttftMs,
         provider: "amd",
       };
     }

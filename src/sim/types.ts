@@ -223,6 +223,8 @@ export interface SimEvent {
 export interface LlmRecord {
   /** "amd" (Token Factory) or "google" (AI Studio free tier, lab tests only) */
   provider?: string;
+  /** streamed calls: ms until the first generated text arrived */
+  ttftMs?: number;
   decision: string; // decision id
   npc: NpcId;
   stage: string; // "single" | "read" | "act"

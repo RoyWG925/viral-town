@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   recent.push(now);
   perIp.set(ip, recent);
 
-  let body: { messages?: ChatMessage[]; temperature?: number; maxTokens?: number };
+  let body: { messages?: ChatMessage[]; temperature?: number; maxTokens?: number; stream?: boolean };
   try {
     body = await req.json();
   } catch {
@@ -29,9 +29,28 @@ export async function POST(req: Request) {
   if (messages.reduce((n, m) => n + m.content.length, 0) > 24_000) return Response.json({ error: "too long" }, { status: 413 });
 
   const chat = makeChat({ key, timeoutMs: 60_000, maxAttempts: 8 }, limit);
-  const r = await chat(messages, {
+  const params = {
     temperature: Math.min(1.2, Math.max(0, Number(body.temperature ?? 0.7))),
     maxTokens: Math.min(1200, Math.max(64, Number(body.maxTokens ?? 900))),
+  };
+  if (!body.stream) return Response.json(await chat(messages, params));
+  // streamed: one JSON object per line, {"text": "...so far"} while generating, then {"done": LlmCall}
+  const enc = new TextEncoder();
+  const out = new ReadableStream({
+    async start(controller) {
+      let last = 0;
+      const r = await chat(messages, {
+        ...params,
+        onDelta: (text) => {
+          // a few updates per second is plenty for the early reaction
+          if (text && Date.now() - last < 150) return;
+          last = Date.now();
+          controller.enqueue(enc.encode(JSON.stringify({ text }) + "\n"));
+        },
+      });
+      controller.enqueue(enc.encode(JSON.stringify({ done: r }) + "\n"));
+      controller.close();
+    },
   });
-  return Response.json(r);
+  return new Response(out, { headers: { "Content-Type": "application/x-ndjson", "Cache-Control": "no-store" } });
 }

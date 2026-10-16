@@ -52,11 +52,12 @@ const EAGER = `\n9.你是有血有肉的人：當一件事碰到你的利益、�
 const TOPIC_LIST = TOPICS.map((t) => `- ${t.id}：${t.q}`).join("\n");
 const PLACE_LIST = PLACES.map((p) => `${p.id}=${p.zh}`).join("、");
 
-const SCHEMA_READ = `"understanding": "你認為這則訊息在說什麼、對你代表什麼（30 字內）",
+const SCHEMA_READ = `"feeling": "一個表情符號加一個詞，例如 😟 擔心",
+  "act": "你當下看得見的反應，從反應清單選一個編號",
+  "understanding": "你認為這則訊息在說什麼、對你代表什麼（30 字內）",
   "claims": [{"ref": "new（新的說法），或你已有的說法編號（例如 c2）", "source": "這條說法來自哪則訊息（例如 m1）", "statement": "用一句話寫出這條說法", "topic": "主題編號", "says": "yes / no / unclear：這條說法對該主題問題的回答", "category": "safety|crime|scandal|health|policy|event|personal|absurd|other"}],
   "stances": [{"claim": 0, "verdict": "believe / doubt / disbelieve", "confidence": "你認為這條說法是真的機率：0＝一定是假的，0.5＝不知道，1＝一定是真的", "why": "為什麼這樣判斷（20 字內）", "cites": ["依據的編號，例如 m1、pigeons、c2"]}],
-  "feeling": "一個表情符號加一個詞，例如 😟 擔心",
-  "act": "你當下看得見的反應，從反應清單選一個編號",
+
   "thought": "一句內心獨白（30 字內）"`;
 const SCHEMA_ACT = `"actions": [{"type": "行動編號", "target": "對象編號（需要時）", "place": "地點編號（需要時）", "intent": "inform/warn/ask/answer/deny/complain/request/joke", "message": "你要說或寫的話（140 字內；發文 400 字內）", "cites": ["依據的編號；這次的新說法用 #0、#1"]}]`;
 
@@ -149,20 +150,43 @@ ${people}`;
 
 const FALLBACK: DecisionOutput = { understanding: "", claims: [], stances: [], feeling: "😶 愣住", thought: "（沒能做出判斷）", actions: [{ type: "none", why: "fallback" }] };
 
+/** Pull "feeling" and "act" out of a partly generated JSON answer, once both are complete. */
+export function earlyReaction(text: string): { feeling: string; act: string } | null {
+  const f = /"feeling"\s*:\s*"([^"]*)"/.exec(text);
+  const a = /"act"\s*:\s*"([^"]*)"/.exec(text);
+  return f && a ? { feeling: f[1], act: a[1] } : null;
+}
+
 async function ask(
   chat: Chat, messages: ChatMessage[], view: View, stage: "single" | "read" | "act", npcId: string, clock0: number, temperature: number,
   check: (o: DecisionOutput) => Checked, llm: LlmRecord[], validation: ValidationEntry[],
+  onEarly?: (x: { feeling: string; act: string }) => void,
 ): Promise<{ out: DecisionOutput; checked: Checked } | null> {
   let msgs = messages;
   // two chances for the model to give a valid answer; provider outages get extra tries on top
   let modelFailures = 0;
   for (let attempt = 1; attempt <= 2 + Math.min(modelFailures, 3); attempt++) {
     const start = Date.now() - clock0;
-    const r = await chat(msgs, { temperature, maxTokens: stage === "read" ? 700 : 1000 });
+    let told = false;
+    const r = await chat(msgs, {
+      temperature,
+      maxTokens: stage === "read" ? 700 : 1000,
+      // stream only when someone wants the early reaction; it is shown as a gesture, never as a decision
+      onDelta: onEarly
+        ? (text) => {
+            if (told) return;
+            const x = earlyReaction(text);
+            if (x) {
+              told = true;
+              onEarly(x);
+            }
+          }
+        : undefined,
+    });
     llm.push({
       provider: r.provider, decision: "", npc: npcId, stage, wallStartMs: start, wallEndMs: Date.now() - clock0, latencyMs: r.latencyMs, attempts: r.attempts,
       promptTokens: r.promptTokens, completionTokens: r.completionTokens, platformCost: r.platformCost, estCost: r.estCost,
-      status: r.status, error: r.error, raw: r.content, promptChars: msgs.reduce((n, m) => n + m.content.length, 0),
+      status: r.status, error: r.error, raw: r.content, promptChars: msgs.reduce((n, m) => n + m.content.length, 0), ttftMs: r.ttftMs,
     });
     if (r.status !== 200 || !r.content) {
       validation.push({ attempt, stage, kind: "model", errors: [`model error: ${r.error ?? r.status}`] });
@@ -188,7 +212,7 @@ async function ask(
   return null;
 }
 
-export async function decideWithGemma(view: View, chat: Chat, opts: { variant: Variant; temperature: number; clock0: number }): Promise<MindResult> {
+export async function decideWithGemma(view: View, chat: Chat, opts: { variant: Variant; temperature: number; clock0: number; onEarly?: (x: { feeling: string; act: string }) => void }): Promise<MindResult> {
   const llm: LlmRecord[] = [];
   const validation: ValidationEntry[] = [];
   const npcId = view.npc.id;
@@ -198,7 +222,7 @@ export async function decideWithGemma(view: View, chat: Chat, opts: { variant: V
       { role: "system", content: systemPrompt(opts.variant, "single") },
       { role: "user", content: userPrompt(view, "single", undefined, { free }) },
     ];
-    const res = await ask(chat, msgs, view, "single", npcId, opts.clock0, opts.temperature, (o) => checkDecision(view, free ? { ...o, actions: [] } : o, { requireActions: !free }), llm, validation);
+    const res = await ask(chat, msgs, view, "single", npcId, opts.clock0, opts.temperature, (o) => checkDecision(view, free ? { ...o, actions: [] } : o, { requireActions: !free }), llm, validation, opts.onEarly);
     if (!res) return { output: FALLBACK, checked: checkDecision(view, FALLBACK, { requireReading: false }), llm, validation, fallback: true };
     if (free) {
       // free-form actions are recorded for the experiment but never executed

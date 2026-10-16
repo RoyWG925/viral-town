@@ -39,6 +39,7 @@ export function coerce(raw: unknown): { out: DecisionOutput | null; errors: stri
     stances: arr("stances").map((c) => (c && typeof c === "object" ? (c as DecisionOutput["stances"][number]) : ({} as DecisionOutput["stances"][number]))),
     feeling: typeof r.feeling === "string" ? r.feeling : "",
     thought: typeof r.thought === "string" ? r.thought : "",
+    act: typeof r.act === "string" ? r.act : undefined,
     actions: arr("actions").map((c) => (c && typeof c === "object" ? (c as ActionIntent) : ({ type: "none" } as ActionIntent))),
   };
   return { out, errors };

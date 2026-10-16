@@ -143,35 +143,39 @@ function Card({ s }: { s: Say }) {
   );
 }
 
-function Bubble({ s }: { s: Say }) {
+/**
+ * A fixed slot for one line. drei's <Html> creates its own React root; unmounting it while the scene renders
+ * logs a race warning, so slots stay mounted and only swap what they show.
+ */
+function Slot({ index }: { index: number }) {
   const group = useRef<THREE.Group>(null);
+  const [s, setS] = useState<Say | null>(null);
   useFrame(() => {
-    const a = agentFor(s.anchor ?? s.npc);
+    const cur = show.says[index] ?? null;
+    if ((cur?.key ?? -1) !== (s?.key ?? -1)) setS(cur);
+    const a = cur ? agentFor(cur.anchor ?? cur.npc) : null;
     if (a && group.current) group.current.position.set(a.x, 0, a.z);
   });
   return (
     <group ref={group}>
       <Html position={[0, 2.6, 0]} zIndexRange={[40, 10]} style={{ pointerEvents: "none" }}>
-        <div style={{ transform: "translate(-50%, -100%)" }} className="select-none">
-          <Card s={s} />
-          <div className="mx-auto h-0 w-0 border-x-8 border-t-8 border-x-transparent border-t-white/90" />
-        </div>
+        {s && (
+          <div style={{ transform: "translate(-50%, -100%)" }} className="select-none">
+            <Card s={s} />
+            <div className="mx-auto h-0 w-0 border-x-8 border-t-8 border-x-transparent border-t-white/90" />
+          </div>
+        )}
       </Html>
     </group>
   );
 }
 
-/** Re-renders when the director's line list changes. */
+/** At most three lines on screen (the director keeps it that way); one spare slot for the thinking pill. */
 export default function Says() {
-  const [keys, setKeys] = useState("");
-  useFrame(() => {
-    const k = show.says.map((x) => x.key).join(",");
-    if (k !== keys) setKeys(k);
-  });
   return (
     <group>
-      {show.says.map((s) => (
-        <Bubble key={s.key} s={s} />
+      {[0, 1, 2, 3].map((i) => (
+        <Slot key={i} index={i} />
       ))}
     </group>
   );

@@ -78,3 +78,29 @@ US$0.0008 for a long story; the account's daily limit is US$1. Model errors: 0. 
   `shrug` is over-used as the act for "do nothing".
 - Needs people: whether the 20–30 s first-thought wait feels OK with the thinking beat + early gesture; whether
   players want to retry after a fizzle.
+
+---
+
+## Batch P2 — 5 dramatic inputs × 1 run (decision cap 22 / 5 per resident; validator fixes of Round 3)
+
+| Case | Ending (story card) | People | First visible reaction | First thought | Longest wait | Watch time | Wall time | Calls | Validator retries | Platform cost |
+|---|---|---|---|---|---|---|---|---|---|---|
+| car-vendor | 🔍 小雯親自去查：查無實據 | 3 | 3.4 s | 9.3 s | 49.8 s | 138 s | 260 s | 18 | 5 | US$0.00105 |
+| stage-cafe | 🚧 慶典舞台被封鎖 | 8 | 3.4 s | 13.4 s | 52.5 s | 235 s | 383 s | 29 | 7 | US$0.00133 |
+| oven-police | 📰 〈【獨家爆料】完美慶典還是血汗斂財？燈籠節攤位費翻倍，攤商怒批市長搶錢！〉 | 8 | 3.4 s | 24.9 s | 36.9 s | 235 s | 390 s | 28 | 6 | US$0.00137 |
+| budget-journalist | 🔍 小雯親自去查：查無實據 (+ 真相揭曉：預算真的超支了三成，林市長的秘密) | 4 | 3.3 s | 10.2 s | 24 s | 145 s | 213 s | 17 | 4 | US$0.00091 |
+| lantern-baker | 🔍 老周親自去查：查無實據 —「燈籠上貼著防火材質的合格標籤。」 | 5 | 3.1 s | 12.4 s | 25 s | 128 s | 231 s | 20 | 5 | US$0.00103 |
+
+- **World changes: 2/5** (stage closed; an exposé published) vs **0/10 in P1** — the bigger budget let the climaxes land.
+  (Different input mix, single runs: indicative, not a controlled comparison.)
+- **oven-police is the best emergent chain so far**: 老周 looks (nothing) → doubts → inspects → the engine shows him
+  the expired sticker (0.30→0.98) → warns the mayor → the mayor asks 志明, who only glances and reports
+  「一切正常」 → the relieved mayor brags to 小雯 at the 17:30 interview 「準備得非常完美」 → 小雯 is suspicious,
+  calls 阿珠 → 阿珠: 「市長在搶我們血汗錢！」 → 小雯 publishes the fee exposé. Nobody scripted that a rumour about an
+  oven would end as a story about stall fees; every step is a logged, validated event.
+- **Cost of the bigger budget**: 3.5–6.5 min wall time for long stories; playback streams, so the viewer watches
+  while it is still being computed (longest single wait 25–52 s, covered by the thinking beat and cutaways).
+- **Too many validator retries (4–7 per story)** — my stricter stance-index rule from Round 3 sent back answers that
+  were unambiguous (no claims listed, `stance claim 2` can only mean belief c2). Fixed (mapped again; prompt allows
+  `"c2"`); re-measured in P3 below.
+- Every validator rejection here was a stance-reference problem; no invalid actions, no secret leaks, no model errors.

@@ -10,8 +10,10 @@ const FONT = '"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-s
 function wrap(g: CanvasRenderingContext2D, text: string, maxW: number): string[] {
   const lines: string[] = [];
   let line = "";
+  // closing punctuation never starts a line (Chinese typesetting): let it hang on the previous one
+  const noStart = /[，。、！？；：」』）…,.!?]/;
   for (const ch of text) {
-    if (g.measureText(line + ch).width > maxW && line) {
+    if (g.measureText(line + ch).width > maxW && line && !noStart.test(ch)) {
       lines.push(line);
       line = ch;
     } else line += ch;

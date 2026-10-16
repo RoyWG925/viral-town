@@ -100,6 +100,20 @@ The provider's prompt-cache hit rate today: **59%** (reported by `/v1/usage`). U
 `public/recorded/`: P2 stage closed · P2 oven→fee exposé · P1 meme → stage defect (topic drift) · P1 car rumour
 checked and found baseless · P1 command → the mayor's suspicion · C1 stage closed (earlier engine version).
 
+### Round 6 — make the story's shape felt, and the ending pay off
+From the research's "suspense over surprise" and "the recounting is what gets shared":
+- **Act titles** at real thresholds (first retelling · first phone call · first first-hand check · first public act ·
+  first institutional act) — e.g. 「第三幕 · 事情鬧大了」. Derived from event types only.
+- **Suspense marker** ("Hitchcock's bomb"): when a resident with real power (police, mayor, journalist, organizer)
+  believes it at ≥60% and has not acted yet, a pulsing chip shows what they *could* do —「🚧 有權封鎖舞台、派警力？」.
+  Capability + belief only, never a prediction.
+- **真相揭曉** on the results card and the share card: the world's actual fact about the topic the player raised,
+  and whose secret it was (e.g. 「燈籠節的預算超支了三成（林市長的秘密）」 after 小雯 found nothing at the town hall).
+  This turns "查無實據" from an anticlimax into an "原來如此".
+- **Downloadable front page** (🗞️ 下載小報, canvas PNG) built from the same story card.
+- **README draft**, **DEMO_SCRIPT.md** (30-second hook + 2–3 min walkthrough), **deploy/amd-mi300x/** (self-host plan,
+  not executed), endpoint switch via `GEMMA_BASE_URL` / `GEMMA_MODEL` / `GEMMA_API_KEY`.
+
 ## 2. Measurements so far
 
 | What | Value | Kind |

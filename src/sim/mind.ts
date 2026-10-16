@@ -23,7 +23,7 @@ const ACTION_ZH: Record<ActionKind, string> = {
   phone: "打電話給有電話的熟人（需要 target、message）",
   ask: "去問某人一件事（需要 target、message）",
   go_look: "親自走去某個地方看看（需要 place）",
-  inspect: "以專業身分仔細檢查某個地方的設施或建物（需要 place）",
+  inspect: "以你的專業仔細檢查某個地方：設施、建物，或公開的文件與帳目（需要 place）",
   close_shop: "暫時關店（需要 cites 說明原因）",
   open_shop: "重新開店",
   post_notice: "在廣場布告欄貼一張公告（需要 message）",

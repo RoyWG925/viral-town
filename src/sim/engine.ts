@@ -1,7 +1,7 @@
 // VIRAL simulation engine: a discrete-event world that owns the truth.
 // Residents decide (Gemma or rules); the engine validates, moves them, delivers messages, resolves
 // inspections against the facts, changes world state and records every cause in the event log.
-import { FACTS, FESTIVAL_AT, PERSONAS, PLACES, PUBLIC_INFO, ROUTINE, TOPICS, initialWorld } from "./scenario.ts";
+import { TOPIC_CATEGORY, FACTS, FESTIVAL_AT, PERSONAS, PLACES, PUBLIC_INFO, ROUTINE, TOPICS, initialWorld } from "./scenario.ts";
 
 const TOPIC_TEXT = TOPICS.map((t) => t.q).join(" ");
 import { travelMinutes } from "./geo.ts";
@@ -92,6 +92,8 @@ interface Npc {
   heard: string[];
   planId: number; // bumps when a new decision replaces the plan
   lastBelief: string | null; // event id of the latest belief this resident formed (what they "carry")
+  /** claim id → event id of the belief they formed about it (to find what they carry on a given kind of topic) */
+  beliefEvents: Map<string, string>;
 }
 
 type Item = { t: Minutes; seq: number } & ({ kind: "task"; run: () => void } | { kind: "decide"; npc: NpcId });
@@ -124,7 +126,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     const p = PERSONAS.find((x) => x.id === id);
     if (!p) throw new Error(`unknown npc ${id}`);
     npcs.set(id, {
-      p, place: p.home, dest: null, busyUntil: 0, decisionAt: null, triggers: [], publicEvents: [], heard: [], planId: 0, lastBelief: null,
+      p, place: p.home, dest: null, busyUntil: 0, decisionAt: null, triggers: [], publicEvents: [], heard: [], planId: 0, lastBelief: null, beliefEvents: new Map(),
       mind: { knows: new Set(p.knows), learned: new Map(), beliefs: new Map(), inbox: [], memory: [], decisions: 0, lastDecisionAt: -99, told: new Map(), heardKeys: new Set() },
     });
   }
@@ -296,6 +298,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       });
       rec.applied.push(bEv);
       if (conf >= 0.3) n.lastBelief = bEv;
+      n.beliefEvents.set(cid, bEv);
     });
     rec.applied.push(emit("react", t + 0.1, `${n.p.name} ${out.feeling}`, [dEv], { actor: n.p.id, place: n.place, data: { feeling: out.feeling } }));
     for (const m of inbox) n.mind.memory.push(`${clockOf(m.at)} ${m.from === "self" ? "你親眼看到" : `${name(m.from)}${m.via === "phone" ? "打電話" : ""}說`}：「${m.text.slice(0, 60)}」`);
@@ -579,18 +582,28 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
   }
 
   // ---- routine meetings ----------------------------------------------------------------------------
-  const carrying = (x: Npc) => [...x.mind.beliefs.values()].some((b) => b.confidence >= 0.3);
+  // what someone carries into a meeting: a belief (≥0.3) of a kind that belongs there; returns its belief event
+  const carried = (x: Npc, about?: string[]) => {
+    for (const b of [...x.mind.beliefs.values()].sort((p, q) => q.updatedAt - p.updatedAt)) {
+      if (b.confidence < 0.3) continue;
+      const cat = TOPIC_CATEGORY[claims.get(b.claim)?.topic ?? ""] ?? claims.get(b.claim)?.category;
+      if (!about || (cat && about.includes(cat))) return x.beliefEvents.get(b.claim) ?? x.lastBelief;
+    }
+    return null;
+  };
+  const carrying = (x: Npc) => carried(x) !== null;
   if (cfg.routine ?? true) {
     for (const r of ROUTINE) {
       const a = npcs.get(r.who);
       const b = npcs.get(r.with);
       if (!a || !b || r.at <= seedAt || r.at > endAt) continue;
       at(r.at, () => {
-        // only worth playing out if one of them has something on their mind
-        if (!carrying(a) && !carrying(b)) return;
+        // only worth playing out if one of them has something on their mind that belongs in this meeting
+        const reason = carried(a, r.about) ?? carried(b, r.about);
+        if (!reason) return;
         if (a.busyUntil > r.at || b.place !== r.place || b.dest) return;
         // the meeting matters only because of what they carry, so that is its cause
-        const go = [a.lastBelief, b.lastBelief].filter(Boolean)[0] as string;
+        const go = reason;
         walk(a, r.place, r.at, go, (ta) => {
           if (b.place !== r.place || b.dest) return goHome(a, ta, go);
           const free = Math.max(ta, b.busyUntil);

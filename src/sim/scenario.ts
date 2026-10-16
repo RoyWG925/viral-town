@@ -62,7 +62,10 @@ export const FACTS: Fact[] = [
     id: "lanterns_unsafe", zh: "燈籠是劣質品，容易著火。", value: false, keywords: [], notZh: "燈籠都是合格的防火材質，不容易著火。",
     check: { place: "stage", by: "look", zh: "燈籠上貼著防火材質的合格標籤。" },
   },
-  { id: "budget_overrun", zh: "燈籠節的預算超支了三成。", value: true, keywords: ["超支", "三成"] },
+  {
+    id: "budget_overrun", zh: "燈籠節的預算超支了三成。", value: true, keywords: ["超支", "三成"],
+    check: { place: "townhall", by: "expert", roles: ["journalist"], zh: "公開的慶典收支表上，實際支出比原本的預算多了三成。" },
+  },
   { id: "mayor_embezzled", zh: "市長私吞了慶典的公款。", value: false, keywords: [], notZh: "市長沒有私吞任何慶典的公款。" },
   { id: "fee_for_budget", zh: "攤位費漲價是為了補預算超支的洞。", value: true, keywords: ["補預算", "填預算的洞", "補預算的洞"] },
   { id: "police_half", zh: "今晚的警力只有平常的一半。", value: true, keywords: ["警力只有一半", "一半的警力", "警力只有平常", "警力不到一半"] },
@@ -110,7 +113,7 @@ export const PERSONAS: Persona[] = [
       florist: rel(0.65, true, "高中同學"), cafe: rel(0.5, true, "咖啡廳常客"), vendor: rel(0.5, true, "常幫攤商發聲"),
       police: rel(0.35, false, "常被他擋消息"), mayor: rel(0.2, false, "常寫市長的負面新聞"), organizer: rel(0.4, false, "採訪過幾次"),
     },
-    actions: ["publish_article"],
+    actions: ["publish_article", "inspect"],
   },
   {
     id: "mayor", name: "林市長", role: "mayor", roleZh: "市長", home: "townhall",
@@ -200,10 +203,13 @@ export const PUBLIC_BIO: Record<string, { bio: string; examples: string[] }> = {
  * A few fixed meetings in everyone's evening. A meeting only becomes a decision when one of the two is
  * carrying something they half-believe (confidence >= 0.3); otherwise nothing happens and no model is called.
  */
-export const ROUTINE: { at: number; who: string; with: string; place: string; zh: string }[] = [
-  { at: 90, who: "baker", with: "cafe", place: "cafe", zh: "阿德送麵包到咖啡廳" },
-  { at: 120, who: "police", with: "organizer", place: "stage", zh: "老周到舞台和志明做安全巡查" },
-  { at: 150, who: "journalist", with: "mayor", place: "townhall", zh: "小雯到鎮公所採訪市長" },
-  { at: 180, who: "florist", with: "organizer", place: "stage", zh: "美玲把花飾送到舞台" },
-  { at: 210, who: "vendor", with: "mayor", place: "townhall", zh: "阿珠到鎮公所繳攤位費" },
+// `about`: the kinds of talk that belong in this meeting. A meeting is played out (with model calls) only when one
+// of them carries a belief of that kind; otherwise it passes quietly. (Before: any belief at all triggered every
+// meeting, so the 17:00 stage walk-through fired in most stories and nearly every road led to the stage — P3.)
+export const ROUTINE: { at: number; who: string; with: string; place: string; zh: string; about?: import("./types.ts").Category[] }[] = [
+  { at: 90, who: "baker", with: "cafe", place: "cafe", zh: "阿德送麵包到咖啡廳" }, // neighbours: any gossip
+  { at: 120, who: "police", with: "organizer", place: "stage", zh: "老周到舞台和志明做安全巡查", about: ["safety", "crime", "event"] },
+  { at: 150, who: "journalist", with: "mayor", place: "townhall", zh: "小雯到鎮公所採訪市長" }, // a reporter asks about anything
+  { at: 180, who: "florist", with: "organizer", place: "stage", zh: "美玲把花飾送到舞台", about: ["event", "safety", "health"] },
+  { at: 210, who: "vendor", with: "mayor", place: "townhall", zh: "阿珠到鎮公所繳攤位費", about: ["policy", "scandal"] },
 ];

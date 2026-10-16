@@ -227,3 +227,40 @@ Idea from the latency research: send the shared system prompt a few seconds befo
 provider's prefix cache is warm. Result: first token cold 1.9–4.0 s (mean 2.9 s) vs warm 1.7–2.7 s (mean 2.4 s).
 The ranges overlap and n=4; **no clear benefit, not implemented**. (Within a story the shared prefix is warm anyway
 after the first call; the platform reported ~60% cache hits.) Log: `lab/research/warm-probe.log`.
+
+## Live playthroughs in the real game (headless browser, real Gemma via /api/gemma)
+- **live2 (before Round 11)**: the oven sentence to 老周 ended after one decision — he wanted to dispatch officers on a
+  stranger's word, was refused twice without being told his certainty was capped, and the engine fell back to
+  "😶 愣住". Led to Round 11 (refusal kept as a beat, retry states the bounded confidence).
+- **live3 (after Round 11)**: complete story, 95 events, 14 calls, results card and share card exported, 0 fallbacks
+  from the model: look → "a glance can't tell" → inspect → expired sticker → 老周 tells 阿德 → 阿德 panics to 美玲 →
+  confides in 美咲 → 17:00 walk-through, 志明 deflects 「你這人太謹慎了」 → 老周 goes to look at the stage — and there
+  he hit the **per-resident cap of 5** at the climax (the investigator spends a decision on every look and inspect).
+  → cap raised to 7 per resident; the global cap stays 22, so cost and time bounds are unchanged.
+
+## Batch P7 — all 10 inputs on the final configuration (per-resident cap 7, refusals kept, every fix above)
+
+| Case | Ending (story card) | People | World changes | First visible | First thought | Wall time | Calls | Retries | Refused wishes | Platform cost |
+|---|---|---|---|---|---|---|---|---|---|---|
+| meme-organizer | ❓ 志明聽得一頭霧水，就這樣算了 | 1 | – | 3.4 s | 4.1 s | 4 s | 1 | 0 | 0 | US$0.00004 |
+| fragment-florist | ❓ 美玲聽得一頭霧水，就這樣算了 | 1 | – | 2.9 s | 3.9 s | 4 s | 1 | 0 | 0 | US$0.00003 |
+| command-mayor | 🧱 謠言在林市長這裡踢到鐵板 | 1 | – | 3.4 s | 8.9 s | 9 s | 1 | 0 | 0 | US$0.00005 |
+| alien-journalist | 🧱 謠言在小雯這裡踢到鐵板 | 1 | – | 3.8 s | 8.7 s | 9 s | 1 | 0 | 0 | US$0.00004 |
+| pigeon-baker | 🤐 美咲聽進去了，但沒有說出去 | 2 | – | 3.4 s | 11.5 s | 35 s | 3 | 0 | 0 | US$0.00011 |
+| oven-police | 🚧 慶典舞台被封鎖 | 7 | stage | 3.8 s | 16.8 s | 279 s | 22 | 0 | 0 | US$0.00111 |
+| stage-cafe | 🚧 慶典舞台被封鎖 | 8 | stage | 3.4 s | 14.2 s | 319 s | 22 | 0 | 0 | US$0.00112 |
+| car-vendor | 📰 〈慶典預算驚爆超支三成！市長竟稱是「草稿」？…〉 | 8 | article | 4.6 s | 16.2 s | 333 s | 24 | 2 | 0 | US$0.00123 |
+| budget-journalist | 📰 〈慶典預算驚爆超支三成！…市長否認但真相在帳本裡〉 | 8 | article | 3.5 s | 11.4 s | 341 s | 24 | 2 | 0 | US$0.00132 |
+| lantern-baker | 🚧 慶典舞台被封鎖 | 8 | stage | 12.2 s | 18.8 s | 161 s | 22 | 0 | 0 | US$0.00112 |
+
+Summary over 10 runs: **first visible reaction 4.4 s, first full thought 11.4 s** (mean), longest single wait 21.6 s,
+~9.5 beats per watched minute; validator retries 4 in 101 calls; **no fallbacks**; total platform cost of the batch
+≈ US$0.0062. **5/6 dramatic inputs changed the world** (P6 4/6, P5 3/6, P4 0/7).
+
+Observation, not fixed: **safety stories gravitate to the stage.** oven-police reached the stage through the 17:00
+safety walk-through — 老周, primed by the oven he had just found, inspected the stage carefully and found the real
+loose strut. Each step is coherent (and "I told the police about an oven and the festival stage got shut" is exactly
+the feeling the game is after), but 3/3 safety inputs in P7 ended on the stage. Across P5–P7 the 17 dramatic stories
+ended: stage closed 6, exposé 5 (+1 rally), police sent somewhere 4, first-hand confirmation with no action 3, small
+chat 2 (some stories have more than one). If repeated play matters more than first play, restrict the walk-through to
+festival topics or add a second hidden truth reachable from safety rumours.

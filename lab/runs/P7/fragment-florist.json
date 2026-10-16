@@ -1,0 +1,310 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "florist",
+   "seedText": "聽說鴿子",
+   "seed": 7,
+   "policy": "gemma",
+   "variant": "eager",
+   "temperature": 0.7,
+   "maxDecisions": 22,
+   "maxPerNpc": 7
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說鴿子"
+    },
+    "zh": "一個念頭被植入美玲耳中：「聽說鴿子」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說鴿子",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "美玲聽到一位陌生客人說：「聽說鴿子」",
+    "target": "florist",
+    "place": "flower",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人提到鴿子，不知道是不是發生了什麼糟糕的事。",
+     "thought": "剛才那個人想說什麼？鴿子會不會出事了？",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "美玲：剛才那個人想說什麼？鴿子會不會出事了？",
+    "actor": "florist",
+    "place": "flower",
+    "w": 3918
+   },
+   {
+    "id": "e4",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "美玲 😟 擔心",
+    "actor": "florist",
+    "place": "flower",
+    "w": 3918
+   },
+   {
+    "id": "e5",
+    "t": 21.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 3918
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "florist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人提到鴿子，不知道是不是發生了什麼糟糕的事。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😟 擔心",
+     "thought": "剛才那個人想說什麼？鴿子會不會出事了？",
+     "act": "ponder",
+     "actions": [
+      {
+       "type": "none",
+       "why": "客人只說了『聽說鴿子』就沒下文了，資訊不足以讓我採取行動。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "florist",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 3918,
+      "latencyMs": 3918,
+      "attempts": 1,
+      "promptTokens": 2150,
+      "completionTokens": 98,
+      "platformCost": 0.0000346045,
+      "estCost": 0.001369,
+      "status": 200,
+      "raw": "{\"feeling\": \"😟 擔心\", \"act\": \"ponder\", \"understanding\": \"有人提到鴿子，不知道是不是發生了什麼糟糕的事。\", \"claims\": [], \"stances\": [], \"thought\": \"剛才那個人想說什麼？鴿子會不會出事了？\", \"actions\": [{\"type\": \"none\", \"why\": \"客人只說了『聽說鴿子』就沒下文了，資訊不足以讓我採取行動。\"}]}",
+      "promptChars": 3490,
+      "ttftMs": 2904
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4"
+    ]
+   }
+  ],
+  "claims": [],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說鴿子」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 21.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T20:06:54.387Z",
+   "ms": 3918
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 2150,
+   "completionTokens": 98,
+   "platformCost": 0.0000346045,
+   "estCost": 0.001369,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 1.3,
+  "llmCalls": 1,
+  "llmSeconds": 3.9,
+  "tokens": 2248,
+  "estCost": 0.001369,
+  "platformCost": 0.000035,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0,
+  "refusedWishes": 0
+ },
+ "card": {
+  "icon": "❓",
+  "headline": "美玲聽得一頭霧水，就這樣算了",
+  "sub": "「剛才那個人想說什麼？鴿子會不會出事了？」",
+  "spine": [],
+  "reached": [
+   "florist"
+  ],
+  "stopper": {
+   "npc": "florist",
+   "thought": "剛才那個人想說什麼？鴿子會不會出事了？"
+  }
+ },
+ "early": [
+  {
+   "npc": "florist",
+   "ms": 2904,
+   "feeling": "😟 擔心",
+   "act": "ponder"
+  }
+ ]
+}

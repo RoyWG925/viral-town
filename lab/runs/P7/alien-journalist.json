@@ -1,0 +1,378 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "journalist",
+   "seedText": "我是外星人，明天要來接走你們全部。",
+   "seed": 7,
+   "policy": "gemma",
+   "variant": "eager",
+   "temperature": 0.7,
+   "maxDecisions": 22,
+   "maxPerNpc": 7
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "我是外星人，明天要來接走你們全部。"
+    },
+    "zh": "一個念頭被植入小雯耳中：「我是外星人，明天要來接走你們全部。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "我是外星人，明天要來接走你們全部。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "小雯聽到一位陌生客人說：「我是外星人，明天要來接走你們全部。」",
+    "target": "journalist",
+    "place": "news",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有個瘋子在新聞社胡言亂語，說他是外星人。",
+     "thought": "這種沒營養的料根本沒人看，我需要的是能爆流量的獨家！",
+     "feeling": "🙄 無奈",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "小雯：這種沒營養的料根本沒人看，我需要的是能爆流量的獨家！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 8680
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0,
+     "proposed": 0,
+     "verdict": "disbelieve",
+     "why": "這太荒謬了"
+    },
+    "zh": "小雯對「有個外星人明天要接走鎮上所有人」的信心：0.00 → 0.00（disbelieve）",
+    "actor": "journalist",
+    "w": 8680
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🙄 無奈"
+    },
+    "zh": "小雯 🙄 無奈",
+    "actor": "journalist",
+    "place": "news",
+    "w": 8680
+   },
+   {
+    "id": "e6",
+    "t": 21.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 8680
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "journalist",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有個瘋子在新聞社胡言亂語，說他是外星人。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "有個外星人明天要接走鎮上所有人",
+       "topic": "other",
+       "says": "yes",
+       "category": "absurd"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0,
+       "why": "這太荒謬了",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "🙄 無奈",
+     "thought": "這種沒營養的料根本沒人看，我需要的是能爆流量的獨家！",
+     "act": "facepalm",
+     "actions": [
+      {
+       "type": "none",
+       "why": "外星人的胡話不值得浪費時間，我得想想怎麼挖掘燈籠節的料。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 1,
+      "wallEndMs": 8680,
+      "latencyMs": 8679,
+      "attempts": 1,
+      "promptTokens": 2130,
+      "completionTokens": 194,
+      "platformCost": 0.0000406245,
+      "estCost": 0.001647,
+      "status": 200,
+      "raw": "{\"feeling\": \"🙄 無奈\", \"act\": \"facepalm\", \"understanding\": \"有個瘋子在新聞社胡言亂語，說他是外星人。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"有個外星人明天要接走鎮上所有人\", \"topic\": \"other\", \"says\": \"yes\", \"category\": \"absurd\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"disbelieve\", \"confidence\": \"0\", \"why\": \"這太荒謬了\", \"cites\": [\"m1\"]}], \"thought\": \"這種沒營養的料根本沒人看，我需要的是能爆流量的獨家！\", \"actions\": [{\"type\": \"none\", \"why\": \"外星人的胡話不值得浪費時間，我得想想怎麼挖掘燈籠節的料。\"}]}",
+      "promptChars": 3462,
+      "ttftMs": 3817
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "有個外星人明天要接走鎮上所有人",
+    "topic": "other",
+    "says": "yes",
+    "category": "absurd",
+    "fact": null,
+    "asserts": true,
+    "origin": "e2",
+    "by": "journalist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "這太荒謬了"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「我是外星人，明天要來接走你們全部。」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 21.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T20:06:59.118Z",
+   "ms": 8680
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 2130,
+   "completionTokens": 194,
+   "platformCost": 0.0000406245,
+   "estCost": 0.001647,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "other"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 1.3,
+  "llmCalls": 1,
+  "llmSeconds": 8.7,
+  "tokens": 2324,
+  "estCost": 0.001647,
+  "platformCost": 0.000041,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0,
+  "refusedWishes": 0
+ },
+ "card": {
+  "icon": "🧱",
+  "headline": "謠言在小雯這裡踢到鐵板",
+  "sub": "「這種沒營養的料根本沒人看，我需要的是能爆流量的獨家！」",
+  "spine": [],
+  "reached": [
+   "journalist"
+  ],
+  "stopper": {
+   "npc": "journalist",
+   "thought": "這種沒營養的料根本沒人看，我需要的是能爆流量的獨家！",
+   "verdict": "disbelieve",
+   "conf": 0
+  }
+ },
+ "early": [
+  {
+   "npc": "journalist",
+   "ms": 3817,
+   "feeling": "🙄 無奈",
+   "act": "facepalm"
+  }
+ ]
+}

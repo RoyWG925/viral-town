@@ -44,7 +44,7 @@ export interface StoryCard {
 
 const IMPACT: Record<string, string> = {
   mayor: "宣布取消燈籠節",
-  police: "派警力或封鎖舞台",
+  police: "派警力",
   journalist: "在新聞部落格發文",
   organizer: "封鎖舞台",
 };

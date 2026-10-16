@@ -67,8 +67,18 @@ export function drawShareCard(card: StoryCard, seedNpc: string, seedText: string
   g.font = `800 40px ${FONT}`;
   g.fillStyle = "#2b2622";
   y = block(g, `「${seedText}」`, 70, y, W - 140, 54, 2) + 26;
-  // the chain
-  for (const h of card.spine.slice(0, 4)) {
+  // the chain (fewer hops when there is a truth to reveal: the reveal matters more). A long chain shows how it
+  // started and how it ended — the surprise is usually at the end — with the middle counted, not hidden.
+  const room = card.truth ? 3 : 4;
+  const long = card.spine.length > room;
+  const hops = long ? [card.spine[0], ...card.spine.slice(-(room - 1))] : card.spine;
+  for (const [k, h] of hops.entries()) {
+    if (long && k === 1) {
+      g.font = `600 26px ${FONT}`;
+      g.fillStyle = "#9a8f82";
+      g.fillText(`⋯ 中間還轉述了 ${card.spine.length - room} 次 ⋯`, 100, y);
+      y += 44;
+    }
     g.font = `700 28px ${FONT}`;
     g.fillStyle = "#b45309";
     g.fillText(`${h.via === "phone" ? "📞" : "💬"} ${nameOf(h.from)} → ${nameOf(h.to)}`, 70, y);
@@ -78,15 +88,16 @@ export function drawShareCard(card: StoryCard, seedNpc: string, seedText: string
     y = block(g, `「${h.text}」`, 100, y, W - 200, 40, 2) + 18;
     if (y > H - 300) break;
   }
-  if (card.closest && y < H - 260) {
-    g.font = `600 28px ${FONT}`;
-    g.fillStyle = "#7a6f62";
-    y = block(g, `📌 差一點：${nameOf(card.closest.npc)}明明可以${card.closest.could}，最後卻選擇${card.closest.did}。`, 70, y + 6, W - 140, 40, 2) + 16;
-  }
   if (card.truth && y < H - 250) {
     g.font = `700 28px ${FONT}`;
     g.fillStyle = "#1f2937";
-    block(g, `🔎 真相：${card.truth.text}${card.truth.secretOf.length ? `（${card.truth.secretOf.map(nameOf).join("和")}的秘密）` : ""}`, 70, y + 6, W - 140, 40, 2);
+    // two lines if there is room, else one (the reveal is worth more than the near miss below)
+    y = block(g, `🔎 真相：${card.truth.text}${card.truth.secretOf.length ? `（${card.truth.secretOf.map(nameOf).join("和")}的秘密）` : ""}`, 70, y + 6, W - 140, 40, y < H - 290 ? 2 : 1) + 16;
+  }
+  if (card.closest && y < H - 290) {
+    g.font = `600 28px ${FONT}`;
+    g.fillStyle = "#7a6f62";
+    block(g, `📌 差一點：${nameOf(card.closest.npc)}明明可以${card.closest.could}，最後卻選擇${card.closest.did}。`, 70, y + 6, W - 140, 40, 2);
   }
   // stats bar
   const by = H - 200;

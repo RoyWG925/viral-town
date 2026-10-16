@@ -72,7 +72,7 @@ resident within seconds, by design.
 ## Known limits
 - Waits: a long story needs ~3–6 minutes of model time; playback streams while it runs (thinking beats, cutaways),
   and recordings replay at 2–3×.
-- A story stops at 22 model decisions (7 per resident) to bound time and cost; long stories often reach it and the
+- A story stops at 22 model decisions (9 per resident) to bound time and cost; long stories often reach it and the
   card says so honestly.
 - Many sentences fizzle at the first resident — by design; the town does not have to care.
 - Entertainment value has been assessed with metrics and AI-assisted ratings, not yet with human playtesters.

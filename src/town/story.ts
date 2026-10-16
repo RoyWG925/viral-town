@@ -357,25 +357,28 @@ export function storyOf(run: RunResult): StoryCard {
     };
   }
 
-  // the closest call: someone who could have done something big, and what they actually did
+  // the closest call: someone who could have done something big, and what they ended up doing — the one who was
+  // surest (a fixed order once picked the mayor at 0.6 over the officer at 0.98 who had seen the loose strut)
+  const catOf = (cid: string) => { const c = claims.find((y) => y.id === cid); return c ? (TOPIC_CATEGORY[c.topic] ?? c.category) : undefined; };
+  let near: { npc: string; conf: number; topic: string; did: string } | null = null;
   for (const npc of ["mayor", "police", "journalist", "organizer"]) {
     if (!reached.includes(npc) && seedNpc !== npc) continue;
     const decs = run.decisions.filter((x) => x.npc === npc && x.output && !x.fallback);
     if (!decs.length) continue;
-    const did = decs.flatMap((x) => x.output!.actions).find((a) => a.type !== "none");
-    const bigDone = events.some((e) => e.actor === npc && rank(e) >= 5);
-    if (bigDone) continue;
+    if (events.some((e) => e.actor === npc && rank(e) >= 5)) continue;
     // their final belief on each claim, kept only where it is of a kind that would justify the move, and strong:
     // ≥0.6, the same bar as the on-screen "有權…？" suspense chip — a 45% hunch is not a near miss
     const finalB = new Map<string, number>();
     for (const x of events) if (x.type === "belief" && x.actor === npc) finalB.set(String(x.data.claim), Number(x.data.to));
-    const catOf = (cid: string) => { const c = claims.find((y) => y.id === cid); return c ? (TOPIC_CATEGORY[c.topic] ?? c.category) : undefined; };
     const strong = [...finalB].filter(([cid, conf]) => conf >= 0.6 && IMPACT_ON[npc].includes(String(catOf(cid)))).sort((x, y) => y[1] - x[1]);
-    if (!strong.length) continue;
-    const b = { conf: strong[0][1] };
-    const doing = did ? { phone: "打電話給別人", tell: "跑去跟別人說", ask: "去問別人", go_look: "自己跑去看", inspect: "親自去檢查", post_notice: "貼了公告", public_statement: "發表聲明" }[did.type as string] ?? "做了別的事" : "什麼也沒做";
-    card.closest = { npc, could: IMPACT[npc], did: doing, conf: b.conf };
-    break;
+    if (!strong.length || (near && near.conf >= strong[0][1])) continue;
+    const last = decs.flatMap((x) => x.output!.actions).filter((a) => a.type !== "none").at(-1);
+    const did = last ? ({ phone: "打電話給別人", tell: "跑去跟別人說", ask: "去問別人", go_look: "自己跑去看", inspect: "親自去檢查", post_notice: "貼了公告", public_statement: "發表聲明" } as Record<string, string>)[last.type] ?? "做了別的事" : "什麼也沒做";
+    near = { npc, conf: strong[0][1], topic: claims.find((y) => y.id === strong[0][0])?.topic ?? "", did };
+  }
+  if (near) {
+    const could = near.npc === "police" && near.topic === "stage_unsafe" ? "封鎖舞台" : IMPACT[near.npc];
+    card.closest = { npc: near.npc, could, did: near.did, conf: near.conf };
   }
   return card;
 }

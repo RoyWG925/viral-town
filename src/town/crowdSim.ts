@@ -57,6 +57,8 @@ export interface Agent {
   post: string | null;
   /** While set, the playback director drives this agent instead of the crowd rules. */
   script: Script | null;
+  /** A short piece of acting (a shrug, a double take...) layered over whatever the body is doing. */
+  act: { kind: string; t: number; dur: number; face?: number } | null;
 }
 
 export interface Script {
@@ -190,7 +192,7 @@ export function spawnCrowd(n: number, seed = 2026) {
     const a: Agent = {
       id, x: s.x, z: s.z, vx: 0, vz: 0, heading: between(-Math.PI, Math.PI), speed,
       path: [], mode: "idle", timer: between(0, 3), poi: null, partner: null, bubble: null, bubbleTimer: 0,
-      progressTimer: 0, bestDist: Infinity, look, phase: rand() * 10, visible: 1, prop: null, home: null, errand: 0, job: null, post: null, script: null,
+      progressTimer: 0, bestDist: Infinity, look, phase: rand() * 10, visible: 1, prop: null, home: null, errand: 0, job: null, post: null, script: null, act: null,
     };
     return a;
   });
@@ -200,7 +202,7 @@ export function spawnCrowd(n: number, seed = 2026) {
       id: crowd.agents.length, x, z, vx: 0, vz: 0, heading, speed: between(0.9, 1.2), path: [], mode: "work", timer: 0, poi: null,
       partner: null, bubble: null, bubbleTimer: 0, progressTimer: 0, bestDist: Infinity,
       look: { ...randomLook("adult"), hairStyle: "short", backpack: null, skirt: false, ...look }, phase: rand() * 10, visible: 1,
-      prop: null, home: null, errand: 0, job: null, post: null, script: null, ...extra,
+      prop: null, home: null, errand: 0, job: null, post: null, script: null, act: null, ...extra,
     });
   STALLS.forEach((st, i) => {
     const p = fromLocal(st, 0, -0.75);
@@ -387,6 +389,7 @@ export function stepCrowd(dt: number) {
       a.bubbleTimer -= dt;
       if (a.bubbleTimer <= 0) a.bubble = null;
     }
+    if (a.act && (a.act.t += dt) >= a.act.dur) a.act = null;
     if (a.script) {
       stepScript(a, agents, dt);
       continue;
@@ -592,4 +595,9 @@ function walkStep(a: Agent, agents: Agent[], dt: number, scripted: boolean) {
   a.z = nz;
   if (sp > 0.15) a.heading = turn(a.heading, Math.atan2(a.vx, a.vz), Math.min(1, dt * 8));
   a.phase += dt * sp * 6.5;
+}
+
+/** Play a piece of acting on someone (it runs on top of walking or standing). */
+export function perform(a: Agent, kind: string, dur = 2.6, face?: number) {
+  a.act = { kind, t: 0, dur, face };
 }

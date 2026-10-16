@@ -39,12 +39,14 @@ export interface LlmCall {
   queueMs?: number;
   error?: string;
   rateHeaders: Record<string, string>;
+  /** which service answered: "amd" (Token Factory) or "google" (AI Studio free tier, used for lab volume tests) */
+  provider?: string;
 }
 
 /** Callers that need a model: the lab passes a real client, tests pass a recorded one. */
 export type Chat = (messages: ChatMessage[], opts?: { temperature?: number; maxTokens?: number }) => Promise<LlmCall>;
 
-const KEY_RE = /rc-[0-9A-Za-z]{8,}/g;
+const KEY_RE = /rc-[0-9A-Za-z]{8,}|AIza[0-9A-Za-z_-]{20,}/g;
 export const redact = (s: string) => s.replace(KEY_RE, "[REDACTED_KEY]");
 
 export function estimateCost(promptTokens: number, completionTokens: number) {
@@ -142,6 +144,83 @@ export function makeChat(cfg: LlmConfig, limit?: <T>(fn: () => Promise<T>) => Pr
         queueMs,
         error,
         rateHeaders,
+        provider: "amd",
+      };
+    }
+  };
+}
+
+/**
+ * The same Gemma 4 31B through Google AI Studio's free tier (lab testing only; the game uses AMD).
+ * Gemma 4 thinks by default there; `thinkingLevel: "minimal"` is the only accepted way to keep it short.
+ * Several keys may be given: when one runs out of quota (429), the next one is used.
+ */
+export function makeGoogleChat(cfg: Omit<LlmConfig, "key" | "baseUrl"> & { keys: string[] }, limit?: <T>(fn: () => Promise<T>) => Promise<T>): Chat {
+  const model = cfg.model ?? "gemma-4-31b-it";
+  const run = limit ?? (<T,>(fn: () => Promise<T>) => fn());
+  let k = 0;
+  const hide = (s: string) => cfg.keys.reduce((t, key) => t.split(key).join("[REDACTED_KEY]"), redact(s));
+  return async (messages, opts = {}) => {
+    const system = messages.filter((m) => m.role === "system").map((m) => m.content).join("\n\n");
+    const contents = messages.filter((m) => m.role !== "system").map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
+    const body = JSON.stringify({
+      ...(system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
+      contents,
+      generationConfig: { temperature: opts.temperature ?? cfg.temperature ?? 0.7, maxOutputTokens: opts.maxTokens ?? cfg.maxTokens ?? 900, thinkingConfig: { thinkingLevel: "minimal" } },
+    });
+    let attempts = 0;
+    let totalLatency = 0;
+    let queueMs = 0;
+    for (;;) {
+      attempts++;
+      const queued = Date.now();
+      let t0 = Date.now();
+      let status = 0;
+      let json: unknown = null;
+      let error: string | undefined;
+      try {
+        const res = await run(() => {
+          t0 = Date.now();
+          queueMs += t0 - queued;
+          return fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+            method: "POST",
+            headers: { "x-goog-api-key": cfg.keys[k], "Content-Type": "application/json" },
+            body,
+            signal: AbortSignal.timeout(cfg.timeoutMs ?? 90_000),
+          });
+        });
+        status = res.status;
+        json = await res.json().catch(() => null);
+      } catch (e) {
+        error = hide(String(e));
+      }
+      totalLatency += Date.now() - t0;
+      if (status === 429 && k + 1 < cfg.keys.length) {
+        k++; // this key's free quota is used up: switch to the next
+        continue;
+      }
+      if ((status === 429 || status === 500 || status === 502 || status === 503 || status === 0) && attempts < (cfg.maxAttempts ?? 6)) {
+        await new Promise((r) => setTimeout(r, Math.min(2 ** attempts, 20) * 1000 + Math.random() * 500));
+        continue;
+      }
+      const j = json as { candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[]; usageMetadata?: Record<string, number>; error?: { message?: string } } | null;
+      const parts = j?.candidates?.[0]?.content?.parts ?? [];
+      const text = parts.filter((p) => !p.thought).map((p) => p.text ?? "").join("");
+      const u = j?.usageMetadata ?? {};
+      if (!error && status !== 200) error = hide(`HTTP ${status}: ${j?.error?.message ?? ""}`.slice(0, 300));
+      return {
+        content: text || null,
+        status,
+        latencyMs: totalLatency,
+        attempts,
+        promptTokens: u.promptTokenCount ?? 0,
+        completionTokens: (u.candidatesTokenCount ?? 0) + (u.thoughtsTokenCount ?? 0),
+        platformCost: 0,
+        estCost: 0,
+        queueMs,
+        error,
+        rateHeaders: {},
+        provider: "google",
       };
     }
   };

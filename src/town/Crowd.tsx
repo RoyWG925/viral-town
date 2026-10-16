@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { crowd, spawnCrowd, stepCrowd, type Agent } from "./crowdSim";
 import { show } from "./director";
 import { mat } from "./materials";
+import { DT_MAX } from "./quality";
 import { bubbleTexture } from "./textures";
 
 // Shared geometry for every townsperson (chibi proportions: big head, short legs).
@@ -131,6 +132,88 @@ function Balloons() {
   );
 }
 
+interface Pose {
+  legL: number;
+  legR: number;
+  armLx: number;
+  armLz: number;
+  armRx: number;
+  armRz: number;
+  lean: number; // torso forward (+) / back (-)
+  tilt: number; // torso sideways
+  squash: number; // torso height (shoulders up > 1)
+  headX: number; // nod down (+)
+  headY: number; // look left/right
+  headZ: number; // head tilt
+  lift: number; // whole body up (hops)
+  back: number; // whole body along its facing (- = step back)
+}
+
+/**
+ * Acting poses for the small library Gemma chooses from (plus talking and listening).
+ * Arms hang down; rotation.x < 0 lifts them forward/up, rotation.z swings them out (left arm +, right arm -).
+ */
+function actPose(kind: string, t: number): Partial<Pose> {
+  const w = (f: number, a = 1) => Math.sin(t * f) * a;
+  const ease = (d: number) => 1 - Math.pow(1 - Math.min(1, t / d), 3);
+  switch (kind) {
+    case "ponder":
+      return { armRx: -2.05, armRz: -0.45, armLx: -0.95, armLz: -0.55, headZ: 0.18 + w(1.5, 0.05), headX: -0.1 };
+    case "doubt":
+      return { armLx: -1.35, armLz: -0.75, armRx: -1.3, armRz: 0.75, headX: -0.12, headZ: -0.14, lean: -0.08 };
+    case "nervous":
+      return { headY: w(4.2, 0.8), armLx: -0.3, armRx: -0.3, armLz: 0.12, armRz: -0.12, squash: 0.985, tilt: w(4.2, 0.04) };
+    case "startled": {
+      const up = t < 0.9 ? 1 : Math.max(0, 1 - (t - 0.9) / 0.5);
+      return { lift: t < 0.35 ? Math.sin((t / 0.35) * Math.PI) * 0.22 : 0, back: -0.45 * ease(0.3), armLx: -2.5 * up, armRx: -2.5 * up, armLz: 0.5 * up, armRz: -0.5 * up, headX: -0.3 * up };
+    }
+    case "giggle":
+      return { armRx: -2.25, armRz: -0.55, squash: 1 + w(16, 0.035), headZ: 0.15, headX: 0.1 };
+    case "angry":
+      return { legL: -Math.max(0, w(9)) * 0.9, legR: -Math.max(0, -w(9)) * 0.9, lift: Math.abs(w(9)) * 0.05, armLx: -0.7 + w(12, 0.35), armRx: -0.7 - w(12, 0.35), lean: 0.15, headX: 0.12 };
+    case "shrug":
+      return { armLz: 0.95, armRz: -0.95, armLx: -0.5, armRx: -0.5, squash: 1.045, headZ: 0.22 };
+    case "excited":
+      return { lift: Math.abs(w(7.5)) * 0.28, armLx: -2.7 + w(15, 0.2), armRx: -2.7 - w(15, 0.2), armLz: 0.35, armRz: -0.35 };
+    case "facepalm":
+      return { armRx: -2.65, armRz: -0.1, headX: 0.35, lean: 0.1, squash: 0.97 };
+    case "whisper":
+      return { lean: 0.28, armRx: -1.95, armRz: -0.7, headY: 0.35, squash: 0.97 };
+    case "worried":
+      return { armLx: -1.05 + w(6, 0.12), armRx: -1.05 - w(6, 0.12), armLz: -0.45, armRz: 0.45, headX: 0.15, tilt: w(2.2, 0.08) };
+    case "determined":
+      return { armLx: t < 0.7 ? -2.6 * ease(0.25) : -1.0, armLz: 0.1, armRx: -0.3, lean: -0.12, headX: -0.15 };
+    case "listen":
+      return { lean: 0.1, headX: 0.08 + w(3, 0.06), headZ: 0.1 };
+    case "talk:warn":
+      return { armRx: -1.6 + w(6, 0.15), lean: 0.08, headX: -0.05 };
+    case "talk:ask":
+      return { armLx: -0.8, armRx: -0.8, armLz: 0.6, armRz: -0.6, headZ: 0.12 };
+    case "talk:joke":
+      return { armRx: -1.2 + w(8, 0.3), squash: 1 + w(14, 0.03), headZ: 0.15 };
+    case "talk:deny":
+      return { armRx: -1.4, armRz: -0.3 + w(10, 0.35), headY: w(5, 0.25) };
+    case "talk:complain":
+      return { armLx: -0.8 + w(9, 0.3), armRx: -0.8 - w(9, 0.3), lean: 0.12 };
+    default:
+      if (kind.startsWith("talk")) return { armRx: -0.9 + w(5, 0.35), armLx: -0.6 - w(4, 0.3), lean: 0.06 };
+      return {};
+  }
+}
+
+function blendAct(base: Pose, act: { kind: string; t: number; dur: number }, calling: boolean): Pose {
+  const k = Math.max(0, Math.min(1, act.t / 0.18, (act.dur - act.t) / 0.25));
+  const target = actPose(act.kind, act.t);
+  // on the phone the right hand stays at the ear
+  if (calling) {
+    delete target.armRx;
+    delete target.armRz;
+  }
+  const out = { ...base };
+  for (const key of Object.keys(target) as (keyof Pose)[]) out[key] = base[key] + ((target[key] as number) - base[key]) * k;
+  return out;
+}
+
 function Person({ agent }: { agent: Agent }) {
   const root = useRef<THREE.Group>(null);
   const legL = useRef<THREE.Group>(null);
@@ -141,6 +224,7 @@ function Person({ agent }: { agent: Agent }) {
   const bubble = useRef<THREE.Mesh>(null);
   const crate = useRef<THREE.Mesh>(null);
   const phone = useRef<THREE.Mesh>(null);
+  const head = useRef<THREE.Group>(null);
   const l = agent.look;
   const m = useMemo(
     () => ({
@@ -162,30 +246,54 @@ function Person({ agent }: { agent: Agent }) {
     let y = Math.abs(Math.cos(agent.phase)) * 0.06 * moving;
     if (sitting) y = ground ? -0.27 : 0.1;
     if (playing) y = Math.abs(Math.sin(agent.phase * 0.6)) * 0.35;
-    r.position.set(agent.x, y, agent.z);
-    r.rotation.y = agent.heading;
-    r.scale.setScalar(1.3 * l.scale * (0.15 + 0.85 * agent.visible));
-    r.visible = agent.visible > 0.02;
-    const legSwing = s * 0.6 * moving;
-    if (legL.current) legL.current.rotation.x = sitting ? -1.45 : legSwing;
-    if (legR.current) legR.current.rotation.x = sitting ? -1.45 : -legSwing;
     const now = performance.now() / 1000;
     const talk = agent.mode === "chat" ? Math.sin(now * 6 + agent.id) * 0.25 : 0;
     const cheer = playing ? -2.6 + Math.sin(agent.phase) * 0.3 : 0;
     const carrying = agent.prop === "crate";
     const calling = agent.prop === "phone";
+    const legSwing = s * 0.6 * moving;
+    // the everyday body, then any acting layered on top of it
+    const base: Pose = {
+      legL: sitting ? -1.45 : legSwing,
+      legR: sitting ? -1.45 : -legSwing,
+      armLx: carrying ? -1.25 : playing ? cheer : -s * 0.55 * moving + (agent.mode === "chat" ? -0.35 + talk : 0),
+      armLz: 0,
+      armRx: calling ? -2.5 : carrying ? -1.25 : playing ? cheer : agent.prop === "balloons" ? -0.9 : s * 0.55 * moving,
+      armRz: calling ? -0.55 : 0,
+      lean: 0,
+      tilt: moving ? s * 0.05 : Math.sin(now * 1.1 + agent.id) * 0.025,
+      squash: 1 + (moving ? Math.abs(Math.cos(agent.phase)) * 0.03 : Math.sin(now * 2 + agent.id) * 0.012),
+      headX: 0,
+      headY: 0,
+      headZ: 0,
+      lift: 0,
+      back: 0,
+    };
+    const pose = agent.act && !sitting ? blendAct(base, agent.act, calling) : base;
+    const bx = Math.sin(agent.heading) * pose.back;
+    const bz = Math.cos(agent.heading) * pose.back;
+    r.position.set(agent.x + bx, y + pose.lift, agent.z + bz);
+    r.rotation.y = agent.heading;
+    r.scale.setScalar(1.3 * l.scale * (0.15 + 0.85 * agent.visible));
+    r.visible = agent.visible > 0.02;
+    if (legL.current) legL.current.rotation.x = pose.legL;
+    if (legR.current) legR.current.rotation.x = pose.legR;
     if (crate.current) crate.current.visible = carrying;
     if (phone.current) phone.current.visible = calling;
-    if (armL.current) armL.current.rotation.x = carrying ? -1.25 : playing ? cheer : -s * 0.55 * moving + (agent.mode === "chat" ? -0.35 + talk : 0);
+    if (armL.current) {
+      armL.current.rotation.x = pose.armLx;
+      armL.current.rotation.z = pose.armLz;
+    }
     if (armR.current) {
-      // on the phone: hand up to the ear
-      armR.current.rotation.x = calling ? -2.5 : carrying ? -1.25 : playing ? cheer : agent.prop === "balloons" ? -0.9 : s * 0.55 * moving;
-      armR.current.rotation.z = calling ? -0.55 : 0;
+      armR.current.rotation.x = pose.armRx;
+      armR.current.rotation.z = pose.armRz;
     }
     if (torso.current) {
-      torso.current.rotation.z = moving ? s * 0.05 : Math.sin(now * 1.1 + agent.id) * 0.025;
-      torso.current.scale.y = 1 + (moving ? Math.abs(Math.cos(agent.phase)) * 0.03 : Math.sin(now * 2 + agent.id) * 0.012);
+      torso.current.rotation.x = pose.lean;
+      torso.current.rotation.z = pose.tilt;
+      torso.current.scale.y = pose.squash;
     }
+    if (head.current) head.current.rotation.set(-0.22 + pose.headX, pose.headY, pose.headZ);
     if (bubble.current) {
       bubble.current.visible = !!agent.bubble && agent.visible > 0.5;
       if (agent.bubble) bubble.current.material = bubbleMat(agent.bubble);
@@ -217,7 +325,7 @@ function Person({ agent }: { agent: Agent }) {
           <mesh geometry={G.hand} material={m.skin} position={[0, -0.33, 0]} />
           <mesh ref={phone} geometry={G.phone} material={m.dark} position={[0, -0.36, 0.06]} visible={false} />
         </group>
-        <group position={[0, 1.14, 0.02]} rotation={[-0.22, 0, 0]} scale={l.headScale}>
+        <group ref={head} position={[0, 1.14, 0.02]} rotation={[-0.22, 0, 0]} scale={l.headScale}>
           <mesh geometry={G.head} material={m.skin} castShadow />
           {[0.115, -0.115].map((x) => (
             <group key={x} position={[x, 0.07, 0.292]}>
@@ -281,7 +389,7 @@ export default function Crowd({ count = 56 }: { count?: number }) {
     crowd.agents = agents;
   }, [agents]);
   // during playback the whole town moves at the playback speed so walks stay in step with the story
-  useFrame((_, delta) => stepCrowd(Math.min(delta, 0.05) * (show.status === "playing" ? Math.min(show.speed, 3) : 1)));
+  useFrame((_, delta) => stepCrowd(Math.min(delta, DT_MAX) * (show.status === "playing" ? Math.min(show.speed, 3) : 1)));
   return (
     <group>
       {agents.map((a) => (

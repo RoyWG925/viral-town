@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { CARRIAGEWAY, CROSSINGS, inObb, sampled } from "./layout";
 import { crowd, extraObstacles } from "./crowdSim";
 import { glow } from "./clock";
+import { DT_MAX } from "./quality";
 import { mat, shade } from "./materials";
 
 const WHEEL = new THREE.CylinderGeometry(0.34, 0.34, 0.26, 14).rotateX(Math.PI / 2);
@@ -99,7 +100,7 @@ export default function Traffic() {
   if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") (window as unknown as { __cars: Car[] }).__cars = cars.current;
 
   useFrame((_, delta) => {
-    const dt = Math.min(delta, 0.05);
+    const dt = Math.min(delta, DT_MAX);
     // For each crossing, where across the road (metres right of the forward direction) people (and pets) are.
     const busy = CROSS_S.map(({ c, p }) => {
       const lat = (x: number, z: number) => (x - p.x) * -p.tz + (z - p.z) * p.tx;

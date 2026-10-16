@@ -448,12 +448,15 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           const ev = emit(expert ? "inspect" : "look", ta, `${n.p.name}在${placeZh(place)}${expert ? "仔細檢查" : "到處看看"}`, [cause], { actor: n.p.id, place, data: {} });
           at(ta + dur, () => {
             const seen: string[] = [];
-            for (const f of FACTS) {
-              if (!f.check || f.check.place !== place) continue;
-              if (f.check.by === "expert" && !(expert && f.check.roles?.includes(n.p.role))) continue;
+            // what they were wondering about (their beliefs' topics) is what they notice first
+            const onMind = new Set([...n.mind.beliefs.values()].map((b) => topicFact(claims.get(b.claim)?.topic ?? "")).filter(Boolean));
+            const checks = FACTS.filter((f) => f.check && f.check.place === place && !(f.check.by === "expert" && !(expert && f.check.roles?.includes(n.p.role))));
+            checks.sort((x, y) => Number(onMind.has(y.id)) - Number(onMind.has(x.id)));
+            for (const f of checks) {
               n.mind.learned.set(f.id, f.value);
-              seen.push(f.check.zh);
+              seen.push(f.check!.zh);
             }
+            const highlight = checks.find((f) => onMind.has(f.id))?.check?.zh;
             if (place === "plaza" && world.notices.length) seen.push(`布告欄上貼著：${world.notices.map((x) => `「${x.text}」`).join("、")}`);
             if (world.gatherings[place]) seen.push(`這裡聚集了 ${world.gatherings[place].people.length + world.gatherings[place].extras} 個人在${world.gatherings[place].cause}`);
             if (world.police.deployed && world.police.place === place && (world.police.arriveAt ?? 0) <= ta + dur) seen.push("警察已經在這裡了。");
@@ -464,7 +467,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
             if (!seen.length) seen.push(`${placeZh(place)}看起來一切如常，沒看到什麼特別的。`);
             if (here.length) seen.push(`${here.join("、")}在這裡。`);
             const text = seen.join(" ");
-            const done = emit(expert ? "inspect" : "look", ta + dur, `${n.p.name}看到：${text}`, [ev], { actor: n.p.id, place, data: { found: text, learned: [...n.mind.learned.keys()] } });
+            const done = emit(expert ? "inspect" : "look", ta + dur, `${n.p.name}看到：${text}`, [ev], { actor: n.p.id, place, data: { found: text, highlight: highlight ?? seen[0], learned: [...n.mind.learned.keys()] } });
             deliver(n, "self", "inspection", "inform", text, [], ta + dur, done);
             next(ta + dur);
           });

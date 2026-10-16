@@ -1,5 +1,6 @@
 // Gemma as one resident's mind: read what they just heard, decide what they believe and what they do.
 // The model only proposes; validate.ts checks the proposal and the engine applies it.
+import { ACT_LIST } from "./acts.ts";
 import { PLACES, TOPICS } from "./scenario.ts";
 import { parseJSON, type Chat, type ChatMessage } from "./llm.ts";
 import type { ActionKind, DecisionOutput, LlmRecord, ValidationEntry } from "./types.ts";
@@ -55,6 +56,7 @@ const SCHEMA_READ = `"understanding": "你認為這則訊息在說什麼、對�
   "claims": [{"ref": "new（新的說法），或你已有的說法編號（例如 c2）", "source": "這條說法來自哪則訊息（例如 m1）", "statement": "用一句話寫出這條說法", "topic": "主題編號", "says": "yes / no / unclear：這條說法對該主題問題的回答", "category": "safety|crime|scandal|health|policy|event|personal|absurd|other"}],
   "stances": [{"claim": 0, "verdict": "believe / doubt / disbelieve", "confidence": "你認為這條說法是真的機率：0＝一定是假的，0.5＝不知道，1＝一定是真的", "why": "為什麼這樣判斷（20 字內）", "cites": ["依據的編號，例如 m1、pigeons、c2"]}],
   "feeling": "一個表情符號加一個詞，例如 😟 擔心",
+  "act": "你當下看得見的反應，從反應清單選一個編號",
   "thought": "一句內心獨白（30 字內）"`;
 const SCHEMA_ACT = `"actions": [{"type": "行動編號", "target": "對象編號（需要時）", "place": "地點編號（需要時）", "intent": "inform/warn/ask/answer/deny/complain/request/joke", "message": "你要說或寫的話（140 字內；發文 400 字內）", "cites": ["依據的編號；這次的新說法用 #0、#1"]}]`;
 
@@ -75,6 +77,8 @@ function systemPrompt(variant: Variant, stage: "single" | "read" | "act") {
 ${TOPIC_LIST}
 
 地點編號：${PLACE_LIST}
+
+反應清單（act 從這裡選一個最符合你此刻的）：${ACT_LIST}
 
 只用繁體中文，只回覆一個 JSON 物件：
 ${shape}${actionNote}`;
@@ -156,7 +160,7 @@ async function ask(
     const start = Date.now() - clock0;
     const r = await chat(msgs, { temperature, maxTokens: stage === "read" ? 700 : 1000 });
     llm.push({
-      decision: "", npc: npcId, stage, wallStartMs: start, wallEndMs: Date.now() - clock0, latencyMs: r.latencyMs, attempts: r.attempts,
+      provider: r.provider, decision: "", npc: npcId, stage, wallStartMs: start, wallEndMs: Date.now() - clock0, latencyMs: r.latencyMs, attempts: r.attempts,
       promptTokens: r.promptTokens, completionTokens: r.completionTokens, platformCost: r.platformCost, estCost: r.estCost,
       status: r.status, error: r.error, raw: r.content, promptChars: msgs.reduce((n, m) => n + m.content.length, 0),
     });

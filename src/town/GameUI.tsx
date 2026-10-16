@@ -11,6 +11,8 @@ import type { DecisionRecord, SimEvent } from "../sim/types.ts";
 import { clockOf } from "../sim/view.ts";
 import { load, nameOf, pause, reset as resetShow, restart, resume, setSpeed, show, update, type Caption } from "./director";
 import { ui } from "./ui";
+import { storyOf } from "./story";
+import StoryCardView from "./StoryCardView";
 
 type Phase = "explore" | "compose" | "simulating" | "playing" | "results";
 type Mode = "stream" | "full";
@@ -68,7 +70,9 @@ function useStoreVersion() {
 }
 
 function CaptionBar() {
-  const cs = show.captions.slice(-3);
+  // with the auto director on, speech and thoughts are shown in the town over people's heads
+  // stale lines go away after a while; lines already shown over someone's head are not repeated
+  const cs = show.captions.filter((c) => show.clock - c.at < 8 && (!ui.follow || (c.tone !== "speech" && c.tone !== "thought" && !c.bubbled))).slice(-2);
   if (!cs.length || show.status === "idle") return null;
   const tone: Record<Caption["tone"], string> = {
     seed: "bg-violet-600/90 text-white", thought: "bg-white/95 text-slate-800", speech: "bg-amber-50/95 text-slate-900",
@@ -118,7 +122,7 @@ function Controls({ onResults }: { onResults: () => void }) {
       ))}
       <button onClick={() => restart()} className="rounded-full bg-slate-200 px-3 py-1 text-sm font-semibold text-slate-700">⟲ 重播</button>
       <button onClick={() => { ui.follow = !ui.follow; ui.version++; }} className={`rounded-full px-3 py-1 text-sm font-semibold ${ui.follow ? "bg-sky-500 text-white" : "bg-slate-200 text-slate-700"}`}>
-        🎥 跟隨
+        {ui.follow ? "🎬 自動導演" : "🎥 自由鏡頭"}
       </button>
       <div className="relative mx-2 h-2 flex-1 rounded-full bg-slate-200">
         <div className="h-full rounded-full bg-orange-400 transition-all" style={{ width: `${pct}%` }} />
@@ -226,15 +230,16 @@ function Results({ saved, previous, onWhatIf, onReplay, onClose }: { saved: Save
   const m = useMemo(() => measure(run), [run]);
   const chain = useMemo(() => chainOf(run), [run]);
   const hl = useMemo(() => highlights(run, m), [run, m]);
+  const story = useMemo(() => storyOf(run), [run]);
   const [tech, setTech] = useState(false);
   const [copied, setCopied] = useState(false);
   const shareText = useMemo(() => {
-    const lines = [`我在 VIRAL 霧港鎮對${nameOf(saved.npc)}說了一句：「${saved.text}」`];
+    const lines = [`我在 VIRAL 霧港鎮對${nameOf(saved.npc)}說了一句：「${saved.text}」`, `結果：${story.icon} ${story.headline}`];
     lines.push(`結果傳到 ${m.reach} 位居民、${m.depth} 層、引發 ${m.worldChanges} 個世界變化，燈籠節${run.world.festival === "cancelled" ? "被取消了" : "照常舉行"}。`);
     if (hl[0]) lines.push(hl[0]);
     lines.push("（每位居民都由 Gemma 依自己知道的事判斷，世界由遊戲引擎驗證。）");
     return lines.join(String.fromCharCode(10));
-  }, [saved, m, run, hl]);
+  }, [saved, m, run, hl, story]);
   const reachedNames = [...new Set(run.events.filter((e) => e.type === "deliver" && e.target && e.data.via !== "inspection").map((e) => e.target!))];
   const farthest = run.events.filter((e) => e.type === "decide" && !e.data.budget).at(-1)?.actor;
   return (
@@ -274,6 +279,7 @@ function Results({ saved, previous, onWhatIf, onReplay, onClose }: { saved: Save
         })()}
       </div>
       <div className="flex-1 overflow-y-auto p-5">
+        <StoryCardView card={story} seedNpc={saved.npc} seedText={saved.text} />
         {hl.length > 0 && (
           <div className="mb-4 space-y-1.5">
             {hl.map((h, i) => (
@@ -281,7 +287,8 @@ function Results({ saved, previous, onWhatIf, onReplay, onClose }: { saved: Save
             ))}
           </div>
         )}
-        <p className="mb-2 text-xs font-semibold text-slate-500">事件因果鏈</p>
+        <details>
+        <summary className="mb-2 cursor-pointer text-xs font-semibold text-slate-500">完整事件因果鏈（{chain.length} 步，可追溯每一個原因）</summary>
         <ol className="space-y-2">
           {chain.map((s, i) => (
             <li key={i} className="flex gap-2 text-sm">
@@ -294,6 +301,7 @@ function Results({ saved, previous, onWhatIf, onReplay, onClose }: { saved: Save
             </li>
           ))}
         </ol>
+        </details>
         <button onClick={() => setTech((v) => !v)} className="mt-4 text-xs text-slate-400 underline">🔬 技術紀錄</button>
         {tech && (
           <div className="mt-2 rounded-xl bg-slate-100 p-3 text-xs text-slate-600">

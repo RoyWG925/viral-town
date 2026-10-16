@@ -11,6 +11,7 @@ import { show } from "./director";
 import { labelTexture } from "./labels";
 import { mat } from "./materials";
 import { pat, pets, spawnPets, stepPets, type Breed, type Pet } from "./petSim";
+import { DT_MAX } from "./quality";
 import { bubbleTexture } from "./textures";
 
 const WORLD = 1.15; // pets share the townsfolk's chibi scale (people are drawn at 1.3)
@@ -506,7 +507,7 @@ export default function Pets() {
     extraObstacles.list = list;
   }, [list]);
   // same clock as the townsfolk: during playback the town moves at the playback speed
-  useFrame((_, delta) => stepPets(Math.min(delta, 0.05) * (show.status === "playing" ? Math.min(show.speed, 3) : 1)));
+  useFrame((_, delta) => stepPets(Math.min(delta, DT_MAX) * (show.status === "playing" ? Math.min(show.speed, 3) : 1)));
   return (
     <group>
       {list.map((p) => (

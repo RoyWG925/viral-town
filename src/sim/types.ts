@@ -179,6 +179,8 @@ export interface DecisionOutput {
   stances: Stance[];
   feeling: string; // an emoji plus a word
   thought: string;
+  /** how they visibly react, from the acting library (presentation only; never changes the world) */
+  act?: string;
   actions: ActionIntent[]; // at most 2, executed in order
 }
 
@@ -219,6 +221,8 @@ export interface SimEvent {
 }
 
 export interface LlmRecord {
+  /** "amd" (Token Factory) or "google" (AI Studio free tier, lab tests only) */
+  provider?: string;
   decision: string; // decision id
   npc: NpcId;
   stage: string; // "single" | "read" | "act"

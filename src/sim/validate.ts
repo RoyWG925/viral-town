@@ -1,5 +1,6 @@
 // Deterministic checks on a proposed decision. Anything that fails here never reaches the world.
 // Error strings are fed back to the model on retry, so they must not reveal facts the NPC lacks.
+import { actFrom } from "./acts.ts";
 import { FACTS, PLACES, TOPICS, TOPIC_CATEGORY } from "./scenario.ts";
 import type { ActionIntent, ActionKind, Category, DecisionOutput } from "./types.ts";
 import { confidenceRange, type Limit, type View } from "./view.ts";
@@ -131,7 +132,10 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
     notes.push("none dropped next to a real action");
   }
   const feeling = /\p{Extended_Pictographic}/u.test(out.feeling) ? out.feeling : `🙂 ${out.feeling}`.trim();
-  return { out: { ...out, claims, stances, actions, feeling }, notes };
+  // the visible reaction is presentation only: an unknown act is read off the feeling, never rejected
+  const act = actFrom(out.act, feeling);
+  if (out.act !== undefined && out.act !== act) notes.push(`act ${String(out.act)} → ${act}`);
+  return { out: { ...out, claims, stances, actions, feeling, act }, notes };
 }
 
 export function checkDecision(view: View, out: DecisionOutput, opts: { requireActions?: boolean; requireReading?: boolean } = {}): Checked {

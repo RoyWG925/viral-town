@@ -20,6 +20,7 @@ import { agentFor, show } from "./director";
 import { ui } from "./ui";
 import { advance, clock, END_HOUR, formatHour, skyAt, START_HOUR, updateGlow } from "./clock";
 import { crowd } from "./crowdSim";
+import { LITE } from "./quality";
 import { pets } from "./petSim";
 
 // Camera presets: the HUD asks for one and CameraRig glides there.
@@ -37,8 +38,33 @@ const SUN_TARGET = new THREE.Vector3(-4, 0, -6);
 type ViewId = keyof typeof VIEWS;
 const camRequest: { view: ViewId | null } = { view: null };
 
-// Following a story: close enough to read who is talking to whom (the explore views sit ~50 m away).
-const FOLLOW_DISTANCE = 28;
+/** Where the director's current shot looks, and how far away the camera should be. */
+function shotGoal(): { x: number; z: number; dist: number } | null {
+  const sh = show.shot;
+  if (!sh) return null;
+  if (sh.kind === "overview") {
+    // the whole spread: everyone the thought reached
+    const pts = [...show.infected].map((n) => agentFor(n)).filter((a): a is NonNullable<typeof a> => !!a);
+    if (!pts.length) return null;
+    const cx = pts.reduce((s, a) => s + a.x, 0) / pts.length;
+    const cz = pts.reduce((s, a) => s + a.z, 0) / pts.length;
+    const spread = Math.max(...pts.map((a) => Math.hypot(a.x - cx, a.z - cz)));
+    return { x: cx, z: cz, dist: Math.min(80, Math.max(36, spread * 1.5 + 24)) };
+  }
+  const a = sh.a ? agentFor(sh.a) : null;
+  const b = sh.b ? agentFor(sh.b) : null;
+  if (a && b) {
+    const gap = Math.hypot(a.x - b.x, a.z - b.z);
+    return { x: (a.x + b.x) / 2, z: (a.z + b.z) / 2, dist: Math.max(sh.dist, gap * 1.1 + 12) };
+  }
+  if (a) {
+    // heading somewhere: lead the frame a little toward where they are going
+    if (sh.at) return { x: a.x + (sh.at.x - a.x) * 0.3, z: a.z + (sh.at.z - a.z) * 0.3, dist: sh.dist };
+    return { x: a.x, z: a.z, dist: sh.dist };
+  }
+  if (sh.at) return { x: sh.at.x, z: sh.at.z, dist: sh.dist };
+  return null;
+}
 
 function CameraRig() {
   const { camera, controls } = useThree() as unknown as {
@@ -48,16 +74,19 @@ function CameraRig() {
   const goalT = useRef(new THREE.Vector3());
   const goalP = useRef(new THREE.Vector3());
   const active = useRef(false);
-  // glide in once per story; the player's own zoom always wins
-  const zoomGoal = useRef<number | null>(null);
-  const zoomedFor = useRef(-1);
   useEffect(() => {
     if (!controls) return;
-    const stop = () => {
-      zoomGoal.current = null;
+    // the moment the player grabs the camera, the auto director steps aside (they can switch it back on)
+    const take = () => {
+      if (show.status === "playing" || show.status === "paused") {
+        if (ui.follow) {
+          ui.follow = false;
+          ui.version++;
+        }
+      }
     };
-    controls.addEventListener("start", stop);
-    return () => controls.removeEventListener("start", stop);
+    controls.addEventListener("start", take);
+    return () => controls.removeEventListener("start", take);
   }, [controls]);
   useFrame((_, dt) => {
     if (camRequest.view) {
@@ -67,27 +96,27 @@ function CameraRig() {
       active.current = true;
       camRequest.view = null;
     }
-    if (controls && ui.follow && show.focus && (show.status === "playing" || show.status === "paused")) {
-      const a = agentFor(show.focus);
-      if (a) {
-        if (zoomedFor.current !== show.loads) {
-          zoomedFor.current = show.loads;
-          zoomGoal.current = FOLLOW_DISTANCE;
+    if (controls && ui.follow && (show.status === "playing" || show.status === "paused" || show.status === "done")) {
+      const g = shotGoal();
+      if (g) {
+        // push the look-at point a little beyond the subject: the subject sits lower in frame, the line above fits
+        const away = new THREE.Vector2(g.x - camera.position.x, g.z - camera.position.z);
+        if (away.lengthSq() > 1e-6) {
+          away.normalize().multiplyScalar(g.dist * 0.12);
+          g.x += away.x;
+          g.z += away.y;
         }
+        // glide the look-at point and the distance; keep the viewing angle so the town never spins around
         const k = 1 - Math.exp(-dt * 2.2);
-        const nx = controls.target.x + (a.x - controls.target.x) * k;
-        const nz = controls.target.z + (a.z - controls.target.z) * k;
+        const nx = controls.target.x + (g.x - controls.target.x) * k;
+        const nz = controls.target.z + (g.z - controls.target.z) * k;
         camera.position.x += nx - controls.target.x;
         camera.position.z += nz - controls.target.z;
         controls.target.set(nx, 0, nz);
-        if (zoomGoal.current !== null) {
-          // move along the current view direction, keeping the angle the player chose
-          const off = camera.position.clone().sub(controls.target);
-          const dist = off.length();
-          const next = dist + (zoomGoal.current - dist) * (1 - Math.exp(-dt * 1.6));
-          camera.position.copy(controls.target).add(off.multiplyScalar(next / dist));
-          if (Math.abs(next - zoomGoal.current) < 0.3) zoomGoal.current = null;
-        }
+        const off = camera.position.clone().sub(controls.target);
+        const dist = off.length();
+        const next = dist + (g.dist - dist) * (1 - Math.exp(-dt * 1.5));
+        camera.position.copy(controls.target).add(off.multiplyScalar(next / dist));
         controls.update();
         active.current = false;
         return;
@@ -276,6 +305,7 @@ export default function TownScene() {
           minAzimuthAngle={-0.6}
           maxAzimuthAngle={1.4}
         />
+        {!LITE && (
         <EffectComposer multisampling={0}>
           <N8AO aoRadius={2} intensity={2.2} distanceFalloff={1.2} halfRes quality="performance" />
           <Bloom mipmapBlur luminanceThreshold={1} luminanceSmoothing={0.2} intensity={0.9} />
@@ -283,6 +313,7 @@ export default function TownScene() {
           <Vignette offset={0.3} darkness={0.45} />
           <SMAA />
         </EffectComposer>
+        )}
       </Canvas>
       {hudVisible && <GameUI onPhase={setGamePhase} />}
       {hudVisible ? (

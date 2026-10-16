@@ -15,3 +15,6 @@ export const ui = {
     ui.version++;
   },
 };
+
+// Dev-only handle for automated playthroughs (lab/e2e.mjs).
+if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") (window as unknown as { __ui: typeof ui }).__ui = ui;

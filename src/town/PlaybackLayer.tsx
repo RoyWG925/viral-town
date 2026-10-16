@@ -13,6 +13,8 @@ import { NPC_POST, agentFor, show, tick } from "./director";
 import { mat } from "./materials";
 import { labelTexture } from "./labels";
 import { ui } from "./ui";
+import { DT_MAX } from "./quality";
+import Says from "./Says";
 
 const ROLE_ICON: Record<string, string> = { baker: "🥐", florist: "🌷", journalist: "📰", cafe: "☕", police: "🚓", mayor: "🎩", organizer: "🏮", vendor: "🐙" };
 
@@ -36,7 +38,8 @@ function CoreMarker({ npc }: { npc: string }) {
     ringMat.color.set(ui.selected === npc && !infected ? "#7ad3ff" : focus ? "#ff6b6b" : "#ffb347");
     if (ring.current) ring.current.scale.setScalar(focus ? 1.25 : 1);
     if (tag.current) {
-      tag.current.visible = active && a.visible > 0.5;
+      // while they have a line over their head, the bubble names them instead
+      tag.current.visible = active && a.visible > 0.5 && !show.says.some((x) => x.npc === npc);
       // keep name tags readable at any zoom: grow with distance to the camera
       const dist = state.camera.position.distanceTo(g.position);
       const k = Math.min(3.2, Math.max(1, dist / 22));
@@ -93,6 +96,10 @@ function ThreadLine({ from, to }: { from: string; to: string }) {
     if (!a || !b || !l) return;
     l.geometry.setPositions([a.x, 2.4, a.z, b.x, 2.4, b.z]);
     l.computeLineDistances();
+    // colour = what the listener made of it: believed (red), unsure (amber), rejected (grey); orange until they decide
+    const st = show.stance[to];
+    const c = !st ? "#ff9f43" : st.conf >= 0.5 ? "#ef4444" : st.conf >= 0.25 ? "#f2b233" : "#9aa5b1";
+    (l as unknown as { material: { color: THREE.Color } }).material?.color?.set(c);
   });
   return <Line ref={ref as never} points={start} color="#ff9f43" lineWidth={3} dashed dashSize={0.6} gapSize={0.35} transparent opacity={0.9} depthTest={false} renderOrder={9} />;
 }
@@ -205,7 +212,7 @@ function WorldChanges() {
 export default function PlaybackLayer() {
   const { scene } = useThree();
   if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") (window as unknown as { __scene: THREE.Scene }).__scene = scene;
-  useFrame((_, delta) => tick(Math.min(delta, 0.05)));
+  useFrame((_, delta) => tick(Math.min(delta, DT_MAX)));
   return (
     <group name="playback-layer">
       {Object.keys(NPC_POST).map((npc) => (
@@ -213,6 +220,7 @@ export default function PlaybackLayer() {
       ))}
       <Threads />
       <WorldChanges />
+      <Says />
     </group>
   );
 }

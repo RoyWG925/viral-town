@@ -1,0 +1,55 @@
+"use client";
+
+// The top of the results panel: the headline of what really happened, the chain of retellings
+// that led there, and — when the rumour died — who stopped it and who almost acted on it.
+import { nameOf } from "./director";
+import type { StoryCard } from "./story";
+
+const pct = (c?: number) => (c === undefined ? "" : `${Math.round(c * 100)}%`);
+const VERDICT: Record<string, string> = { believe: "相信", doubt: "半信半疑", disbelieve: "不信" };
+const clip = (t: string, n: number) => (t.length > n ? `${t.slice(0, n)}…` : t);
+
+function Pill({ verdict, conf }: { verdict?: string; conf?: number }) {
+  if (verdict === undefined) return <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] text-slate-400">還沒表態</span>;
+  const tone = (conf ?? 0) >= 0.5 ? "bg-rose-100 text-rose-700" : (conf ?? 0) >= 0.25 ? "bg-amber-100 text-amber-700" : "bg-slate-200 text-slate-600";
+  return <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${tone}`}>{VERDICT[verdict] ?? verdict} {pct(conf)}</span>;
+}
+
+export default function StoryCardView({ card, seedNpc, seedText }: { card: StoryCard; seedNpc: string; seedText: string }) {
+  return (
+    <div className="mb-4 rounded-2xl border border-orange-200 bg-gradient-to-b from-orange-50 to-white p-4">
+      <p className="text-[11px] font-bold tracking-wide text-orange-500">霧港小報 · 今晚的頭條</p>
+      <p className="mt-1 text-xl font-extrabold leading-snug text-slate-900">
+        {card.icon} {card.headline}
+      </p>
+      {card.sub && <p className="mt-1 text-sm leading-snug text-slate-600">{card.sub}</p>}
+
+      <div className="mt-3 space-y-1.5">
+        <div className="flex items-start gap-2 text-xs">
+          <span className="mt-0.5 shrink-0 rounded-full bg-violet-600 px-2 py-0.5 font-bold text-white">你</span>
+          <p className="text-slate-700">
+            對{nameOf(seedNpc)}說：<span className="font-semibold">「{clip(seedText, 40)}」</span>
+          </p>
+        </div>
+        {card.spine.map((h, i) => (
+          <div key={i} className="flex items-start gap-2 text-xs">
+            <span className="mt-0.5 shrink-0 rounded-full bg-amber-100 px-2 py-0.5 font-bold text-amber-800">
+              {h.via === "phone" ? "📞" : "💬"} {nameOf(h.from)}→{nameOf(h.to)}
+            </span>
+            <div>
+              <p className="text-slate-700">「{clip(h.text, 52)}」</p>
+              <Pill verdict={h.verdict} conf={h.conf} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {card.closest && (
+        <p className="mt-3 rounded-xl bg-white px-3 py-2 text-xs leading-snug text-slate-600 shadow-sm">
+          📌 差一點：{nameOf(card.closest.npc)}聽到了{card.closest.conf !== undefined ? `（信 ${pct(card.closest.conf)}）` : ""}，他可以{card.closest.could}，但他選擇{card.closest.did}。
+        </p>
+      )}
+      <p className="mt-2 text-[10px] text-slate-400">以上全部來自這次模擬的事件紀錄，沒有額外生成或改寫。</p>
+    </div>
+  );
+}

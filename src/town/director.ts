@@ -6,7 +6,8 @@ import { PERSONAS, PLACES } from "../sim/scenario.ts";
 import { gapSeconds } from "../sim/timing.ts";
 import type { SimEvent } from "../sim/types.ts";
 import { clockOf } from "../sim/view.ts";
-import { agentAt, crowd, faceToward, releaseScript, scriptGoto, scriptHold, type Agent } from "./crowdSim";
+import { actFrom, DAWDLE, HURRY, type Act } from "../sim/acts.ts";
+import { agentAt, crowd, faceToward, perform, releaseScript, scriptGoto, scriptHold, type Agent } from "./crowdSim";
 
 /** Which crowd agent plays each core resident. */
 export const NPC_POST: Record<string, string> = {
@@ -26,6 +27,35 @@ export interface Caption {
   sub?: string;
   tone: Tone;
   at: number; // director clock
+  /** also shown as a line in the town (the caption bar can skip it while the auto director is on) */
+  bubbled?: boolean;
+}
+
+/** What the camera should show now; the camera rig glides there and the director keeps each shot a moment. */
+export interface Shot {
+  kind: "close" | "two" | "medium" | "wide" | "overview";
+  a?: string; // resident in shot
+  b?: string; // second resident (two-shot)
+  at?: { x: number; z: number }; // a place (wide shots, or where someone is heading)
+  dist: number;
+  prio: number;
+  since: number; // director clock
+}
+
+/** A line shown in the town over someone's head: what they said, thought, or found. */
+export interface Say {
+  key: number;
+  npc: string;
+  kind: "speech" | "phone" | "thought" | "found" | "seed" | "thinking";
+  /** wall-clock ms when a "thinking" line started (the honest seconds counter) */
+  since?: number;
+  text: string;
+  /** the version they had heard, for showing how it changed in the retelling */
+  heard?: string;
+  to?: string;
+  understanding?: string;
+  belief?: { verdict: string; conf: number };
+  until: number;
 }
 
 export interface StageWorld {
@@ -66,6 +96,12 @@ export const show = {
   frontier: Infinity, // game time before which the streamed log is final
   thinking: new Set<string>(), // residents whose model call is under way right now
   thinkingShown: "",
+  shot: null as Shot | null,
+  says: [] as Say[],
+  /** where each resident stands on the rumour now (from the engine's belief records, as they play) */
+  stance: {} as Record<string, { verdict: string; conf: number }>,
+  thinkingSince: {} as Record<string, number>,
+  lastAct: {} as Record<string, Act>,
   /** counts load() calls, so the camera can tell a new story (or a replay) from a streamed update */
   loads: 0,
   version: 0,
@@ -127,7 +163,7 @@ export function reset() {
   Object.assign(show, {
     status: "idle", run: null, growing: false, order: [], i: 0, clock: 0, gameT: 0, gapUntil: null, stepUntil: 0, waitFor: null, stepStarted: 0,
     captions: [], world: freshWorld(), focus: null, infected: new Set(), links: [], extras: new Set(), stalled: false, frontier: Infinity, props: [], focusLater: null,
-    thinking: new Set(), thinkingShown: "",
+    thinking: new Set(), thinkingShown: "", shot: null, says: [], lastAct: {}, stance: {}, thinkingSince: {},
   });
   show.version++;
 }
@@ -141,6 +177,58 @@ export function restart() {
   show.frontier = frontier;
 }
 
+
+// ---- camera shots and in-town lines --------------------------------------------------------------
+
+const SHOT_DIST: Record<Shot["kind"], number> = { close: 17, two: 20, medium: 24, wide: 34, overview: 60 };
+const MIN_HOLD = 1.2; // seconds of playback a shot stays before an equal or lower priority shot may replace it
+
+function setShot(kind: Shot["kind"], opts: Partial<Omit<Shot, "kind" | "since">> = {}) {
+  const prio = opts.prio ?? 1;
+  const cur = show.shot;
+  if (cur && show.clock - cur.since < MIN_HOLD && prio < cur.prio) return;
+  show.shot = { kind, dist: opts.dist ?? SHOT_DIST[kind], prio, a: opts.a, b: opts.b, at: opts.at, since: show.clock };
+}
+
+let sayKey = 0;
+function say(npc: string, kind: Say["kind"], text: string, seconds: number, extra: Partial<Say> = {}) {
+  // one line per person at a time; at most three people talking on screen
+  show.says = show.says.filter((x) => x.npc !== npc && x.until > show.clock);
+  show.says.push({ key: ++sayKey, npc, kind, text, until: show.clock + seconds, ...extra });
+  if (show.says.length > 3) show.says.shift();
+}
+
+/** The decision behind an event (walking back through its causes). */
+function decisionBehind(e: SimEvent) {
+  const run = show.run;
+  if (!run) return null;
+  const byId = new Map(run.events.map((x) => [x.id, x]));
+  let frontier = [e];
+  for (let depth = 0; depth < 5 && frontier.length; depth++) {
+    const next: SimEvent[] = [];
+    for (const x of frontier) {
+      if (x.type === "decide") return run.decisions.find((d) => d.id === x.data.decision) ?? null;
+      for (const c of x.causes) {
+        const y = byId.get(c);
+        if (y) next.push(y);
+      }
+    }
+    frontier = next;
+  }
+  return null;
+}
+
+/** What the speaker had heard before deciding to pass it on (the newest message they acted on). */
+function heardBefore(e: SimEvent) {
+  const dec = decisionBehind(e);
+  const run = show.run;
+  if (!dec || !run) return undefined;
+  const texts = run.events.filter((x) => x.type === "deliver" && dec.inbox.includes(String(x.data.message)) && x.data.via !== "inspection").map((x) => String(x.data.text));
+  return texts.at(-1);
+}
+
+const VERDICT_ZH: Record<string, string> = { believe: "相信", doubt: "半信半疑", disbelieve: "不信" };
+
 export const pause = () => {
   if (show.status === "playing") show.status = "paused";
   show.version++;
@@ -153,6 +241,7 @@ export const setSpeed = (s: number) => {
   show.speed = s;
   show.version++;
 };
+if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") (window as unknown as { __setSpeed: typeof setSpeed }).__setSpeed = setSpeed;
 
 function bubble(npc: string | undefined, icon: string, seconds = 2.5) {
   const a = npc ? agentFor(npc) : null;
@@ -171,6 +260,25 @@ function approach(visitor: Agent, host: Agent) {
   const dz = visitor.z - host.z;
   const d = Math.hypot(dx, dz) || 1;
   return { x: host.x + (dx / d) * 1.3, z: host.z + (dz / d) * 1.3 };
+}
+
+/**
+ * Townsfolk near a real public change stop and look (presentation only: they hold no beliefs and spread nothing).
+ */
+function crowdLooks(at: { x: number; z: number }, radius: number, icons: string[]) {
+  let k = 0;
+  for (const o of crowd.agents) {
+    if (o.script || o.home || o.job || o.visible < 0.5 || o.mode === "inside" || o.mode === "sit") continue;
+    const d = Math.hypot(o.x - at.x, o.z - at.z);
+    if (d > radius) continue;
+    o.heading = Math.atan2(at.x - o.x, at.z - o.z);
+    perform(o, k % 3 === 0 ? "startled" : "nervous", 1.6 + (k % 4) * 0.3);
+    if (k % 2 === 0) {
+      o.bubble = icons[k % icons.length];
+      o.bubbleTimer = 2.2;
+    }
+    k++;
+  }
 }
 
 function borrowCrowd(near: { x: number; z: number }, n: number, icon: string) {
@@ -202,6 +310,9 @@ function apply(e: SimEvent) {
       show.focus = target!;
       bubble(target, "💭", 3.5);
       caption({ who: target!, icon: "💭", tone: "seed", text: `一個念頭鑽進了${nameOf(target!)}的腦袋`, sub: `「${String(d.text)}」` });
+      say(target!, "seed", String(d.text), 4);
+      show.captions[show.captions.length - 1].bubbled = true;
+      setShot("close", { a: target, prio: 2 });
       hold = 3.2;
       break;
     }
@@ -236,6 +347,18 @@ function apply(e: SimEvent) {
       const doing = out.actions.every((x) => x.type === "none") ? "（決定先不理會）" : "";
       caption({ who: actor!, icon: emoji(out.feeling), tone: "thought", text: out.thought, sub: `${out.understanding}${doing}` });
       hold = readTime(out.thought + out.understanding, 2.4, 1 / 20, 5.5);
+      // the reaction Gemma chose, acted out; how much they now believe it, from the engine's record
+      const act = actFrom(out.act, out.feeling);
+      show.lastAct[actor!] = act;
+      if (a) perform(a, act, Math.max(2.4, hold));
+      const belief = show.run?.events.find((x) => x.type === "belief" && x.causes[0] === e.id);
+      if (belief) show.stance[actor!] = { verdict: String(belief.data.verdict), conf: Number(belief.data.to) };
+      delete show.thinkingSince[actor!];
+      say(actor!, "thought", out.thought, hold + 1.2, {
+        understanding: out.understanding,
+        belief: belief ? { verdict: VERDICT_ZH[String(belief.data.verdict)] ?? String(belief.data.verdict), conf: Number(belief.data.to) } : undefined,
+      });
+      setShot("close", { a: actor, prio: 2 });
       break;
     }
     case "move": {
@@ -251,8 +374,10 @@ function apply(e: SimEvent) {
       const host = nextTalk?.type === "talk" && nextTalk.target ? agentFor(nextTalk.target) : null;
       const spot = SPOTS[String(d.to)];
       const p = host && Math.hypot(host.x - spot.x, host.z - spot.z) < 6 ? approach(a, host) : spot;
-      scriptGoto(a, p.x, p.z, null);
+      const last = show.lastAct[actor!];
+      scriptGoto(a, p.x, p.z, null, last && HURRY.includes(last) ? 4.4 : last && DAWDLE.includes(last) ? 2.6 : 3.2);
       show.focus = actor!;
+      setShot("medium", { a: actor, at: { x: p.x, z: p.z }, prio: 1 });
       caption({ who: actor!, icon: "🚶", tone: "world", text: `${nameOf(actor!)}往${placeZh(String(d.to))}走去` });
       show.waitFor = () => !!a.script?.arrived;
       hold = 0.8;
@@ -274,6 +399,11 @@ function apply(e: SimEvent) {
         scriptHold(a, faceToward(a, b.x, b.z));
         scriptHold(b, faceToward(b, a.x, a.z));
       }
+      const talkHold = readTime(String(d.text), 2.6, 1 / 13, 6.5);
+      if (a) perform(a, `talk:${String(d.intent)}`, talkHold);
+      if (b) perform(b, "listen", talkHold);
+      say(actor!, "speech", String(d.text), talkHold + 1, { heard: heardBefore(e), to: target });
+      setShot("two", { a: actor, b: target, prio: 2 });
       bubble(actor, INTENT_ICON[String(d.intent)] ?? "💬", 4);
       bubble(target, "👂", 4);
       // passers-by notice the conversation
@@ -304,6 +434,15 @@ function apply(e: SimEvent) {
         }
       }
       if (!d.missed && target) show.focusLater = { npc: target, at: show.clock + readTime(String(d.text), 2.4, 1 / 13, 6) * 0.55 };
+      if (!d.missed) {
+        const callHold = readTime(String(d.text), 2.4, 1 / 13, 6);
+        const ca = agentFor(actor!);
+        const cb = target ? agentFor(target) : null;
+        if (ca) perform(ca, `talk:${String(d.intent)}`, callHold);
+        if (cb) perform(cb, "listen", callHold);
+        say(actor!, "phone", String(d.text), callHold + 1, { heard: heardBefore(e), to: target });
+      }
+      setShot("close", { a: actor, prio: 2 });
       caption({ who: actor!, icon: "📞", tone: d.missed ? "system" : "speech", text: d.missed ? `${nameOf(actor!)}打給${nameOf(target!)}，沒人接` : `「${String(d.text)}」`, sub: d.missed ? undefined : `${nameOf(actor!)} 打電話給 ${nameOf(target!)}` });
       hold = d.missed ? 1.5 : readTime(String(d.text), 2.4, 1 / 13, 6);
       break;
@@ -314,7 +453,12 @@ function apply(e: SimEvent) {
       if (d.found) {
         caption({ who: actor!, icon: "🔍", tone: "world", text: String(d.found), sub: `${nameOf(actor!)}${e.type === "inspect" ? "檢查後發現" : "親眼看到"}` });
         hold = readTime(String(d.found), 2.4, 1 / 16, 6);
+        say(actor!, "found", String(d.highlight ?? d.found), hold + 1);
+        show.captions[show.captions.length - 1].bubbled = true;
+        const fa = agentFor(actor!);
+        if (fa) perform(fa, e.type === "inspect" ? "ponder" : "nervous", hold);
       } else hold = 1.2;
+      setShot("medium", { a: actor, prio: 2 });
       show.focus = actor!;
       break;
     }
@@ -348,6 +492,12 @@ function apply(e: SimEvent) {
         caption({ who: actor ?? "", icon: "🏮", tone: "world", text: "燈籠節取消了", sub: d.text ? `「${String(d.text)}」` : undefined });
       } else caption({ who: actor ?? "", icon: "✨", tone: "world", text: e.zh });
       show.focus = actor ?? show.focus;
+      setShot("wide", { a: actor, at: e.place ? SPOTS[e.place] : undefined, prio: 3 });
+      {
+        const pa = actor ? agentFor(actor) : null;
+        const spotAt = e.place ? SPOTS[e.place] : pa ? { x: pa.x, z: pa.z } : null;
+        if (spotAt && key !== "writing") crowdLooks(spotAt, key === "festival" ? 40 : 14, key === "festival" ? ["😱", "❗", "🏮"] : ["😮", "❗", "👀"]);
+      }
       hold = 3.2;
       break;
     }
@@ -355,6 +505,8 @@ function apply(e: SimEvent) {
       show.world.notices.push(String(d.text));
       bubble(actor, "📋", 3);
       caption({ who: actor!, icon: "📋", tone: "world", text: `「${String(d.text)}」`, sub: `${nameOf(actor!)}在廣場布告欄貼了公告` });
+      setShot("wide", { a: actor, at: SPOTS.plaza, prio: 3 });
+      crowdLooks(SPOTS.plaza, 12, ["👀", "❓", "📋"]);
       hold = readTime(String(d.text), 2.6, 1 / 14, 6);
       break;
     case "article": {
@@ -366,6 +518,7 @@ function apply(e: SimEvent) {
         a.bubbleTimer = 3;
       });
       caption({ who: actor!, icon: "📰", tone: "world", text: `〈${String(d.headline)}〉`, sub: `${nameOf(actor!)}在新聞部落格發文` });
+      setShot("wide", { a: actor, prio: 3 });
       hold = 3.6;
       break;
     }
@@ -374,6 +527,8 @@ function apply(e: SimEvent) {
       const spot = SPOTS.townhall;
       borrowCrowd(spot, 6, "👀");
       caption({ who: actor!, icon: "📣", tone: "speech", text: `「${String(d.text)}」`, sub: `${nameOf(actor!)}發表公開聲明` });
+      say(actor!, "speech", String(d.text), readTime(String(d.text), 3, 1 / 14, 6.5) + 1);
+      setShot("wide", { a: actor, at: spot, prio: 3 });
       hold = readTime(String(d.text), 3, 1 / 14, 6.5);
       break;
     }
@@ -392,6 +547,7 @@ function apply(e: SimEvent) {
       borrowCrowd(spot, 5, "👀");
       bubble(actor, "✊", 5);
       caption({ who: actor!, icon: "✊", tone: "world", text: `「${String(d.text)}」`, sub: e.zh.split("：")[0] });
+      setShot("wide", { at: spot, prio: 3 });
       hold = readTime(String(d.text), 3, 1 / 14, 6.5);
       break;
     }
@@ -406,6 +562,7 @@ function apply(e: SimEvent) {
       bubble(target, "👋", 2.5);
       show.focus = actor!;
       caption({ who: actor!, icon: "🕔", tone: "world", text: String(d.text), sub: `${clockOf(e.t)} 的例行碰面` });
+      setShot("two", { a: actor, b: target, prio: 2 });
       hold = 2.5;
       break;
     }
@@ -419,6 +576,7 @@ function apply(e: SimEvent) {
       const reason = String(d.reason);
       const text = reason === "budget" ? "這個晚上的故事，先看到這裡。" : reason === "time" ? "20:00，燈籠節的時間到了。" : String(e.zh);
       caption({ who: "", icon: "🏁", tone: "system", text, sub: fest });
+      setShot("overview", { prio: 4 });
       hold = 2.5;
       break;
     }
@@ -444,8 +602,10 @@ export function tick(dt: number) {
   }
   if (show.focusLater && show.clock >= show.focusLater.at) {
     show.focus = show.focusLater.npc;
+    setShot("close", { a: show.focusLater.npc, prio: 2 });
     show.focusLater = null;
   }
+  if (show.says.length && show.says[0].until < show.clock) show.says = show.says.filter((x) => x.until >= show.clock);
   // the current event's minimum time on screen, and any walk it waits for
   if (show.clock < show.stepUntil) return;
   if (show.waitFor && !show.waitFor() && show.clock - show.stepStarted < 45) return;
@@ -456,18 +616,19 @@ export function tick(dt: number) {
         show.stalled = true;
         show.version++;
       }
-      // while Gemma works, the residents it is thinking for visibly think
+      // while Gemma works, the residents it is thinking for visibly think (no words until the answer exists)
       for (const npc of show.thinking) {
         const a = agentFor(npc);
-        if (a && (!a.bubble || a.bubbleTimer < 0.3)) {
-          a.bubble = "🤔";
-          a.bubbleTimer = 2;
-        }
+        show.thinkingSince[npc] ??= Date.now();
+        if (a && !a.act) perform(a, "ponder", 3);
+        if (!show.says.some((x) => x.npc === npc && x.kind === "thinking")) say(npc, "thinking", "", 9999, { since: show.thinkingSince[npc] });
       }
+      show.says = show.says.filter((x) => x.kind !== "thinking" || show.thinking.has(x.npc));
       const who = [...show.thinking].map(nameOf).join("、");
       if (who && who !== show.thinkingShown) {
         show.thinkingShown = who;
         show.focus = [...show.thinking][0];
+        setShot("close", { a: show.focus, prio: 1 });
         caption({ who: [...show.thinking][0], icon: "🤔", tone: "system", text: `${who}正在想……`, sub: "Gemma 正在依照他知道的事推理" });
       }
       return;
@@ -484,6 +645,7 @@ export function tick(dt: number) {
   if (show.stalled) {
     show.stalled = false;
     show.thinkingShown = "";
+    show.says = show.says.filter((x) => x.kind !== "thinking");
     show.version++;
   }
   const e = show.order[show.i];

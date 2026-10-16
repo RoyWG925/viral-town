@@ -3,7 +3,7 @@
 //
 //   node lab/e2e.mjs recorded <recorded-id> [name]          # replay public/recorded/<id>.json (no model calls)
 //   node lab/e2e.mjs live <npc> "<sentence>" [name]         # plant a sentence: real Gemma calls via /api/gemma
-//   options (env): E2E_SECONDS=90  E2E_EVERY=3  E2E_SPEED=1  E2E_VIDEO=1  E2E_URL=http://localhost:3002
+//   options (env): E2E_SECONDS=90  E2E_EVERY=3  E2E_SPEED=1  E2E_VIDEO=1  E2E_URL=http://localhost:3002  E2E_SEEK=<game minute>
 import { chromium } from "playwright-core";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -57,10 +57,18 @@ if (mode === "recorded") {
   await page.getByRole("button", { name: "植入這個念頭" }).click();
 }
 if (speed !== 1) await page.evaluate((s) => window.__setSpeed?.(s), speed);
+// E2E_SEEK=<game minute>: fast-forward to that point first (to inspect one scene without waiting)
+if (process.env.E2E_SEEK) {
+  const seek = Number(process.env.E2E_SEEK);
+  await page.evaluate(() => window.__setSpeed?.(12));
+  await page.waitForFunction((g) => window.__show.gameT >= g || window.__show.status === "done", seek, { timeout: 600_000, polling: 250 });
+  await page.evaluate((s) => window.__setSpeed?.(s), speed);
+}
 
 const timeline = [];
 let shot = 0;
-while ((Date.now() - t0) / 1000 < seconds) {
+const tLoop = Date.now(); // after any seek
+while ((Date.now() - tLoop) / 1000 < seconds) {
   await page.waitForTimeout(every * 1000);
   const st = await page.evaluate(() => {
     const s = window.__show;

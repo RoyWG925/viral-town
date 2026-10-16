@@ -513,7 +513,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
             if (limit) seen.push(limit);
             if (here.length) seen.push(`${here.join("、")}在這裡。`);
             const text = seen.join(" ");
-            const done = emit(expert ? "inspect" : "look", ta + dur, `${n.p.name}看到：${text}`, [ev], { actor: n.p.id, place, data: { found: text, highlight: highlight ?? seen[0], learned: [...n.mind.learned.keys()] } });
+            const done = emit(expert ? "inspect" : "look", ta + dur, `${n.p.name}看到：${text}`, [ev], { actor: n.p.id, place, data: { found: text, highlight: highlight ?? (limit ? `${seen[0]}${limit}` : seen[0]), learned: [...n.mind.learned.keys()] } });
             deliver(n, "self", "inspection", "inform", text, [], ta + dur, done);
             next(ta + dur);
           });

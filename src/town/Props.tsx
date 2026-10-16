@@ -7,6 +7,7 @@ import * as THREE from "three";
 import {
   BENCHES, BIG_TREE, BUILDINGS, CAFE_TABLES, FILL_TREES, FOUNTAIN, LAMPS, LANTERN_POLES, PLANTERS, STAGE, STREET_TREES, onMainSidewalk, toWorld,
 } from "./layout";
+import { agentFor, show } from "./director";
 import { mat } from "./materials";
 import { bannerTexture, rng, stripeTexture } from "./textures";
 import { clock, glow, skyAt } from "./clock";
@@ -146,6 +147,26 @@ function Bench({ x, z, rot }: { x: number; z: number; rot: number }) {
 
 function CafeTable({ x, z, colour }: { x: number; z: number; colour: string }) {
   const canopy = useMemo(() => new THREE.MeshStandardMaterial({ map: stripeTexture(colour, "#f4efe2", 10), side: THREE.DoubleSide, roughness: 0.8 }), [colour]);
+  // someone the camera is filming stands under this umbrella: let the camera see through it (a scene at the café
+  // terrace was all canopy and name tags otherwise)
+  useFrame((_, dt) => {
+    let under = false;
+    if (show.status === "playing" || show.status === "paused") {
+      const who = [show.shot?.a, show.shot?.b, ...show.says.map((s) => s.anchor ?? s.npc)];
+      for (const id of who) {
+        const ag = id ? agentFor(id) : null;
+        if (ag && (ag.x - x) ** 2 + (ag.z - z) ** 2 < 3.2) {
+          under = true;
+          break;
+        }
+      }
+    }
+    const goal = under ? 0.22 : 1;
+    if (Math.abs(canopy.opacity - goal) < 0.005) return;
+    canopy.transparent = true;
+    canopy.opacity += (goal - canopy.opacity) * Math.min(1, dt * 6);
+    canopy.depthWrite = canopy.opacity > 0.95;
+  });
   return (
     <group position={[x, 0, z]}>
       <mesh position={[0, 0.72, 0]} castShadow material={mat("#f4f1ea", 0.4)}>

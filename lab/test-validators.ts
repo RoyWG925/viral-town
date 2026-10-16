@@ -180,3 +180,13 @@ test("a stance pointing outside the claims list is sent back, not guessed", () =
   const r = checkDecision(v, n.out);
   assert.ok(r.errors.some((e) => e.includes("claims 陣列裡的位置")), r.errors.join("|"));
 });
+
+test("with no claims listed, a bare stance number maps to that belief (not ambiguous)", () => {
+  const v = viewFor("vendor", {
+    beliefs: [{ id: "c2", statement: "市長拿攤位費買新車", topic: "budget_overrun", says: "yes", category: "scandal", confidence: 0.45, sources: ["unknown"], sourcesZh: "陌生人" }],
+  });
+  const raw = base({ claims: [], stances: [{ claim: 2, verdict: "doubt", confidence: 0.3, why: "沒證據", cites: ["m1"] }] });
+  const n = normalize(v, raw);
+  assert.equal(n.out.claims[0]?.ref, "c2");
+  assert.deepEqual(checkDecision(v, n.out).errors, []);
+});

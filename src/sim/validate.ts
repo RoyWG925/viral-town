@@ -90,6 +90,14 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
     if (!(Number.isInteger(k) && k >= 0 && k < claims.length)) {
       // a bare number outside the claims list is ambiguous (a claim position? a belief id?): guessing once
       // stored the opposite of what the model meant, so leave it for the validator to send back
+      // with no claims listed at all, a bare number can only mean one of their beliefs (c<n>): not ambiguous
+      if (claims.length === 0 && typeof raw === "number" && beliefById.has(`c${raw}`)) {
+        const b = beliefById.get(`c${raw}`)!;
+        claims.push({ ref: `c${raw}`, statement: b.statement, topic: b.topic, says: b.says, category: b.category });
+        notes.push(`stance claim ${raw} → belief c${raw} (no claims listed)`);
+        if (!fixed.some((x) => x.claim === claims.length - 1)) fixed.push({ ...st, claim: claims.length - 1 });
+        continue;
+      }
       if (!(typeof raw === "string" && raw.startsWith("c"))) {
         notes.push(`stance claim ${String(raw)} is outside the claims list: sent back`);
         fixed.push({ ...st, claim: typeof k === "number" && Number.isFinite(k) ? k : -1 });

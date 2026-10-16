@@ -50,7 +50,7 @@ for (const f of files) {
     spineHops: card.spine.length,
     retoldWithChanges: hopsWithChange,
     closestCall: !!card.closest,
-    cost: +calls.reduce((s, l) => s + l.estCost, 0).toFixed(4),
+    cost: +calls.reduce((s, l) => s + (l.platformCost ?? 0), 0).toFixed(5),
   });
 }
 writeFileSync(`${dir}/fun-metrics.json`, JSON.stringify(rows, null, 1));

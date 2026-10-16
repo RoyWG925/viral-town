@@ -230,7 +230,7 @@ export function storyOf(run: RunResult): StoryCard {
     else if (top.type === "state" && d.key === "stage") Object.assign(card, { icon: "🚧", headline: "慶典舞台被封鎖", sub: `${actor}下令封鎖${via}。` });
     else if (top.type === "state" && d.key === "police") Object.assign(card, { icon: "🚓", headline: `警察出動到${placeZh(String(d.to))}`, sub: `${actor}派出警力${via}。` });
     else if (top.type === "state") Object.assign(card, { icon: "🔒", headline: `${placeZh(String(d.key).slice(6))}暫停營業`, sub: `${actor}決定關店${via}。` });
-    else if (top.type === "article") Object.assign(card, { icon: "📰", headline: `〈${String(d.headline)}〉`, sub: `${actor}把它寫成新聞${via}。` });
+    else if (top.type === "article") Object.assign(card, { icon: "📰", headline: `〈${String(d.headline)}〉`, sub: `${actor}寫成了新聞${via}。` });
     else if (top.type === "statement") Object.assign(card, { icon: "📣", headline: `${actor}出面發表聲明`, sub: `「${String(d.text).slice(0, 40)}」` });
     else if (top.type === "gather") Object.assign(card, { icon: "✊", headline: "攤商聚集討公道", sub: `${actor}號召大家${via}。` });
     else if (top.type === "notice") Object.assign(card, { icon: "📋", headline: "廣場布告欄貼出公告", sub: `「${String(d.text).slice(0, 40)}」` });

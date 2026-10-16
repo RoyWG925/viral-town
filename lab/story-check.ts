@@ -10,6 +10,7 @@ for (const f of files) {
   for (const h of s.spine) console.log(`  ${h.via} ${h.from}→${h.to}: 「${h.text.slice(0, 50)}」${h.verdict ? ` → ${h.verdict} ${Math.round((h.conf ?? 0) * 100)}%` : ""}`);
   if (s.stopper) console.log(`  stopper ${s.stopper.npc}: ${s.stopper.thought}`);
   if (s.closest) console.log(`  closest ${s.closest.npc} could ${s.closest.could}, did ${s.closest.did} (${s.closest.conf})`);
+  if (s.drift) console.log(`  drift: 「${s.drift.from.slice(0, 20)}」 → 「${s.drift.to.slice(0, 30)}」 pivot ${s.drift.pivot ? s.drift.pivot.from + "→" + s.drift.pivot.to : "-"}`);
   if (s.wildest) console.log(`  wildest ${s.wildest.from}: heard 「${s.wildest.heard?.slice(0, 30)}」 said 「${s.wildest.text.slice(0, 40)}」 sim ${s.wildest.similarity.toFixed(2)}`);
 }
 void readdirSync;

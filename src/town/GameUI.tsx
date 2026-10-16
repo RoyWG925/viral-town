@@ -318,7 +318,7 @@ function Results({ saved, previous, onWhatIf, onReplay, onClose }: { saved: Save
         <button onClick={() => setTech((v) => !v)} className="mt-4 text-xs text-slate-400 underline">🔬 技術紀錄</button>
         {tech && (
           <div className="mt-2 rounded-xl bg-slate-100 p-3 text-xs text-slate-600">
-            <p>Gemma-4-31B-IT（AMD Token Factory）呼叫 {m.llmCalls} 次，累計推論 {m.llmSeconds} 秒，{m.tokens} tokens，估算 ${m.estCost}</p>
+            <p>Gemma-4-31B-IT（AMD Token Factory）呼叫 {m.llmCalls} 次，累計推論 {m.llmSeconds} 秒，{m.tokens} tokens，平台回報成本 US${m.platformCost}</p>
             <p>居民判斷 {m.decisions} 次；驗證器要求重寫 {m.validatorRetries} 次；改用安全預設 {m.fallbacks} 次；引擎拒絕的行動 {m.rejected} 個</p>
             <p>模擬用時 {(run.wall.ms / 1000).toFixed(0)} 秒；遊戲時間 {m.gameMinutes} 分鐘；結束原因：{run.ended.reason}</p>
             <TechDecisions decisions={run.decisions} />

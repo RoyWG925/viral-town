@@ -15,7 +15,7 @@ change and action), `<id>.json` (full event log + decisions + raw model output +
 Chosen to cover the brief's checklist: absurd input, incomplete input, a direct command, a false scandal,
 a true secret told to the right/wrong person, a safety rumour, and the classic harmless gossip.
 
-| Case | Told to | Ending (story card, from the log) | People | First visible reaction¹ | First thought² | Longest wait³ | Watch time⁴ | Cost |
+| Case | Told to | Ending (story card, from the log) | People | First visible reaction¹ | First thought² | Longest wait³ | Watch time⁴ | Est. points |
 |---|---|---|---|---|---|---|---|---|
 | stage-cafe — 「今晚的舞台是用舊木板趕工搭的，很可能撐不住。」 | 美咲 | 🔍 老周親自查證：舞台沒有任何安全檢查紀錄，左後方支架明顯鬆動（有人急著想壓下來） | 6 | 6.8 s | 12.5 s | 29 s | 200 s | $0.029 |
 | meme-organizer — 「志明與春嬌」 | 志明 | 🔍 老周查出舞台問題 + 🔀 話題從「志明與春嬌」轉到舞台安全 | 6 | 6.8 s | 15.2 s | 30 s | 148 s | $0.029 |
@@ -31,7 +31,9 @@ a true secret told to the right/wrong person, a safety rumour, and the classic h
 ¹ streamed `feeling`+`act` complete (the resident starts acting it out; nothing in the world changes yet), from planting.
 ² first complete, validated decision (thought bubble appears).  ³ longest gap between two decisions arriving
 (playback shows the thinking beat, then a "同一時間" cutaway after 9 s).  ⁴ estimated playback length of the
-log at 1× (excluding waits).  Total cost of the batch ≈ $0.17. Model errors: 0. Validator retries: 1 (oven-police).
+log at 1× (excluding waits).  **Cost column = list-rate estimate in Token Factory points, not dollars** (a mistake in my first
+draft). The platform's own reported cost (`usage.cost`) for all 95 calls of this batch was **US$0.0047** — about
+US$0.0008 for a long story; the account's daily limit is US$1. Model errors: 0. Validator retries: 1 (oven-police).
 
 ### What happened (short)
 - **stage-cafe** — 美咲 (her daughter performs tonight) phones 老周 → 老周 phones 志明 → 志明 panics

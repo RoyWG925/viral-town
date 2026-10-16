@@ -42,6 +42,8 @@ export interface Metrics {
   llmSeconds: number;
   tokens: number;
   estCost: number;
+  /** what the platform itself reported (usage.cost, US$) — the real figure; estCost is a list-rate guess in points */
+  platformCost: number;
   validatorRetries: number;
   modelErrors: number;
   fallbacks: number;
@@ -109,6 +111,7 @@ export function measure(run: RunResult): Metrics {
     llmSeconds: Number((llm.reduce((s, l) => s + l.latencyMs, 0) / 1000).toFixed(1)),
     tokens: llm.reduce((s, l) => s + l.promptTokens + l.completionTokens, 0),
     estCost: Number(llm.reduce((s, l) => s + l.estCost, 0).toFixed(6)),
+    platformCost: Number(llm.reduce((s, l) => s + (l.platformCost ?? 0), 0).toFixed(6)),
     // only rejections of the model's output count; provider outages and two-stage calls do not
     validatorRetries: run.decisions.reduce((s, d) => s + d.validation.filter((v) => v.kind === "validator" || (v.kind === undefined && v.errors.length > 0 && !v.errors.some((e) => e.startsWith("model error") || e === "decision budget reached"))).length, 0),
     modelErrors: run.decisions.reduce((s, d) => s + d.validation.filter((v) => v.kind === "model" || v.errors.some((e) => e.startsWith("model error"))).length, 0),

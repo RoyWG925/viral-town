@@ -4,7 +4,7 @@
 // world changes the engine confirmed (closed shops, a taped-off stage, notices, protest signs).
 import { useMemo, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Billboard, Line } from "@react-three/drei";
+import { Billboard, Html, Line } from "@react-three/drei";
 import * as THREE from "three";
 import { SPOTS } from "../sim/geo.ts";
 import { PERSONAS } from "../sim/scenario.ts";
@@ -15,6 +15,29 @@ import { labelTexture } from "./labels";
 import { ui } from "./ui";
 import { DT_MAX } from "./quality";
 import Says from "./Says";
+
+// what each resident is able to do that would change the town (shown only as suspense, never as a prediction)
+const POWER: Record<string, string> = { police: "🚧 有權封鎖舞台、派警力", mayor: "🏮 有權取消燈籠節", journalist: "📰 可以發新聞", organizer: "🚧 有權封鎖舞台" };
+
+/** Hitchcock's bomb under the table: someone with real power now believes it. Will they act? */
+function Power({ npc }: { npc: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useFrame(() => {
+    const el = ref.current;
+    if (!el) return;
+    const st = show.stance[npc];
+    const doneBig = show.order.slice(0, show.i).some((e) => e.actor === npc && ((e.type === "state" && ["police", "stage", "festival"].includes(String(e.data.key))) || e.type === "article"));
+    const on = show.status !== "idle" && !!st && st.conf >= 0.6 && !doneBig && !show.says.some((x) => (x.anchor ?? x.npc) === npc);
+    el.style.opacity = on ? String(0.75 + Math.sin(performance.now() / 300) * 0.25) : "0";
+  });
+  return (
+    <Html position={[0, 4.6, 0]} center zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
+      <div ref={ref} style={{ opacity: 0 }} className="whitespace-nowrap rounded-full bg-rose-600/90 px-2 py-0.5 text-[11px] font-bold text-white shadow">
+        {POWER[npc]}？
+      </div>
+    </Html>
+  );
+}
 
 const ROLE_ICON: Record<string, string> = { baker: "🥐", florist: "🌷", journalist: "📰", cafe: "☕", police: "🚓", mayor: "🎩", organizer: "🏮", vendor: "🐙" };
 
@@ -65,6 +88,7 @@ function CoreMarker({ npc }: { npc: string }) {
           </mesh>
         </Billboard>
       </group>
+      {POWER[npc] && <Power npc={npc} />}
       {/* a generous, invisible click target */}
       <mesh
         ref={hit}

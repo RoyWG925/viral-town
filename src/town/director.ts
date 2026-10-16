@@ -116,6 +116,9 @@ export const show = {
   /** long model waits: when the current wait started, and a short "meanwhile" look around town (presentation only) */
   stallSince: 0,
   meanwhile: null as null | { label: string; until: number },
+  /** act titles: a short card the first time the story crosses a real threshold (from event types only) */
+  title: null as null | { text: string; until: number },
+  titlesShown: new Set<string>(),
   lastAct: {} as Record<string, Act>,
   /** counts load() calls, so the camera can tell a new story (or a replay) from a streamed update */
   loads: 0,
@@ -178,7 +181,7 @@ export function reset() {
   Object.assign(show, {
     status: "idle", run: null, growing: false, order: [], i: 0, clock: 0, gameT: 0, gapUntil: null, stepUntil: 0, waitFor: null, stepStarted: 0,
     captions: [], world: freshWorld(), focus: null, infected: new Set(), links: [], extras: new Set(), stalled: false, frontier: Infinity, props: [], focusLater: null,
-    thinking: new Set(), thinkingShown: "", shot: null, says: [], lastAct: {}, stance: {}, thinkingSince: {}, early: {}, stallSince: 0, meanwhile: null,
+    thinking: new Set(), thinkingShown: "", shot: null, says: [], lastAct: {}, stance: {}, thinkingSince: {}, early: {}, stallSince: 0, meanwhile: null, title: null, titlesShown: new Set(),
   });
   show.version++;
 }
@@ -336,10 +339,31 @@ function borrowCrowd(near: { x: number; z: number }, n: number, icon: string) {
   });
 }
 
+/** The first time the story reaches a new kind of event, name the act (escalation the viewer can feel). */
+function actTitle(e: SimEvent) {
+  const d = e.data as Record<string, unknown>;
+  const pick =
+    (e.type === "talk" || e.type === "phone") && !d.missed && e.actor !== show.run?.config.seedNpc && !show.titlesShown.has("retold")
+      ? ["retold", "第一幕 · 傳出去了"]
+      : e.type === "phone" && !d.missed && !show.titlesShown.has("phone")
+        ? ["phone", "消息上了電話線"]
+        : e.type === "inspect" && !show.titlesShown.has("check")
+          ? ["check", "有人親自去查了"]
+          : (e.type === "notice" || e.type === "article" || e.type === "statement") && !show.titlesShown.has("public")
+            ? ["public", "第二幕 · 全鎮都會知道"]
+            : (e.type === "state" && ["police", "stage", "festival"].includes(String(d.key)) || e.type === "gather") && !show.titlesShown.has("big")
+              ? ["big", "第三幕 · 事情鬧大了"]
+              : null;
+  if (!pick) return;
+  show.titlesShown.add(pick[0]);
+  show.title = { text: pick[1], until: show.clock + 2.2 };
+}
+
 function apply(e: SimEvent) {
   const actor = e.actor;
   const target = e.target;
   const d = e.data as Record<string, unknown>;
+  actTitle(e);
   show.gameT = e.t;
   let hold = 0;
   show.waitFor = null;

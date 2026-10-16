@@ -622,6 +622,11 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
 
       {(phase === "playing" || phase === "results") && <CaptionBar />}
       {phase === "playing" && <Controls onResults={() => setPhase("results")} />}
+      {phase === "playing" && show.title && show.clock < show.title.until && (
+        <div key={show.title.text} className="pointer-events-none absolute inset-x-0 top-[13%] flex justify-center">
+          <p className="animate-[fadein_0.4s_ease-out] rounded-full bg-slate-900/75 px-6 py-2 text-lg font-extrabold tracking-wide text-white shadow-xl">{show.title.text}</p>
+        </div>
+      )}
       {phase === "playing" && show.meanwhile && (
         <div className="pointer-events-none absolute left-1/2 top-14 -translate-x-1/2 rounded-full bg-slate-900/70 px-4 py-1.5 text-xs text-white shadow">
           同一時間，{show.meanwhile.label}…（{[...show.thinking].map(nameOf).join("、") || "居民"}還在想）

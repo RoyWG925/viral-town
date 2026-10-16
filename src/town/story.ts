@@ -239,14 +239,47 @@ export function storyOf(run: RunResult): StoryCard {
   const actor = top?.actor ? nameOf(top.actor) : "";
   const hopsN = spine.length;
   const via = hopsN ? `，經過 ${hopsN} 次轉述` : "";
+  // earlier big happenings that led to this one (causal ancestors in the log), so "police at the takoyaki stall"
+  // says why: 「先是小雯發文〈…〉，最後老周派出警力」
+  const before: SimEvent[] = [];
+  if (top) {
+    const seen = new Set([top.id]);
+    const queue = [...top.causes];
+    while (queue.length) {
+      const id = queue.shift()!;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const e = byId.get(id);
+      if (!e) continue;
+      if (rank(e) >= 5) before.push(e);
+      queue.push(...e.causes);
+    }
+    before.sort((x, y) => x.t - y.t);
+  }
+  const happened = (e: SimEvent) => {
+    const x = e.data as Record<string, unknown>;
+    const who = e.actor ? nameOf(e.actor) : "";
+    if (e.type === "article") return `${who}發文〈${clipS(String(x.headline ?? ""), 16)}〉`;
+    if (e.type === "statement") return `${who}發表聲明`;
+    if (e.type === "gather") return `${who}號召攤商聚集`;
+    if (e.type === "notice") return `${who}貼出公告`;
+    if (e.type === "state" && x.key === "stage") return `${who}封鎖了舞台`;
+    if (e.type === "state" && x.key === "police") return `${who}派警力到${placeZh(String(x.to))}`;
+    if (e.type === "state" && String(x.key).startsWith("shops.")) return `${who}關了店`;
+    return "";
+  };
+  const chainOf = (last: string) => {
+    const prev = before.map(happened).filter(Boolean).slice(-2);
+    return prev.length ? `先是${prev.join("，接著")}，最後${last}。` : `${last}${via}。`;
+  };
   if (top && rank(top) >= 5) {
     if (top.type === "state" && d.key === "festival") Object.assign(card, { icon: "🏮", headline: "燈籠節取消了！", sub: `${actor}宣布取消${via}。一切從你對${nameOf(seedNpc)}說的一句話開始。` });
-    else if (top.type === "state" && d.key === "stage") Object.assign(card, { icon: "🚧", headline: "慶典舞台被封鎖", sub: `${actor}下令封鎖${via}。` });
-    else if (top.type === "state" && d.key === "police") Object.assign(card, { icon: "🚓", headline: `警察出動到${placeZh(String(d.to))}`, sub: `${actor}派出警力${via}。` });
-    else if (top.type === "state") Object.assign(card, { icon: "🔒", headline: `${placeZh(String(d.key).slice(6))}暫停營業`, sub: `${actor}決定關店${via}。` });
+    else if (top.type === "state" && d.key === "stage") Object.assign(card, { icon: "🚧", headline: "慶典舞台被封鎖", sub: chainOf(`${actor}下令封鎖`) });
+    else if (top.type === "state" && d.key === "police") Object.assign(card, { icon: "🚓", headline: `警察出動到${placeZh(String(d.to))}`, sub: chainOf(`${actor}派出警力`) });
+    else if (top.type === "state") Object.assign(card, { icon: "🔒", headline: `${placeZh(String(d.key).slice(6))}暫停營業`, sub: chainOf(`${actor}決定關店`) });
     else if (top.type === "article") Object.assign(card, { icon: "📰", headline: `〈${String(d.headline)}〉`, sub: `${actor}寫成了新聞${via}。` });
     else if (top.type === "statement") Object.assign(card, { icon: "📣", headline: `${actor}出面發表聲明`, sub: `「${String(d.text).slice(0, 40)}」` });
-    else if (top.type === "gather") Object.assign(card, { icon: "✊", headline: "攤商聚集討公道", sub: `${actor}號召大家${via}。` });
+    else if (top.type === "gather") Object.assign(card, { icon: "✊", headline: "攤商聚集討公道", sub: chainOf(`${actor}號召大家`) });
     else if (top.type === "notice") Object.assign(card, { icon: "📋", headline: "廣場布告欄貼出公告", sub: `「${String(d.text).slice(0, 40)}」` });
   } else if (discovery && (!checked || checked.dir === "down")) {
     const who = nameOf(discovery.e.actor!);

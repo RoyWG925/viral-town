@@ -126,3 +126,17 @@ test("inspecting outside your trade says so, and who could tell, without reveali
   const hidden = FACTS.find((f) => f.id === "stage_uninspected")!;
   assert.ok(!found.includes(hidden.check!.zh) && !hidden.keywords.some((k) => found.includes(k)), found);
 });
+
+test("after a look, a resident whose next decision is coming does not walk home and straight back", async () => {
+  const answers = [
+    { feeling: "🤔 懷疑", act: "doubt", understanding: "舞台可能有問題", thought: "去看看", claims: [stageClaim], stances: [{ claim: 0, verdict: "doubt", confidence: 0.4, why: "陌生人", cites: ["m1"] }], actions: [{ type: "go_look", place: "stage", why: "看", cites: ["#0"] }] },
+    { feeling: "🤔 懷疑", act: "doubt", understanding: "看不出來", thought: "仔細查", claims: [], stances: [], actions: [{ type: "inspect", place: "stage", why: "查" }] },
+  ];
+  const none = { feeling: "😐 無感", act: "shrug", understanding: "x", thought: "y", claims: [], stances: [], actions: [{ type: "none", why: "x" }] };
+  const run = await simulate({ active: ALL8, seedNpc: "police", seedText: "舞台快塌了", seed: 10, policy: "gemma", maxDecisions: 4, chat: fake((n) => call(JSON.stringify(answers[n] ?? none))) });
+  const lookEnd = run.events.find((e) => e.type === "look" && e.data.found);
+  const inspectStart = run.events.find((e) => e.type === "inspect" && !e.data.found);
+  assert.ok(lookEnd && inspectStart, "look then inspect should both happen");
+  const homeBetween = run.events.filter((e) => e.type === "move" && e.actor === "police" && e.data.home && e.t >= lookEnd!.t && e.t <= inspectStart!.t);
+  assert.equal(homeBetween.length, 0, homeBetween.map((e) => e.zh).join(" / "));
+});

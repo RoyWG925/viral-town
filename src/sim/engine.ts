@@ -321,7 +321,9 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       if (planId !== n.planId) return;
       // someone may have come to talk to them in the meantime: finish that first
       if (n.busyUntil > ts + 1e-6) return at(n.busyUntil, () => runStep(k, n.busyUntil));
-      if (k >= plan.length) return goHome(n, ts, dEv);
+      // done: head home — unless their next decision is already coming (what they just saw or heard), which will
+      // say where to go; walking home and straight back looked like a glitch (P6: the look, then the inspect)
+      if (k >= plan.length) return n.decisionAt !== null ? undefined : goHome(n, ts, dEv);
       const a = plan[k];
       exec(n, a, ts, dEv, claimsFor(a), (te) => runStep(k + 1, te));
     };
@@ -329,7 +331,13 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       n.busyUntil = Math.max(n.busyUntil, t + REACT);
       n.mind.memory.push(`${clockOf(t)} 你決定：${plan.map((a) => describe(a)).join("，然後")}`);
       at(t + REACT, () => runStep(0, t + REACT));
-    } else n.mind.memory.push(`${clockOf(t)} 你決定先不做什麼。`);
+    } else {
+      n.mind.memory.push(`${clockOf(t)} 你決定先不做什麼。`);
+      // nothing more to do here: back to their own place (if they were left standing somewhere)
+      at(t + REACT, () => {
+        if (planId === n.planId && n.decisionAt === null && !n.dest && n.busyUntil <= t + REACT + 1e-6) goHome(n, t + REACT, dEv);
+      });
+    }
   }
 
   const describe = (a: ActionIntent) => {

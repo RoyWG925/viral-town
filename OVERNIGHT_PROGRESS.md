@@ -144,6 +144,38 @@ of 4–6 min. Reading every log, three distinct causes, two of them my bugs:
 Plus a real limit of n=1 batches: oven-police inspected in P2 and only looked in P4 — the model's sampling alone
 changes the story. P5 re-runs all ten inputs; conclusions from single runs stay labelled as indicative.
 
+### Round 9 — P5: six dramatic sentences, four different endings
+P5 re-ran all ten inputs. The six dramatic ones ended four ways (🚓 police sent to the bakery after 美玲 closed her
+own shop to "help a friend"; 📰 the budget exposé after 小雯 read the accounts; 🚧 the stage closed after a *false*
+lantern rumour led 老周 to inspect the stage; 🔍 a confirmed defect with no action); weak inputs still stop at once.
+Validator retries 5 in 91 calls, no fallbacks. Details and full chains in PLAYTEST_REPORT.md. Changes after reading
+every P5 log (all with tests):
+- **Listener side of the repeat rule**: hearing the same claim from the same person again no longer re-triggers a
+  decision — *except* the first time it is said to your face, or when the speaker is now much surer/less sure.
+  (老周 never answered 志明's face-to-face lie at 17:00.)
+- **A non-expert's inspection says so honestly** and names who could tell (public roles: police / organiser for the
+  stage, police for equipment, the reporter for accounts). 小雯 had "inspected" the stage three times in a row.
+- **Story card**: "went to check A, dug up B" is now a headline (「小雯本來在查別的事，卻查出：燈籠節的預算超支了
+  三成」) instead of "查無實據"; the truth reveal falls back to the story's first claim when the first listener only
+  passed it on; "差一點" needs a ≥0.6 belief of a kind that would justify the move (a budget scandal is no reason to
+  cancel a festival; 45% is not a near miss); no gendered pronouns in card templates.
+- **Recordings**: P5-oven-police, P5-lantern-baker, P5-budget-journalist added first; P1-car-vendor and the
+  old-engine C1 removed. DEMO_SCRIPT's hook is now the oven chain ("she only wanted to help").
+- **Production check**: `next build` passes (TypeScript clean) in a separate worktree; `next start` + a UI-only
+  playthrough (`lab/e2e-prod.mjs`) shows **0 console errors**. The 8 "synchronously unmount a root" warnings seen in
+  dev replays come from React StrictMode's dev-only double mount of drei `<Html>` (4 bubble slots + 4 power chips),
+  not from playback. `eslint` reports 23 React-Compiler rule hits in r3f frame-loop code (mutating three.js objects
+  in `useFrame`, timers in render) — idiomatic for r3f, not runtime errors; left as is to avoid touching visuals.
+
+### Round 10 — P6: 4/6 stories change the world, in different ways
+After the post-P5 fixes, the six dramatic inputs gave: stage closed after a face-to-face confrontation; police sent to
+the takoyaki stall after a *false* car rumour led to a *true* budget exposé and the mayor wanted protests contained;
+police + stage after the lantern rumour; exposé → police → vendors rallying at the town hall; a confirmed oven defect;
+a 3-person pigeon chat. Changes: the card's subtitle now names the earlier big happenings that caused the headline
+(「先是小雯發文〈…〉，最後老周派出警力」, causal ancestors from the log); P6-car-vendor added as a recording;
+no walk-home-and-back when the next decision is already queued (test verified to fail without the fix).
+Cache warm-up A/B: no clear effect (cold 2.9 s vs warm 2.4 s mean first token, n=4, overlapping) — not implemented.
+
 ## 2. Measurements so far
 
 | What | Value | Kind |
@@ -151,6 +183,8 @@ changes the story. P5 re-runs all ten inputs; conclusions from single runs stay 
 | AMD Token Factory, 257 earlier calls: prompt ≈ 1,800 tok, output ≈ 200 tok, median 17.5 s, p90 44 s | | [measured] |
 | AMD streaming probe, short prompt: first token 3.4–9.0 s, then 54–82 tok/s | | [measured] |
 | AMD, 2,600-token prompt twice: first token 6.6 s → 2.7 s on the cached second call (2,600/2,601 tokens cached) | | [measured] |
+| AMD cache warm-up A/B, 4 pairs: first token cold mean 2.9 s (1.9–4.0) vs warm 2.4 s (1.7–2.7) — no clear effect | | [measured] |
+| Playtests P5+P6 (16 stories): first visible reaction mean 4.3–5.4 s, first full thought 13.0–15.1 s, ≈10 beats/min | | [measured] |
 | Google AI Studio free tier, Gemma 4 31B, decision-sized call (1,849 in / 90 out): **177 s** | | [measured] |
 | First playtest story (pigeon-baker, AMD, streamed): first visible reaction **6.8 s**, first full decision 16.6 s | | [measured] |
 | Gemma 4 31B on one MI300X (vLLM): 58 tok/s bf16, 71 tok/s fp8 single request | | [3rd-party] (xbill, DEV, Oct 2026) |

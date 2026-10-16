@@ -9,6 +9,7 @@ import { clockOf } from "../sim/view.ts";
 import { actFrom, DAWDLE, HURRY, type Act } from "../sim/acts.ts";
 import { agentAt, crowd, faceToward, perform, releaseScript, scriptGoto, scriptHold, type Agent } from "./crowdSim";
 import { sting, voice } from "./sfx";
+import { pets } from "./petSim";
 
 /** Which crowd agent plays each core resident. */
 export const NPC_POST: Record<string, string> = {
@@ -106,6 +107,9 @@ export const show = {
   thinkingSince: {} as Record<string, number>,
   /** streamed first reaction while the decision is still being written (presentation only) */
   early: {} as Record<string, { feeling: string; act: string }>,
+  /** long model waits: when the current wait started, and a short "meanwhile" look around town (presentation only) */
+  stallSince: 0,
+  meanwhile: null as null | { label: string; until: number },
   lastAct: {} as Record<string, Act>,
   /** counts load() calls, so the camera can tell a new story (or a replay) from a streamed update */
   loads: 0,
@@ -168,7 +172,7 @@ export function reset() {
   Object.assign(show, {
     status: "idle", run: null, growing: false, order: [], i: 0, clock: 0, gameT: 0, gapUntil: null, stepUntil: 0, waitFor: null, stepStarted: 0,
     captions: [], world: freshWorld(), focus: null, infected: new Set(), links: [], extras: new Set(), stalled: false, frontier: Infinity, props: [], focusLater: null,
-    thinking: new Set(), thinkingShown: "", shot: null, says: [], lastAct: {}, stance: {}, thinkingSince: {}, early: {},
+    thinking: new Set(), thinkingShown: "", shot: null, says: [], lastAct: {}, stance: {}, thinkingSince: {}, early: {}, stallSince: 0, meanwhile: null,
   });
   show.version++;
 }
@@ -265,6 +269,17 @@ function approach(visitor: Agent, host: Agent) {
   const dz = visitor.z - host.z;
   const d = Math.hypot(dx, dz) || 1;
   return { x: host.x + (dx / d) * 1.3, z: host.z + (dz / d) * 1.3 };
+}
+
+/** Somewhere pleasant to glance at while the model thinks: a pet, or a busy corner (never a story resident). */
+let meanwhileTurn = 0;
+function meanwhileSpot(): { at: { x: number; z: number }; label: string } | null {
+  const options: { at: { x: number; z: number }; label: string }[] = [];
+  for (const p of pets.list) options.push({ at: { x: p.x, z: p.z }, label: `${p.name}（${p.title}）${p.mode === "sleep" ? "在打盹" : p.mode === "walk" ? "在閒晃" : "在發呆"}` });
+  const chatting = crowd.agents.find((a) => a.mode === "chat" && !a.script && a.visible > 0.5);
+  if (chatting) options.push({ at: { x: chatting.x, z: chatting.z }, label: "鎮民在閒聊別的事" });
+  if (!options.length) return null;
+  return options[meanwhileTurn++ % options.length];
 }
 
 /**
@@ -630,7 +645,24 @@ export function tick(dt: number) {
     if (show.growing) {
       if (!show.stalled) {
         show.stalled = true;
+        show.stallSince = show.clock;
         show.version++;
+      }
+      // a long wait: glance at the town living its life for a few seconds, then back to the thinker
+      const waited = show.clock - show.stallSince;
+      if (show.meanwhile && show.clock >= show.meanwhile.until) {
+        show.meanwhile = null;
+        const back = [...show.thinking][0] ?? show.focus;
+        if (back) setShot("close", { a: back, prio: 2 });
+        show.stallSince = show.clock;
+        show.version++;
+      } else if (!show.meanwhile && waited > 9) {
+        const spot = meanwhileSpot();
+        if (spot) {
+          show.meanwhile = { label: spot.label, until: show.clock + 4.5 };
+          setShot("medium", { at: spot.at, dist: 22, prio: 2 });
+          show.version++;
+        }
       }
       // while Gemma works, the residents it is thinking for visibly think (no words until the answer exists)
       for (const npc of show.thinking) {
@@ -663,6 +695,7 @@ export function tick(dt: number) {
   }
   if (show.stalled) {
     show.stalled = false;
+    show.meanwhile = null;
     show.thinkingShown = "";
     show.says = show.says.filter((x) => x.kind !== "thinking");
     show.version++;

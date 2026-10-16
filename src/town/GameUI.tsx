@@ -608,6 +608,11 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
 
       {(phase === "playing" || phase === "results") && <CaptionBar />}
       {phase === "playing" && <Controls onResults={() => setPhase("results")} />}
+      {phase === "playing" && show.meanwhile && (
+        <div className="pointer-events-none absolute left-1/2 top-14 -translate-x-1/2 rounded-full bg-slate-900/70 px-4 py-1.5 text-xs text-white shadow">
+          同一時間，{show.meanwhile.label}…（{[...show.thinking].map(nameOf).join("、") || "居民"}還在想）
+        </div>
+      )}
       {phase === "playing" && show.status === "done" && !show.growing && show.run && <EndTitle run={show.run} />}
       {phase === "results" && current && (
         <Results

@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { FACTS, PERSONAS, PLACES, PUBLIC_INFO } from "../src/sim/scenario.ts";
-import { checkDecision } from "../src/sim/validate.ts";
+import { checkDecision, normalize } from "../src/sim/validate.ts";
 import type { DecisionOutput } from "../src/sim/types.ts";
 import type { View } from "../src/sim/view.ts";
 
@@ -162,4 +162,21 @@ test("the chosen act survives parsing; an unknown act is read off the feeling", 
   assert.equal(kept.act, "angry");
   const mapped = normalize(viewFor("baker"), coerce({ ...raw, act: "breakdance" }).out!).out;
   assert.equal(mapped.act, "angry");
+});
+
+test("a stance pointing outside the claims list is sent back, not guessed", () => {
+  // the florist case: one claim listed, stances on "2" and "0"; guessing "2" = belief c2 stored the opposite belief
+  const v = viewFor("florist", {
+    beliefs: [{ id: "c2", statement: "今晚的燈籠很容易著火", topic: "lanterns_flammable", says: "yes", category: "safety", confidence: 0.55, sources: ["baker"], sourcesZh: "阿德" }],
+  });
+  const raw = base({
+    claims: [{ ref: "new", statement: "燈籠都是合格防火材質", topic: "lanterns_flammable", says: "no", category: "safety" }],
+    stances: [
+      { claim: 2, verdict: "believe", confidence: 0.8, why: "主辦人保證", cites: ["m1"] },
+      { claim: 0, verdict: "disbelieve", confidence: 0.4, why: "沒根據", cites: ["m1"] },
+    ],
+  });
+  const n = normalize(v, raw);
+  const r = checkDecision(v, n.out);
+  assert.ok(r.errors.some((e) => e.includes("claims 陣列裡的位置")), r.errors.join("|"));
 });

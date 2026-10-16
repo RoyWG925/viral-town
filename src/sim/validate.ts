@@ -88,7 +88,14 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
     const raw = st.claim as unknown;
     let k = typeof raw === "string" ? Number(raw.replace(/^[#c]/, "")) : (raw as number);
     if (!(Number.isInteger(k) && k >= 0 && k < claims.length)) {
-      const id = typeof raw === "string" && raw.startsWith("c") ? raw : `c${String(raw)}`;
+      // a bare number outside the claims list is ambiguous (a claim position? a belief id?): guessing once
+      // stored the opposite of what the model meant, so leave it for the validator to send back
+      if (!(typeof raw === "string" && raw.startsWith("c"))) {
+        notes.push(`stance claim ${String(raw)} is outside the claims list: sent back`);
+        fixed.push({ ...st, claim: typeof k === "number" && Number.isFinite(k) ? k : -1 });
+        continue;
+      }
+      const id = raw as string;
       const idx = claims.findIndex((c) => c.ref === id);
       if (idx >= 0) k = idx;
       else if (beliefById.has(id)) {
@@ -185,7 +192,7 @@ export function checkDecision(view: View, out: DecisionOutput, opts: { requireAc
   const limits: NonNullable<Checked["limits"]> = [];
   out.stances.forEach((s, i) => {
     if (typeof s.claim !== "number" || !Number.isInteger(s.claim) || s.claim < 0 || s.claim >= out.claims.length) {
-      errors.push(`stances[${i}].claim 要對應 claims 的索引`);
+      errors.push(`stances[${i}].claim 要填 claims 陣列裡的位置（0 到 ${out.claims.length - 1}）。要對你已經有的說法（例如 c2）表態，先把它放進 claims（ref 填 c2），再用它在 claims 裡的位置`);
       return;
     }
     if (seen.has(s.claim)) errors.push(`同一條說法只能有一個立場（stances[${i}]）`);

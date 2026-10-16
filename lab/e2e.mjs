@@ -79,6 +79,9 @@ while ((Date.now() - t0) / 1000 < seconds) {
   console.log(JSON.stringify(timeline.at(-1)));
   if (st.phase === "results" && timeline.filter((x) => x.phase === "results").length >= 2) break;
 }
+// keep the real run (events, decisions, raw model output) next to the screenshots as evidence
+const runJson = await page.evaluate(() => (window.__show?.run ? JSON.stringify(window.__show.run) : null));
+if (runJson) writeFileSync(join(out, "run.json"), runJson);
 writeFileSync(join(out, "timeline.json"), JSON.stringify({ mode, a1, a2, seconds, errors, timeline }, null, 2));
 const video = page.video();
 await page.close();

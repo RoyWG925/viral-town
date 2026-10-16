@@ -66,7 +66,7 @@ function Thinking({ s }: { s: Say }) {
   }, []);
   const secs = s.since ? Math.max(0, Math.round((now - s.since) / 1000)) : 0;
   return (
-    <div className="rounded-full border-2 border-violet-200 bg-white/95 px-3 py-1 text-slate-600 shadow-lg">
+    <div className="whitespace-nowrap rounded-full border-2 border-violet-200 bg-white/95 px-3 py-1 text-slate-600 shadow-lg">
       <span className="text-[12px] font-semibold">
         {s.text || "💭"} {nameOf(s.npc)}在想<span className="inline-block w-5 animate-pulse">…</span>
         <span className="ml-1 text-[11px] tabular-nums text-slate-400">{secs} 秒</span>
@@ -120,7 +120,7 @@ function Card({ s }: { s: Say }) {
         {s.kind === "phone" ? "📞" : "💬"} {nameOf(s.npc)}{s.to ? ` → ${nameOf(s.to)}` : ""}
       </p>
       {(runs || rewritten) && s.heard && <p className="text-[11px] leading-snug text-slate-400">聽到的是：「{clip(s.heard, 30)}」</p>}
-      {s.speakerConf !== undefined && s.speakerConf < 0.5 && (
+      {s.speakerConf !== undefined && s.speakerConf < 0.5 && s.intent !== "ask" && s.intent !== "deny" && (
         <p className="text-[10px] font-semibold text-amber-600">（自己也只信 {Math.round(s.speakerConf * 100)}%，卻照傳）</p>
       )}
       <p className="text-[13px] font-semibold leading-snug">

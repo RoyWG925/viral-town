@@ -116,7 +116,12 @@ function CameraRig() {
         const off = camera.position.clone().sub(controls.target);
         const dist = off.length();
         const next = dist + (g.dist - dist) * (1 - Math.exp(-dt * 1.5));
-        camera.position.copy(controls.target).add(off.multiplyScalar(next / dist));
+        // tilt: near shots look down more steeply (over umbrellas and heads), wide shots stay low and scenic
+        const sph = new THREE.Spherical().setFromVector3(off);
+        const tilt = show.shot?.kind === "close" ? 0.68 : show.shot?.kind === "two" ? 0.74 : show.shot?.kind === "medium" ? 0.82 : 0.9;
+        sph.phi += (tilt - sph.phi) * (1 - Math.exp(-dt * 1.2));
+        sph.radius = next;
+        camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(sph));
         controls.update();
         active.current = false;
         return;

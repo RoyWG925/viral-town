@@ -14,6 +14,7 @@ import { ui } from "./ui";
 import { storyOf } from "./story";
 import { isMuted, setMuted, unlockAudio } from "./sfx";
 import StoryCardView from "./StoryCardView";
+import { downloadShareCard } from "./shareCard";
 
 type Phase = "explore" | "compose" | "simulating" | "playing" | "results";
 type Mode = "stream" | "full";
@@ -340,6 +341,12 @@ function Results({ saved, previous, onWhatIf, onReplay, onClose }: { saved: Save
           >
             {copied ? "✓ 已複製" : "📋 複製分享文字"}
           </button>
+          <button
+            onClick={() => downloadShareCard(story, saved.npc, saved.text, { reach: story.reached.length, depth: m.depth, world: m.worldChanges, festival: run.world.festival === "cancelled" ? "取消" : "照常" })}
+            className="rounded-full bg-violet-100 px-3 py-1 text-sm font-semibold text-violet-800 hover:bg-violet-200"
+          >
+            🗞️ 下載小報
+          </button>
         </div>
       </div>
     </div>
@@ -469,7 +476,8 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
     try {
       const run = await simulate({
         active: ACTIVE, seedNpc: npc, seedText: sentence, seed, policy, chat: policy === "gemma" ? remoteChat : undefined,
-        maxDecisions: 16, maxPerNpc: 4,
+        // P1 playtests: 5 of 6 long stories hit a 16-decision cap right before the climax (e.g. 老周 about to act)
+        maxDecisions: 22, maxPerNpc: 5,
         // Experiment D: deeper and rated more interesting, with no added forced drama (lab/LAB_NOTES.md)
         variant: "eager",
         onEvent: (e) => {

@@ -79,7 +79,7 @@ ${TOPIC_LIST}
 
 地點編號：${PLACE_LIST}
 
-反應清單（act 從這裡選一個最符合你此刻的）：${ACT_LIST}
+反應清單（act 從這裡選一個最符合你此刻心情的；就算決定不行動，也要選出你真正的感受，例如懷疑選 doubt、擔心選 worried、覺得好笑選 giggle，不要每次都選 shrug）：${ACT_LIST}
 
 只用繁體中文，只回覆一個 JSON 物件：
 ${shape}${actionNote}`;

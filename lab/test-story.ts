@@ -14,7 +14,7 @@ for (const dir of ["public/recorded", "lab/runs/P1"]) {
   if (!existsSync(dir)) continue;
   for (const f of readdirSync(dir).filter((x) => x.endsWith(".json") && x !== "index.json")) {
     const j = JSON.parse(readFileSync(`${dir}/${f}`, "utf8"));
-    runs.push({ name: `${dir}/${f}`, run: j.run ?? j });
+    if (j.run || j.events) runs.push({ name: `${dir}/${f}`, run: j.run ?? j });
   }
 }
 

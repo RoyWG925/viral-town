@@ -81,6 +81,31 @@ Google free tier is far too slow for interactive use; it is kept only for slow b
 
 ---
 
+### Round 3 — first real playtest batch (P1, 10 inputs on AMD) and what it changed
+See `PLAYTEST_REPORT.md` for every case. Findings that changed the build:
+1. **The decision cap cut off the climaxes** (5/6 long stories ended on the 16-decision cap, e.g. right after
+   老周 confirmed the loose strut at 0.98 and 志明 begged him to keep quiet). → 22 decisions / 5 per resident.
+2. **A wrong belief got stored** when the model numbered its stances against a different list (美玲 "relieved"
+   but stored 0.80 that the lanterns burn). `normalize()` had guessed; ambiguous numbers are now sent back.
+3. **`act` was dropped while parsing** → fixed; tests added (validators 23/23).
+4. **Story card honesty**: "一句話傳到了 6 個人" was wrong when the town drifted to another topic → drift headline
+   quoting the turning line; first-hand checks can headline; checks about the player's actual topic win;
+   "two people bouncing it back and forth" is named. `lab/test-story.ts` 4/4 over rule runs, recordings and P1.
+5. Acts over-used `shrug` for "do nothing" → prompt asks for the real feeling.
+
+### Decision: should the player act during the show?
+Options weighed (brief §七): A watch only (camera), B one more sentence when it dies, C limited second
+intervention, D bets/predictions.
+- Evidence: 4/10 P1 inputs died at the first resident — all of them *weak sentences* (absurd, fragment,
+  command). The other 6 ran 86–200 s of content with 3–7 residents involved; there the player is watching, and a
+  mid-show prompt would interrupt exactly the part that works.
+- A fizzle is now a short, quotable ending ("🧱 謠言在林市長這裡踢到鐵板 —「想害我出醜嗎？」") followed by
+  one-click What If (same sentence to someone else / new sentence), which already gives the "try again" loop.
+- A second whisper costs another 5–25 s model wait mid-show and muddies "I only said ONE sentence".
+- **Chosen: A (watch, with auto director / free camera) + the What If loop. No second intervention.** Revisit
+  only with human playtest evidence that players feel helpless mid-show. (A "continue the same evening" mode
+  that keeps residents' beliefs is the natural next step if that evidence appears.)
+
 ## 3. Open problems / next
 
 (updated as the night goes on)

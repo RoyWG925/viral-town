@@ -142,11 +142,13 @@ export function storyOf(run: RunResult): StoryCard {
     .map((h) => ({ ...h, similarity: similarity(h.heard!, h.text) }))
     .sort((a, b) => a.similarity - b.similarity)[0];
 
+  const firstDecide = events.find((e) => e.type === "decide" && e.actor === seedNpc && !e.data.budget);
+  const seedClaims = (run.claims ?? []).filter((c) => firstDecide && c.origin === firstDecide.id);
   const card: StoryCard = { icon: "💬", headline: "", sub: "", spine, reached, wildest: wildest && wildest.similarity < 0.55 ? wildest : undefined };
 
   // topic drift: what the seed listener made of the sentence vs. what most people ended up holding beliefs about
   const claims = run.claims ?? [];
-  const seedTopics = new Set(claims.filter((c) => c.by === seedNpc).slice(0, 2).map((c) => c.topic));
+  const seedTopics = new Set(seedClaims.map((c) => c.topic));
   const people = new Map<string, Set<string>>();
   for (const c of claims) {
     if (!people.has(c.topic)) people.set(c.topic, new Set());
@@ -180,7 +182,7 @@ export function storyOf(run: RunResult): StoryCard {
   // the most telling first-hand check: someone went to look and the engine showed them the real state of
   // something the story is about (the planted topic, the topic most people ended up on, or what they believed)
   const clipS = (t: string, n: number) => (t.length > n ? `${t.slice(0, n)}…` : t);
-  const storyTopics = new Set<string>([...(run.claims ?? []).filter((c) => c.by === seedNpc).map((c) => c.topic)]);
+  const storyTopics = new Set<string>(seedClaims.map((c) => c.topic));
   {
     const counts = new Map<string, Set<string>>();
     for (const c of run.claims ?? []) if (c.topic !== "other") (counts.get(c.topic) ?? counts.set(c.topic, new Set()).get(c.topic)!).add(c.by);
@@ -189,7 +191,15 @@ export function storyOf(run: RunResult): StoryCard {
   }
   const storyFacts = new Set([...storyTopics].map((t) => topicFact(t)).filter(Boolean) as string[]);
   let checked: { e: SimEvent; text: string; dir: "up" | "down"; coverUp: boolean } | null = null;
-  for (const e of events.filter((x) => x.type === "inspect" || x.type === "look").sort((x, y) => (x.type === "inspect" ? -1 : 0) - (y.type === "inspect" ? -1 : 0))) {
+  const seedFacts = new Set(seedClaims.map((c) => topicFact(c.topic)).filter(Boolean) as string[]);
+  const aboutSeed = (e: SimEvent) => {
+    const found = String(e.data.found ?? "");
+    return FACTS.some((f) => f.check && seedFacts.has(f.id) && found.includes(f.check.zh)) || (/一切如常/.test(found) && e.actor === seedNpc);
+  };
+  const looks = events.filter((x) => x.type === "inspect" || x.type === "look");
+  // checks about what the player said first, then expert inspections, then the rest
+  looks.sort((x, y) => Number(aboutSeed(y)) - Number(aboutSeed(x)) || (x.type === "inspect" ? -1 : 0) - (y.type === "inspect" ? -1 : 0));
+  for (const e of looks) {
     const found = String(e.data.found ?? "");
     if (!found) continue;
     const fact = FACTS.find((f) => f.check && storyFacts.has(f.id) && found.includes(f.check.zh));

@@ -59,6 +59,8 @@ export interface Say {
   belief?: { verdict: string; conf: number };
   /** the speaker's own confidence when they said it (from their stored belief) */
   speakerConf?: number;
+  /** what the line is for (inform, warn, ask…), as the model labelled the action */
+  intent?: string;
   until: number;
 }
 
@@ -428,7 +430,7 @@ function apply(e: SimEvent) {
       const talkHold = readTime(String(d.text), 2.6, 1 / 13, 6.5);
       if (a) perform(a, `talk:${String(d.intent)}`, talkHold);
       if (b) perform(b, "listen", talkHold);
-      say(actor!, "speech", String(d.text), talkHold + 1, { heard: heardBefore(e), to: target, speakerConf: show.stance[actor!]?.conf });
+      say(actor!, "speech", String(d.text), talkHold + 1, { heard: heardBefore(e), to: target, speakerConf: show.stance[actor!]?.conf, intent: String(d.intent) });
       voice(actor!, String(d.text));
       setShot("two", { a: actor, b: target, prio: 2 });
       bubble(actor, INTENT_ICON[String(d.intent)] ?? "💬", 4);
@@ -467,7 +469,7 @@ function apply(e: SimEvent) {
         const cb = target ? agentFor(target) : null;
         if (ca) perform(ca, `talk:${String(d.intent)}`, callHold);
         if (cb) perform(cb, "listen", callHold);
-        say(actor!, "phone", String(d.text), callHold + 1, { heard: heardBefore(e), to: target, speakerConf: show.stance[actor!]?.conf });
+        say(actor!, "phone", String(d.text), callHold + 1, { heard: heardBefore(e), to: target, speakerConf: show.stance[actor!]?.conf, intent: String(d.intent) });
         sting.ring();
         voice(actor!, String(d.text), true);
       }
@@ -681,6 +683,7 @@ export function tick(dt: number) {
         show.focus = [...show.thinking][0];
         setShot("close", { a: show.focus, prio: 1 });
         caption({ who: [...show.thinking][0], icon: "🤔", tone: "system", text: `${who}正在想……`, sub: "Gemma 正在依照他知道的事推理" });
+        show.captions[show.captions.length - 1].bubbled = true;
       }
       return;
     }

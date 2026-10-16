@@ -53,3 +53,12 @@ test("a quoted stopper thought is that resident's real thought", () => {
     assert.ok(run.decisions.some((d) => d.npc === card.stopper!.npc && d.output?.thought === card.stopper!.thought), name);
   }
 });
+
+test("digging up a different hidden truth is the headline, not 'nothing found' (P4 car-vendor)", () => {
+  const f = "lab/runs/P4/car-vendor.json";
+  if (!existsSync(f)) return;
+  const run = JSON.parse(readFileSync(f, "utf8")).run as RunResult;
+  const card = storyOf(run);
+  assert.ok(card.headline.includes("預算超支"), card.headline);
+  assert.ok(run.events.some((e) => e.type === "inspect" && String(e.data.found).includes("多了三成")), "the finding is in the log");
+});

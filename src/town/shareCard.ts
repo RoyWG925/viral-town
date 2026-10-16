@@ -81,7 +81,7 @@ export function drawShareCard(card: StoryCard, seedNpc: string, seedText: string
   if (card.closest && y < H - 260) {
     g.font = `600 28px ${FONT}`;
     g.fillStyle = "#7a6f62";
-    y = block(g, `📌 差一點：${nameOf(card.closest.npc)}可以${card.closest.could}，但他選擇${card.closest.did}。`, 70, y + 6, W - 140, 40, 2) + 16;
+    y = block(g, `📌 差一點：${nameOf(card.closest.npc)}明明可以${card.closest.could}，最後卻選擇${card.closest.did}。`, 70, y + 6, W - 140, 40, 2) + 16;
   }
   if (card.truth && y < H - 250) {
     g.font = `700 28px ${FONT}`;

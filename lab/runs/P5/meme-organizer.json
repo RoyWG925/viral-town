@@ -1,0 +1,309 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "organizer",
+   "seedText": "志明與春嬌",
+   "seed": 7,
+   "policy": "gemma",
+   "variant": "eager",
+   "temperature": 0.7,
+   "maxDecisions": 22,
+   "maxPerNpc": 5
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "志明與春嬌"
+    },
+    "zh": "一個念頭被植入志明耳中：「志明與春嬌」",
+    "target": "organizer",
+    "place": "stage",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "志明與春嬌",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "志明聽到一位陌生客人說：「志明與春嬌」",
+    "target": "organizer",
+    "place": "stage",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有人在提到我和春嬌，但我不記得春嬌是誰。",
+     "thought": "春嬌是誰？為什麼有人在我的舞台上提到她？",
+     "feeling": "🤨 疑惑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "志明：春嬌是誰？為什麼有人在我的舞台上提到她？",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 5779
+   },
+   {
+    "id": "e4",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🤨 疑惑"
+    },
+    "zh": "志明 🤨 疑惑",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 5779
+   },
+   {
+    "id": "e5",
+    "t": 21.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 5779
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "organizer",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人在提到我和春嬌，但我不記得春嬌是誰。",
+     "claims": [],
+     "stances": [],
+     "feeling": "🤨 疑惑",
+     "thought": "春嬌是誰？為什麼有人在我的舞台上提到她？",
+     "act": "ponder",
+     "actions": [
+      {
+       "type": "none",
+       "why": "只聽到兩個名字，沒有具體內容，沒必要大驚小怪。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 1,
+      "wallEndMs": 5778,
+      "latencyMs": 5776,
+      "attempts": 1,
+      "promptTokens": 2216,
+      "completionTokens": 92,
+      "platformCost": 0.0000838628,
+      "estCost": 0.001384,
+      "status": 200,
+      "raw": "{\"feeling\": \"🤨 疑惑\", \"act\": \"ponder\", \"understanding\": \"有人在提到我和春嬌，但我不記得春嬌是誰。\", \"claims\": [], \"stances\": [], \"thought\": \"春嬌是誰？為什麼有人在我的舞台上提到她？\", \"actions\": [{\"type\": \"none\", \"why\": \"只聽到兩個名字，沒有具體內容，沒必要大驚小怪。\"}]}",
+      "promptChars": 3604,
+      "ttftMs": 4833
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4"
+    ]
+   }
+  ],
+  "claims": [],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「志明與春嬌」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 21.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T19:15:41.700Z",
+   "ms": 5780
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 2216,
+   "completionTokens": 92,
+   "platformCost": 0.0000838628,
+   "estCost": 0.001384,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 1.3,
+  "llmCalls": 1,
+  "llmSeconds": 5.8,
+  "tokens": 2308,
+  "estCost": 0.001384,
+  "platformCost": 0.000084,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ },
+ "card": {
+  "icon": "❓",
+  "headline": "志明聽得一頭霧水，就這樣算了",
+  "sub": "「春嬌是誰？為什麼有人在我的舞台上提到她？」",
+  "spine": [],
+  "reached": [
+   "organizer"
+  ],
+  "stopper": {
+   "npc": "organizer",
+   "thought": "春嬌是誰？為什麼有人在我的舞台上提到她？"
+  }
+ },
+ "early": [
+  {
+   "npc": "organizer",
+   "ms": 4834,
+   "feeling": "🤨 疑惑",
+   "act": "ponder"
+  }
+ ]
+}

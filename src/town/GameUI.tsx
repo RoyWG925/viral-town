@@ -554,7 +554,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
             </div>
           )}
           <div className="flex items-center gap-2">
-            <div className="rounded-full bg-white/90 px-5 py-2 text-sm font-semibold text-slate-700 shadow-lg">👆 點一位有名牌的居民，偷偷對他說一句話，然後看小鎮怎麼回應</div>
+            <div className="rounded-full bg-white/90 px-5 py-2 text-sm font-semibold text-slate-700 shadow-lg">👆 點一位有名牌的居民，偷偷說一句話，然後看小鎮怎麼回應</div>
             {recorded.length > 0 && (
               <button onClick={() => setShowRecorded((v) => !v)} className="pointer-events-auto rounded-full bg-slate-800/85 px-4 py-2 text-sm font-semibold text-white shadow-lg">📼 錄製的實驗</button>
             )}

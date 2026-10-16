@@ -3,7 +3,7 @@
 // when it died, and the wildest retelling. Built only from recorded, validated events and fixed
 // templates — no model writes or embellishes it.
 import type { RunResult } from "../sim/engine.ts";
-import { FACTS, PERSONAS, PLACES } from "../sim/scenario.ts";
+import { FACTS, PERSONAS, PLACES, TOPIC_CATEGORY } from "../sim/scenario.ts";
 import { topicFact } from "../sim/view.ts";
 import type { SimEvent } from "../sim/types.ts";
 
@@ -44,9 +44,16 @@ export interface StoryCard {
 
 const IMPACT: Record<string, string> = {
   mayor: "宣布取消燈籠節",
-  police: "派警力",
+  police: "派警力或封鎖舞台",
   journalist: "在新聞部落格發文",
   organizer: "封鎖舞台",
+};
+// the kinds of belief that would justify that big move (a budget scandal is no reason to cancel a festival)
+const IMPACT_ON: Record<string, string[]> = {
+  mayor: ["safety", "event", "health", "crime"],
+  police: ["safety", "crime"],
+  journalist: ["safety", "crime", "scandal", "policy", "health", "event"],
+  organizer: ["safety"],
 };
 
 /** Consequence rank of an event (higher = bigger). */
@@ -218,6 +225,16 @@ export function storyOf(run: RunResult): StoryCard {
     checked = { e, text: fact ? fact.check!.zh : found.split(/\s+/)[0], dir, coverUp };
     break;
   }
+  // a hidden truth someone dug up while checking something else ("went to check the car, found the overrun"):
+  // an expert inspection that showed a true fact nobody in this story had been talking about
+  let discovery: { e: SimEvent; fact: (typeof FACTS)[number] } | null = null;
+  for (const e of events.filter((x) => x.type === "inspect" && x.data.found)) {
+    const fact = FACTS.find((f) => f.value && f.check?.by === "expert" && !storyFacts.has(f.id) && String(e.data.found).includes(f.check.zh));
+    if (fact) {
+      discovery = { e, fact };
+      break;
+    }
+  }
   const d = (top?.data ?? {}) as Record<string, unknown>;
   const actor = top?.actor ? nameOf(top.actor) : "";
   const hopsN = spine.length;
@@ -231,6 +248,14 @@ export function storyOf(run: RunResult): StoryCard {
     else if (top.type === "statement") Object.assign(card, { icon: "📣", headline: `${actor}出面發表聲明`, sub: `「${String(d.text).slice(0, 40)}」` });
     else if (top.type === "gather") Object.assign(card, { icon: "✊", headline: "攤商聚集討公道", sub: `${actor}號召大家${via}。` });
     else if (top.type === "notice") Object.assign(card, { icon: "📋", headline: "廣場布告欄貼出公告", sub: `「${String(d.text).slice(0, 40)}」` });
+  } else if (discovery && (!checked || checked.dir === "down")) {
+    const who = nameOf(discovery.e.actor!);
+    const wondering = events.filter((x) => x.type === "belief" && x.actor === discovery!.e.actor && x.t <= discovery!.e.t).at(-1);
+    Object.assign(card, {
+      icon: "🔍",
+      headline: `${who}本來在查別的事，卻查出：${clipS(discovery.fact.zh.replace(/。$/, ""), 18)}`,
+      sub: `${wondering ? `原本想弄清楚「${clipS(/對「(.+?)」的信心/.exec(wondering.zh)?.[1] ?? "", 24)}」，` : ""}卻在${placeZh(String(discovery.e.place))}看到：「${clipS(discovery.fact.check!.zh, 40)}」`,
+    });
   } else if (checked) {
     // no world change, but someone went and saw the truth for themselves: that is the payoff
     const who = nameOf(checked.e.actor!);
@@ -285,7 +310,8 @@ export function storyOf(run: RunResult): StoryCard {
   }
 
   // the reveal: what was actually true about the topic the player raised (from the world's authored facts)
-  const seedFact = seedClaims.map((c) => topicFact(c.topic)).find(Boolean);
+  // (if the first listener passed it on without stating a claim, the first claim anyone made is what it became)
+  const seedFact = (seedClaims.length ? seedClaims : claims.slice(0, 1)).map((c) => topicFact(c.topic)).find(Boolean);
   const fact = seedFact ? FACTS.find((f) => f.id === seedFact) : undefined;
   if (fact && !fact.public) {
     card.truth = {
@@ -303,9 +329,14 @@ export function storyOf(run: RunResult): StoryCard {
     const did = decs.flatMap((x) => x.output!.actions).find((a) => a.type !== "none");
     const bigDone = events.some((e) => e.actor === npc && rank(e) >= 5);
     if (bigDone) continue;
-    const lastB = events.filter((x) => x.type === "belief" && x.actor === npc).at(-1);
-    if (!lastB || Number(lastB.data.to) < 0.3) continue;
-    const b = { conf: Number(lastB.data.to) };
+    // their final belief on each claim, kept only where it is of a kind that would justify the move, and strong:
+    // ≥0.6, the same bar as the on-screen "有權…？" suspense chip — a 45% hunch is not a near miss
+    const finalB = new Map<string, number>();
+    for (const x of events) if (x.type === "belief" && x.actor === npc) finalB.set(String(x.data.claim), Number(x.data.to));
+    const catOf = (cid: string) => { const c = claims.find((y) => y.id === cid); return c ? (TOPIC_CATEGORY[c.topic] ?? c.category) : undefined; };
+    const strong = [...finalB].filter(([cid, conf]) => conf >= 0.6 && IMPACT_ON[npc].includes(String(catOf(cid)))).sort((x, y) => y[1] - x[1]);
+    if (!strong.length) continue;
+    const b = { conf: strong[0][1] };
     const doing = did ? { phone: "打電話給別人", tell: "跑去跟別人說", ask: "去問別人", go_look: "自己跑去看", inspect: "親自去檢查", post_notice: "貼了公告", public_statement: "發表聲明" }[did.type as string] ?? "做了別的事" : "什麼也沒做";
     card.closest = { npc, could: IMPACT[npc], did: doing, conf: b.conf };
     break;

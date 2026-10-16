@@ -114,6 +114,36 @@ From the research's "suspense over surprise" and "the recounting is what gets sh
 - **README draft**, **DEMO_SCRIPT.md** (30-second hook + 2–3 min walkthrough), **deploy/amd-mi300x/** (self-host plan,
   not executed), endpoint switch via `GEMMA_BASE_URL` / `GEMMA_MODEL` / `GEMMA_API_KEY`.
 
+### Round 7 — P3 found an attractor: every road led to the stage
+P3 re-ran P2's five inputs after the stance fix (validator retries 27 → 2 per ~100 calls). But three unrelated
+sentences (a car-fee scandal, a weak stage, a bakery oven) all ended 🚧 stage closed. Cause, from the logs: the 17:00
+police–organizer walk-through (a *routine* meeting) played out whenever either carried **any** belief; 志明 always
+does by then, deflects, 老周 inspects and finds the loose strut. Real model behaviour, but the town was reacting to
+*whether* something was said, not *what*. Fixes (system rules, no scripted outcomes):
+- Routine meetings carry the kinds of talk that belong there (`about`); one is played out only if someone carries
+  a belief of that kind, and that belief becomes the cause on the card.
+- A second discoverable truth: the journalist can `inspect` the town hall's public accounts (expert check) and
+  find the 30% overrun — so budget rumours have their own climax instead of borrowing the stage's.
+
+### Round 8 — P4: the attractor was gone, and so were the climaxes (0/7 world changes)
+P4 (7 inputs) had no stage-closure monoculture — but also no world change at all, and stories of 21–183 s instead
+of 4–6 min. Reading every log, three distinct causes, two of them my bugs:
+1. **The repeat rule ate the confrontation.** 老周 inspected, found the loose strut (0.98), phoned 志明 twice,
+   then at 17:00 they met face to face — and both lines were rejected as "已經跟對方說過同一件事了". The scene
+   where he would have closed the stage never happened. → A repeat to the same person is now allowed if the
+   speaker's confidence moved ≥0.25 since they last said it, or it is the first time *in person* after a call;
+   never more than 3 times per claim and person. (Tests added.)
+2. **A self-named finding was thrown away.** 小雯 inspected the town hall unprompted and found the overrun — the
+   new system working — then her next answer called the finding `c2`; normalisation renamed it "new", dropped the
+   stance pointing at "c2", dropped the claim, and her article had nothing to cite → fallback, story over at its
+   peak. → Self-named new claims keep their name for stances and citations. (Regression test from that answer.)
+3. **"Everything looks normal" was misleading evidence.** 老周 only *looked* around the bakery, was told
+   "一切如常", lowered his belief to 0.2 and stopped. A glance can never show an oven's inspection date. → At places
+   with things only an expert can check, a casual look now also says (generically, true or false rumour alike)
+   that this cannot be judged by looking. Test checks it never names or hints the hidden fact.
+Plus a real limit of n=1 batches: oven-police inspected in P2 and only looked in P4 — the model's sampling alone
+changes the story. P5 re-runs all ten inputs; conclusions from single runs stay labelled as indicative.
+
 ## 2. Measurements so far
 
 | What | Value | Kind |

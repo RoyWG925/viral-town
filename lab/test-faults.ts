@@ -107,4 +107,22 @@ test("saying the same thing again is blocked, but the first time in person after
     }),
   });
   assert.ok(callThenVisit.events.some((e) => e.type === "talk" && e.actor === "police" && e.target === "organizer"), "the visit after the call should happen");
+  // and the listener reacts to being told to their face, though they heard it on the phone before
+  const faceDeliver = callThenVisit.events.find((e) => e.type === "deliver" && e.target === "organizer" && e.data.via === "face");
+  assert.ok(faceDeliver && !faceDeliver.data.repeat, "a first face-to-face telling is not a repeat");
+});
+
+test("inspecting outside your trade says so, and who could tell, without revealing anything", async () => {
+  const run = await simulate({
+    active: ALL8, seedNpc: "journalist", seedText: "舞台快塌了", seed: 9, policy: "gemma", maxDecisions: 3,
+    chat: firstThen({
+      feeling: "🤔 懷疑", act: "doubt", understanding: "舞台可能有問題", thought: "親自去查", claims: [stageClaim],
+      stances: [{ claim: 0, verdict: "doubt", confidence: 0.4, why: "陌生人說的", cites: ["m1"] }],
+      actions: [{ type: "inspect", place: "stage", why: "查", cites: ["#0"] }],
+    }),
+  });
+  const found = String(run.events.find((e) => e.type === "inspect" && e.data.found)?.data.found ?? "");
+  assert.ok(found.includes("不是你的專業") && found.includes("警長"), found);
+  const hidden = FACTS.find((f) => f.id === "stage_uninspected")!;
+  assert.ok(!found.includes(hidden.check!.zh) && !hidden.keywords.some((k) => found.includes(k)), found);
 });

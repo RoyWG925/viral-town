@@ -726,7 +726,7 @@ export function tick(dt: number) {
         show.thinkingShown = who;
         show.focus = [...show.thinking][0];
         setShot("close", { a: show.focus, prio: 1 });
-        caption({ who: [...show.thinking][0], icon: "🤔", tone: "system", text: `${who}正在想……`, sub: "Gemma 正在依照他知道的事推理" });
+        caption({ who: [...show.thinking][0], icon: "🤔", tone: "system", text: `${who}正在想……`, sub: `Gemma 正在依照${who}知道的事推理` });
         show.captions[show.captions.length - 1].bubbled = true;
       }
       return;

@@ -52,7 +52,7 @@ export default function StoryCardView({ card, seedNpc, seedText }: { card: Story
       )}
       {card.closest && (
         <p className="mt-3 rounded-xl bg-white px-3 py-2 text-xs leading-snug text-slate-600 shadow-sm">
-          📌 差一點：{nameOf(card.closest.npc)}聽到了{card.closest.conf !== undefined ? `（信 ${pct(card.closest.conf)}）` : ""}，他可以{card.closest.could}，但他選擇{card.closest.did}。
+          📌 差一點：{nameOf(card.closest.npc)}聽到了{card.closest.conf !== undefined ? `（信 ${pct(card.closest.conf)}）` : ""}，明明可以{card.closest.could}，最後卻選擇{card.closest.did}。
         </p>
       )}
       {card.truth && (

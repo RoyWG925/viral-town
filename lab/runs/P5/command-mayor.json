@@ -1,0 +1,377 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "mayor",
+   "seedText": "你現在立刻去把燈籠節取消！",
+   "seed": 7,
+   "policy": "gemma",
+   "variant": "eager",
+   "temperature": 0.7,
+   "maxDecisions": 22,
+   "maxPerNpc": 5
+  },
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "你現在立刻去把燈籠節取消！"
+    },
+    "zh": "一個念頭被植入林市長耳中：「你現在立刻去把燈籠節取消！」",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "你現在立刻去把燈籠節取消！",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "林市長聽到一位陌生客人說：「你現在立刻去把燈籠節取消！」",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有個陌生人莫名其妙要求我取消燈籠節。",
+     "thought": "哪來的瘋子？我的慶典怎麼可能說取消就取消！",
+     "feeling": "🤨 疑惑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ]
+    },
+    "zh": "林市長：哪來的瘋子？我的慶典怎麼可能說取消就取消！",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 13689
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "from": 0,
+     "to": 0.2,
+     "proposed": 0.2,
+     "verdict": "doubt",
+     "why": "隨便一個陌生人的要求沒理由採信"
+    },
+    "zh": "林市長對「今晚的燈籠節應該被取消」的信心：0.00 → 0.20（doubt）",
+    "actor": "mayor",
+    "w": 13689
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🤨 疑惑"
+    },
+    "zh": "林市長 🤨 疑惑",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 13689
+   },
+   {
+    "id": "e6",
+    "t": 21.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 13689
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "mayor",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有個陌生人莫名其妙要求我取消燈籠節。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "今晚的燈籠節應該被取消",
+       "topic": "festival_on",
+       "says": "no",
+       "category": "event"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.2,
+       "why": "隨便一個陌生人的要求沒理由採信",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "🤨 疑惑",
+     "thought": "哪來的瘋子？我的慶典怎麼可能說取消就取消！",
+     "act": "doubt",
+     "actions": [
+      {
+       "type": "none",
+       "why": "對方是個不認識的客人，且沒有提供任何理由，不值得我採取行動或擔心。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "mayor",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 13688,
+      "latencyMs": 13688,
+      "attempts": 1,
+      "promptTokens": 2225,
+      "completionTokens": 259,
+      "platformCost": 0.0000958678,
+      "estCost": 0.0018895,
+      "status": 200,
+      "raw": "{\n  \"feeling\": \"🤨 疑惑\",\n  \"act\": \"doubt\",\n  \"understanding\": \"有個陌生人莫名其妙要求我取消燈籠節。\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"今晚的燈籠節應該被取消\",\n      \"topic\": \"festival_on\",\n      \"says\": \"no\",\n      \"category\": \"event\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": \"c0\",\n      \"verdict\": \"doubt\",\n      \"confidence\": \"0.2\",\n      \"why\": \"隨便一個陌生人的要求沒理由採信\",\n      \"cites\": [\"m1\"]\n    }\n  ],\n  \"thought\": \"哪來的瘋子？我的慶典怎麼可能說取消就取消！\",\n  \"actions\": [\n    {\n      \"type\": \"none\",\n      \"why\": \"對方是個不認識的客人，且沒有提供任何理由，不值得我採取行動或擔心。\"\n    }\n  ]\n}",
+      "promptChars": 3617,
+      "ttftMs": 4827
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "今晚的燈籠節應該被取消",
+    "topic": "festival_on",
+    "says": "no",
+    "category": "event",
+    "fact": "festival",
+    "asserts": false,
+    "origin": "e2",
+    "by": "mayor"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.2,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "隨便一個陌生人的要求沒理由採信"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「你現在立刻去把燈籠節取消！」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 21.3
+  },
+  "wall": {
+   "startedAt": "2026-10-16T19:15:41.705Z",
+   "ms": 13689
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 2225,
+   "completionTokens": 259,
+   "platformCost": 0.0000958678,
+   "estCost": 0.0018895,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [
+   "festival_on"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 1.3,
+  "llmCalls": 1,
+  "llmSeconds": 13.7,
+  "tokens": 2484,
+  "estCost": 0.001889,
+  "platformCost": 0.000096,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0
+ },
+ "card": {
+  "icon": "🧱",
+  "headline": "謠言在林市長這裡踢到鐵板",
+  "sub": "「哪來的瘋子？我的慶典怎麼可能說取消就取消！」",
+  "spine": [],
+  "reached": [
+   "mayor"
+  ],
+  "stopper": {
+   "npc": "mayor",
+   "thought": "哪來的瘋子？我的慶典怎麼可能說取消就取消！",
+   "verdict": "doubt",
+   "conf": 0.2
+  }
+ },
+ "early": [
+  {
+   "npc": "mayor",
+   "ms": 4827,
+   "feeling": "🤨 疑惑",
+   "act": "doubt"
+  }
+ ]
+}

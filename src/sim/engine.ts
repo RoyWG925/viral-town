@@ -127,7 +127,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     if (!p) throw new Error(`unknown npc ${id}`);
     npcs.set(id, {
       p, place: p.home, dest: null, busyUntil: 0, decisionAt: null, triggers: [], publicEvents: [], heard: [], planId: 0, lastBelief: null, beliefEvents: new Map(),
-      mind: { knows: new Set(p.knows), learned: new Map(), beliefs: new Map(), inbox: [], memory: [], decisions: 0, lastDecisionAt: -99, told: new Map(), heardKeys: new Set() },
+      mind: { knows: new Set(p.knows), learned: new Map(), beliefs: new Map(), inbox: [], memory: [], decisions: 0, lastDecisionAt: -99, told: new Map(), heardKeys: new Map() },
     });
   }
   const SOURCE_ZH: Record<string, string> = { unknown: "一位陌生客人", crowd: "客人們", notice: "布告欄", self: "你自己", news: "新聞", hunch: "自己的念頭" };
@@ -159,9 +159,17 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     });
     m.event = ev;
     to.heard.push(text);
-    // Hearing the same thing again from the same person adds nothing: remember it, don't re-decide.
-    const repeat = claimIds.length > 0 && claimIds.every((c) => to.mind.heardKeys.has(`${from}|${c}`));
-    for (const c of claimIds) to.mind.heardKeys.add(`${from}|${c}`);
+    // Hearing the same thing again from the same person adds nothing: remember it, don't re-decide. Unless it is
+    // the first time face to face (a confrontation, a lie told to your face) or they are now much surer or less sure.
+    const face = via === "face";
+    const repeat = claimIds.length > 0 && claimIds.every((c) => {
+      const h = to.mind.heardKeys.get(`${from}|${c}`);
+      return !!h && (h.face || !face) && Math.abs((senderConf ?? h.conf) - h.conf) < 0.25;
+    });
+    for (const c of claimIds) {
+      const h = to.mind.heardKeys.get(`${from}|${c}`);
+      to.mind.heardKeys.set(`${from}|${c}`, { face: face || !!h?.face, conf: senderConf ?? h?.conf ?? 0 });
+    }
     if (repeat) {
       events[events.length - 1].data.repeat = true;
       to.mind.memory.push(`${clockOf(t)} ${name(from)}又跟你說了一次：「${text.slice(0, 40)}」`);
@@ -489,8 +497,10 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
             // who is around is part of what you see (and someone you could go and ask)
             const here = [...npcs.values()].filter((o) => o !== n && o.place === place && !o.dest).map((o) => `${o.p.name}（${o.p.roleZh}）`);
             // what this look could not have shown them (a glance is not an inspection; not their trade)
-            const missed = FACTS.some((f) => f.check?.place === place && f.check.by === "expert" && !checks.includes(f));
-            const limit = missed ? LOOK_LIMITS[place] : undefined;
+            const missed = FACTS.filter((f) => f.check?.place === place && f.check.by === "expert" && !checks.includes(f));
+            // a careful look by someone for whom it is not their trade: say so, and who could tell (public roles)
+            const whoCan = [...new Set(missed.flatMap((f) => f.check!.roles ?? []))].map((r) => PERSONAS.find((p) => p.role === r)?.roleZh).filter(Boolean);
+            const limit = !missed.length ? undefined : expert && whoCan.length ? `你仔細看了，但這不是你的專業，看不出所以然；這種事得找${whoCan.join("或")}這類懂行的人來檢查。` : LOOK_LIMITS[place];
             if (!seen.length) seen.push(limit ? `${placeZh(place)}表面上看起來一切如常。` : `${placeZh(place)}看起來一切如常，沒看到什麼特別的。`);
             if (limit) seen.push(limit);
             if (here.length) seen.push(`${here.join("、")}在這裡。`);

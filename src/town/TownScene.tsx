@@ -74,21 +74,28 @@ function CameraRig() {
   const goalT = useRef(new THREE.Vector3());
   const goalP = useRef(new THREE.Vector3());
   const active = useRef(false);
+  const seenLoads = useRef(show.loads);
   useEffect(() => {
     if (!controls) return;
     // the moment the player grabs the camera, the auto director steps aside (they can switch it back on)
     const take = () => {
-      if (show.status === "playing" || show.status === "paused") {
-        if (ui.follow) {
-          ui.follow = false;
-          ui.version++;
-        }
+      if (show.status !== "idle" && ui.follow) {
+        ui.follow = false;
+        ui.version++;
       }
     };
     controls.addEventListener("start", take);
     return () => controls.removeEventListener("start", take);
   }, [controls]);
   useFrame((_, dt) => {
+    // every new story, replay or What If starts with the auto director on again
+    if (show.loads !== seenLoads.current) {
+      seenLoads.current = show.loads;
+      if (!ui.follow) {
+        ui.follow = true;
+        ui.version++;
+      }
+    }
     if (camRequest.view) {
       const v = VIEWS[camRequest.view];
       goalT.current.fromArray(v.target);
@@ -213,7 +220,7 @@ function Hud({ onHide }: { onHide: () => void }) {
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-wrap items-start justify-between gap-3 p-4">
       <div className="pointer-events-auto rounded-2xl bg-white/85 px-5 py-3 shadow-lg backdrop-blur">
-        <p className="text-xs font-semibold text-slate-500">VIRAL · 效果實驗</p>
+        <p className="text-xs font-semibold text-slate-500">VIRAL · 一句話的蝴蝶效應</p>
         <h1 className="text-2xl font-extrabold text-slate-800">霧港鎮 Mistport</h1>
         <p className="mt-1 text-sm text-slate-600">
           {crowd.agents.length} 位鎮民：{stats.walking} 人在走動、{stats.chatting} 人在聊天、{stats.inside} 人在店裡、{stats.working} 人在工作

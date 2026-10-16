@@ -227,8 +227,8 @@ function highlights(run: RunResult, m: Metrics): string[] {
   if (m.idle) {
     // say who stopped it and in their own (recorded) words why, instead of a generic line
     const last = [...run.decisions].reverse().find((d) => d.output);
-    const why = last?.output?.actions.find((a) => a.type === "none")?.why;
-    out.push(last && why ? `念頭停在${nameOf(last.npc)}這裡：「${why}」想讓它傳開，試試告訴一位會在乎這件事的人。` : "這個念頭沒有走得很遠——有時候，小鎮就是不買單。");
+    const why = last && !last.fallback ? last.output?.actions.find((a) => a.type === "none")?.why : undefined;
+    out.push(last && why && why !== "fallback" && !why.startsWith("free-form:") ? `念頭停在${nameOf(last.npc)}這裡：「${why}」想讓它傳開，試試告訴一位會在乎這件事的人。` : "這個念頭沒有走得很遠——有時候，小鎮就是不買單。");
   }
   return out.slice(0, 6);
 }
@@ -391,7 +391,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
   const [current, setCurrent] = useState<SavedRun | null>(null);
   const [history, setHistory] = useState<SavedRun[]>([]);
   const [mode] = useState<Mode>("stream");
-  const [recorded, setRecorded] = useState<{ id: string; npc: string; text: string; at: string; reach: number; world: number; festival: string; calls: number }[]>([]);
+  const [recorded, setRecorded] = useState<{ id: string; npc: string; text: string; at: string; reach: number; world: number; festival: string; calls: number; headline?: string }[]>([]);
   const [showRecorded, setShowRecorded] = useState(false);
   const [replayNote, setReplayNote] = useState<string | null>(null);
   const abort = useRef(false);
@@ -542,13 +542,13 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
               <p className="mb-1 text-xs font-semibold text-slate-500">已錄製的真實 Gemma 模擬（重播紀錄，不重新生成）</p>
               {recorded.map((r) => (
                 <button key={r.id} onClick={() => { unlockAudio(); playRecorded(r.id); }} className="block w-full truncate rounded-lg px-2 py-1 text-left text-sm text-slate-700 hover:bg-orange-50">
-                  📼 對{nameOf(r.npc)}說「{r.text}」— 影響 {r.reach} 人、{r.world} 個世界變化
+                  📼 對{nameOf(r.npc)}說「{r.text}」{r.headline ? <span className="text-slate-500"> → {r.headline}</span> : `— 影響 ${r.reach} 人、${r.world} 個世界變化`}
                 </button>
               ))}
             </div>
           )}
           <div className="flex items-center gap-2">
-            <div className="rounded-full bg-white/90 px-5 py-2 text-sm font-semibold text-slate-700 shadow-lg">👆 點一位有名牌的居民，對他說一句話</div>
+            <div className="rounded-full bg-white/90 px-5 py-2 text-sm font-semibold text-slate-700 shadow-lg">👆 點一位有名牌的居民，偷偷對他說一句話，然後看小鎮怎麼回應</div>
             {recorded.length > 0 && (
               <button onClick={() => setShowRecorded((v) => !v)} className="pointer-events-auto rounded-full bg-slate-800/85 px-4 py-2 text-sm font-semibold text-white shadow-lg">📼 錄製的實驗</button>
             )}
@@ -594,7 +594,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
             <div className="mt-3 border-t border-slate-100 pt-2">
               <p className="text-xs font-semibold text-slate-400">之前的實驗</p>
               {history.slice(0, 4).map((h) => (
-                <button key={h.id} onClick={() => { setCurrent(h); ui.select(null); load(h.run, false); setPhase("playing"); }} className="block w-full truncate text-left text-xs text-slate-500 hover:text-slate-800">
+                <button key={h.id} onClick={() => { unlockAudio(); setCurrent(h); ui.select(null); load(h.run, false); setPhase("playing"); }} className="block w-full truncate text-left text-xs text-slate-500 hover:text-slate-800">
                   ⟲ 對{nameOf(h.npc)}說「{h.text}」— {h.run.world.festival === "cancelled" ? "燈籠節取消" : `傳到 ${new Set(h.run.events.filter((e) => e.type === "deliver").map((e) => e.target)).size} 人`}
                 </button>
               ))}
@@ -633,9 +633,10 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
             ui.setActive(ACTIVE);
             setPhase("explore");
           }}
-          onReplay={() => { load(current.run, false); setPhase("playing"); }}
+          onReplay={() => { unlockAudio(); load(current.run, false); setPhase("playing"); }}
           previous={current.parent ? history.find((h) => h.id === current.parent) ?? null : null}
           onWhatIf={(npc, sentence) => {
+            unlockAudio();
             if (sentence) start(npc, sentence, "gemma", current);
             else {
               setText("");

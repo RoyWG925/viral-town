@@ -183,7 +183,7 @@ export function makeChat(cfg: LlmConfig, limit?: <T>(fn: () => Promise<T>) => Pr
         error,
         rateHeaders,
         ttftMs,
-        provider: "amd",
+        provider: baseUrl === DEFAULT_BASE_URL ? "amd" : "amd-selfhost",
       };
     }
   };

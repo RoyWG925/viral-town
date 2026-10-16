@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import { crowd, spawnCrowd, stepCrowd, type Agent } from "./crowdSim";
-import { show } from "./director";
+import { agentFor, show } from "./director";
 import { mat } from "./materials";
 import { DT_MAX } from "./quality";
 import { bubbleTexture } from "./textures";
@@ -295,7 +295,7 @@ function Person({ agent }: { agent: Agent }) {
     }
     if (head.current) head.current.rotation.set(-0.22 + pose.headX, pose.headY, pose.headZ);
     if (bubble.current) {
-      bubble.current.visible = !!agent.bubble && agent.visible > 0.5;
+      bubble.current.visible = !!agent.bubble && agent.visible > 0.5 && !(agent.post && show.says.some((x) => agentFor(x.anchor ?? x.npc) === agent));
       if (agent.bubble) bubble.current.material = bubbleMat(agent.bubble);
     }
   });

@@ -2,11 +2,12 @@
 // (clearly labelled as recorded, never presented as live). Only runs with real model calls qualify.
 // node lab/publish-recorded.ts C1/stage-cafe B1/pigeon-baker ...
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { storyOf } from "../src/town/story.ts";
 
 const out = "public/recorded";
 mkdirSync(out, { recursive: true });
 const indexFile = `${out}/index.json`;
-const index: { id: string; npc: string; text: string; at: string; reach: number; world: number; festival: string; calls: number }[] =
+const index: { id: string; npc: string; text: string; at: string; reach: number; world: number; festival: string; calls: number; headline?: string }[] =
   existsSync(indexFile) ? JSON.parse(readFileSync(indexFile, "utf8")) : [];
 
 for (const ref of process.argv.slice(2)) {
@@ -27,6 +28,10 @@ for (const ref of process.argv.slice(2)) {
   const entry = {
     id, npc: run.config.seedNpc, text: run.config.seedText, at: run.wall.startedAt,
     reach: j.metrics.reach, world: j.metrics.worldChanges, festival: run.world.festival, calls,
+    headline: (() => {
+      const c = storyOf(run);
+      return `${c.icon} ${c.headline}`;
+    })(),
   };
   const k = index.findIndex((x) => x.id === id);
   if (k >= 0) index[k] = entry;

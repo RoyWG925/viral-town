@@ -61,7 +61,7 @@ const SCHEMA_READ = `"feeling": "一個表情符號加一個詞，例如 😟 �
   "thought": "一句內心獨白（30 字內）"`;
 const SCHEMA_ACT = `"actions": [{"type": "行動編號", "target": "對象編號（需要時）", "place": "地點編號（需要時）", "intent": "inform/warn/ask/answer/deny/complain/request/joke", "message": "你要說或寫的話（140 字內；發文 400 字內）", "cites": ["依據的編號；這次的新說法用 #0、#1"]}]`;
 
-function systemPrompt(variant: Variant, stage: "single" | "read" | "act") {
+export function systemPrompt(variant: Variant, stage: "single" | "read" | "act") {
   // the free-actions variant must not see the legal action menu (that is what it tests)
   const rules = RULES + (variant === "eager" ? EAGER : "");
   const shape =

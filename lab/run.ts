@@ -19,9 +19,9 @@ export function chatFromEnv(temperature: number) {
     if (!keys.length) throw new Error("No GEMINI_API_KEY in .env.local");
     return makeGoogleChat({ keys, temperature, maxTokens: 1000, timeoutMs: 120_000, maxAttempts: 6 }, limiter);
   }
-  const key = process.env.TOKENFACTORY_API_KEY;
+  const key = process.env.GEMMA_API_KEY ?? process.env.TOKENFACTORY_API_KEY;
   if (!key) throw new Error("Set TOKENFACTORY_API_KEY first.");
-  return makeChat({ key, temperature, maxTokens: 1000, timeoutMs: 60_000, maxAttempts: 8 }, limiter);
+  return makeChat({ key, baseUrl: process.env.GEMMA_BASE_URL || undefined, model: process.env.GEMMA_MODEL || undefined, temperature, maxTokens: 1000, timeoutMs: 60_000, maxAttempts: 8 }, limiter);
 }
 
 function arg(name: string, def?: string) {

@@ -56,6 +56,10 @@ export interface Say {
   heard?: string;
   to?: string;
   understanding?: string;
+  /** a thought that ends in deciding to do nothing */
+  ignoring?: boolean;
+  /** whose head the line is drawn over (defaults to npc): a phone line moves to the listener at the cut */
+  anchor?: string;
   belief?: { verdict: string; conf: number };
   /** the speaker's own confidence when they said it (from their stored belief) */
   speakerConf?: number;
@@ -94,7 +98,7 @@ export const show = {
   world: freshWorld(),
   focus: null as string | null, // npc the camera follows
   infected: new Set<string>(),
-  links: [] as { from: string; to: string; at: number }[],
+  links: [] as { from: string; to: string; at: number; msg?: string; conf?: number }[],
   extras: new Set<Agent>(), // background agents borrowed for crowds
   stalled: false, // waiting for the simulation to produce the next event
   props: [] as { a: Agent; until: number }[], // temporary props (phones) to take away later
@@ -204,7 +208,7 @@ function setShot(kind: Shot["kind"], opts: Partial<Omit<Shot, "kind" | "since">>
 let sayKey = 0;
 function say(npc: string, kind: Say["kind"], text: string, seconds: number, extra: Partial<Say> = {}) {
   // one line per person at a time; at most three people talking on screen
-  show.says = show.says.filter((x) => x.npc !== npc && x.until > show.clock);
+  show.says = show.says.filter((x) => x.npc !== npc && x.anchor !== npc && x.until > show.clock);
   show.says.push({ key: ++sayKey, npc, kind, text, until: show.clock + seconds, ...extra });
   if (show.says.length > 3) show.says.shift();
 }
@@ -234,11 +238,24 @@ function heardBefore(e: SimEvent) {
   const dec = decisionBehind(e);
   const run = show.run;
   if (!dec || !run) return undefined;
-  const texts = run.events.filter((x) => x.type === "deliver" && dec.inbox.includes(String(x.data.message)) && x.data.via !== "inspection").map((x) => String(x.data.text));
+  const texts = run.events
+    .filter((x) => x.type === "deliver" && dec.inbox.includes(String(x.data.message)) && x.data.via !== "inspection" && x.data.via !== "meet" && !(x.data.via === "crowd" && !(x.data.claims as string[] | undefined)?.length))
+    .map((x) => String(x.data.text));
   return texts.at(-1);
 }
 
 const VERDICT_ZH: Record<string, string> = { believe: "相信", doubt: "半信半疑", disbelieve: "不信" };
+
+/** How sure the speaker was of what THIS line carries — only when they pass it on (inform/warn), not when correcting it. */
+function passOnConf(e: SimEvent): number | undefined {
+  if (e.data.intent !== "inform" && e.data.intent !== "warn") return undefined;
+  let best: SimEvent | undefined;
+  for (const c of (e.data.claims as string[] | undefined) ?? []) {
+    const b = show.run?.events.filter((x) => x.type === "belief" && x.actor === e.actor && x.data.claim === c && x.t <= e.t).at(-1);
+    if (b && (!best || Number(b.data.to) > Number(best.data.to))) best = b;
+  }
+  return best && best.data.verdict !== "disbelieve" ? Number(best.data.to) : undefined;
+}
 
 export const pause = () => {
   if (show.status === "playing") show.status = "paused";
@@ -344,7 +361,7 @@ function apply(e: SimEvent) {
       if (via === "inspection" || via === "seed" || d.repeat) break;
       show.infected.add(target!);
       if (via === "face" || via === "phone") {
-        if (d.from && typeof d.from === "string" && agentFor(d.from)) show.links.push({ from: d.from, to: target!, at: show.clock });
+        if (d.from && typeof d.from === "string" && agentFor(d.from)) show.links.push({ from: d.from, to: target!, at: show.clock, msg: String(d.message) });
         bubble(target, "❗", 1.6);
         hold = 0.5;
       } else {
@@ -377,6 +394,7 @@ function apply(e: SimEvent) {
       const belief = show.run?.events.find((x) => x.type === "belief" && x.causes[0] === e.id);
       if (belief) {
         show.stance[actor!] = { verdict: String(belief.data.verdict), conf: Number(belief.data.to) };
+        for (const l of show.links) if (l.to === actor && l.msg && dec!.inbox.includes(l.msg)) l.conf = Number(belief.data.to);
         if (Number(belief.data.to) >= 0.5) sting.believe();
         else sting.doubt();
       }
@@ -384,6 +402,7 @@ function apply(e: SimEvent) {
       delete show.early[actor!];
       say(actor!, "thought", out.thought, hold + 1.2, {
         understanding: out.understanding,
+        ignoring: !!doing,
         belief: belief ? { verdict: VERDICT_ZH[String(belief.data.verdict)] ?? String(belief.data.verdict), conf: Number(belief.data.to) } : undefined,
       });
       setShot("close", { a: actor, prio: 2 });
@@ -430,7 +449,7 @@ function apply(e: SimEvent) {
       const talkHold = readTime(String(d.text), 2.6, 1 / 13, 6.5);
       if (a) perform(a, `talk:${String(d.intent)}`, talkHold);
       if (b) perform(b, "listen", talkHold);
-      say(actor!, "speech", String(d.text), talkHold + 1, { heard: heardBefore(e), to: target, speakerConf: show.stance[actor!]?.conf, intent: String(d.intent) });
+      say(actor!, "speech", String(d.text), talkHold + 1, { heard: heardBefore(e), to: target, speakerConf: passOnConf(e), intent: String(d.intent) });
       voice(actor!, String(d.text));
       setShot("two", { a: actor, b: target, prio: 2 });
       bubble(actor, INTENT_ICON[String(d.intent)] ?? "💬", 4);
@@ -469,7 +488,7 @@ function apply(e: SimEvent) {
         const cb = target ? agentFor(target) : null;
         if (ca) perform(ca, `talk:${String(d.intent)}`, callHold);
         if (cb) perform(cb, "listen", callHold);
-        say(actor!, "phone", String(d.text), callHold + 1, { heard: heardBefore(e), to: target, speakerConf: show.stance[actor!]?.conf, intent: String(d.intent) });
+        say(actor!, "phone", String(d.text), callHold + 1, { heard: heardBefore(e), to: target, speakerConf: passOnConf(e), intent: String(d.intent) });
         sting.ring();
         voice(actor!, String(d.text), true);
       }
@@ -485,7 +504,7 @@ function apply(e: SimEvent) {
         caption({ who: actor!, icon: "🔍", tone: "world", text: String(d.found), sub: `${nameOf(actor!)}${e.type === "inspect" ? "檢查後發現" : "親眼看到"}` });
         hold = readTime(String(d.found), 2.4, 1 / 16, 6);
         say(actor!, "found", String(d.highlight ?? d.found), hold + 1);
-        show.captions[show.captions.length - 1].bubbled = true;
+        if (String(d.highlight ?? d.found) === String(d.found) && String(d.found).length <= 60) show.captions[show.captions.length - 1].bubbled = true;
         const fa = agentFor(actor!);
         if (fa) perform(fa, e.type === "inspect" ? "ponder" : "nervous", hold);
       } else hold = 1.2;
@@ -634,6 +653,7 @@ export function tick(dt: number) {
     });
   }
   if (show.focusLater && show.clock >= show.focusLater.at) {
+    for (const s of show.says) if (s.kind === "phone" && s.to === show.focusLater.npc) s.anchor = show.focusLater.npc;
     show.focus = show.focusLater.npc;
     setShot("close", { a: show.focusLater.npc, prio: 2 });
     show.focusLater = null;

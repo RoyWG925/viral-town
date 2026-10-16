@@ -85,6 +85,7 @@ function Card({ s }: { s: Say }) {
         <p className="text-[11px] font-semibold text-violet-500">💭 {nameOf(s.npc)}心裡想</p>
         <p className="text-[13px] font-semibold leading-snug">{clip(s.text, 46)}</p>
         {s.understanding && <p className="mt-0.5 text-[11px] leading-snug text-slate-500">以為：{clip(s.understanding, 32)}</p>}
+        {s.ignoring && <p className="mt-0.5 text-[11px] font-semibold text-slate-500">（決定先不理會）</p>}
         {s.belief && (
           <div className="mt-1 flex items-center gap-1.5">
             <div className="h-1.5 flex-1 rounded-full bg-slate-200">
@@ -145,7 +146,7 @@ function Card({ s }: { s: Say }) {
 function Bubble({ s }: { s: Say }) {
   const group = useRef<THREE.Group>(null);
   useFrame(() => {
-    const a = agentFor(s.npc);
+    const a = agentFor(s.anchor ?? s.npc);
     if (a && group.current) group.current.position.set(a.x, 0, a.z);
   });
   return (

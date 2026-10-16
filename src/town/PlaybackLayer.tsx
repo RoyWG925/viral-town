@@ -97,8 +97,8 @@ function ThreadLine({ from, to }: { from: string; to: string }) {
     l.geometry.setPositions([a.x, 2.4, a.z, b.x, 2.4, b.z]);
     l.computeLineDistances();
     // colour = what the listener made of it: believed (red), unsure (amber), rejected (grey); orange until they decide
-    const st = show.stance[to];
-    const c = !st ? "#ff9f43" : st.conf >= 0.5 ? "#ef4444" : st.conf >= 0.25 ? "#f2b233" : "#9aa5b1";
+    const conf = show.links.filter((l) => l.from === from && l.to === to).at(-1)?.conf;
+    const c = conf === undefined ? "#ff9f43" : conf >= 0.5 ? "#ef4444" : conf >= 0.25 ? "#f2b233" : "#9aa5b1";
     (l as unknown as { material: { color: THREE.Color } }).material?.color?.set(c);
   });
   return <Line ref={ref as never} points={start} color="#ff9f43" lineWidth={3} dashed dashSize={0.6} gapSize={0.35} transparent opacity={0.9} depthTest={false} renderOrder={9} />;

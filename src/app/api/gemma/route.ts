@@ -8,7 +8,9 @@ const limit = rateLimiter(18, 6); // shared by everyone using this server: stay 
 const perIp = new Map<string, number[]>();
 
 export async function POST(req: Request) {
-  const key = process.env.TOKENFACTORY_API_KEY;
+  // default: AMD Token Factory. To use a self-hosted vLLM on an AMD Instinct GPU, set GEMMA_BASE_URL,
+  // GEMMA_MODEL and GEMMA_API_KEY (see deploy/amd-mi300x/README.md); nothing else changes.
+  const key = process.env.GEMMA_API_KEY ?? process.env.TOKENFACTORY_API_KEY;
   if (!key) return Response.json({ error: "server has no model key configured" }, { status: 503 });
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "local";
   const now = Date.now();
@@ -28,7 +30,7 @@ export async function POST(req: Request) {
   if (!messages.every((m) => ["system", "user", "assistant"].includes(m.role) && typeof m.content === "string")) return Response.json({ error: "bad messages" }, { status: 400 });
   if (messages.reduce((n, m) => n + m.content.length, 0) > 24_000) return Response.json({ error: "too long" }, { status: 413 });
 
-  const chat = makeChat({ key, timeoutMs: 60_000, maxAttempts: 8 }, limit);
+  const chat = makeChat({ key, baseUrl: process.env.GEMMA_BASE_URL || undefined, model: process.env.GEMMA_MODEL || undefined, timeoutMs: 60_000, maxAttempts: 8 }, limit);
   const params = {
     temperature: Math.min(1.2, Math.max(0, Number(body.temperature ?? 0.7))),
     maxTokens: Math.min(1200, Math.max(64, Number(body.maxTokens ?? 900))),

@@ -101,16 +101,25 @@ export function storyOf(run: RunResult): StoryCard {
   const heardBy = (e: SimEvent) => {
     const dec = decisionBehind(e);
     if (!dec) return undefined;
-    return events.filter((x) => x.type === "deliver" && dec.inbox.includes(String(x.data.message)) && x.data.via !== "inspection").map((x) => String(x.data.text)).at(-1);
+    return events
+      .filter((x) => x.type === "deliver" && dec.inbox.includes(String(x.data.message)) && x.data.via !== "inspection" && x.data.via !== "meet" && !(x.data.via === "crowd" && !(x.data.claims as string[] | undefined)?.length))
+      .map((x) => String(x.data.text))
+      .at(-1);
   };
   // what the listener made of it: their first belief after hearing it
   const verdictAfter = (npc: string, t: number) => {
     const b = events.find((x) => x.type === "belief" && x.actor === npc && x.t >= t);
     return b ? { verdict: String(b.data.verdict), conf: Number(b.data.to) } : {};
   };
-  const hopOf = (e: SimEvent): Hop => ({
-    from: e.actor!, to: e.target!, via: e.type as "talk" | "phone", text: String(e.data.text), heard: heardBy(e), t: e.t, ...verdictAfter(e.target!, e.t),
-  });
+  // what the listener made of THIS message: the belief formed by the decision whose inbox held it
+  const verdictOf = (hop: SimEvent): { verdict?: string; conf?: number } => {
+    const del = events.find((x) => x.type === "deliver" && x.causes[0] === hop.id);
+    const dec = del && run.decisions.find((d) => d.inbox.includes(String(del.data.message)));
+    const dEv = dec && events.find((x) => x.type === "decide" && x.data.decision === dec.id);
+    const b = dEv && events.find((x) => x.type === "belief" && x.causes.includes(dEv.id));
+    return b ? { verdict: String(b.data.verdict), conf: Number(b.data.to) } : {};
+  };
+  const hopOf = (e: SimEvent): Hop => ({ from: e.actor!, to: e.target!, via: e.type as "talk" | "phone", text: String(e.data.text), heard: heardBy(e), t: e.t, ...verdictOf(e) });
   const hops = events.filter((e) => (e.type === "talk" || e.type === "phone") && !e.data.missed && e.actor && e.target).map(hopOf);
 
   // the biggest real outcome, and the path of causes from the planted sentence to it
@@ -143,7 +152,8 @@ export function storyOf(run: RunResult): StoryCard {
     .sort((a, b) => a.similarity - b.similarity)[0];
 
   const firstDecide = events.find((e) => e.type === "decide" && e.actor === seedNpc && !e.data.budget);
-  const seedClaims = (run.claims ?? []).filter((c) => firstDecide && c.origin === firstDecide.id);
+  // claims record the message that triggered the decision as their origin
+  const seedClaims = (run.claims ?? []).filter((c) => firstDecide && c.by === seedNpc && (c.origin === firstDecide.id || firstDecide.causes.includes(c.origin)));
   const card: StoryCard = { icon: "💬", headline: "", sub: "", spine, reached, wildest: wildest && wildest.similarity < 0.55 ? wildest : undefined };
 
   // topic drift: what the seed listener made of the sentence vs. what most people ended up holding beliefs about
@@ -171,10 +181,8 @@ export function storyOf(run: RunResult): StoryCard {
       }
       for (let id: string | undefined = seed.id; id; id = prev.get(id)) {
         const e = byId.get(id);
-        if (e && (e.type === "talk" || e.type === "phone") && !e.data.missed) {
-          pivot = hopOf(e);
-          break;
-        }
+        // keep the last one: the retelling the new topic's first holder heard right before deciding
+        if (e && (e.type === "talk" || e.type === "phone") && !e.data.missed) pivot = hopOf(e);
       }
     }
     card.drift = { from: seedText, to: first.statement, pivot };
@@ -206,7 +214,7 @@ export function storyOf(run: RunResult): StoryCard {
     const nothing = /一切如常/.test(found);
     if (!fact && !nothing) continue;
     const before = events.filter((x) => x.type === "belief" && x.actor === e.actor && x.t < e.t).at(-1);
-    const after = events.find((x) => x.type === "belief" && x.actor === e.actor && x.t >= e.t);
+    const after = before && events.find((x) => x.type === "belief" && x.actor === e.actor && x.t >= e.t && x.data.claim === before.data.claim);
     const dir: "up" | "down" = nothing || (fact && !fact.value) || (before && after && Number(after.data.to) < Number(before.data.to) - 0.1) ? "down" : "up";
     if (nothing && !(before && Number(before.data.to) >= 0.3)) continue; // finding nothing only matters if they had something to check
     const coverUp = hops.some((h) => /壓下來|壓住|別說|不要說出去|敷衍|私下處理|低調/.test(h.text));
@@ -247,9 +255,12 @@ export function storyOf(run: RunResult): StoryCard {
 
   if (!card.headline) {
     // the rumour died: name who it stopped with, in their own words
-    const lastDec = [...run.decisions].reverse().find((x) => x.output && x.llm.length >= 0 && x.npc);
+    const lastDec = [...run.decisions].reverse().find((x) => x.output && x.npc);
     const stop = lastDec?.output;
-    if (lastDec && stop) {
+    if (lastDec?.fallback) {
+      // the model gave no valid answer: say so instead of inventing a reaction for the resident
+      Object.assign(card, { icon: "⚠️", headline: `故事在${nameOf(lastDec.npc)}這裡中斷`, sub: "模型沒有給出有效回答，引擎改用安全預設，沒有讓任何事發生。" });
+    } else if (lastDec && stop) {
       // where they ended up: their latest stored belief, not just the last decision's
       const lastB = events.filter((x) => x.type === "belief" && x.actor === lastDec.npc).at(-1);
       const b = lastB ? { verdict: String(lastB.data.verdict), conf: Number(lastB.data.to) } : {};
@@ -279,12 +290,14 @@ export function storyOf(run: RunResult): StoryCard {
   // the closest call: someone who could have done something big, and what they actually did
   for (const npc of ["mayor", "police", "journalist", "organizer"]) {
     if (!reached.includes(npc) && seedNpc !== npc) continue;
-    const decs = run.decisions.filter((x) => x.npc === npc && x.output);
+    const decs = run.decisions.filter((x) => x.npc === npc && x.output && !x.fallback);
     if (!decs.length) continue;
     const did = decs.flatMap((x) => x.output!.actions).find((a) => a.type !== "none");
     const bigDone = events.some((e) => e.actor === npc && rank(e) >= 5);
     if (bigDone) continue;
-    const b = verdictAfter(npc, decs[0].t);
+    const lastB = events.filter((x) => x.type === "belief" && x.actor === npc).at(-1);
+    if (!lastB || Number(lastB.data.to) < 0.3) continue;
+    const b = { conf: Number(lastB.data.to) };
     const doing = did ? { phone: "打電話給別人", tell: "跑去跟別人說", ask: "去問別人", go_look: "自己跑去看", inspect: "親自去檢查", post_notice: "貼了公告", public_statement: "發表聲明" }[did.type as string] ?? "做了別的事" : "什麼也沒做";
     card.closest = { npc, could: IMPACT[npc], did: doing, conf: b.conf };
     break;

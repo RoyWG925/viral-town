@@ -112,5 +112,6 @@ export function confidenceRange(view: View, topic: string, says: Says, sources: 
   };
 }
 
+// a verb phrase that takes an object: `${describeTrust(t)} what they say`
 export const describeTrust = (t: number) =>
-  t >= 0.75 ? "你非常信任" : t >= 0.6 ? "你蠻信任" : t >= 0.45 ? "你半信半疑" : t >= 0.3 ? "你不太相信" : "你很不信任";
+  t >= 0.75 ? "you fully trust" : t >= 0.6 ? "you mostly trust" : t >= 0.45 ? "you half-believe" : t >= 0.3 ? "you don't quite believe" : "you really don't trust";

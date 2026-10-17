@@ -19,13 +19,13 @@ export function story(run: RunResult, opts: { beliefs?: boolean; deliveries?: bo
         lines.push(`[${clockOf(e.t)}] ${e.zh}`);
         continue;
       }
-      lines.push(`[${clockOf(e.t)}] 🧠 ${run.minds[d.npc] ? d.npc : ""} ${o.feeling}｜理解：${o.understanding}`);
-      lines.push(`         想：${o.thought}`);
+      lines.push(`[${clockOf(e.t)}] 🧠 ${run.minds[d.npc] ? d.npc : ""} ${o.feeling} | understood: ${o.understanding}`);
+      lines.push(`         thinks: ${o.thought}`);
       o.claims.forEach((c, i) => {
         const s = o.stances.find((x) => x.claim === i);
-        lines.push(`         說法#${i} [${c.topic}/${c.says}] ${c.statement} → ${s ? `${s.verdict} ${s.confidence}` : "無立場"}${s ? `（${s.why}）` : ""}`);
+        lines.push(`         claim#${i} [${c.topic}/${c.says}] ${c.statement} → ${s ? `${s.verdict} ${s.confidence}` : "no stance"}${s ? ` (${s.why})` : ""}`);
       });
-      lines.push(`         做：${o.actions.map((a) => `${a.type}${a.target ? `→${a.target}` : ""}${a.place ? `@${a.place}` : ""}${a.message ? `「${a.message}」` : ""}`).join("；")}${d.fallback ? "（驗證失敗，改用預設）" : ""}${d.validation.length > 1 ? `（重試 ${d.validation.length - 1} 次）` : ""}`);
+      lines.push(`         does: ${o.actions.map((a) => `${a.type}${a.target ? `→${a.target}` : ""}${a.place ? `@${a.place}` : ""}${a.message ? ` “${a.message}”` : ""}`).join("; ")}${d.fallback ? " (validation failed, used the default)" : ""}${d.validation.length > 1 ? ` (retried ${d.validation.length - 1} ${d.validation.length - 1 === 1 ? "time" : "times"})` : ""}`);
       continue;
     }
     lines.push(`[${clockOf(e.t)}] ${e.type === "rejected" ? "⛔ " : ""}${e.zh}`);

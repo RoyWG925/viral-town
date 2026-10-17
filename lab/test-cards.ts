@@ -16,16 +16,18 @@ function viewFor(id: string): View {
     npc: p, t: 30, clock: "15:30", place: p.home, placeZh: PLACES.find((x) => x.id === p.home)!.zh,
     knowledge: p.knows.map((f) => ({ id: f, zh: FACTS.find((x) => x.id === f)!.zh, secret: p.secrets.includes(f), learned: false })),
     known, beliefs: [],
-    inbox: [{ id: "m1", from: "unknown", fromZh: "一位陌生客人", via: "seed", intent: "inform", text: "今天天氣不錯。", trust: 0.3 }],
+    inbox: [{ id: "m1", from: "unknown", fromZh: "a stranger", via: "seed", intent: "inform", text: "Nice weather today.", trust: 0.3 }],
     memory: [],
     people: PERSONAS.filter((o) => o.id !== id && p.relations[o.id]).map((o) => ({ id: o.id, name: o.name, roleZh: o.roleZh, place: o.home, placeZh: o.home, relation: p.relations[o.id], busy: false })),
-    actions: ["tell", "phone", "ask", "go_look", ...p.actions], publicEvents: [], heardText: "今天天氣不錯。", publicInfo: PUBLIC_INFO,
+    actions: ["tell", "phone", "ask", "go_look", ...p.actions], publicEvents: [], heardText: "Nice weather today.", publicInfo: PUBLIC_INFO,
   };
 }
 const saying = (text: string): DecisionOutput => ({
-  understanding: "沒什麼", thought: "隨便聊聊", feeling: "🙂 平靜", claims: [], stances: [],
+  understanding: "Nothing much", thought: "Just chatting", feeling: "🙂 calm", claims: [], stances: [],
   actions: [{ type: "tell", target: "", message: text, intent: "inform", cites: [] }],
 });
+// the validator's "you have not heard of this" error quotes the giveaway phrase (in either language)
+const leakError = (e: string) => e.includes("沒有聽說過") || FACTS.some((x) => x.keywords.some((k) => e.includes(k)));
 const NEW = ["mayor_owes_baker", "florist_heard_strut", "mayor_organizer_quarrel", "daughter_stage_fright", "organizer_cut_corners", "florist_paid_by_townhall", "vendors_unpaid"];
 
 test("every resident has a full card, and each new secret has a holder and leak keywords", () => {
@@ -46,14 +48,14 @@ test("a new secret can be said by its holder and is rejected from someone who co
     const f = FACTS.find((x) => x.id === id)!;
     const holder = PERSONAS.find((p) => p.knows.includes(id))!;
     const outsider = PERSONAS.find((p) => !p.knows.includes(id))!;
-    const line = `你知道嗎，${f.keywords[0]}。`;
+    const line = `You know what? ${f.keywords[0]}.`;
     const target = (pid: string) => PERSONAS.find((o) => o.id !== pid && PERSONAS.find((x) => x.id === pid)!.relations[o.id])!.id;
     const asHolder = saying(line);
     asHolder.actions[0].target = target(holder.id);
-    assert.ok(!checkDecision(viewFor(holder.id), asHolder).errors.some((e) => e.includes("沒有聽說過")), `${holder.id} may say ${id}`);
+    assert.ok(!checkDecision(viewFor(holder.id), asHolder).errors.some(leakError), `${holder.id} may say ${id}`);
     const asOutsider = saying(line);
     asOutsider.actions[0].target = target(outsider.id);
-    assert.ok(checkDecision(viewFor(outsider.id), asOutsider).errors.some((e) => e.includes("沒有聽說過")), `${outsider.id} must not know ${id}`);
+    assert.ok(checkDecision(viewFor(outsider.id), asOutsider).errors.some((e) => e.includes(f.keywords[0])), `${outsider.id} must not know ${id}`);
   }
 });
 
@@ -64,8 +66,8 @@ test("each prompt carries only its own card, with relationship kinds and pasts",
     for (const o of PERSONAS) if (o !== p) assert.ok(!s.includes(o.card!.price) && !s.includes(o.card!.bottom), `${p.id} must not see ${o.id}'s card`);
   }
   const baker = userPrompt(viewFor("baker"), "single");
-  assert.ok(baker.includes("前任") && baker.includes("退了婚"), "the baker's ex shows with its past");
-  assert.ok(baker.includes("債主"), "and the mayor's debt");
+  assert.ok(baker.includes("Your ex") && baker.includes("called off your engagement"), "the baker's ex shows with its past");
+  assert.ok(baker.includes("Owes you money"), "and the mayor's debt");
 });
 
 // ---- B: the motive a resident gives, the one line a story reveals ---------------------------------------------
@@ -77,7 +79,7 @@ import type { Chat, LlmCall } from "../src/sim/llm.ts";
 const reply = (o: object): LlmCall => ({ content: JSON.stringify(o), status: 200, latencyMs: 5, attempts: 1, promptTokens: 100, completionTokens: 20, platformCost: 0, estCost: 0, rateHeaders: {}, provider: "fake" });
 
 test("an unknown motive becomes none instead of a retry; a known one is kept", () => {
-  const raw = { feeling: "😟 擔心", act: "worried", understanding: "x", thought: "y", claims: [], stances: [], actions: [{ type: "none", why: "x" }] };
+  const raw = { feeling: "😟 worried", act: "worried", understanding: "x", thought: "y", claims: [], stances: [], actions: [{ type: "none", why: "x" }] };
   assert.equal(normalize(viewFor("baker"), coerce({ ...raw, motive: "FEAR" }).out!).out.motive, "fear");
   assert.equal(normalize(viewFor("baker"), coerce({ ...raw, motive: "revenge" }).out!).out.motive, "none");
   assert.equal(normalize(viewFor("baker"), coerce(raw).out!).out.motive, undefined);
@@ -85,14 +87,16 @@ test("an unknown motive becomes none instead of a retry; a known one is kept", (
 
 test("the decide event carries the motive, and the story reveals the most telling line with the card's own words", async () => {
   const answers: Record<string, object> = {
-    阿德: { feeling: "😰 緊張", act: "nervous", understanding: "有人在笑我", thought: "糟了", motive: "fear", claims: [], stances: [], actions: [{ type: "phone", target: "journalist", message: "小雯，我跟你說一件事", cites: [] }] },
-    小雯: { feeling: "🤨 懷疑", act: "doubt", understanding: "阿德慌了", thought: "越否認越可疑", motive: "bias", claims: [], stances: [], actions: [{ type: "none", why: "先觀察" }] },
+    baker: { feeling: "😰 nervous", act: "nervous", understanding: "Someone is laughing at me", thought: "Oh no", motive: "fear", claims: [], stances: [], actions: [{ type: "phone", target: "journalist", message: "Xiaowen, I have to tell you something", cites: [] }] },
+    journalist: { feeling: "🤨 doubtful", act: "doubt", understanding: "Ade is panicking", thought: "The more he denies it, the fishier it gets", motive: "bias", claims: [], stances: [], actions: [{ type: "none", why: "Watch first" }] },
   };
   const chat: Chat = async (msgs) => {
-    const who = /【你是誰】([^，]+)，/.exec(msgs.map((m) => m.content).join("\n"))?.[1] ?? "";
-    return reply(answers[who] ?? { feeling: "😐 無感", act: "shrug", understanding: "x", thought: "y", claims: [], stances: [], actions: [{ type: "none", why: "x" }] });
+    // each prompt carries only its own card (test above), so its price line names who is deciding, in any language
+    const text = msgs.map((m) => m.content).join("\n");
+    const who = PERSONAS.find((p) => text.includes(p.card!.price))?.id ?? "";
+    return reply(answers[who] ?? { feeling: "😐 meh", act: "shrug", understanding: "x", thought: "y", claims: [], stances: [], actions: [{ type: "none", why: "x" }] });
   };
-  const run = await simulate({ active: ["baker", "florist", "journalist", "cafe", "police", "mayor", "organizer", "vendor"], seedNpc: "baker", seedText: "大家都在笑你的麵包", seed: 41, policy: "gemma", chat, maxDecisions: 4 });
+  const run = await simulate({ active: ["baker", "florist", "journalist", "cafe", "police", "mayor", "organizer", "vendor"], seedNpc: "baker", seedText: "Everyone is laughing at your bread.", seed: 41, policy: "gemma", chat, maxDecisions: 4 });
   const dec = run.events.find((e) => e.type === "decide" && e.actor === "baker")!;
   assert.equal(dec.data.motive, "fear");
   const r = revealOf(run.events)!;
@@ -105,13 +109,14 @@ test("the decide event carries the motive, and the story reveals the most tellin
 });
 
 test("a confidence written with words or a percent is read, not sent back", () => {
-  const raw = (c: unknown) => ({ feeling: "🤔 想", act: "ponder", understanding: "x", thought: "y", claims: [{ ref: "new", source: "m1", statement: "s", topic: "other", says: "yes", category: "other" }], stances: [{ claim: 0, verdict: "doubt", confidence: c, why: "w", cites: ["m1"] }], actions: [{ type: "none", why: "x" }] });
-  assert.equal(normalize(viewFor("baker"), coerce(raw("0.5（不確定）")).out!).out.stances[0].confidence, 0.5);
+  const raw = (c: unknown) => ({ feeling: "🤔 thinking", act: "ponder", understanding: "x", thought: "y", claims: [{ ref: "new", source: "m1", statement: "s", topic: "other", says: "yes", category: "other" }], stances: [{ claim: 0, verdict: "doubt", confidence: c, why: "w", cites: ["m1"] }], actions: [{ type: "none", why: "x" }] });
+  assert.equal(normalize(viewFor("baker"), coerce(raw("0.5 (not sure)")).out!).out.stances[0].confidence, 0.5);
   assert.equal(normalize(viewFor("baker"), coerce(raw("60%")).out!).out.stances[0].confidence, 0.6);
 });
 
 test("the prompt says how often you have already talked with someone tonight", () => {
   const v = viewFor("journalist");
   v.people = v.people.map((x) => (x.id === "baker" ? { ...x, talks: 3 } : x));
-  assert.ok(userPrompt(v, "single").includes("你們今晚已經說過 3 次話了"));
+  // the wording belongs to mind.ts; the count is what matters
+  assert.ok(/你們今晚已經說過 3 次話了|\b3 times\b/.test(userPrompt(v, "single")));
 });

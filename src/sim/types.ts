@@ -26,8 +26,9 @@ export interface Fact {
   value: boolean; // whether `zh` is true in this world
   /** for a false fact: the truth said plainly, as someone who knows it would think it (models skip negations like 「這不是真的：…」) */
   notZh?: string;
-  /** where it can be checked, and how */
-  check?: { place: PlaceId; by: "look" | "expert"; roles?: string[]; zh: string };
+  /** where it can be checked, and how. `legacyZh`: the same finding in the Chinese wording that logs recorded before
+   *  the English text carry (lab/runs, public/recorded), so code matching a log's `found` text can accept either. */
+  check?: { place: PlaceId; by: "look" | "expert"; roles?: string[]; zh: string; legacyZh?: string };
   /** words that give it away; used to catch NPCs mentioning what they cannot know */
   keywords: string[];
   public?: boolean; // everyone knows it from the start (posters, common knowledge)

@@ -22,6 +22,7 @@ import { PlayPill, Timeline } from "./PlayPill";
 import { EndTitle, Results, type SavedRun } from "./ResultsPanel";
 import { GOAL_BY_TOOL, GoalsNote, goalOf, hitsOf, useGoalStamps } from "./GoalsNote";
 import WhisperAgain, { type LullOffer } from "./WhisperAgain";
+import { setMusic, type Mood } from "./music";
 
 export type { SavedRun };
 type Phase = "explore" | "compose" | "simulating" | "playing" | "results";
@@ -355,6 +356,10 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
   const runStamps = useMemo(() => (current && source !== "rules" ? hitsOf(current.run) : []), [current, source]);
   const goalTools = Object.fromEntries(Object.entries(GOAL_BY_TOOL).filter(([, g]) => !goals[g]).map(([tool, g]) => [tool, goalOf(g)?.zh ?? g]));
   const storyHour = 15 + show.gameT / 60;
+  // background music follows the evening: afternoon, dusk, night, and the festival tune at 20:00
+  const musicMood: Mood =
+    phase === "results" ? "night" : phase === "playing" ? (show.gameT >= 299.5 ? "festival" : storyHour < 17.5 ? "day" : storyHour < 19 ? "dusk" : "night") : "day";
+  useEffect(() => setMusic(musicMood), [musicMood]);
   // the festival's trouble so far, from what has PLAYED (the meters stay hidden; only what broke is named)
   const played = show.i;
   const trouble = useMemo(() => {

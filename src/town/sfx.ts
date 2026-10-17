@@ -10,6 +10,8 @@ try {
 }
 
 export const isMuted = () => muted;
+/** the shared output, once a click has unlocked audio (the background music plays through the same master) */
+export const audioOut = () => (ctx && master ? { ctx, master } : null);
 export function setMuted(m: boolean) {
   muted = m;
   try {

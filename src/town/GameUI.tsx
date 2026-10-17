@@ -359,7 +359,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
   const played = show.i;
   const trouble = useMemo(() => {
     if (phase !== "playing" || !show.run) return null;
-    const o = readinessOf(show.order.slice(0, played), show.run.claims ?? []).outcome;
+    const o = readinessOf(show.order.slice(0, played), show.run.claims ?? [], show.gameT).outcome; // only milestones already reached
     return o.kind === "on" ? null : o.missing.join("、");
   }, [phase, played]);
 

@@ -2,6 +2,8 @@
 // Residents decide (Gemma or rules); the engine validates, moves them, delivers messages, resolves
 // inspections against the facts, changes world state and records every cause in the event log.
 import { LOOK_LIMITS, TOPIC_CATEGORY, FACTS, FESTIVAL_AT, PERSONAS, PLACES, PUBLIC_INFO, ROUTINE, TOPICS, initialWorld } from "./scenario.ts";
+import { claimInfoOf, milestoneOf, MILESTONES } from "./festival.ts";
+import { readinessOf } from "./readiness.ts";
 
 const TOPIC_TEXT = TOPICS.map((t) => t.q).join(" ");
 import { travelMinutes } from "./geo.ts";
@@ -49,6 +51,8 @@ export interface SimConfig {
    * enough in the evening. Resolve with one more whisper from the player, or null to let it fade.
    */
   onLull?: (info: { t: Minutes; decisionsLeft: number; reached: NpcId[] }) => Promise<{ npc: NpcId; text: string } | null>;
+  /** run the festival's preparation milestones and the 20:00 opening (default true) */
+  festival?: boolean;
   /** checked before every step and every model call: true once nobody is watching this story any more (the player
    *  left it), so it stops at once instead of spending model calls in the background */
   shouldStop?: () => boolean;
@@ -333,7 +337,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       n.mind.beliefs.set(cid, { claim: cid, confidence: conf, sources, updatedAt: t, why: s.why });
       const bEv = emit("belief", t, `${n.p.name}對「${claims.get(cid)!.statement}」的信心：${(prev?.confidence ?? 0).toFixed(2)} → ${conf.toFixed(2)}（${s.verdict}）`, [dEv], {
         // `limit` says which engine rule moved the model's number, so the player can be told why
-        actor: n.p.id, data: { claim: cid, topic: claims.get(cid)!.topic, from: prev?.confidence ?? 0, to: conf, proposed: s.confidence, verdict: s.verdict, why: s.why, limit: res.checked.limits?.[s.claim] },
+        actor: n.p.id, data: { claim: cid, topic: claims.get(cid)!.topic, says: claims.get(cid)!.says, from: prev?.confidence ?? 0, to: conf, proposed: s.confidence, verdict: s.verdict, why: s.why, limit: res.checked.limits?.[s.claim] },
       });
       rec.applied.push(bEv);
       if (conf >= 0.3) n.lastBelief = bEv;
@@ -856,6 +860,26 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
         });
       }, pointless);
     }
+  }
+
+  // ---- the festival's own clock: preparation milestones, then 20:00 -------------------------------
+  // They read the world as the log stands (festival.ts) and change nothing by themselves except what the evening
+  // looks like; no resident decides anything here. A story that runs out of decisions still reaches 20:00 this way.
+  if (cfg.festival ?? true) {
+    const infoNow = () => claimInfoOf(events, [...claims.values()]);
+    for (const m of MILESTONES) {
+      if (m.at <= seedAt || m.at > endAt) continue;
+      at(m.at, () => {
+        const r = milestoneOf(m.id, events, infoNow());
+        emit("milestone", m.at, `${m.zh}：${r.text}`, r.causes, { place: m.id === "vendors" || m.id === "police" ? "plaza" : "stage", data: { ...r } });
+      }, IDLE);
+    }
+    if (endAt >= FESTIVAL_AT)
+      at(FESTIVAL_AT, () => {
+        const o = readinessOf(events, [...claims.values()]).outcome;
+        const prep = events.filter((e) => e.type === "milestone" && e.data.status !== "ok").map((e) => e.id);
+        emit("festival", FESTIVAL_AT, o.text, prep, { place: "plaza", data: { kind: o.kind, short: o.short, tags: o.tags, missing: o.missing, text: o.text } });
+      }, IDLE);
   }
 
   // ---- seed and main loop --------------------------------------------------------------------

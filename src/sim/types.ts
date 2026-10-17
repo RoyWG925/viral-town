@@ -232,6 +232,8 @@ export type EventType =
   | "gather"
   | "meet" // a routine meeting where something might be brought up
   | "rejected" // engine refused an intent
+  | "milestone" // a festival preparation checkpoint (17:00–19:30), read from the world as it stands
+  | "festival" // 20:00: how the lantern festival turned out
   | "end";
 
 export interface SimEvent {

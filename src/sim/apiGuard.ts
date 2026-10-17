@@ -1,32 +1,48 @@
 // What /api/gemma forwards with the project key: only the game's own resident decisions. The system message must
 // be exactly one of the prompts mind.ts sends; the user message must have the shape of mind.ts userPrompt (its
-// fixed opening, a real resident, its section headings in order, one of its two endings); after that, only the
-// validator's retry turns: the model's answer, then the correction. Pure, so it is tested without a server.
+// fixed opening at one of the town's places, a real resident, its section headings in order, one of its two endings);
+// after that, only the validator's retry turns: the model's answer, then the correction. Every marker here comes from
+// mind.ts itself, so the guard and the prompt cannot drift apart. Pure, so it is tested without a server.
 import type { ChatMessage } from "./llm.ts";
-import { RETRY_HEAD, RETRY_TAIL, SYSTEM_PROMPTS } from "./mind.ts";
-import { PERSONAS } from "./scenario.ts";
+import { PROMPT_ENDINGS, REQUIRED_SECTIONS, RETRY_HEAD, RETRY_TAIL, SYSTEM_PROMPTS, promptOpening, whoLine } from "./mind.ts";
+import { PERSONAS, PLACES } from "./scenario.ts";
 
 /** system + user + at most two retry pairs (mind.ts sends at most one) */
 export const MAX_TURNS = 6;
-/** all messages together; the longest game request on record (lab/runs) is under 6,000 */
-export const MAX_CHARS = 24_000;
+/**
+ * all messages together. The English prompts run about 2.3× the Chinese ones (the longest Chinese request on record
+ * in lab/runs was under 6,000): a fake run with every field at its cap and every first answer sent back peaked at
+ * about 23,300 (system about 6,000, resident's prompt up to 14,500, plus the retry), so this keeps 2× headroom.
+ */
+export const MAX_CHARS = 48_000;
 const MAX_ANSWER = 8_000;
-const MAX_NOTE = 3_000;
+const MAX_NOTE = 6_000;
 
-const OPENING = /^現在是 \d{2}:\d{2}，你在[^\n]{1,30}。燈籠節 20:00 開始。\n\n【你是誰】/;
-const SECTIONS = ["【小鎮公開資訊】", "【你知道的事】", "【你目前相信的說法】", "【你記得的事】", "【你知道鎮上最近發生的事】", "【剛收到的訊息】", "【你能聯絡的人】"];
-const ENDINGS = ["\n\n你會怎麼理解、怎麼想、怎麼做？", "\n根據這些判斷，你接下來要做什麼？"];
+const ENDINGS = Object.values(PROMPT_ENDINGS);
+const CLOCK = /^\d{2}:\d{2}$/;
+// where the clock sits in the opening line, read off the opening itself
+const CLOCK_AT = promptOpening("\u0000", "").indexOf("\u0000");
+
+/** Length of the prompt's opening (clock, one of the town's places, the "Who you are" heading), or -1. */
+function openingLength(s: string): number {
+  const clock = s.slice(CLOCK_AT, CLOCK_AT + 5);
+  if (!CLOCK.test(clock)) return -1;
+  for (const p of PLACES) for (const name of [p.zh, p.id]) {
+    const open = promptOpening(clock, name);
+    if (s.startsWith(open)) return open.length;
+  }
+  return -1;
+}
 
 /** Does this read like userPrompt() wrote it for one of the town's residents? */
 function isResidentPrompt(s: string): boolean {
-  const open = OPENING.exec(s);
-  if (!open || !ENDINGS.some((e) => s.endsWith(e))) return false;
-  let at = open[0].length;
-  if (!PERSONAS.some((p) => s.startsWith(`${p.name}，${p.roleZh}。個性：`, at))) return false;
-  for (const h of SECTIONS) {
-    const i = s.indexOf(h, at);
+  let at = openingLength(s);
+  if (at < 0 || !ENDINGS.some((e) => s.endsWith(e))) return false;
+  if (!PERSONAS.some((p) => s.startsWith(whoLine(p), at))) return false;
+  for (const h of REQUIRED_SECTIONS) {
+    const i = s.indexOf(`\n${h}\n`, at);
     if (i < 0) return false;
-    at = i + h.length;
+    at = i + h.length + 1;
   }
   return true;
 }

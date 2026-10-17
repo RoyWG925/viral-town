@@ -28,6 +28,10 @@ export interface SimConfig {
   chat?: Chat;
   maxDecisions?: number;
   maxPerNpc?: number;
+  /** cap for a resident holding a first-hand finding from an expert inspection in their own trade (default maxPerNpc) */
+  maxPerNpcFinding?: number;
+  /** decisions such a finding holder may still take after the shared maxDecisions is spent (default 0) */
+  findingReserve?: number;
   label?: string;
   onEvent?: (e: SimEvent) => void;
   onDecision?: (d: DecisionRecord) => void;
@@ -123,6 +127,10 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
   const temperature = cfg.temperature ?? 0.7;
   const maxDecisions = cfg.maxDecisions ?? 30;
   const maxPerNpc = cfg.maxPerNpc ?? 6;
+  const maxPerNpcFinding = cfg.maxPerNpcFinding ?? maxPerNpc;
+  const findingReserve = cfg.findingReserve ?? 0;
+  /** has seen a hidden problem with their own trained eyes (an expert check in their trade) */
+  const holdsFinding = (n: Npc) => [...n.mind.learned.keys()].some((id) => FACTS.find((f) => f.id === id)?.check?.by === "expert");
   const rand = rng(cfg.seed ?? 1);
   if (policy === "gemma" && !cfg.chat) throw new Error("gemma policy needs a chat client");
   if (!cfg.active.includes(cfg.seedNpc)) throw new Error("seed NPC must be active");
@@ -267,8 +275,9 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     const id = `d${decisions.length + 1}`;
     const rec: DecisionRecord = { id, npc: n.p.id, t, triggers, inbox: inbox.map((m) => m.id), policy, output: null, validation: [], fallback: false, llm: [], applied: [] };
     decisions.push(rec);
-    const globalCap = realDecisions >= maxDecisions;
-    if (globalCap || n.mind.decisions >= maxPerNpc) {
+    const finder = holdsFinding(n);
+    const globalCap = realDecisions >= maxDecisions + (finder ? findingReserve : 0);
+    if (globalCap || n.mind.decisions >= (finder ? maxPerNpcFinding : maxPerNpc)) {
       if (globalCap) budgetHit = true;
       rec.fallback = true;
       rec.validation.push({ attempt: 0, kind: "budget", errors: ["decision budget reached"] });

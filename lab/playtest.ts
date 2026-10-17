@@ -44,7 +44,8 @@ async function one(c: (typeof CASES)[number]) {
     active: ALL8, seedNpc: c.npc, seedText: c.text, seed: 7, policy: "gemma", variant: "eager", temperature: 0.7,
     // stream every call so the early reaction can be timed like in the game
     chat: (msgs, opts = {}) => chat(msgs, { ...opts, onDelta: opts.onDelta ?? (() => {}) }),
-    maxDecisions: Number(process.env.LAB_MAX ?? 22), maxPerNpc: Number(process.env.LAB_PER_NPC ?? 9),
+    maxDecisions: Number(process.env.LAB_MAX ?? 22), maxPerNpc: Number(process.env.LAB_PER_NPC ?? 7),
+    maxPerNpcFinding: Number(process.env.LAB_PER_NPC_FINDING ?? 11), findingReserve: Number(process.env.LAB_RESERVE ?? 3),
     onThinking: (npc) => thinkStart.set(npc, Date.now()),
     // LAB_LULL=1: a scripted "player" takes the 補一句 offer — the same sentence again, to the town's hub or the
     // journalist (whoever has not heard anything yet). A floor for the mechanic: a real player would write something new.

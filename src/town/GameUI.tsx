@@ -283,7 +283,8 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
       const run = await simulate({
         active: ACTIVE, seedNpc: npc, seedText: sentence, seed, policy, chat: policy === "gemma" ? remoteChat : undefined,
         // P1 playtests: 5 of 6 long stories hit a 16-decision cap right before the climax (e.g. 老周 about to act)
-        maxDecisions: 22, maxPerNpc: 9,
+        // 7 each; 11 (and 3 past the shared 22) for whoever has seen a hidden problem first-hand
+        maxDecisions: 22, maxPerNpc: 7, maxPerNpcFinding: 11, findingReserve: 3,
         // Experiment D: deeper and rated more interesting, with no added forced drama (lab/LAB_NOTES.md)
         variant: "eager",
         onLull: allowLull ? (info) => (abort.current ? Promise.resolve(null) : offerLull(info)) : undefined,

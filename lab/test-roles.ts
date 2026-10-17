@@ -15,7 +15,12 @@ import { meetingTicks, upcomingMeeting } from "../src/town/agenda.ts";
 
 const ALL8 = ["baker", "florist", "journalist", "cafe", "police", "mayor", "organizer", "vendor"];
 const sorted = (r: RunResult) => [...r.events].sort((a, b) => a.t - b.t || Number(a.id.slice(1)) - Number(b.id.slice(1)));
-const recorded = (id: string) => JSON.parse(readFileSync(`public/recorded/${id}.json`, "utf8")) as RunResult;
+// recordings rotate in public/recorded; the same real runs are kept under lab/runs/<batch>/<case>.json
+const recorded = (id: string) => {
+  const [batch, ...rest] = id.split("-");
+  const j = JSON.parse(readFileSync(`lab/runs/${batch}/${rest.join("-")}.json`, "utf8"));
+  return (j.run ?? j) as RunResult;
+};
 const grams = (t: string, n = 4) => [...t.replace(/[，。、！？；：「」\s]/g, "")].map((_, i, a) => a.slice(i, i + n).join("")).filter((g) => g.length === n);
 
 test("every core resident has a role card", () => {

@@ -91,3 +91,21 @@ test("a blocked repeat sinks in: the speaker gets to decide what to do instead (
   assert.ok(run.decisions.some((d) => d.npc === "police" && d.triggers.includes(thought!.id)), "and they decide again");
   assert.equal(run.events.filter((e) => e.type === "deliver" && e.target === "police" && e.data.via === "hunch").length, 1, "only once per pair");
 });
+
+test("whoever has seen a hidden problem first-hand gets more decisions, and a small reserve past the shared cap", async () => {
+  const look = (place: string) => ({ feeling: "🤔 想", act: "ponder", understanding: "x", thought: "再看看", claims: [], stances: [], actions: [{ type: "go_look", place, why: "看" }] });
+  const inspect = { feeling: "🤔 想", act: "ponder", understanding: "x", thought: "仔細查", claims: [], stances: [], actions: [{ type: "inspect", place: "stage", why: "查" }] };
+  const places = ["plaza", "bakery", "harbour", "cafe", "flower", "townhall", "news", "stall"];
+  const runWith = (first: object, cfg: Record<string, number>) => {
+    let k = 0;
+    const chat: Chat = async () => call(JSON.stringify(k++ === 0 ? first : look(places[(k - 2) % places.length])));
+    return simulate({ active: ALL8, seedNpc: "police", seedText: "舞台好像怪怪的", seed: 25, policy: "gemma", chat, maxDecisions: 30, ...cfg });
+  };
+  const real = (r: Awaited<ReturnType<typeof simulate>>) => r.decisions.filter((d) => d.npc === "police" && !d.validation.some((v) => v.kind === "budget")).length;
+  // only glancing: the ordinary cap
+  assert.equal(real(await runWith(look("plaza"), { maxPerNpc: 2, maxPerNpcFinding: 4 })), 2);
+  // found the loose strut with his own trained eyes: the larger cap
+  assert.equal(real(await runWith(inspect, { maxPerNpc: 2, maxPerNpcFinding: 4 })), 4);
+  // and past the shared cap by the reserve
+  assert.equal(real(await runWith(inspect, { maxDecisions: 3, maxPerNpc: 10, maxPerNpcFinding: 10, findingReserve: 2 })), 5);
+});

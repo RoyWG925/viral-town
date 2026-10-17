@@ -68,6 +68,8 @@ export interface Persona {
   relations: Record<NpcId, Relation>;
   /** extra actions beyond the common ones */
   actions: ActionKind[];
+  /** how they tend to act when something gets to them — characterisation shown to the model, never an order */
+  habit?: string;
 }
 
 export type Category = "safety" | "crime" | "scandal" | "health" | "policy" | "event" | "personal" | "absurd" | "other";

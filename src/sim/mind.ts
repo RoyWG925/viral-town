@@ -32,7 +32,7 @@ function refusalGist(errors: string[]): string {
 const ACTION_ZH: Record<ActionKind, string> = {
   none: "不做任何事，繼續手邊的事",
   tell: "走過去當面跟某人說（需要 target、intent、message）",
-  phone: "打電話給有電話的熟人（需要 target、message）",
+  phone: "打電話給有電話的熟人（適合急事或對方很遠；重要的事當面說比較容易讓人相信）（需要 target、message）",
   ask: "去問某人一件事（需要 target、message）",
   go_look: "親自走去某個地方看看（需要 place）",
   inspect: "以你的專業仔細檢查某個地方：設施、建物，或公開的文件與帳目（需要 place）",
@@ -138,7 +138,8 @@ export function userPrompt(view: View, stage: "single" | "read" | "act", reading
   const events = view.publicEvents.length ? view.publicEvents.slice(-6).map((m) => `- ${m}`).join("\n") : "（沒聽說什麼）";
   let s = `現在是 ${view.clock}，你在${view.placeZh}。燈籠節 20:00 開始。
 
-【你是誰】${p.name}，${p.roleZh}。個性：${p.traits} 你在乎的：${p.wants}
+【你是誰】${p.name}，${p.roleZh}。個性：${p.traits} 你在乎的：${p.wants}${p.habit ? `
+【你的習慣】${p.habit}（這是你平常的傾向，不是一定要做）` : ""}
 【小鎮公開資訊】${view.publicInfo}
 【你知道的事】
 ${know}

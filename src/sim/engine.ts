@@ -39,6 +39,12 @@ export interface SimConfig {
   onEarly?: (npc: string, x: { feeling: string; act: string }) => void;
   /** include the fixed daily meetings (default true) */
   routine?: boolean;
+  /**
+   * 補一句: called at most once, when the story is about to fizzle — nothing left that could still happen (no one
+   * deciding, no plan under way, no routine meeting anyone has a reason to raise), enough decisions left, and early
+   * enough in the evening. Resolve with one more whisper from the player, or null to let it fade.
+   */
+  onLull?: (info: { t: Minutes; decisionsLeft: number; reached: NpcId[] }) => Promise<{ npc: NpcId; text: string } | null>;
 }
 
 export interface RunResult {
@@ -49,6 +55,8 @@ export interface RunResult {
   world: WorldState;
   minds: Record<NpcId, { place: PlaceId; beliefs: Belief[]; learned: [FactId, boolean][]; memory: string[] }>;
   ended: { reason: "quiet" | "time" | "budget"; t: Minutes };
+  /** extra whispers the player added at a lull (補一句), in order */
+  whispers: { npc: NpcId; text: string; t: Minutes; event: string }[];
   wall: { startedAt: string; ms: number };
   llm: { calls: number; attempts: number; promptTokens: number; completionTokens: number; platformCost: number; estCost: number; errors: number; fallbacks: number };
 }
@@ -101,7 +109,9 @@ interface Npc {
   conv: { with: NpcId; until: Minutes } | null;
 }
 
-type Item = { t: Minutes; seq: number } & ({ kind: "task"; run: () => void } | { kind: "decide"; npc: NpcId });
+// `idle` marks a task that cannot move the story by itself (walking home, waiting to part, a routine meeting nobody
+// has a reason to raise): a story whose queue holds only idle tasks is about to fizzle.
+type Item = { t: Minutes; seq: number } & ({ kind: "task"; run: () => void; idle?: () => boolean } | { kind: "decide"; npc: NpcId });
 
 export async function simulate(cfg: SimConfig): Promise<RunResult> {
   const seedAt = cfg.seedAt ?? 20;
@@ -145,7 +155,8 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     cfg.onEvent?.(e);
     return e.id;
   };
-  const at = (t: Minutes, run: () => void) => queue.push({ t, seq: seq++, kind: "task", run });
+  const at = (t: Minutes, run: () => void, idle?: () => boolean) => queue.push({ t, seq: seq++, kind: "task", run, idle });
+  const IDLE = () => true;
 
   // ---- messages and decisions --------------------------------------------------------------
   let msgN = 0;
@@ -314,6 +325,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       n.beliefEvents.set(cid, bEv);
     });
     rec.applied.push(emit("react", t + 0.1, `${n.p.name} ${out.feeling}`, [dEv], { actor: n.p.id, place: n.place, data: { feeling: out.feeling } }));
+    publicPressure(t, dEv);
     // what they wanted to do but the rules did not allow: part of the story, shown honestly
     for (const r of res.refused ?? [])
       rec.applied.push(emit("rejected", t + 0.2, `${n.p.name}想${describe(r.action)}，但${r.why}`, [dEv], { actor: n.p.id, place: n.place, data: { action: r.action.type, why: r.why, wanted: true } }));
@@ -342,9 +354,13 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     } else {
       n.mind.memory.push(`${clockOf(t)} 你決定先不做什麼。`);
       // nothing more to do here: back to their own place (if they were left standing somewhere)
-      at(t + REACT, () => {
-        if (planId === n.planId && n.decisionAt === null && !n.dest && n.busyUntil <= t + REACT + 1e-6) settle(n, t + REACT, dEv);
-      });
+      at(
+        t + REACT,
+        () => {
+          if (planId === n.planId && n.decisionAt === null && !n.dest && n.busyUntil <= t + REACT + 1e-6) settle(n, t + REACT, dEv);
+        },
+        IDLE,
+      );
     }
   }
 
@@ -377,17 +393,45 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     n.busyUntil = t + dt;
     const zh = follow ? `${n.p.name}跟著${follow.p.name}一起走向${placeZh(to)}` : `${n.p.name}從${placeZh(from)}${home ? "走回" : "走向"}${placeZh(to)}`;
     const ev = emit("move", t, zh, [cause], { actor: n.p.id, place: from, data: { from, to, arrive: t + dt, home, follow: follow?.p.id } });
-    at(t + dt, () => {
-      n.place = to;
-      n.dest = null;
-      emit("arrive", t + dt, `${n.p.name}到了${placeZh(to)}`, [ev], { actor: n.p.id, place: to, data: {} });
-      then(t + dt);
-    });
+    at(
+      t + dt,
+      () => {
+        n.place = to;
+        n.dest = null;
+        emit("arrive", t + dt, `${n.p.name}到了${placeZh(to)}`, [ev], { actor: n.p.id, place: to, data: {} });
+        then(t + dt);
+      },
+      home ? IDLE : undefined,
+    );
   }
 
   function goHome(n: Npc, t: Minutes, cause: string) {
     if (n.place === n.p.home) return;
     walk(n, n.p.home, t, cause, () => {}, true);
+  }
+
+  // ---- public pressure on the mayor ----------------------------------------------------------------
+  // Deterministic and honest: once a rumour about the mayor or the town's money is held (≥0.3) by three or more other
+  // residents, the mayor hears that it is going round. The line states only what those logged beliefs support.
+  const MAYOR_TOPICS = new Set(["mayor_fears_pigeons", "mayor_embezzled", "budget_overrun", "fee_covers_budget", "birds_banned"]);
+  const pressured = new Set<string>();
+  function publicPressure(t: Minutes, cause: string) {
+    const mayor = npcs.get("mayor");
+    if (!mayor) return;
+    for (const topic of MAYOR_TOPICS) {
+      if (pressured.has(topic)) continue;
+      const held = [...npcs.values()].flatMap((o) =>
+        o === mayor ? [] : [...o.mind.beliefs.values()].filter((b) => b.confidence >= 0.3 && claims.get(b.claim)?.topic === topic).map((b) => ({ o, b })),
+      );
+      const holders = new Set(held.map((h) => h.o.p.id));
+      if (holders.size < 3) continue;
+      pressured.add(topic);
+      // the version most people hold is what the mayor hears
+      const counts = new Map<string, number>();
+      for (const h of held) counts.set(h.b.claim, (counts.get(h.b.claim) ?? 0) + 1);
+      const cid = [...counts].sort((x, y) => y[1] - x[1])[0][0];
+      at(t + 5, () => deliver(mayor, "crowd", "crowd", "inform", `鎮上好幾個人在傳：「${claims.get(cid)!.statement}」`, [cid], t + 5, cause));
+    }
   }
 
   // ---- conversations: approach, talk, answer on the spot, maybe go and look together, then part ------------
@@ -410,9 +454,13 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     const plan = n.planId;
     if (inConv(n, t)) {
       const until = n.conv!.until;
-      at(until, () => {
-        if (plan === n.planId && !n.dest && n.busyUntil <= until + 1e-6) settle(n, until, cause);
-      });
+      at(
+        until,
+        () => {
+          if (plan === n.planId && !n.dest && n.busyUntil <= until + 1e-6) settle(n, until, cause);
+        },
+        IDLE,
+      );
       return;
     }
     goHome(n, t, cause);
@@ -718,6 +766,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       const a = npcs.get(r.who);
       const b = npcs.get(r.with);
       if (!a || !b || r.at <= seedAt || r.at > endAt) continue;
+      const pointless = () => !(carried(a, r.about) ?? carried(b, r.about));
       at(r.at, () => {
         // only worth playing out if one of them has something on their mind that belongs in this meeting
         const reason = carried(a, r.about) ?? carried(b, r.about);
@@ -736,13 +785,17 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
               for (const [x, y] of [[a, b], [b, a]] as const) if (carrying(x)) deliver(x, y.p.id, "meet", "inform", r.zh, [], free + 2, meet);
               // the visitor heads home once the conversation is over, unless a decision gives them something else to do
               const plan = a.planId;
-              at(free + 2 + REACT, () => {
-                if (plan === a.planId && a.busyUntil <= free + 2 + REACT + 1e-6 && !a.dest) settle(a, free + 2 + REACT, meet);
-              });
+              at(
+                free + 2 + REACT,
+                () => {
+                  if (plan === a.planId && a.busyUntil <= free + 2 + REACT + 1e-6 && !a.dest) settle(a, free + 2 + REACT, meet);
+                },
+                IDLE,
+              );
             });
           });
         });
-      });
+      }, pointless);
     }
   }
 
@@ -761,7 +814,35 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     return queue.splice(k, 1)[0];
   };
   let endReason: RunResult["ended"]["reason"] = "quiet";
-  while (queue.length) {
+  const whispers: RunResult["whispers"] = [];
+  const LULL_LATEST = 240; // 19:00: later than this a second whisper has no evening left to play out in
+  const LULL_MIN_LEFT = 5;
+  const lull = () =>
+    !!cfg.onLull &&
+    whispers.length === 0 &&
+    maxDecisions - realDecisions >= LULL_MIN_LEFT &&
+    [...npcs.values()].every((n) => n.decisionAt === null && !n.mind.inbox.length) &&
+    queue.every((q) => q.kind === "task" && q.idle?.() === true);
+  async function offerWhisper() {
+    const t = Math.max(now, ...events.map((e) => e.t)) + 1;
+    if (t > LULL_LATEST) return;
+    const reached = [...new Set(events.filter((e) => e.type === "deliver" && e.target && e.data.via !== "inspection").map((e) => e.target!))];
+    // everything up to the lull has been computed: let playback catch up while the player decides
+    cfg.onFrontier?.(t);
+    const wait = new Promise<null>((res) => setTimeout(() => res(null), 180_000));
+    const w = await Promise.race([cfg.onLull!({ t, decisionsLeft: maxDecisions - realDecisions, reached }), wait]).catch(() => null);
+    const n = w && npcs.get(w.npc);
+    if (!w || !n || !w.text.trim()) {
+      whispers.push({ npc: "", text: "", t, event: "" }); // offered once; declined
+      return;
+    }
+    const ev = emit("seed", t, `又一個念頭被植入${n.p.name}耳中：「${w.text}」`, [], { target: n.p.id, place: n.place, data: { text: w.text, second: true } });
+    whispers.push({ npc: n.p.id, text: w.text, t, event: ev });
+    at(t, () => deliver(n, "unknown", "seed", "inform", w.text, [], t, ev));
+  }
+  while (true) {
+    if (lull()) await offerWhisper();
+    if (!queue.length) break;
     const first = popEarliest();
     if (first.t > endAt) {
       endReason = "time";
@@ -785,6 +866,8 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     await Promise.all(batch.map((b) => (b.kind === "decide" && npcs.get(b.npc)!.decisionAt === b.t ? decide(npcs.get(b.npc)!, b.t) : Promise.resolve())));
   }
   if (budgetHit) endReason = "budget";
+  // only whispers the player actually made are part of the story
+  for (let i = whispers.length - 1; i >= 0; i--) if (!whispers[i].npc) whispers.splice(i, 1);
   // a quiet story ends a beat after the last thing that happened, not when the last no-op timer
   // (an unneeded routine meeting at 18:30) was checked: the clock and sky would jump hours ahead
   const lastT = Math.max(seedAt, ...events.map((e) => e.t));
@@ -796,7 +879,8 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
 
   const llmAll: LlmRecord[] = decisions.flatMap((d) => d.llm);
   return {
-    config: { ...cfg, chat: undefined, onEvent: undefined, onDecision: undefined, onFrontier: undefined, onThinking: undefined } as RunResult["config"],
+    config: { ...cfg, chat: undefined, onEvent: undefined, onDecision: undefined, onFrontier: undefined, onThinking: undefined, onLull: undefined } as RunResult["config"],
+    whispers,
     events,
     decisions,
     claims: [...claims.values()],

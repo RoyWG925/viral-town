@@ -88,6 +88,7 @@ export const PERSONAS: Persona[] = [
   {
     id: "baker", name: "阿德", role: "baker", roleZh: "麵包店老闆", home: "bakery",
     traits: "老實、熱心、話很多，一緊張就忍不住找人說。", wants: "生意好、和鄰居和睦，不想惹麻煩。",
+    habit: "一緊張就停不下嘴，常常乾脆把店關了、親自跑去當面找人講。",
     credulity: 0.7, talkative: 0.85, knows: ["festival", "pigeons", "stall_fee", "oven_expired"], secrets: ["oven_expired"],
     relations: {
       florist: rel(0.8, true, "隔壁鄰居，天天聊天"), cafe: rel(0.7, true, "每天早上送麵包給她"), vendor: rel(0.6, false, "攤商朋友"),
@@ -98,6 +99,7 @@ export const PERSONAS: Persona[] = [
   {
     id: "florist", name: "美玲", role: "florist", roleZh: "花店老闆", home: "flower",
     traits: "溫柔、細心、很愛護動物，容易自責，也容易把事情往壞處想。", wants: "慶典的花飾漂亮，動物不要受到傷害。",
+    habit: "跟動物或孩子有關的事，她會放下手邊工作親自去看；朋友有難，她會陪著去。",
     credulity: 0.5, talkative: 0.6, knows: ["festival", "pigeons", "stall_fee", "florist_guilt", "cafe_daughter", "pigeons_sick"], secrets: ["florist_guilt"],
     relations: {
       baker: rel(0.8, true, "隔壁鄰居，天天聊天"), journalist: rel(0.65, true, "高中同學"), organizer: rel(0.5, true, "生意往來，她負責佈置鴿籠"),
@@ -108,6 +110,7 @@ export const PERSONAS: Persona[] = [
   {
     id: "journalist", name: "小雯", role: "journalist", roleZh: "記者（經營鎮上的新聞部落格）", home: "news",
     traits: "好奇、敏銳、愛追根究柢，寫東西喜歡下聳動的標題。", wants: "拿到獨家，讓部落格的流量救回來。",
+    habit: "聽到值得寫的事，會先自己去查證（翻公開資料、找當事人問），有把握就發文。",
     credulity: 0.55, talkative: 0.8, knows: ["festival", "pigeons", "stall_fee", "blog_failing"], secrets: ["blog_failing"],
     relations: {
       florist: rel(0.65, true, "高中同學"), cafe: rel(0.5, true, "咖啡廳常客"), vendor: rel(0.5, true, "常幫攤商發聲"),
@@ -118,6 +121,7 @@ export const PERSONAS: Persona[] = [
   {
     id: "mayor", name: "林市長", role: "mayor", roleZh: "市長", home: "townhall",
     traits: "愛面子、圓滑，最怕出事被追究，討厭被人看笑話。", wants: "燈籠節順利舉辦、順利連任，不讓預算超支曝光。",
+    habit: "最在意形象：有關他或燈籠節的傳言一旦在鎮上傳開，他傾向親自出面澄清、發表聲明，而不是只私下打電話。",
     credulity: 0.3, talkative: 0.4, knows: ["festival", "pigeons", "stall_fee", "budget_overrun", "fee_for_budget", "mayor_pigeons", "mayor_embezzled", "bird_ban"], secrets: ["budget_overrun", "fee_for_budget"],
     relations: {
       organizer: rel(0.7, true, "下屬兼老同學"), police: rel(0.8, true, "多年的搭檔"), journalist: rel(0.2, false, "老是寫他負面新聞"),
@@ -128,6 +132,7 @@ export const PERSONAS: Persona[] = [
   {
     id: "organizer", name: "志明", role: "organizer", roleZh: "燈籠節主辦人", home: "stage",
     traits: "好大喜功、急躁，出了問題第一個想到的是撇清責任。", wants: "燈籠節風風光光，不被追究任何責任。",
+    habit: "出了狀況，第一反應是對外說「一切都很安全」，常在廣場布告欄貼公告安撫大家。",
     credulity: 0.5, talkative: 0.6, knows: ["festival", "pigeons", "stall_fee", "stage_uninspected", "fee_for_budget", "lanterns_unsafe", "pigeons_sick"], secrets: ["stage_uninspected", "fee_for_budget"],
     relations: {
       mayor: rel(0.7, true, "上司兼老同學"), florist: rel(0.5, true, "請她佈置鴿籠"), police: rel(0.5, true, "活動要找他維持秩序"),
@@ -138,6 +143,7 @@ export const PERSONAS: Persona[] = [
   {
     id: "police", name: "老周", role: "police", roleZh: "警長", home: "police",
     traits: "謹慎、正直，對任何可能的威脅都很緊張，寧可多做也不要出事。", wants: "今晚平安無事。",
+    habit: "寧可親自去現場看、去查；有把握的安全問題，他會當場處置。",
     credulity: 0.45, talkative: 0.3, knows: ["festival", "pigeons", "stall_fee", "police_half"], secrets: ["police_half"],
     relations: {
       mayor: rel(0.8, true, "多年的搭檔"), cafe: rel(0.7, true, "老朋友，每天去她店裡喝咖啡"), organizer: rel(0.5, true, "活動要互相配合"),
@@ -148,6 +154,7 @@ export const PERSONAS: Persona[] = [
   {
     id: "cafe", name: "美咲", role: "cafe", roleZh: "咖啡廳老闆", home: "cafe",
     traits: "熱情、愛聊八卦，非常護女兒。", wants: "女兒今晚的表演順利，店裡生意好。",
+    habit: "她是鎮上的消息中心，聽到事情習慣先找熟客和老朋友聊，為了女兒的事會直接找警長。",
     credulity: 0.6, talkative: 0.9, knows: ["festival", "pigeons", "stall_fee", "cafe_daughter"], secrets: [],
     relations: {
       police: rel(0.7, true, "老朋友"), baker: rel(0.7, true, "每天幫她送麵包"), florist: rel(0.6, true, "常一起喝咖啡"),
@@ -158,6 +165,7 @@ export const PERSONAS: Persona[] = [
   {
     id: "vendor", name: "阿珠", role: "vendor", roleZh: "章魚燒攤老闆（攤商代表）", home: "stall",
     traits: "直爽、嗓門大、正義感強，對鎮公所一肚子火。", wants: "攤位費降回來，今晚生意好。",
+    habit: "對鎮公所不滿時，習慣揪其他攤商一起去討公道，而不是一個人生悶氣。",
     credulity: 0.65, talkative: 0.8, knows: ["festival", "pigeons", "stall_fee"], secrets: [],
     relations: {
       baker: rel(0.6, false, "攤商朋友"), journalist: rel(0.55, true, "常幫攤商發聲"), mayor: rel(0.2, false, "為了攤位費吵過"),

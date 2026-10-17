@@ -55,3 +55,20 @@ test("when the listener goes to look, the person they were talking with comes al
   assert.ok(sawToo && sawToo.zh.includes("一起"), "the companion sees the place with their own eyes");
   assert.ok(run.decisions.some((d) => d.npc === "cafe" && d.triggers.length && d.t >= sawToo!.t), "and reacts to what they saw");
 });
+
+test("a rumour about the mayor held by three people reaches the mayor as public talk (once)", async () => {
+  const pig = (src: string) => ({ ref: "new", source: src, statement: "市長很怕鴿子", topic: "mayor_fears_pigeons", says: "yes", category: "personal" });
+  const believe = (src: string) => ({ claims: [pig(src)], stances: [{ claim: 0, verdict: "believe", confidence: 0.5, why: "大家都在說", cites: [src] }] });
+  const run = await simulate({
+    active: ALL8, seedNpc: "baker", seedText: "聽說市長很害怕鴿子", seed: 23, policy: "gemma", maxDecisions: 8,
+    chat: script({
+      阿德: [{ feeling: "😆 好笑", act: "giggle", understanding: "市長怕鴿子", thought: "太好笑了", ...believe("m1"), actions: [{ type: "phone", target: "florist", message: "聽說市長很怕鴿子！", cites: ["#0"] }, { type: "phone", target: "cafe", message: "聽說市長很怕鴿子！", cites: ["#0"] }] }],
+      美玲: [{ feeling: "😮 驚訝", act: "startled", understanding: "市長怕鴿子", thought: "真的嗎", ...believe("m2"), actions: [{ type: "none", why: "x" }] }],
+      美咲: [{ feeling: "😆 好笑", act: "giggle", understanding: "市長怕鴿子", thought: "哈哈", ...believe("m3"), actions: [{ type: "none", why: "x" }] }],
+    }),
+  });
+  const heard = run.events.filter((e) => e.type === "deliver" && e.target === "mayor" && e.data.via === "crowd");
+  assert.equal(heard.length, 1, run.events.filter((e) => e.target === "mayor").map((e) => e.zh).join(" / "));
+  assert.ok(String(heard[0].data.text).includes("鎮上好幾個人在傳"));
+  assert.ok(run.decisions.some((d) => d.npc === "mayor"), "the mayor gets to respond");
+});

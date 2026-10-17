@@ -19,4 +19,10 @@ export const fx = {
   scenes: [] as RunningScene[],
   /** bumps whenever `scenes` changes, so UI can re-render cheaply */
   version: 0,
+  /** set by vignettes.ts, called by the director (a bridge, so the two modules never import each other) */
+  hooks: {} as {
+    endAllScenes?: () => void;
+    meanwhileScene?: () => { at: { x: number; z: number }; label: string } | null;
+    kickScene?: () => void;
+  },
 };

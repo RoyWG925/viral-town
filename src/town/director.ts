@@ -11,11 +11,11 @@ import { agentAt, crowd, faceToward, perform, releaseScript, scriptGoto, scriptH
 import { sting, voice } from "./sfx";
 import { pets } from "./petSim";
 import { fx } from "./fx";
+import { NPC_POST } from "./cast";
 
 /** Which crowd agent plays each core resident. */
-export const NPC_POST: Record<string, string> = {
-  baker: "bakery", florist: "flower", journalist: "news", cafe: "cafe", police: "police", mayor: "townhall", organizer: "stage", vendor: "stall-2",
-};
+// which crowd post plays each core resident: one table, in cast.ts (pure data, importable from anywhere)
+export { NPC_POST };
 export const POST_NPC = Object.fromEntries(Object.entries(NPC_POST).map(([k, v]) => [v, k]));
 export const agentFor = (npc: string): Agent | null => (NPC_POST[npc] ? agentAt(NPC_POST[npc]) : null);
 export const nameOf = (npc: string) => PERSONAS.find((p) => p.id === npc)?.name ?? npc;
@@ -171,6 +171,7 @@ export function update(run: RunResult, finished: boolean, frontier = Infinity) {
 }
 
 export function reset() {
+  fx.hooks.endAllScenes?.(); // everyday scenes hand their actors back before a story takes over the town
   for (const a of crowd.agents) {
     if (a.script) releaseScript(a);
     if (a.prop === "phone") a.prop = null;
@@ -300,11 +301,9 @@ function approach(visitor: Agent, host: Agent) {
  */
 let meanwhileTurn = 0;
 function meanwhileSpot(): { at: { x: number; z: number }; label: string } | null {
-  const live = fx.scenes.filter((x) => x.storySafe && performance.now() - x.since < 25_000);
-  if (live.length) {
-    const sc = live[meanwhileTurn++ % live.length];
-    return { at: sc.at, label: sc.label };
-  }
+  // the everyday-scene scheduler's own pick: storySafe, away from the story and anyone thinking
+  const sc = fx.hooks.meanwhileScene?.();
+  if (sc) return sc;
   const options: { at: { x: number; z: number }; label: string }[] = [];
   for (const p of pets.list) options.push({ at: { x: p.x, z: p.z }, label: `${p.name}（${p.title}）${p.mode === "sleep" ? "在打盹" : p.mode === "walk" ? "在閒晃" : "在發呆"}` });
   const chatting = crowd.agents.find((a) => a.mode === "chat" && !a.script && a.visible > 0.5);
@@ -624,7 +623,8 @@ function apply(e: SimEvent) {
       borrowCrowd(spot, 6, "👀");
       caption({ who: actor!, icon: "📣", tone: "speech", text: `「${String(d.text)}」`, sub: `${nameOf(actor!)}發表公開聲明` });
       say(actor!, "speech", String(d.text), readTime(String(d.text), 3, 1 / 14, 6.5) + 1);
-      setShot("wide", { a: actor, at: spot, prio: 3 });
+      // on the town-hall steps, flags and banners behind: close enough to read the face of whoever is denying it
+      setShot("medium", { a: actor, prio: 3 });
       hold = readTime(String(d.text), 3, 1 / 14, 6.5);
       break;
     }
@@ -720,6 +720,7 @@ export function tick(dt: number) {
       }
       // a long wait: glance at the town living its life for a few seconds, then back to the thinker
       const waited = show.clock - show.stallSince;
+      if (waited > 6 && !show.meanwhile) fx.hooks.kickScene?.(); // so a scene is already mid-action when the cutaway comes
       if (show.meanwhile && show.clock >= show.meanwhile.until) {
         show.meanwhile = null;
         const back = [...show.thinking][0] ?? show.focus;

@@ -132,12 +132,12 @@ const DEFS: Def[] = [
     name: "小黑", title: "台灣土狗", species: "dog", breed: "formosan", size: 1.05, walk: 1.1, run: 3.3,
     range: { x0: 31, x1: 46, z0: -38, z1: -14 },
     spots: [[34.8, -21.6, "sleep"], [44.8, -30.0, "sit"], [44.8, -18.6, "sit"], [41.8, -27.8, "sniff"]],
-    friends: [], bubbles: ["🐾", "⚓", "汪!", "👀"],
+    friends: [], bubbles: ["🐾", "⚓", "汪!", "🦴"],
   },
 ];
 
 /** The nearest walkable point within ~2 m, or null. */
-function nearWalkable(x: number, z: number) {
+export function nearWalkable(x: number, z: number) {
   if (walkable(x, z)) return { x, z };
   for (let r = 0.25; r <= 2; r += 0.25)
     for (let k = 0; k < 12; k++) {
@@ -209,9 +209,9 @@ function wander(p: Pet, reach: number, then: PetMode) {
 
 /** Walk up to a townsperson (a favourite shopkeeper first) and sit by them for a fuss. */
 function goGreet(p: Pet) {
-  const friends = p.friends.map((f) => agentAt(f)).filter((a): a is Agent => !!a && visibleAgent(a) && !a.script && a.mode === "work" && !a.errand && inRange(p, a.x, a.z));
+  const friends = p.friends.map((f) => agentAt(f)).filter((a): a is Agent => !!a && visibleAgent(a) && !a.script && !a.vig && a.mode === "work" && !a.errand && inRange(p, a.x, a.z));
   const near = crowd.agents.filter(
-    (a) => visibleAgent(a) && !a.script && !a.job && ["idle", "sit", "chat", "work"].includes(a.mode) && inRange(p, a.x, a.z) && Math.hypot(a.x - p.x, a.z - p.z) < 8,
+    (a) => visibleAgent(a) && !a.script && !a.vig && !a.job && ["idle", "sit", "chat", "work"].includes(a.mode) && inRange(p, a.x, a.z) && Math.hypot(a.x - p.x, a.z - p.z) < 8,
   );
   const who = friends.length && rand() < 0.6 ? pick(friends) : near.length ? pick(near) : null;
   if (!who) return false;
@@ -268,8 +268,8 @@ function arrive(p: Pet) {
     p.heading = Math.atan2(who.x - p.x, who.z - p.z);
     p.happy = 3.5;
     say(p, p.species === "cat" ? pick(["❤️", "喵~", "😺"]) : pick(["❤️", "汪!", "🐾"]));
-    // the person is pleased to see them (only background townsfolk; residents in a story are left alone)
-    if (!who.script && !who.bubble) {
+    // the person is pleased to see them (only background townsfolk; residents in a story or a scene are left alone)
+    if (!who.script && !who.vig && !who.bubble) {
       who.bubble = pick(["😍", "😊", "🥰"]);
       who.bubbleTimer = 2.2;
     }
@@ -350,7 +350,7 @@ function move(p: Pet, dt: number, ignore: Agent | null = null): "arrived" | "stu
 
 /** Someone out for a walk: an adult passer-by, the nearest one to the dog. */
 function chooseOwner(p: Pet): Agent | null {
-  const options = crowd.agents.filter((a) => !a.home && !a.job && !a.post && !a.script && a.look.who === "adult" && visibleAgent(a));
+  const options = crowd.agents.filter((a) => !a.home && !a.job && !a.post && !a.script && !a.vig && a.look.who === "adult" && visibleAgent(a));
   if (!options.length) return null;
   const best = options.reduce((b, a) => (Math.hypot(a.x - p.x, a.z - p.z) < Math.hypot(b.x - p.x, b.z - p.z) ? a : b));
   p.owner = best.id;
@@ -423,35 +423,51 @@ function stepWalked(p: Pet, dt: number) {
   move(p, dt, o);
 }
 
+/**
+ * Make a pet bolt a few metres away from a point (a dog, a kid giving chase), staying on its own turf when it can.
+ * `icon` skips the random pick, so callers outside the pets' own rules leave the pets' random stream untouched.
+ */
+export function flee(p: Pet, fromX: number, fromZ: number, icon?: string) {
+  const dx = p.x - fromX;
+  const dz = p.z - fromZ;
+  const d = Math.hypot(dx, dz) || 1;
+  let spot: { x: number; z: number } | null = null;
+  let offTurf: { x: number; z: number } | null = null;
+  search: for (const dist of [4, 3, 2]) {
+    for (const swing of [0, 0.6, -0.6, 1.2, -1.2]) {
+      const a = Math.atan2(dx / d, dz / d) + swing;
+      const x = p.x + Math.sin(a) * dist;
+      const z = p.z + Math.cos(a) * dist;
+      if (!walkable(x, z)) continue;
+      if (inRange(p, x, z)) {
+        spot = { x, z };
+        break search;
+      }
+      offTurf ??= { x, z };
+    }
+  }
+  spot ??= offTurf;
+  if (!spot) return false;
+  p.greet = null;
+  p.zoom = null;
+  p.path = [spot];
+  p.mode = "walk";
+  p.then = "loaf";
+  p.speed = p.runSpeed;
+  p.best = Infinity;
+  p.stuck = 0;
+  p.cooldown = 12;
+  say(p, icon ?? pick(["🙀", "😾"]), 1.8);
+  return true;
+}
+
 /** Cats bolt from any dog that gets too close; the dog is delighted. */
 function scare(cat: Pet) {
   if (cat.cooldown > 0 || (cat.mode === "walk" && cat.speed === cat.runSpeed)) return;
   const dog = pets.list.find((d) => d.species === "dog" && Math.hypot(d.x - cat.x, d.z - cat.z) < 1.8);
-  if (!dog) return;
-  const dx = cat.x - dog.x;
-  const dz = cat.z - dog.z;
-  const d = Math.hypot(dx, dz) || 1;
-  for (const dist of [4, 3, 2]) {
-    for (const swing of [0, 0.6, -0.6, 1.2, -1.2]) {
-      const a = Math.atan2(dx / d, dz / d) + swing;
-      const x = cat.x + Math.sin(a) * dist;
-      const z = cat.z + Math.cos(a) * dist;
-      if (!walkable(x, z)) continue;
-      cat.greet = null;
-      cat.zoom = null;
-      cat.path = [{ x, z }];
-      cat.mode = "walk";
-      cat.then = "loaf";
-      cat.speed = cat.runSpeed;
-      cat.best = Infinity;
-      cat.stuck = 0;
-      cat.cooldown = 12;
-      say(cat, pick(["🙀", "😾"]), 1.8);
-      if (!dog.bubble) say(dog, pick(["汪!", "❗", "😆"]), 1.6);
-      dog.happy = Math.max(dog.happy, 2);
-      return;
-    }
-  }
+  if (!dog || !flee(cat, dog.x, dog.z)) return;
+  if (!dog.bubble) say(dog, pick(["汪!", "💨", "😆"]), 1.6);
+  dog.happy = Math.max(dog.happy, 2);
 }
 
 /** A pat from the player: a happy noise, a hop, and the name tag. */

@@ -3,6 +3,8 @@
 import { BALLOON_SELLER, BUILDINGS, DOCK_ROUTE, OBSTACLE_CIRCLES, POIS, STAGE, STALLS, doorX, fromLocal, onCrossing, type Poi, type Who } from "./layout";
 import { findPath, randomWalkable, walkable } from "./nav";
 import { rng } from "./textures";
+import { CHAT_PAIRS, DOOR_EMOJI, DOOR_EMOJI_DEFAULT, isCorePost } from "./cast";
+import { stepVignettes, storyPlaying } from "./vignettes";
 
 export type Mode = "walk" | "idle" | "inside" | "sit" | "chat" | "play" | "work";
 export type Hat = "none" | "cap" | "sunhat" | "beanie" | "chef";
@@ -59,6 +61,13 @@ export interface Agent {
   script: Script | null;
   /** A short piece of acting (a shrug, a double take...) layered over whatever the body is doing. */
   act: { kind: string; t: number; dur: number; face?: number } | null;
+  /** While set, an everyday scene (vignettes.ts) moves this agent; a director script always replaces it. */
+  vig: VigScript | null;
+  /** A short everyday line over their head (日常 style, never a story line), and how long it stays up. */
+  line: string | null;
+  lineTimer: number;
+  /** Background chats take turns: the emoji this agent answers with, in how many seconds. */
+  reply: { icon: string; in: number } | null;
 }
 
 export interface Script {
@@ -70,6 +79,13 @@ export interface Script {
   arrived: boolean;
 }
 
+/** An everyday scene's hold on an agent: like a director script, but it gives up instead of hopping past a crowd. */
+export interface VigScript extends Script {
+  scene: number;
+  /** stuck on the way for more than 6 s: the scene should end, nobody teleports */
+  failed: boolean;
+}
+
 const SKIN = ["#f6d1b3", "#e8b48f", "#c98e65", "#9b6644", "#6e4630", "#f2c9a0"];
 const SHIRT = ["#ff6b6b", "#ffd93d", "#6bcb77", "#4d96ff", "#b983ff", "#ff8fab", "#ff9f43", "#2ec4b6", "#f9f871", "#ffffff", "#3d405b", "#e76f51"];
 const PANTS = ["#3d405b", "#22223b", "#6d597a", "#2a9d8f", "#e9c46a", "#264653", "#8d6e63", "#5c6bc0"];
@@ -77,9 +93,9 @@ const HAIR = ["#2b1d14", "#4a2c1a", "#7b4b2a", "#d8a35d", "#f1c27d", "#1b1b1b", 
 const HATS: Hat[] = ["none", "none", "none", "none", "cap", "sunhat", "beanie"];
 const GREY = ["#d9d9d9", "#bdbdbd", "#f2f2f2", "#9e9e9e"];
 const STYLES: HairStyle[] = ["short", "short", "bun", "long", "pony", "pigtails", "afro", "spiky"];
-const CHAT = ["💬", "😂", "❗", "🤔", "🎉", "😮", "🏮", "👀"];
+// ambient emoji never use the director's story emoji (cast.ts STORY_EMOJI), so nothing here reads as the rumour
 const ACTIVITY_BUBBLE: Record<string, string[]> = {
-  sit: ["☕", "💬", "😌", "🥐"], browse: ["👀", "🛍️", "🌸", "📰", "🌽", "🍬"], enter: [], play: ["😆", "🎵", "⭐"], picnic: ["🍙", "😌", "🦆"], linger: ["⛵", "🌇", "📸", "🐟"],
+  sit: ["☕", "💬", "😌", "🥐"], browse: ["🧐", "🛍️", "🌸", "📚", "🌽", "🍬"], enter: [], play: ["😆", "🎵", "⭐"], picnic: ["🍙", "😌", "🦆"], linger: ["⛵", "🌇", "📸", "🐟"],
   tend: ["💧", "🌱", "🌻"], wait: ["🚌", "⌚"],
 };
 
@@ -193,6 +209,7 @@ export function spawnCrowd(n: number, seed = 2026) {
       id, x: s.x, z: s.z, vx: 0, vz: 0, heading: between(-Math.PI, Math.PI), speed,
       path: [], mode: "idle", timer: between(0, 3), poi: null, partner: null, bubble: null, bubbleTimer: 0,
       progressTimer: 0, bestDist: Infinity, look, phase: rand() * 10, visible: 1, prop: null, home: null, errand: 0, job: null, post: null, script: null, act: null,
+      vig: null, line: null, lineTimer: 0, reply: null,
     };
     return a;
   });
@@ -202,7 +219,7 @@ export function spawnCrowd(n: number, seed = 2026) {
       id: crowd.agents.length, x, z, vx: 0, vz: 0, heading, speed: between(0.9, 1.2), path: [], mode: "work", timer: 0, poi: null,
       partner: null, bubble: null, bubbleTimer: 0, progressTimer: 0, bestDist: Infinity,
       look: { ...randomLook("adult"), hairStyle: "short", backpack: null, skirt: false, ...look }, phase: rand() * 10, visible: 1,
-      prop: null, home: null, errand: 0, job: null, post: null, script: null, act: null, ...extra,
+      prop: null, home: null, errand: 0, job: null, post: null, script: null, act: null, vig: null, line: null, lineTimer: 0, reply: null, ...extra,
     });
   STALLS.forEach((st, i) => {
     const p = fromLocal(st, 0, -0.75);
@@ -320,9 +337,19 @@ function startChat(a: Agent, b: Agent) {
   a.partner = b.id;
   b.partner = a.id;
   a.timer = b.timer = between(4, 9);
-  a.bubble = pick(CHAT);
-  a.bubbleTimer = 1.6;
+  a.reply = null;
+  chatLine(a, b, 1.6);
   b.bubble = null;
+}
+
+/** One turn of a background chat: a says something (an emoji), b listens and answers a beat later. */
+function chatLine(a: Agent, b: Agent, seconds: number) {
+  const [line, answer] = pick(CHAT_PAIRS);
+  a.bubble = line;
+  a.bubbleTimer = seconds;
+  b.reply = { icon: answer, in: 0.8 };
+  perform(a, "talk:joke", 1.4);
+  perform(b, "listen", 1.4);
 }
 
 // ---- playback scripting ------------------------------------------------------------------------
@@ -333,6 +360,9 @@ export const agentAt = (post: string) => crowd.agents.find((a) => a.post === pos
 export function scriptGoto(a: Agent, x: number, z: number, face: number | null = null, speed = 3.2) {
   release(a);
   a.partner = null;
+  // the story takes over at once: any everyday scene lets go of this agent, and its line goes
+  a.vig = null;
+  a.line = null;
   a.script = { kind: "goto", x, z, face, speed, arrived: false };
   const path = findPath(a.x, a.z, x, z, 80000);
   a.path = path ?? [{ x, z }];
@@ -345,6 +375,8 @@ export function scriptGoto(a: Agent, x: number, z: number, face: number | null =
 export function scriptHold(a: Agent, face: number | null = null) {
   release(a);
   a.partner = null;
+  a.vig = null;
+  a.line = null;
   a.path = [];
   a.vx = a.vz = 0;
   a.script = { kind: "hold", x: a.x, z: a.z, face, speed: 0, arrived: true };
@@ -363,14 +395,56 @@ export function releaseScript(a: Agent) {
 
 export const faceToward = (a: Agent, x: number, z: number) => Math.atan2(x - a.x, z - a.z);
 
-function stepScript(a: Agent, agents: Agent[], dt: number) {
-  const s = a.script!;
+// ---- everyday scenes (vignettes.ts drives these) ------------------------------------------------
+
+/** Walk an agent somewhere for an everyday scene. False if there is no way there (or the director has them). */
+export function vigGoto(a: Agent, x: number, z: number, face: number | null, speed: number, scene: number) {
+  if (a.script) return false;
+  const path = findPath(a.x, a.z, x, z, 20000);
+  if (!path) return false;
+  release(a);
+  a.partner = null;
+  a.poi = null;
+  a.vig = { kind: "goto", x, z, face, speed, arrived: false, scene, failed: false };
+  a.path = path;
+  a.bestDist = Infinity;
+  a.progressTimer = 0;
+  a.mode = "walk";
+  return true;
+}
+
+/** Keep an agent standing for an everyday scene, optionally turning to face something (never one the director has). */
+export function vigHold(a: Agent, face: number | null, scene: number) {
+  if (a.script) return;
+  release(a);
+  a.partner = null;
+  a.poi = null;
+  a.path = [];
+  a.vx = a.vz = 0;
+  a.vig = { kind: "hold", x: a.x, z: a.z, face, speed: 0, arrived: true, scene, failed: false };
+  a.mode = "idle";
+}
+
+/** Hand an agent back after a scene: workers return to their post, walkers wander on. */
+export function vigFree(a: Agent) {
+  if (!a.vig) return;
+  a.vig = null;
+  a.line = null;
+  if (a.home) {
+    a.errand = 2;
+    headTo(a, a.home.x, a.home.z);
+  } else goSomewhere(a);
+}
+
+/** Walk or stand as a script says: the director's, or an everyday scene's. */
+function stepScript(a: Agent, s: Script, agents: Agent[], dt: number) {
   a.visible = Math.min(1, a.visible + dt * 3);
   if (s.kind === "goto" && !s.arrived) {
     const keep = a.speed;
     a.speed = s.speed;
     walkStep(a, agents, dt, true);
     a.speed = keep;
+    if (a.vig?.failed) return;
     if (!a.path.length || Math.hypot(a.x - s.x, a.z - s.z) < 0.5) {
       s.arrived = true;
       a.path = [];
@@ -389,16 +463,18 @@ export function stepCrowd(dt: number) {
       a.bubbleTimer -= dt;
       if (a.bubbleTimer <= 0) a.bubble = null;
     }
+    if (a.line && (a.lineTimer -= dt) <= 0) a.line = null;
     if (a.act && (a.act.t += dt) >= a.act.dur) a.act = null;
-    if (a.script) {
-      stepScript(a, agents, dt);
+    const drive = a.script ?? a.vig;
+    if (drive) {
+      stepScript(a, drive, agents, dt);
       continue;
     }
     switch (a.mode) {
       case "walk":
         walk(a, agents, dt);
         if (!a.job && !a.home && rand() < dt * 0.08 && !onCrossing(a.x, a.z)) {
-          const b = agents.find((o) => o !== a && o.mode === "walk" && !o.job && !o.home && !o.script && (o.x - a.x) ** 2 + (o.z - a.z) ** 2 < 2.5 && !onCrossing(o.x, o.z));
+          const b = agents.find((o) => o !== a && o.mode === "walk" && !o.job && !o.home && !o.script && !o.vig && (o.x - a.x) ** 2 + (o.z - a.z) ** 2 < 2.5 && !onCrossing(o.x, o.z));
           if (b) {
             release(a);
             release(b);
@@ -422,7 +498,8 @@ export function stepCrowd(dt: number) {
         if (a.home) {
           a.heading = turn(a.heading, a.home.face, 0.1);
           // now and then a shopkeeper pops out: to the plaza, a neighbour's door, the bench outside
-          if (rand() < dt * 0.006 && !a.post?.startsWith("stall-")) {
+          // (never a core resident: they would vanish into a shop while their name tag stays clickable)
+          if (rand() < dt * 0.006 && !a.post?.startsWith("stall-") && !isCorePost(a.post)) {
             const near = POIS.filter((p) => p.activity !== "sit" && p.activity !== "picnic" && p.activity !== "play" && Math.hypot(p.x - a.x, p.z - a.z) < 22 && Math.hypot(p.x - a.x, p.z - a.z) > 3);
             if (near.length) {
               a.errand = 1;
@@ -431,13 +508,17 @@ export function stepCrowd(dt: number) {
             }
           }
           if (!a.bubble && rand() < dt * 0.05) {
-            a.bubble = pick(["👋", "😊", "📣", "✨"]);
-            a.bubbleTimer = 1.8;
+            const icon = pick(DOOR_EMOJI[a.post ?? ""] ?? DOOR_EMOJI_DEFAULT);
+            // while a story plays, core residents only show what the director gives them
+            if (!(isCorePost(a.post) && storyPlaying())) {
+              a.bubble = icon;
+              a.bubbleTimer = 1.8;
+            }
           }
           break;
         }
         if (!a.bubble && rand() < dt * 0.12) {
-          a.bubble = a.prop === "balloons" ? "🎈" : pick(["📣", "😊", "🌽", "🍬", "🐙"]);
+          a.bubble = a.prop === "balloons" ? "🎈" : pick(["👋", "😊", "🌽", "🍬", "🐙"]);
           a.bubbleTimer = 2;
         }
         break;
@@ -451,17 +532,24 @@ export function stepCrowd(dt: number) {
         if (!b || b.mode !== "chat") {
           a.mode = "idle";
           a.partner = null;
+          a.reply = null;
           a.timer = 1;
           break;
         }
         a.heading = turn(a.heading, Math.atan2(b.x - a.x, b.z - a.z), 0.15);
-        if (!a.bubble && !b.bubble && rand() < dt * 1.2) {
-          a.bubble = pick(CHAT);
-          a.bubbleTimer = 1.5;
+        // turn-taking: the answer comes a beat after the other one spoke, and they swap gestures
+        if (a.reply && (a.reply.in -= dt) <= 0) {
+          a.bubble = a.reply.icon;
+          a.bubbleTimer = 1.4;
+          a.reply = null;
+          perform(a, "talk:joke", 1.2);
+          perform(b, "listen", 1.2);
         }
+        if (!a.bubble && !b.bubble && rand() < dt * 1.2) chatLine(a, b, 1.5);
         a.timer -= dt;
         if (a.timer <= 0) {
           a.partner = b.partner = null;
+          a.reply = b.reply = null;
           goSomewhere(a);
           goSomewhere(b);
         }
@@ -477,7 +565,7 @@ export function stepCrowd(dt: number) {
         }
         a.timer -= dt;
         if (rand() < dt * 1.2) {
-          const b = agents.find((o) => o !== a && o.mode === "idle" && !o.script && (o.x - a.x) ** 2 + (o.z - a.z) ** 2 < 10);
+          const b = agents.find((o) => o !== a && o.mode === "idle" && !o.script && !o.vig && (o.x - a.x) ** 2 + (o.z - a.z) ** 2 < 10);
           if (b) {
             startChat(a, b);
             break;
@@ -488,6 +576,7 @@ export function stepCrowd(dt: number) {
       }
     }
   }
+  stepVignettes(dt);
 }
 
 function walk(a: Agent, agents: Agent[], dt: number) {
@@ -516,6 +605,12 @@ function walkStep(a: Agent, agents: Agent[], dt: number, scripted: boolean) {
     a.bestDist = dist;
     a.progressTimer = 0;
   } else if ((a.progressTimer += dt) > 6) {
+    if (a.vig) {
+      // an everyday scene never teleports anyone: it fails and lets go instead
+      a.vig.failed = true;
+      a.path = [];
+      return;
+    }
     if (scripted) {
       // a scripted walk must get there: hop past whatever is in the way
       a.x = target.x;

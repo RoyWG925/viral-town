@@ -5,6 +5,7 @@
 //   node lab/e2e.mjs live <npc> "<sentence>" [name]         # plant a sentence: real Gemma calls via /api/gemma
 //   options (env): E2E_SECONDS=90  E2E_EVERY=3  E2E_SPEED=1  E2E_VIDEO=1  E2E_URL=http://localhost:3002  E2E_SEEK=<game minute>
 import { chromium } from "playwright-core";
+import { politeHeadless, LIGHT_ARGS } from "./headless.mjs";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
@@ -22,10 +23,11 @@ const out = join("lab", "shots", name);
 mkdirSync(out, { recursive: true });
 
 const exe = join(process.env.LOCALAPPDATA ?? "", "ms-playwright", "chromium-1234", "chrome-win64", "chrome.exe");
+await politeHeadless();
 const browser = await chromium.launch({
   executablePath: existsSync(exe) ? exe : undefined,
   headless: true,
-  args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"],
+  args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", ...LIGHT_ARGS],
 });
 const ctx = await browser.newContext({
   viewport: { width: 1280, height: 800 },
@@ -78,7 +80,8 @@ while ((Date.now() - tLoop) / 1000 < seconds) {
       last: e ? `${e.type}:${e.actor ?? ""}${e.target ? ">" + e.target : ""}` : null,
       shot: s.shot ? `${s.shot.kind}:${s.shot.a ?? ""}${s.shot.b ? "+" + s.shot.b : ""}` : null,
       says: s.says.map((x) => `${x.kind}:${x.npc}`),
-      phase: document.body.innerText.includes("影響居民") ? "results" : "",
+      // the overlay says which screen it is on (explore / compose / simulating / playing / results)
+      phase: document.querySelector("[data-phase]")?.getAttribute("data-phase") ?? "",
     };
   });
   const file = `${String(++shot).padStart(3, "0")}.png`;

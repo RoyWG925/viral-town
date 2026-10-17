@@ -310,3 +310,35 @@ stop at the first resident.
   wording is in the player's sentence (real drifts — lantern→stage, car→budget, meme→stage — still show); (2) between
   two equally big happenings the card now names the **later** one, usually the outcome (the bakery closing rather than
   the friend's shop; the stage closed rather than the police sent there first).
+
+## Batch P10 — signature moves: persona habits, face-to-face hint, public pressure on the mayor (2026-10-17 midday)
+Changes measured: each resident has a one-line *habit* in the prompt (characterisation, never an order); the phone
+action says important things are more convincing face to face; once a rumour about the mayor or the town's money is
+held by ≥3 other residents the mayor hears 「鎮上好幾個人在傳：『…』」 (deterministic, states only what logged beliefs
+support); conversations are continuous scenes (the speaker waits for the answer, a companion walks along to look).
+
+| Case | Ending (story card) | People | World changes | First visible | First thought | Wall time | Calls | Retries | Platform cost |
+|---|---|---|---|---|---|---|---|---|---|
+| pigeon-baker | 📣 林市長出面發表聲明 | 8 | statement | 8.7 s | 19.7 s | 199 s | 13 | 0 | US$0.00071 |
+| car-vendor | ✊ 攤商聚集討公道 | 8 | gather | 8.6 s | 13.9 s | 233 s | 24 | 2 | US$0.00140 |
+| stage-cafe | 🚧 慶典舞台被封鎖 | 8 | stage | 8.6 s | 22.2 s | 291 s | 22 | 0 | US$0.00117 |
+| oven-police | 🔒 美玲花店暫停營業 | 6 | shop | 2.9 s | 14.4 s | 279 s | 22 | 0 | US$0.00113 |
+| budget-journalist | 🔍 小雯親自查證：公開的慶典收支表上，實際支出比原本的預算多了… | 5 | – | 3.2 s | 10.9 s | 296 s | 24 | 2 | US$0.00121 |
+| lantern-baker | 🚧 慶典舞台被封鎖 | 8 | stage, notice | 8.3 s | 17.6 s | 344 s | 22 | 0 | US$0.00112 |
+| pigeon-cafe (new) | 📣 林市長出面發表聲明 | 8 | statement | 7.3 s | 22.2 s | 222 s | 16 | 0 | US$0.00078 |
+| wobble-organizer (new) | 🚧 慶典舞台被封鎖 | 8 | notice, stage | 7.4 s | 16.3 s | 225 s | 22 | 0 | US$0.00113 |
+
+| Measure | P5–P9 (38 runs) | P10 (8 runs) |
+|---|---|---|
+| phone calls, share of all actions | 45% | **30%** |
+| face to face (tell + ask) | 24% | **30%** |
+| mayor statements / organiser notices / rallies / shop closures | 0 / 0 / 2 / 4 | **2 / 2 / 1 / 1** in 8 runs |
+| beats per watched minute | 9.5–11.8 | **12.2** |
+| first visible reaction (mean) | 3.5–5.4 s | 6.9 s — worse; several 7–9 s first tokens this hour (provider side, same code path as before) |
+
+- **The best new beat — the denial makes it worse (pigeon-baker):** the harmless pigeon gossip stayed among 阿德, 美咲
+  and 美玲 — but all three held it, so the mayor heard that it was going round, and went out to deny it publicly:
+  「我對鴿子完全沒有恐懼」. 美咲: 「市長特地發聲明否認怕鴿子，這反而讓傳聞更像真的。」 小雯: 「這反而像是在掩飾什麼。」
+  In P5–P9 the same sentence never got past three people and the mayor never spoke.
+- 志明 now reaches for the notice board when the stage is questioned (2 notices; 0 before), and 阿珠 rallied the vendors
+  after the car rumour. Single runs again (n = 1 per input); the attractor watch: 3/8 stage closures.

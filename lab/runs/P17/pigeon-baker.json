@@ -1,0 +1,867 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "baker",
+   "seedText": "聽說市長很害怕鴿子。",
+   "seed": 7,
+   "policy": "gemma",
+   "variant": "eager",
+   "temperature": 0.7,
+   "maxDecisions": 22,
+   "maxPerNpc": 7,
+   "maxPerNpcFinding": 11,
+   "findingReserve": 3
+  },
+  "whispers": [],
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說市長很害怕鴿子。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「聽說市長很害怕鴿子。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「聽說市長很害怕鴿子。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "市長怕鴿子？但開場要放100隻鴿子，這很奇怪。",
+     "thought": "如果市長怕鴿子，那他敢在開場放鴿子嗎？會不會出亂子？",
+     "feeling": "😲 驚訝",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ],
+     "motive": "gossip"
+    },
+    "zh": "阿德：如果市長怕鴿子，那他敢在開場放鴿子嗎？會不會出亂子？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 22233
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "topic": "mayor_fears_pigeons",
+     "from": 0,
+     "to": 0.49,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "客人在店裡隨口說的，通常有跡可循",
+     "limit": {
+      "why": {
+       "kind": "hearsay",
+       "source": "unknown",
+       "trust": 0.3,
+       "sources": 1
+      },
+      "min": 0,
+      "max": 0.49
+     }
+    },
+    "zh": "阿德對「市長很害怕鴿子」的信心：0.00 → 0.49（believe）",
+    "actor": "baker",
+    "w": 22233
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😲 驚訝"
+    },
+    "zh": "阿德 😲 驚訝",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 22233
+   },
+   {
+    "id": "e6",
+    "t": 90,
+    "type": "move",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "cafe",
+     "arrive": 90.58685915281558,
+     "home": false
+    },
+    "zh": "阿德從阿德麵包店走向咖啡廳",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 22238
+   },
+   {
+    "id": "e7",
+    "t": 90.58685915281558,
+    "type": "arrive",
+    "causes": [
+     "e6"
+    ],
+    "data": {},
+    "zh": "阿德到了咖啡廳",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 22238
+   },
+   {
+    "id": "e8",
+    "t": 90.58685915281558,
+    "type": "meet",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "text": "阿德送麵包到咖啡廳"
+    },
+    "zh": "阿德和美咲在咖啡廳碰面（阿德送麵包到咖啡廳）",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 22238
+   },
+   {
+    "id": "e9",
+    "t": 92.58685915281558,
+    "type": "deliver",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "meet",
+     "intent": "inform",
+     "text": "阿德送麵包到咖啡廳",
+     "claims": [],
+     "from": "cafe"
+    },
+    "zh": "阿德碰到了美咲（阿德送麵包到咖啡廳）",
+    "target": "baker",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 22238
+   },
+   {
+    "id": "e10",
+    "t": 92.78685915281558,
+    "type": "decide",
+    "causes": [
+     "e9"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "碰到了美咲，只是正常的送貨打招呼。",
+     "thought": "美咲今天心情看起來不錯，不知道她聽說了什麼沒。",
+     "feeling": "😊 愉快",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "none"
+    },
+    "zh": "阿德：美咲今天心情看起來不錯，不知道她聽說了什麼沒。",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 41322
+   },
+   {
+    "id": "e11",
+    "t": 92.88685915281557,
+    "type": "react",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "feeling": "😊 愉快"
+    },
+    "zh": "阿德 😊 愉快",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 41322
+   },
+   {
+    "id": "e12",
+    "t": 93.78685915281558,
+    "type": "talk",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "text": "美咲，妳看我今天送的麵包是不是比平常更香？今晚的燈籠節我可是準備了超級多點心，市長要是敢忘了感謝我，我就得考慮要把他的欠單貼在廣場上了！哈哈，開玩笑的啦！",
+     "intent": "joke",
+     "claims": []
+    },
+    "zh": "阿德對美咲說：「美咲，妳看我今天送的麵包是不是比平常更香？今晚的燈籠節我可是準備了超級多點心，市長要是敢忘了感謝我，我就得考慮要把他的欠單貼在廣場上了！哈哈，開玩笑的啦！」",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 41322
+   },
+   {
+    "id": "e13",
+    "t": 96.78685915281558,
+    "type": "deliver",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "face",
+     "intent": "joke",
+     "text": "美咲，妳看我今天送的麵包是不是比平常更香？今晚的燈籠節我可是準備了超級多點心，市長要是敢忘了感謝我，我就得考慮要把他的欠單貼在廣場上了！哈哈，開玩笑的啦！",
+     "claims": [],
+     "from": "baker"
+    },
+    "zh": "美咲聽阿德說：「美咲，妳看我今天送的麵包是不是比平常更香？今晚的燈籠節我可是準備了超級多點心，市長要是敢忘了感謝我，我就得考慮要把他的欠單貼在廣場上了！哈哈，開玩笑的啦！」",
+    "target": "cafe",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 41322
+   },
+   {
+    "id": "e14",
+    "t": 96.98685915281558,
+    "type": "decide",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "阿德在開玩笑說市長欠他錢，想拿欠單來威脅。",
+     "thought": "阿德這人真有趣，不過市長確實有時候很粗心。",
+     "feeling": "🤭 覺得好笑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ],
+     "motive": "gossip"
+    },
+    "zh": "美咲：阿德這人真有趣，不過市長確實有時候很粗心。",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 53900
+   },
+   {
+    "id": "e15",
+    "t": 96.98685915281558,
+    "type": "belief",
+    "causes": [
+     "e14"
+    ],
+    "data": {
+     "claim": "c2",
+     "topic": "mayor_owes_baker",
+     "from": 0,
+     "to": 0.685,
+     "proposed": 0.7,
+     "verdict": "believe",
+     "why": "阿德平常很可靠",
+     "limit": {
+      "why": {
+       "kind": "hearsay",
+       "source": "baker",
+       "trust": 0.7,
+       "sources": 1
+      },
+      "min": 0,
+      "max": 0.685
+     }
+    },
+    "zh": "美咲對「市長欠阿德去年的點心錢」的信心：0.00 → 0.69（believe）",
+    "actor": "cafe",
+    "w": 53900
+   },
+   {
+    "id": "e16",
+    "t": 97.08685915281558,
+    "type": "react",
+    "causes": [
+     "e14"
+    ],
+    "data": {
+     "feeling": "🤭 覺得好笑"
+    },
+    "zh": "美咲 🤭 覺得好笑",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 53900
+   },
+   {
+    "id": "e17",
+    "t": 102.78685915281558,
+    "type": "move",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "from": "cafe",
+     "to": "bakery",
+     "arrive": 103.37371830563116,
+     "home": true
+    },
+    "zh": "阿德從咖啡廳走回阿德麵包店",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 53900
+   },
+   {
+    "id": "e18",
+    "t": 103.37371830563116,
+    "type": "arrive",
+    "causes": [
+     "e17"
+    ],
+    "data": {},
+    "zh": "阿德到了阿德麵包店",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 53900
+   },
+   {
+    "id": "e19",
+    "t": 104.37371830563116,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 53900
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "市長怕鴿子？但開場要放100隻鴿子，這很奇怪。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "市長很害怕鴿子",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "客人在店裡隨口說的，通常有跡可循",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😲 驚訝",
+     "thought": "如果市長怕鴿子，那他敢在開場放鴿子嗎？會不會出亂子？",
+     "act": "ponder",
+     "motive": "gossip",
+     "actions": [
+      {
+       "type": "none",
+       "why": "目前只是聽說，而且我還在店裡忙著準備燈籠酥，先觀察看看。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 1,
+      "wallEndMs": 22231,
+      "latencyMs": 22229,
+      "attempts": 1,
+      "promptTokens": 2581,
+      "completionTokens": 218,
+      "platformCost": 0.0001054578,
+      "estCost": 0.0019445,
+      "status": 200,
+      "raw": "{\"feeling\": \"😲 驚訝\", \"act\": \"ponder\", \"understanding\": \"市長怕鴿子？但開場要放100隻鴿子，這很奇怪。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"市長很害怕鴿子\", \"topic\": \"mayor_fears_pigeons\", \"says\": \"yes\", \"category\": \"personal\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"believe\", \"confidence\": 0.6, \"why\": \"客人在店裡隨口說的，通常有跡可循\", \"cites\": [\"m1\"]}], \"thought\": \"如果市長怕鴿子，那他敢在開場放鴿子嗎？會不會出亂子？\", \"motive\": \"gossip\", \"actions\": [{\"type\": \"none\", \"why\": \"目前只是聽說，而且我還在店裡忙著準備燈籠酥，先觀察看看。\"}]}",
+      "promptChars": 4082,
+      "ttftMs": 7245
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "baker",
+    "t": 92.78685915281558,
+    "triggers": [
+     "e9"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "碰到了美咲，只是正常的送貨打招呼。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😊 愉快",
+     "thought": "美咲今天心情看起來不錯，不知道她聽說了什麼沒。",
+     "act": "shrug",
+     "motive": "none",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "cafe",
+       "intent": "joke",
+       "message": "美咲，妳看我今天送的麵包是不是比平常更香？今晚的燈籠節我可是準備了超級多點心，市長要是敢忘了感謝我，我就得考慮要把他的欠單貼在廣場上了！哈哈，開玩笑的啦！",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d2",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 22239,
+      "wallEndMs": 41321,
+      "latencyMs": 19082,
+      "attempts": 1,
+      "promptTokens": 2640,
+      "completionTokens": 151,
+      "platformCost": 0.0001028328,
+      "estCost": 0.001773,
+      "status": 200,
+      "raw": "{\"feeling\": \"😊 愉快\", \"act\": \"shrug\", \"understanding\": \"碰到了美咲，只是正常的送貨打招呼。\", \"claims\": [], \"stances\": [], \"thought\": \"美咲今天心情看起來不錯，不知道她聽說了什麼沒。\", \"motive\": \"none\", \"actions\": [{\"type\": \"tell\", \"target\": \"cafe\", \"intent\": \"joke\", \"message\": \"美咲，妳看我今天送的麵包是不是比平常更香？今晚的燈籠節我可是準備了超級多點心，市長要是敢忘了感謝我，我就得考慮要把他的欠單貼在廣場上了！哈哈，開玩笑的啦！\"}]}",
+      "promptChars": 4165,
+      "ttftMs": 14547
+     }
+    ],
+    "applied": [
+     "e10",
+     "e11"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "cafe",
+    "t": 96.98685915281558,
+    "triggers": [
+     "e13"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德在開玩笑說市長欠他錢，想拿欠單來威脅。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m3",
+       "statement": "市長欠阿德去年的點心錢",
+       "topic": "mayor_owes_baker",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.7,
+       "why": "阿德平常很可靠",
+       "cites": [
+        "m3"
+       ]
+      }
+     ],
+     "feeling": "🤭 覺得好笑",
+     "thought": "阿德這人真有趣，不過市長確實有時候很粗心。",
+     "act": "giggle",
+     "motive": "gossip",
+     "actions": [
+      {
+       "type": "none",
+       "why": "只是個小玩笑，而且我還得準備店裡的生意。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d3",
+      "npc": "cafe",
+      "stage": "single",
+      "wallStartMs": 41322,
+      "wallEndMs": 53900,
+      "latencyMs": 12578,
+      "attempts": 1,
+      "promptTokens": 2551,
+      "completionTokens": 197,
+      "platformCost": 0.0000513506,
+      "estCost": 0.0018665,
+      "status": 200,
+      "raw": "{\"feeling\": \"🤭 覺得好笑\", \"act\": \"giggle\", \"understanding\": \"阿德在開玩笑說市長欠他錢，想拿欠單來威脅。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m3\", \"statement\": \"市長欠阿德去年的點心錢\", \"topic\": \"mayor_owes_baker\", \"says\": \"yes\", \"category\": \"personal\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"believe\", \"confidence\": 0.7, \"why\": \"阿德平常很可靠\", \"cites\": [\"m3\"]}], \"thought\": \"阿德這人真有趣，不過市長確實有時候很粗心。\", \"motive\": \"gossip\", \"actions\": [{\"type\": \"none\", \"why\": \"只是個小玩笑，而且我還得準備店裡的生意。\"}]}",
+      "promptChars": 4073,
+      "ttftMs": 2973
+     }
+    ],
+    "applied": [
+     "e14",
+     "e15",
+     "e16"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "市長很害怕鴿子",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   },
+   {
+    "id": "c2",
+    "statement": "市長欠阿德去年的點心錢",
+    "topic": "mayor_owes_baker",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_owes_baker",
+    "asserts": true,
+    "origin": "e13",
+    "by": "cafe"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.49,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "客人在店裡隨口說的，通常有跡可循"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說市長很害怕鴿子。」",
+     "15:20 你決定先不做什麼。",
+     "16:33 美咲說：「阿德送麵包到咖啡廳」",
+     "16:33 你決定：去跟美咲說「美咲，妳看我今天送的麵包是不是比平常更香？今晚的燈籠節我可是準備了超級多點心，市長要是敢忘了感謝我，我就得考慮要把他的欠單貼在廣場上了！哈哈，開玩笑的啦！」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.685,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 96.98685915281558,
+      "why": "阿德平常很可靠"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "16:37 阿德說：「美咲，妳看我今天送的麵包是不是比平常更香？今晚的燈籠節我可是準備了超級多點心，市長要是敢忘了感謝我，我就得考慮要把他的欠」",
+     "16:37 你決定先不做什麼。"
+    ]
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 104.37371830563116
+  },
+  "wall": {
+   "startedAt": "2026-10-17T10:27:56.089Z",
+   "ms": 53901
+  },
+  "llm": {
+   "calls": 3,
+   "attempts": 3,
+   "promptTokens": 7772,
+   "completionTokens": 566,
+   "platformCost": 0.00025964120000000003,
+   "estCost": 0.005584,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 3,
+  "reach": 2,
+  "believers": 1,
+  "decisions": 3,
+  "noneDecisions": 2,
+  "actionsDone": {
+   "talk": 1
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "mayor_fears_pigeons",
+   "mayor_owes_baker"
+  ],
+  "topicDrift": 1,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "cafe",
+    "text": "美咲，妳看我今天送的麵包是不是比平常更香？今晚的燈籠節我可是準備了超級多點心，市長要是敢忘了感謝我，我就得考慮要把他的欠單貼在廣場上了！哈哈，開玩笑的啦！",
+    "similarity": 0.01
+   }
+  ],
+  "meanSimilarity": 0.01,
+  "explained": 1,
+  "visualEvents": 8,
+  "gameMinutes": 84.4,
+  "llmCalls": 3,
+  "llmSeconds": 53.9,
+  "tokens": 8338,
+  "estCost": 0.005584,
+  "platformCost": 0.00026,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0,
+  "refusedWishes": 0
+ },
+ "card": {
+  "festival": {
+   "kind": "on",
+   "missing": [],
+   "text": "今晚的燈籠節：照常舉行。",
+   "short": "照常"
+  },
+  "icon": "🤐",
+  "headline": "美咲聽進去了，但沒有說出去",
+  "sub": "「阿德這人真有趣，不過市長確實有時候很粗心。」",
+  "spine": [
+   {
+    "from": "baker",
+    "to": "cafe",
+    "via": "talk",
+    "text": "美咲，妳看我今天送的麵包是不是比平常更香？今晚的燈籠節我可是準備了超級多點心，市長要是敢忘了感謝我，我就得考慮要把他的欠單貼在廣場上了！哈哈，開玩笑的啦！",
+    "t": 93.78685915281558,
+    "verdict": "believe",
+    "conf": 0.685
+   }
+  ],
+  "reached": [
+   "baker",
+   "cafe"
+  ],
+  "whispers": [],
+  "spineRoot": 0,
+  "stopper": {
+   "npc": "cafe",
+   "thought": "阿德這人真有趣，不過市長確實有時候很粗心。",
+   "verdict": "believe",
+   "conf": 0.685
+  },
+  "truth": {
+   "text": "市長其實一點都不怕鴿子。",
+   "value": false,
+   "secretOf": []
+  },
+  "reveal": {
+   "npc": "baker",
+   "key": "gossip",
+   "label": "傳話的習慣",
+   "text": "講到數字一定加倍；心事從不直接跟美玲說",
+   "event": "e3",
+   "t": 20.2
+  }
+ },
+ "early": [
+  {
+   "npc": "baker",
+   "ms": 7246,
+   "feeling": "😲 驚訝",
+   "act": "ponder"
+  },
+  {
+   "npc": "baker",
+   "ms": 14547,
+   "feeling": "😊 愉快",
+   "act": "shrug"
+  },
+  {
+   "npc": "cafe",
+   "ms": 2973,
+   "feeling": "🤭 覺得好笑",
+   "act": "giggle"
+  }
+ ]
+}

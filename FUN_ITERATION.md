@@ -53,12 +53,18 @@ before the deadline; their roles live in the secret web), any-time intervention,
 - The mayor makes public statements (0 in 38 runs before habits/pressure; 2 in 8 in P10).
 - Residents name a line of their own card behind ~93% of decisions (motive); reveals prefer undiscovered lines.
 - 20:00 festival over P5–P11 logs: on 20, reduced 18, postponed 1 (dramatic inputs); weak inputs always on.
-- With all v2 settings live, ≈33% of dramatic stories reach a world change (P12–P16), down from ≈60–85% — richer,
-  more hesitant characters; a tuning choice left to the owner.
-- Tests: 94 unit/engine tests across 11 suites, all passing; production build and UI smoke test pass.
+- With all v2 settings live, ≈33% of dramatic stories reached a world change (P12–P16), down from ≈60–85%: richer,
+  more hesitant characters. At the owner's request, two tuning waves (P17–P20) brought it to **10 of 16 (62.5%)**:
+  - fears that point at a harm;
+  - more decisions for whoever holds first-hand proof;
+  - a journalist who publishes on proof;
+  - **a worry that comes back**: whoever saw a hidden problem with their own eyes turns it over again after a quiet
+    25 minutes. Two articles were published straight from that thought.
+- Tests: 96 unit/engine tests across 11 suites, all passing; production build and UI smoke test pass.
 
 ## Still not satisfied with
 - No human playtest yet; every "is it fun" judgement here comes from logs, screenshots and the owner's own play.
-- The trade-off above: deeper characters, fewer public climaxes.
+- Climaxes are back, but more stories now end on the decision cap (10 of 16), and the pigeon gossip never goes
+  public. The oven route stays weak: the police cannot close the bakery.
 - Provider latency swings (first visible 3–18 s this afternoon); the v2 prompt is longer.
 - Everyday scenes and kits were verified in screenshots and the browser pane, not in a long human session.

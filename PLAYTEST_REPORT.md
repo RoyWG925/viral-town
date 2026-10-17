@@ -429,6 +429,64 @@ real player would most likely write a new sentence.
   - raising the per-resident budget for the protagonist;
   - letting routine meetings fire more often.
 
-  None of these has been changed yet.
+  The owner asked for about half; see P17–P20 below.
 - **Latency**: P15–P16 coincided with a slow provider hour (first decisions up to 45–63 s on single calls). The
   longer v2 prompt adds roughly 300 characters per call.
+
+## Batches P17–P20 — climax tuning: softer fears, a bigger budget for whoever holds proof, a worry that comes back (2026-10-17 evening)
+
+The owner asked for about half of the dramatic stories to reach a big public moment (a world change: the stage
+closed, police sent, a shop shut, an article, a statement, a notice or a protest), up from ≈33% in P12–P16.
+The same 8 dramatic inputs each time, real Gemma on AMD, 3 stories at a time.
+
+| Batch | What changed | Stories changing the world | 20:00 festival | First visible / first thought (means) |
+|---|---|---|---|---|
+| P12–P16 | (v2 baseline) | 13/40 (33%) | — | — |
+| P17 | **Wave 1**: fears that point at a harm (老周, 小雯, 美玲); 小雯's price writes up a bribe instead of bargaining; the mayor clarifies in person once it spreads; budget 7 each, 11 + a 3-decision reserve for whoever has seen a hidden problem first-hand | 2/8 | on 7, reduced 1 | 7.8 s / 30.6 s |
+| P18 | wave 1 again | stopped after 1 story (wave 1 was already clearly short) | — | — |
+| P19 | **Wave 2**: a hidden problem seen first-hand comes back to mind; 小雯 publishes on proof; 阿德's fear and 老周's want point at harm | 5/8 | on 4, reduced 3, postponed 1 | 17.8 s / 45.0 s |
+| P20 | wave 2 again | 5/8 | on 3, reduced 4, postponed 1 | 7.6 s / 21.5 s |
+
+**Wave 2 over 16 stories: 10 changed the world (62.5%).** By input:
+
+| Input | P17 (wave 1) | P19 | P20 |
+|---|---|---|---|
+| stage-cafe | 🚓 police sent | 🚧 stage closed | 🚧 closed, then 🚓 police |
+| budget-journalist | — (proof, then bargaining) | 📰 article → 2 notices from 志明 → vendors' protest | 📰 article → 美玲 closes → mayor's statement → protest |
+| lantern-baker | 📰 article (「主辦人竟試圖收買記者封口？」) | 📰 article → 美玲 closes → notice → 🚧 stage closed → protest (festival postponed) | 📰 article → 2 mayor statements → protest |
+| car-vendor | — (proof, never published) | 📰 article | 📰 2 articles, 美玲 closes |
+| wobble-organizer | — (老周 saw the strut, then waited) | — (the worry came back: he re-checked and confronted 志明, then hit the budget) | 🚧 stage closed |
+| oven-police | — | 🚓 police sent to the stage | — (oven verified; only 阿德 can close his shop) |
+| pigeon-baker / pigeon-cafe | — / — | — / — | — / — |
+
+- **What P17 showed**: the residents who had seen the problem with their own eyes said it once, heard 「沒事沒事，
+  小問題！我馬上叫工人去加固」 or a change of subject, decided to wait (「我得確認他真的做了才行」), and then
+  nothing ever asked them again: a resident only decides when a message arrives. 6 of the 8 stories stalled
+  exactly there.
+- **The fix — a worry that comes back** (`mullOver` in `src/sim/engine.ts`): once per finding, after the holder has
+  been quiet for 25 minutes, unless something they did already dealt with it or the place is closed, they get a
+  thought of their own: 「我一直放不下15:35親眼看到的事：公開的慶典收支表上，實際支出比原本的預算多了三成。離燈籠節開始
+  只剩 4 小時。接下來我該怎麼做？」 It states only what they saw and the real time left; the model still decides.
+  Fired 5 times in 16 stories. What came of it: 2 articles published straight from it (P19 lantern-baker, P20
+  car-vendor), and 3 return visits by 老周 to the bakery or the stage.
+- **Card changes in wave 2**:
+  - 小雯's habit is 「手上有證據就發，不等當事人回應」 and her second line is 「標題我都想好了。」. Her old
+    「你確定？我可要寫了。」 had been copied into her threats, which led to bargaining instead of publishing.
+  - 阿德 fears 「店裡出了事連累鄰居，被全鎮當成笑話」.
+  - 老周 just wants 「今晚平安無事」 (no longer 「不被市長怪罪」). His price now applies when 「有人可能受傷」, not
+    only children.
+- **Honesty checks** (from the logs):
+  - Every stage closure and police dispatch was made by 老周 after his own look or inspection (1–7 of them).
+  - Every article was written by 小雯 after she had read the accounts herself.
+  - Headlines exaggerate, which is in character (「寫東西喜歡下聳動的標題」) and is how a rumour mutates:
+    - 「市長與主辦人被拍到密談！」: she did see both of them at the town hall.
+    - 「公款竟神祕消失三成？」: what she actually saw was a 30% overrun.
+
+  No climax happened without its cause in the log.
+- **Unchanged**:
+  - The pigeon gossip never becomes public (0/6). That is by design: it is the harmless control.
+  - The oven route stays weak (1/3), because the police cannot close the bakery.
+- **Cost of the change**: more stories now end on the decision cap (P19–P20: 10 of 16 ended 「故事先告一段落」,
+  against 4/8 in P17). The bigger stories use their whole budget.
+- **Provider**: P20 ran in the evening peak. 39 streamed calls timed out and were retried successfully, with 0 rule
+  fallbacks. Platform-reported cost was US$0.008–0.009 per batch.

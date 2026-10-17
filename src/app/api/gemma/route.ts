@@ -1,6 +1,7 @@
 // Server-side proxy for resident decisions. The Token Factory key never leaves the server.
-// Only Gemma, only JSON decisions, size-limited and rate-limited, so it cannot be used as an open relay.
-import { makeChat, rateLimiter, type ChatMessage } from "../../../sim/llm.ts";
+// Only the game's own decision requests (apiGuard.ts), only Gemma, only JSON, rate-limited, so it cannot be used as an open relay.
+import { DECISION_BUDGET_MS, makeChat, rateLimiter, type ChatMessage } from "../../../sim/llm.ts";
+import { checkGameMessages } from "../../../sim/apiGuard.ts";
 
 export const maxDuration = 300;
 
@@ -25,33 +26,51 @@ export async function POST(req: Request) {
   } catch {
     return Response.json({ error: "bad json" }, { status: 400 });
   }
-  const messages = body.messages;
-  if (!Array.isArray(messages) || messages.length < 2 || messages.length > 6) return Response.json({ error: "bad messages" }, { status: 400 });
-  if (!messages.every((m) => ["system", "user", "assistant"].includes(m.role) && typeof m.content === "string")) return Response.json({ error: "bad messages" }, { status: 400 });
-  if (messages.reduce((n, m) => n + m.content.length, 0) > 24_000) return Response.json({ error: "too long" }, { status: 413 });
+  const bad = checkGameMessages(body.messages);
+  if (bad) return Response.json({ error: bad }, { status: 400 });
+  const messages = body.messages!.map(({ role, content }) => ({ role, content }));
 
-  const chat = makeChat({ key, baseUrl: process.env.GEMMA_BASE_URL || undefined, model: process.env.GEMMA_MODEL || undefined, timeoutMs: 60_000, maxAttempts: 8 }, limit);
+  // one call never runs past one decision's budget, well inside maxDuration, whatever the caller does
+  const chat = makeChat({ key, baseUrl: process.env.GEMMA_BASE_URL || undefined, model: process.env.GEMMA_MODEL || undefined, timeoutMs: 60_000, maxAttempts: 8, budgetMs: DECISION_BUDGET_MS }, limit);
   const params = {
     temperature: Math.min(1.2, Math.max(0, Number(body.temperature ?? 0.7))),
     maxTokens: Math.min(1200, Math.max(64, Number(body.maxTokens ?? 900))),
   };
-  if (!body.stream) return Response.json(await chat(messages, params));
+  // a caller that goes away (left the story, closed the tab, ran out of time) stops the upstream call and its retries
+  if (!body.stream) return Response.json(await chat(messages, { ...params, signal: req.signal }));
   // streamed: one JSON object per line, {"text": "...so far"} while generating, then {"done": LlmCall}
   const enc = new TextEncoder();
+  const gone = new AbortController();
+  const signal = AbortSignal.any([req.signal, gone.signal]);
   const out = new ReadableStream({
     async start(controller) {
+      const send = (x: unknown) => {
+        try {
+          controller.enqueue(enc.encode(JSON.stringify(x) + "\n"));
+        } catch {
+          /* the reader has gone away */
+        }
+      };
       let last = 0;
       const r = await chat(messages, {
         ...params,
+        signal,
         onDelta: (text) => {
           // a few updates per second is plenty for the early reaction
           if (text && Date.now() - last < 150) return;
           last = Date.now();
-          controller.enqueue(enc.encode(JSON.stringify({ text }) + "\n"));
+          send({ text });
         },
       });
-      controller.enqueue(enc.encode(JSON.stringify({ done: r }) + "\n"));
-      controller.close();
+      send({ done: r });
+      try {
+        controller.close();
+      } catch {
+        /* already cancelled */
+      }
+    },
+    cancel() {
+      gone.abort();
     },
   });
   return new Response(out, { headers: { "Content-Type": "application/x-ndjson", "Cache-Control": "no-store" } });

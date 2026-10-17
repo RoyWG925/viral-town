@@ -537,6 +537,34 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
 
   /** What someone sees at a place: checkable facts (an expert's eye only for an inspection in their trade), the state of
    *  the world there, who is around, and honestly what a glance or someone outside their trade could not tell. */
+  /** Someone who has seen a hidden problem with their own trained eyes keeps turning it over: once per finding, after
+   *  they have been quiet for a while, if nothing they did has dealt with it and nothing has closed the place, the
+   *  thought comes back to them. People act on a worry, not only on messages; what they do with it is still theirs. */
+  const mulled = new Set<string>();
+  const MULL_QUIET = 25;
+  function mullOver(n: Npc, f: (typeof FACTS)[number], t0: Minutes, cause: string) {
+    const key = `${n.p.id}>${f.id}`;
+    if (mulled.has(key)) return;
+    mulled.add(key);
+    const place = f.check!.place;
+    const handled = () =>
+      world.festival === "cancelled" || (place === "stage" && world.stage === "closed") || world.shops[place] === "closed" ||
+      events.some((e) => e.actor === n.p.id && e.t >= t0 && (e.type === "state" || e.type === "article" || e.type === "statement" || e.type === "notice" || e.type === "gather"));
+    const tryAt = (t: Minutes) => {
+      if (handled() || t > endAt - 10) return;
+      if (n.mind.decisions >= maxPerNpcFinding || realDecisions >= maxDecisions + findingReserve) return;
+      const quietSince = Math.max(t0, n.mind.lastDecisionAt);
+      if (t - quietSince < MULL_QUIET || n.decisionAt !== null) {
+        const next = (n.decisionAt !== null ? t : quietSince) + MULL_QUIET;
+        return at(next, () => tryAt(next));
+      }
+      const left = Math.round(FESTIVAL_AT - t);
+      const leftZh = left >= 60 ? `${Math.floor(left / 60)} 小時${left % 60 ? ` ${left % 60} 分鐘` : ""}` : `${left} 分鐘`;
+      deliver(n, "self", "hunch", "inform", `我一直放不下${clockOf(t0)}親眼看到的事：${f.check!.zh}離燈籠節開始只剩 ${leftZh}。接下來我該怎麼做？`, [], t, cause);
+    };
+    at(t0 + MULL_QUIET, () => tryAt(t0 + MULL_QUIET));
+  }
+
   function lookAround(n: Npc, place: PlaceId, expert: boolean, t: Minutes) {
     const seen: string[] = [];
     // what they were wondering about (their beliefs' topics) is what they notice first
@@ -654,6 +682,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
                 actor: who.p.id, place, data: { found: r.text, highlight: r.highlight, learned: [...who.mind.learned.keys()], with: prefix ? n.p.id : undefined },
               });
               deliver(who, "self", "inspection", "inform", r.text, [], ta + dur, done);
+              if (careful) for (const f of FACTS) if (f.check?.by === "expert" && f.check.place === place && who.mind.learned.has(f.id)) mullOver(who, f, ta + dur, done);
               return done;
             };
             const done = seenBy(n, expert, ev);

@@ -105,7 +105,7 @@ export const PERSONAS: Persona[] = [
     },
     card: {
       owns: "慶典全部的點心（燈籠酥）、鎮上最熱鬧的店面", exclusive: "店裡的客人一天就能把話傳遍全鎮",
-      wants: "開場時被市長公開感謝", fears: "被當成笑話",
+      wants: "開場時被市長公開感謝", fears: "店裡出了事連累鄰居，被全鎮當成笑話",
       bias: "什麼事都覺得是衝著他來", gossip: "講到數字一定加倍；心事從不直接跟美玲說",
       bottom: "不會讓慶典沒有點心", price: "被市長公開羞辱，他就把欠款的事說出來",
       lines: ["我跟你說，這事我只跟你講。", "哎唷，這下慘了啦！"],
@@ -133,7 +133,7 @@ export const PERSONAS: Persona[] = [
   {
     id: "journalist", name: "小雯", role: "journalist", roleZh: "記者（經營鎮上的新聞部落格）", home: "news",
     traits: "好奇、敏銳、愛追根究柢，寫東西喜歡下聳動的標題。", wants: "拿到獨家，讓部落格的流量救回來。",
-    habit: "聽到值得寫的事，會先自己去查證（翻公開資料、找當事人問），有把握就發文。",
+    habit: "聽到值得寫的事，會先自己去查證（翻公開資料最快）；手上有證據就發，不等當事人回應。",
     credulity: 0.55, talkative: 0.8, knows: ["festival", "pigeons", "stall_fee", "blog_failing", "mayor_organizer_quarrel"], secrets: ["blog_failing", "mayor_organizer_quarrel"],
     relations: {
       baker: rel(0.6, true, "麵包店是她的消息站", { type: "情報來源", past: "常去店裡跟阿德打聽鎮上的消息" }),
@@ -142,10 +142,10 @@ export const PERSONAS: Persona[] = [
     },
     card: {
       owns: "鎮上唯一的新聞部落格、相機裡的照片", exclusive: "一篇文章全鎮都看得到；會翻公開帳目",
-      wants: "八點前發出一篇能救部落格的獨家", fears: "當事人搶先出面把事情說成誤會，獨家變冷飯，部落格就此倒掉",
+      wants: "趁消息還熱，第一個把獨家發出去", fears: "當事人搶先出面把事情說成誤會，獨家變冷飯，部落格就此倒掉",
       bias: "越否認的事越可疑", gossip: "標題一定聳動；消息來源只說「消息人士」",
       bottom: "沒有任何來源，就不發文", price: "有人想私下談條件封口，她就連這段一起寫出來",
-      lines: ["這可是獨家喔。", "你確定？我可要寫了。"],
+      lines: ["這可是獨家喔。", "標題我都想好了。"],
     },
     actions: ["publish_article", "inspect"],
   },
@@ -196,9 +196,9 @@ export const PERSONAS: Persona[] = [
     },
     card: {
       owns: "今晚全部的警力、封鎖舞台的權力", exclusive: "派警力、封鎖舞台、親自檢查",
-      wants: "今晚平安無事，不被市長怪罪", fears: "警力不夠的晚上，有人在他管的地方受傷",
+      wants: "今晚平安無事", fears: "警力不夠的晚上，有人在他管的地方受傷",
       bias: "寧可信其有", gossip: "只跟信任的人講，而且打官腔",
-      bottom: "沒親眼看過現場，不派警力", price: "市長要他壓下來，他會先壓；但只要孩子可能受傷，他就不聽市長的",
+      bottom: "沒親眼看過現場，不派警力", price: "市長要他壓下來，他會先壓；但只要有人可能受傷，他就不聽市長的",
       lines: ["我得親眼看過才算數。", "看過了，就不能當沒看到。"],
     },
     actions: ["dispatch_police", "inspect", "close_stage"],

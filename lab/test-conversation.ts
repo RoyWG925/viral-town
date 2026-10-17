@@ -89,7 +89,7 @@ test("a blocked repeat sinks in: the speaker gets to decide what to do instead (
   const thought = run.events.find((e) => e.type === "deliver" && e.target === "police" && e.data.via === "hunch" && String(e.data.text).includes("再說一次也一樣"));
   assert.ok(thought, "it sinks in");
   assert.ok(run.decisions.some((d) => d.npc === "police" && d.triggers.includes(thought!.id)), "and they decide again");
-  assert.equal(run.events.filter((e) => e.type === "deliver" && e.target === "police" && e.data.via === "hunch").length, 1, "only once per pair");
+  assert.equal(run.events.filter((e) => e.type === "deliver" && e.target === "police" && e.data.via === "hunch" && String(e.data.text).includes("再說一次也一樣")).length, 1, "only once per pair");
 });
 
 test("whoever has seen a hidden problem first-hand gets more decisions, and a small reserve past the shared cap", async () => {
@@ -108,4 +108,25 @@ test("whoever has seen a hidden problem first-hand gets more decisions, and a sm
   assert.equal(real(await runWith(inspect, { maxPerNpc: 2, maxPerNpcFinding: 4 })), 4);
   // and past the shared cap by the reserve
   assert.equal(real(await runWith(inspect, { maxDecisions: 3, maxPerNpc: 10, maxPerNpcFinding: 10, findingReserve: 2 })), 5);
+});
+
+test("a hidden problem seen first-hand comes back to mind once they have been quiet a while (once, unless dealt with)", async () => {
+  const inspect = { feeling: "🤔 想", act: "ponder", understanding: "x", thought: "仔細查", claims: [], stances: [], actions: [{ type: "inspect", place: "stage", why: "查" }] };
+  const close = { feeling: "😠 生氣", act: "angry", understanding: "x", thought: "封起來", claims: [], stances: [], actions: [{ type: "close_stage", why: "危險" }] };
+  const runWith = (after: object[]) =>
+    simulate({ active: ALL8, seedNpc: "police", seedText: "舞台好像怪怪的", seed: 26, policy: "gemma", maxDecisions: 12, chat: script({ 老周: [inspect, ...after] }) });
+  const mulls = (r: Awaited<ReturnType<typeof simulate>>) =>
+    r.events.filter((e) => e.type === "deliver" && e.target === "police" && e.data.via === "hunch" && String(e.data.text).includes("放不下"));
+
+  // saw the loose strut, then let it be: it comes back to him, about the strut, once
+  const quiet = await runWith([NONE]);
+  const found = quiet.events.find((e) => e.type === "inspect" && e.actor === "police" && e.data.found)!;
+  const m = mulls(quiet);
+  assert.equal(m.length, 1, "once");
+  assert.ok(String(m[0].data.text).includes("支架明顯鬆動") && String(m[0].data.text).includes("離燈籠節開始只剩"), "the thing he saw, and the time left");
+  assert.ok(m[0].t >= found.t + 25, "only after a quiet while");
+  assert.ok(quiet.decisions.some((d) => d.npc === "police" && d.triggers.includes(m[0].id)), "and he decides again");
+
+  // closed the stage right away: nothing left to turn over
+  assert.equal(mulls(await runWith([close])).length, 0);
 });

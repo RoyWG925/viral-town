@@ -137,10 +137,12 @@ test("a played prefix never stamps more, or earlier, than the full run", () => {
 test("without claim topics the made-up-rumour goal never fires; a topic on the belief event is enough", () => {
   for (const { name, run } of ALL) {
     const topic = new Map(run.claims.map((c) => [c.id, c.topic]));
-    const blind = challengesHit(run.events, { ...cfgOf(run), claims: undefined });
+    // recordings made since v2 already carry the topic on belief events: take it off to test the blind case
+    const untagged = run.events.map((e) => (e.type === "belief" ? { ...e, data: { ...e.data, topic: undefined } } : e));
+    const blind = challengesHit(untagged, { ...cfgOf(run), claims: undefined });
     assert.ok(!blind.some((h) => h.id === "truth"), `${name}: guessed a planted topic`);
-    // what the engine would log if belief events carried their topic
-    const tagged = run.events.map((e) => (e.type === "belief" ? { ...e, data: { ...e.data, topic: topic.get(String(e.data.claim)) } } : e));
+    // what the engine logs now that belief events carry their topic
+    const tagged = untagged.map((e) => (e.type === "belief" ? { ...e, data: { ...e.data, topic: topic.get(String(e.data.claim)) } } : e));
     assert.deepEqual(challengesHit(tagged, { ...cfgOf(run), claims: undefined }), challengesHit(run.events, cfgOf(run)), name);
   }
 });

@@ -122,6 +122,8 @@ export const show = {
   title: null as null | { text: string; until: number },
   titlesShown: new Set<string>(),
   lastAct: {} as Record<string, Act>,
+  /** 20:00: how the festival turned out (from the log), and when its scene started on the playback clock */
+  finale: null as null | { kind: string; tags: string[]; text: string; start: number },
   /** counts load() calls, so the camera can tell a new story (or a replay) from a streamed update */
   loads: 0,
   version: 0,
@@ -184,7 +186,7 @@ export function reset() {
   Object.assign(show, {
     status: "idle", run: null, growing: false, order: [], i: 0, clock: 0, gameT: 0, gapUntil: null, stepUntil: 0, waitFor: null, stepStarted: 0,
     captions: [], world: freshWorld(), focus: null, infected: new Set(), links: [], extras: new Set(), stalled: false, frontier: Infinity, props: [], focusLater: null,
-    thinking: new Set(), thinkingShown: "", shot: null, says: [], lastAct: {}, stance: {}, thinkingSince: {}, early: {}, stallSince: 0, meanwhile: null, title: null, titlesShown: new Set(),
+    thinking: new Set(), thinkingShown: "", shot: null, says: [], lastAct: {}, stance: {}, thinkingSince: {}, early: {}, stallSince: 0, meanwhile: null, title: null, titlesShown: new Set(), finale: null,
   });
   show.version++;
 }
@@ -680,14 +682,45 @@ function apply(e: SimEvent) {
       hold = d.wanted ? 2.4 : 1.6;
       break;
     }
+    case "milestone": {
+      // the festival's own clock: a quiet tick when it goes to plan, a beat on the place when it does not
+      const status = String(d.status);
+      const icon = status === "ok" ? "✅" : status === "moved" ? "↪️" : "❌";
+      caption({ who: "", icon, tone: status === "ok" ? "system" : "world", text: e.zh });
+      if (status !== "ok") setShot("wide", { at: SPOTS[(e.place ?? "plaza") as keyof typeof SPOTS], prio: 2 });
+      hold = status === "ok" ? 1.2 : 2.6;
+      break;
+    }
+    case "festival": {
+      // 20:00: show the evening before any text — who came, whether the doves fly, the mayor, the protest signs
+      const tags = (d.tags as string[] | undefined) ?? [];
+      const kind = String(d.kind);
+      show.finale = { kind, tags, text: e.zh, start: show.clock };
+      const square = { x: (SPOTS.plaza.x + SPOTS.stage.x) / 2, z: (SPOTS.plaza.z + SPOTS.stage.z) / 2 };
+      const many = kind === "cancelled" ? 0 : tags.includes("packed") ? 28 : tags.includes("thin_crowd") || kind === "postponed" ? 6 : kind === "reduced" ? 10 : 16;
+      if (many) borrowCrowd(square, many, tags.includes("protest_rally") ? "✊" : "🏮");
+      if (tags.includes("protest_rally") || tags.includes("mayor_booed")) show.world.gatherings.plaza = 3;
+      const mayor = agentFor("mayor");
+      if (mayor && kind !== "cancelled" && !tags.includes("mayor_absent")) {
+        scriptGoto(mayor, SPOTS.stage.x, SPOTS.stage.z - 0.6, faceToward(mayor, square.x, square.z), 3);
+        say("mayor", "speech", tags.includes("mayor_booed") || tags.includes("protest_rally") ? "各位鄉親……請、請先聽我說！" : "各位鄉親，燈籠節開始囉！", 7);
+      }
+      if (tags.includes("early_exit")) for (const a of show.extras) a.bubble = "🏃";
+      caption({ who: "", icon: "🏮", tone: "world", text: e.zh, sub: "20:00" });
+      setShot("wide", { at: square, dist: 46, prio: 5 });
+      sting.end();
+      hold = 8;
+      break;
+    }
     case "end": {
-      // the same outcome the end title and the results show (from the log), not just "cancelled or not"
-      const fest = show.run ? readinessOf(show.run.events, show.run.claims ?? []).outcome.text : "";
+      // the festival scene already said how it went; older logs without one get the outcome here
+      const hasFestival = show.run?.events.some((x) => x.type === "festival");
+      const fest = show.run && !hasFestival ? readinessOf(show.run.events, show.run.claims ?? []).outcome.text : "";
       const reason = String(d.reason);
       const text = reason === "budget" ? "這個晚上的故事，先看到這裡。" : reason === "time" ? "20:00，燈籠節的時間到了。" : String(e.zh);
       caption({ who: "", icon: "🏁", tone: "system", text: `${text}${fest}` }); // one sentence, then the outcome (a sub would read as a "label：" prefix)
-      setShot("overview", { prio: 4 });
-      sting.end();
+      setShot(hasFestival ? "wide" : "overview", { prio: 4 });
+      if (!hasFestival) sting.end();
       hold = 2.5;
       break;
     }

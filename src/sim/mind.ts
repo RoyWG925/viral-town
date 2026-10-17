@@ -3,7 +3,7 @@
 import { ACT_LIST } from "./acts.ts";
 import { PLACES, TOPICS } from "./scenario.ts";
 import { parseJSON, type Chat, type ChatMessage } from "./llm.ts";
-import type { ActionKind, DecisionOutput, LlmRecord, ValidationEntry } from "./types.ts";
+import type { ActionKind, DecisionOutput, LlmRecord, Persona, ValidationEntry } from "./types.ts";
 import { checkDecision, coerce, normalize, type Checked } from "./validate.ts";
 import { describeTrust, type InboxItem, type View } from "./view.ts";
 
@@ -123,6 +123,18 @@ function inboxLine(m: InboxItem, view: View): string {
   }
 }
 
+/** The resident's own card, in nouns: only ever their own, framed as who they are, never as orders. */
+function cardText(c: Persona["card"]) {
+  if (!c) return "";
+  return `
+【你的處境】你擁有：${c.owns}。只有你能：${c.exclusive}。
+【今晚你想要】${c.wants}　【你怕】${c.fears}
+【你看事情的偏誤】${c.bias}　【你傳話的習慣】${c.gossip}
+【你的底線】${c.bottom}　【你的價碼】${c.price}
+【你說話的口氣】${c.lines.map((l) => `「${l}」`).join(" ")}
+（以上是你的本性和處境，不是必須照做的指令；你仍然只能根據你知道的事來判斷。）`;
+}
+
 export function userPrompt(view: View, stage: "single" | "read" | "act", reading?: { output: DecisionOutput; confidence: number[] }, opts: { free?: boolean } = {}) {
   const p = view.npc;
   const know = view.knowledge.map((k) => `- [${k.id}] ${k.zh}${k.secret ? "（這是你的秘密，你不想讓人知道）" : ""}${k.learned ? "（你親眼確認過）" : ""}`).join("\n") || "（無）";
@@ -130,7 +142,7 @@ export function userPrompt(view: View, stage: "single" | "read" | "act", reading
     ? view.beliefs.map((b) => `- [${b.id}] ${b.statement}（你的信心 ${b.confidence.toFixed(2)}；來源：${b.sourcesZh}）`).join("\n")
     : "（還沒有）";
   const people = view.people
-    .map((x) => `- ${x.id}：${x.name}（${x.roleZh}），通常在${x.placeZh}。${x.relation.zh}；${describeTrust(x.relation.trust)}她/他說的話；${x.relation.phone ? "有電話" : "沒有電話，只能當面說"}。`)
+    .map((x) => `- ${x.id}：${x.name}（${x.roleZh}），通常在${x.placeZh}。${x.relation.type ? `${x.relation.type}——` : ""}${x.relation.zh}${x.relation.past ? `（${x.relation.past}）` : ""}；${describeTrust(x.relation.trust)}她/他說的話；${x.relation.phone ? "有電話" : "沒有電話，只能當面說"}。`)
     .join("\n") || "（目前聯絡不到任何人）";
   const actions = ["none" as ActionKind, ...view.actions].map((a) => `- ${a}：${ACTION_ZH[a]}`).join("\n");
   const inbox = view.inbox.map((m) => `- [${m.id}] ${inboxLine(m, view)}`).join("\n");
@@ -139,7 +151,7 @@ export function userPrompt(view: View, stage: "single" | "read" | "act", reading
   let s = `現在是 ${view.clock}，你在${view.placeZh}。燈籠節 20:00 開始。
 
 【你是誰】${p.name}，${p.roleZh}。個性：${p.traits} 你在乎的：${p.wants}${p.habit ? `
-【你的習慣】${p.habit}（這是你平常的傾向，不是一定要做）` : ""}
+【你的習慣】${p.habit}（這是你平常的傾向，不是一定要做）` : ""}${cardText(p.card)}
 【小鎮公開資訊】${view.publicInfo}
 【你知道的事】
 ${know}

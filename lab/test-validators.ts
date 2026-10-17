@@ -88,7 +88,8 @@ test("an action outside the resident's role is rejected", () => {
 });
 
 test("calling someone without their number is rejected", () => {
-  const r = checkDecision(viewFor("baker"), base({ actions: [{ type: "phone", target: "journalist", message: "你聽說了嗎", cites: ["#0"] }] }));
+  // (since v2 the baker can call 小雯, his source of gossip; he still has no number for the mayor)
+  const r = checkDecision(viewFor("baker", { people: [{ id: "mayor", name: "林市長", roleZh: "市長", place: "townhall", placeZh: "townhall", relation: PERSONAS.find((p) => p.id === "baker")!.relations.mayor, busy: false }] }), base({ actions: [{ type: "phone", target: "mayor", message: "你聽說了嗎", cites: ["#0"] }] }));
   assert.ok(r.errors.some((e) => e.includes("電話")));
 });
 

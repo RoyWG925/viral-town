@@ -100,9 +100,9 @@ test("今晚行程: P5-lantern-baker counts down to 老周's 17:00 stage round o
 
 test("補一句: the second seed is a root of the story, printed on the card", async () => {
   let asked = 0;
-  // a pigeon rumour with the rule policy fizzles early (seed 1), so the engine offers the lull
+  // small talk fizzles at once under the rule policy, so the engine offers the lull
   const run = await simulate({
-    active: ALL8, seedNpc: "baker", seedText: "聽說市長很害怕鴿子。", seed: 1, policy: "rules", maxDecisions: 22, maxPerNpc: 6,
+    active: ALL8, seedNpc: "florist", seedText: "港口今天的魚特別便宜。", seed: 1, policy: "rules", maxDecisions: 22, maxPerNpc: 6,
     onLull: async () => (asked++, { npc: "police", text: "聽說今晚有人要在慶典上搞破壞。" }),
   });
   const seeds = run.events.filter((e) => e.type === "seed");
@@ -112,6 +112,6 @@ test("補一句: the second seed is a root of the story, printed on the card", a
   assert.deepEqual(card.whispers, [{ npc: "police", text: "聽說今晚有人要在慶典上搞破壞。" }]);
   assert.ok(seeds[1].data.second, "the second seed is marked");
   // the story's suggestions never name the first listener
-  assert.ok(suggestNext(run, card).every((s) => s.npc !== "baker"));
+  assert.ok(suggestNext(run, card).every((s) => s.npc !== "florist"));
   for (const h of card.spine) assert.ok(run.events.some((e) => (e.type === "talk" || e.type === "phone") && e.actor === h.from && e.target === h.to && String(e.data.text) === h.text));
 });

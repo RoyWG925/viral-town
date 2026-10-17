@@ -51,6 +51,26 @@ export interface Relation {
   trust: number; // 0..1, how much they believe what this person tells them
   phone: boolean; // close enough to call
   zh: string; // how they relate, in words
+  /** what kind of tie it is (前任, 債主, 暗戀, 表面盟友…) and one line of shared past — shown only to the person holding it */
+  type?: string;
+  past?: string;
+}
+
+/**
+ * Who someone is, in nouns rather than adjectives: what they hold, what only they can do, what they want tonight,
+ * what they fear, how they misread things, how they pass things on, what they will never do, and what would make
+ * them turn on someone. Shown to the model only for the resident it is playing; players discover it over plays.
+ */
+export interface PersonaCard {
+  owns: string;
+  exclusive: string;
+  wants: string;
+  fears: string;
+  bias: string;
+  gossip: string;
+  bottom: string;
+  price: string;
+  lines: string[];
 }
 
 export interface Persona {
@@ -70,6 +90,7 @@ export interface Persona {
   actions: ActionKind[];
   /** how they tend to act when something gets to them — characterisation shown to the model, never an order */
   habit?: string;
+  card?: PersonaCard;
 }
 
 export type Category = "safety" | "crime" | "scandal" | "health" | "policy" | "event" | "personal" | "absurd" | "other";

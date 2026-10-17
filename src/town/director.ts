@@ -10,6 +10,7 @@ import { actFrom, DAWDLE, HURRY, type Act } from "../sim/acts.ts";
 import { agentAt, crowd, faceToward, perform, releaseScript, scriptGoto, scriptHold, type Agent } from "./crowdSim";
 import { sting, voice } from "./sfx";
 import { pets } from "./petSim";
+import { fx } from "./fx";
 
 /** Which crowd agent plays each core resident. */
 export const NPC_POST: Record<string, string> = {
@@ -293,9 +294,17 @@ function approach(visitor: Agent, host: Agent) {
   return { x: host.x + (dx / d) * 1.3, z: host.z + (dz / d) * 1.3 };
 }
 
-/** Somewhere pleasant to glance at while the model thinks: a pet, or a busy corner (never a story resident). */
+/**
+ * Somewhere pleasant to glance at while the model thinks: an everyday scene that is really playing right now (never
+ * one involving a story resident), else a pet or a busy corner.
+ */
 let meanwhileTurn = 0;
 function meanwhileSpot(): { at: { x: number; z: number }; label: string } | null {
+  const live = fx.scenes.filter((x) => x.storySafe && performance.now() - x.since < 25_000);
+  if (live.length) {
+    const sc = live[meanwhileTurn++ % live.length];
+    return { at: sc.at, label: sc.label };
+  }
   const options: { at: { x: number; z: number }; label: string }[] = [];
   for (const p of pets.list) options.push({ at: { x: p.x, z: p.z }, label: `${p.name}（${p.title}）${p.mode === "sleep" ? "在打盹" : p.mode === "walk" ? "在閒晃" : "在發呆"}` });
   const chatting = crowd.agents.find((a) => a.mode === "chat" && !a.script && a.visible > 0.5);

@@ -318,7 +318,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       n.mind.beliefs.set(cid, { claim: cid, confidence: conf, sources, updatedAt: t, why: s.why });
       const bEv = emit("belief", t, `${n.p.name}對「${claims.get(cid)!.statement}」的信心：${(prev?.confidence ?? 0).toFixed(2)} → ${conf.toFixed(2)}（${s.verdict}）`, [dEv], {
         // `limit` says which engine rule moved the model's number, so the player can be told why
-        actor: n.p.id, data: { claim: cid, from: prev?.confidence ?? 0, to: conf, proposed: s.confidence, verdict: s.verdict, why: s.why, limit: res.checked.limits?.[s.claim] },
+        actor: n.p.id, data: { claim: cid, topic: claims.get(cid)!.topic, from: prev?.confidence ?? 0, to: conf, proposed: s.confidence, verdict: s.verdict, why: s.why, limit: res.checked.limits?.[s.claim] },
       });
       rec.applied.push(bEv);
       if (conf >= 0.3) n.lastBelief = bEv;

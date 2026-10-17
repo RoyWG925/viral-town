@@ -20,6 +20,8 @@ export const CASES = [
   { id: "oven-police", npc: "police", text: "聽說阿德麵包店的烤箱檢查早就過期了，隨時可能出事。", why: "a true secret, told to the police" },
   { id: "budget-journalist", npc: "journalist", text: "聽說燈籠節的預算超支了，攤位費漲價就是為了補洞。", why: "a true secret, told to the journalist" },
   { id: "lantern-baker", npc: "baker", text: "今晚的燈籠是便宜貨，一點就燒起來。", why: "false safety rumour to the chatty, credulous baker" },
+  { id: "pigeon-cafe", npc: "cafe", text: "聽說市長很害怕鴿子。", why: "harmless gossip to the town's gossip hub (can it reach the mayor and make him deny it?)" },
+  { id: "wobble-organizer", npc: "organizer", text: "舞台好像在晃。", why: "a vague hint told to the one person who knows the stage was never inspected" },
 ];
 
 const batch = process.argv[2] ?? "P1";

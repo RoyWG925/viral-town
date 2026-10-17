@@ -1,4 +1,4 @@
-// 慶典準備度: the 20:00 outcome is a rule over the validated log. node --test lab/test-readiness.ts
+// Festival readiness: the 20:00 outcome is a rule over the validated log. node --test lab/test-readiness.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
@@ -17,7 +17,7 @@ test("a quiet evening keeps the festival on; talk alone moves nothing", () => {
 test("a closed stage shrinks the festival; add police and it is postponed; a cancel is a cancel", () => {
   const stage = [ev("state", { key: "stage", to: "closed" })];
   assert.equal(readinessOf(stage).outcome.kind, "reduced");
-  assert.ok(readinessOf(stage).outcome.text.includes("舞台不能用"));
+  assert.ok(readinessOf(stage).outcome.text.includes("can't be used"));
   assert.equal(readinessOf([...stage, ev("state", { key: "police", to: "stage" })]).outcome.kind, "postponed");
   assert.equal(readinessOf([ev("state", { key: "festival", to: "cancelled" })]).outcome.kind, "cancelled");
 });
@@ -25,7 +25,7 @@ test("a closed stage shrinks the festival; add police and it is postponed; a can
 test("both food and flowers gone name what is missing", () => {
   const r = readinessOf([ev("state", { key: "shops.flower", to: "closed" }), ev("state", { key: "shops.bakery", to: "closed" })]);
   assert.equal(r.outcome.kind, "reduced");
-  assert.ok(r.outcome.missing.join().includes("花飾") && r.outcome.missing.join().includes("點心"));
+  assert.ok(r.outcome.missing.join().includes("flower decorations") && r.outcome.missing.join().includes("pastries"));
   assert.ok(r.meters.supplies < THRESHOLD);
 });
 
@@ -33,7 +33,7 @@ test("a money scandal in print hits the money; the same log always gives the sam
   const claims = [{ id: "c1", topic: "budget_overrun" }];
   const log = [ev("article", { claims: ["c1"], headline: "x" })];
   const a = readinessOf(log, claims);
-  assert.ok(a.meters.money < THRESHOLD && a.outcome.missing.join().includes("經費"));
+  assert.ok(a.meters.money < THRESHOLD && a.outcome.missing.join().includes("Money"));
   assert.deepEqual(readinessOf(log, claims), a);
 });
 

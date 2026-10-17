@@ -13,38 +13,38 @@
 // - direction matters: a denial is not a scandal, believing "the lanterns are safe" is not a panic, a shop that
 //   reopened is open.
 import { FACTS, FESTIVAL_AT } from "./scenario.ts";
-import { claimInfoOf, milestonesUpTo, snapshotAt, type Meter, type MilestoneResult } from "./festival.ts";
+import { checkTexts, claimInfoOf, milestonesUpTo, snapshotAt, type Meter, type MilestoneResult } from "./festival.ts";
 import type { SimEvent } from "./types.ts";
 
 export type { Meter } from "./festival.ts";
 
 export const METERS: { id: Meter; zh: string; label: string; start: number; short: string; why?: string }[] = [
-  { id: "people", zh: "人", label: "主辦與人手", start: 70, short: "人手不夠，節目縮短了" },
-  { id: "supplies", zh: "物", label: "物資", start: 75, short: "物資不夠" },
-  { id: "money", zh: "錢", label: "經費", start: 45, short: "經費出了問題，壓軸煙火取消", why: "預算其實已經超支三成" },
-  { id: "site", zh: "地", label: "場地安全", start: 55, short: "舞台不能用，改在廣場空地舉行", why: "舞台從來沒做過安全檢查" },
-  { id: "mayor", zh: "名", label: "市長的支持", start: 70, short: "市長沒有出席開場" },
-  { id: "mood", zh: "心", label: "民意", start: 60, short: "鎮民議論紛紛，氣氛冷清", why: "攤位費漲了一倍，攤商一肚子火" },
-  { id: "crowd", zh: "眾", label: "出席意願", start: 70, short: "人潮不到往年一半" },
-  { id: "time", zh: "時", label: "準備進度", start: 60, short: "準備不及，延後半小時開場" },
+  { id: "people", zh: "People", label: "Organizers and helpers", start: 70, short: "Not enough helpers, so the program was cut short" },
+  { id: "supplies", zh: "Supplies", label: "Supplies", start: 75, short: "Not enough supplies" },
+  { id: "money", zh: "Money", label: "Budget", start: 45, short: "Money trouble, so the closing fireworks are off", why: "The budget is actually already 30% over" },
+  { id: "site", zh: "Site", label: "Site safety", start: 55, short: "The stage can't be used, so it moves to the open plaza", why: "The stage has never had a safety inspection" },
+  { id: "mayor", zh: "Mayor", label: "The mayor's support", start: 70, short: "The mayor didn't show up for the opening" },
+  { id: "mood", zh: "Mood", label: "Public mood", start: 60, short: "Townsfolk are grumbling and the mood is flat", why: "The stall fee doubled, and the stall owners are furious" },
+  { id: "crowd", zh: "Crowd", label: "Turnout", start: 70, short: "Less than half the usual crowd" },
+  { id: "time", zh: "Time", label: "Preparations", start: 60, short: "Not ready in time, so the opening slips half an hour" },
 ];
 export const THRESHOLD = 35;
 
 /** How the evening ended, beyond on/reduced/postponed/cancelled: each tag is something the 20:00 scene shows. */
 export const TAGS: Record<string, { zh: string; prio: number; good?: boolean }> = {
-  protest_rally: { zh: "慶典變成了抗議集會", prio: 1 },
-  mayor_absent: { zh: "市長沒有出席開場", prio: 2 },
-  mayor_booed: { zh: "市長致詞時，台下有人舉牌抗議", prio: 3 },
-  early_exit: { zh: "人潮提早散場", prio: 4 },
-  on_square: { zh: "舞台封鎖，改在廣場空地舉行", prio: 5 },
-  no_pigeons: { zh: "開場沒有白鴿", prio: 6 },
-  vendor_strike: { zh: "攤商罷市，廣場空了一半", prio: 7 },
-  no_daughter: { zh: "少了一個表演節目", prio: 8 },
-  no_fireworks: { zh: "壓軸煙火取消", prio: 9 },
-  thin_police: { zh: "警力不足", prio: 10 },
-  thin_crowd: { zh: "來的人比往年少", prio: 11 },
-  uneasy: { zh: "鎮上議論紛紛", prio: 12 },
-  packed: { zh: "傳言引來大批看熱鬧的人，盛況空前", prio: 13, good: true },
+  protest_rally: { zh: "The festival turned into a protest rally", prio: 1 },
+  mayor_absent: { zh: "The mayor didn't show up for the opening", prio: 2 },
+  mayor_booed: { zh: "Protest signs went up while the mayor gave his speech", prio: 3 },
+  early_exit: { zh: "The crowd left early", prio: 4 },
+  on_square: { zh: "The stage was closed off, so it moved to the open plaza", prio: 5 },
+  no_pigeons: { zh: "No doves at the opening", prio: 6 },
+  vendor_strike: { zh: "The stall owners went on strike, leaving half the plaza empty", prio: 7 },
+  no_daughter: { zh: "One act was missing from the program", prio: 8 },
+  no_fireworks: { zh: "The closing fireworks were called off", prio: 9 },
+  thin_police: { zh: "Too few police", prio: 10 },
+  thin_crowd: { zh: "Fewer people came than in past years", prio: 11 },
+  uneasy: { zh: "The town was buzzing with gossip", prio: 12 },
+  packed: { zh: "The rumors drew a huge crowd of curious onlookers, the biggest turnout ever", prio: 13, good: true },
 };
 /** a broken meter already says this tag in its own words */
 const IMPLIED: Partial<Record<Meter, string>> = { site: "on_square", money: "no_fireworks", mayor: "mayor_absent", crowd: "thin_crowd" };
@@ -62,13 +62,13 @@ export interface Readiness {
   milestones: MilestoneResult[];
   outcome: {
     kind: "on" | "reduced" | "postponed" | "cancelled";
-    /** one zh line per meter that broke, most specific wording first */
+    /** one line per meter that broke, most specific wording first */
     missing: string[];
     /** what the 20:00 scene shows, most important first (TAGS ids) */
     tags: string[];
-    /** e.g. 「今晚的燈籠節：照常舉行，但開場沒有白鴿、現場有點冷清。」 */
+    /** e.g. "Tonight's Lantern Festival: on as planned, but no doves at the opening and the town was buzzing with gossip." */
     text: string;
-    short: string; // 照常 / 縮水 / 延後 / 取消
+    short: string; // on / scaled down / postponed / cancelled
   };
 }
 
@@ -77,11 +77,12 @@ const SAFETY_TOPICS = new Set(["stage_unsafe", "lanterns_flammable", "threat", "
 const GOSSIP_TOPICS = new Set(["mayor_fears_pigeons", "birds_banned"]);
 /** word of mouth: what a believed, retold claim does to the town (once per resident and kind, capped) */
 const MOUTH: { topics: Set<string>; meter: Meter; per: number; cap: number; why: string }[] = [
-  { topics: SAFETY_TOPICS, meter: "crowd", per: -3, cap: -12, why: "怕出事的傳言在鎮上傳開，有人打算不去了" },
-  { topics: new Set([...MONEY_TOPICS, "birds_banned"]), meter: "mood", per: -3, cap: -12, why: "對鎮公所的不滿在鎮上傳開" },
-  { topics: new Set(["mayor_fears_pigeons"]), meter: "crowd", per: 3, cap: 12, why: "「市長怕鴿子」讓更多人想來看開場" },
+  { topics: SAFETY_TOPICS, meter: "crowd", per: -3, cap: -12, why: "Talk that something might go wrong spread, and some people plan to stay home" },
+  { topics: new Set([...MONEY_TOPICS, "birds_banned"]), meter: "mood", per: -3, cap: -12, why: "Grumbling about the town hall spread around town" },
+  { topics: new Set(["mayor_fears_pigeons"]), meter: "crowd", per: 3, cap: 12, why: "“The mayor is scared of pigeons” made more people want to see the opening" },
 ];
-const STAGE_DEFECT = FACTS.find((f) => f.id === "stage_uninspected")?.check?.zh ?? "\u0000";
+// what an inspection of the stage finds: the fact's check as it reads now, and as the older Chinese logs wrote it
+const STAGE_DEFECTS = checkTexts(FACTS.find((f) => f.id === "stage_uninspected") ?? { id: "stage_uninspected" });
 
 /**
  * `claims` (run.claims) gives older logs the topic and direction of each claim; newer belief events carry them.
@@ -118,7 +119,7 @@ export function readinessOf(events: SimEvent[], claims: { id: string; topic: str
         holders.get(topic)!.add(e.actor);
         if (!alarmRaised && holders.get(topic)!.size >= 6) {
           alarmRaised = true;
-          add(e, "安全謠言傳遍了全鎮", { crowd: -20, mood: -10 });
+          add(e, "Safety rumors spread all over town", { crowd: -20, mood: -10 });
         }
       }
     } else if ((e.type === "talk" || (e.type === "phone" && !d.missed)) && e.actor) {
@@ -133,28 +134,28 @@ export function readinessOf(events: SimEvent[], claims: { id: string; topic: str
           add(e, w.why, { [w.meter]: w.per });
         });
       }
-    } else if ((e.type === "inspect" || e.type === "look") && d.found && !defectSeen && String(d.found).includes(STAGE_DEFECT)) {
+    } else if ((e.type === "inspect" || e.type === "look") && d.found && !defectSeen && STAGE_DEFECTS.some((x) => String(d.found).includes(x))) {
       defectSeen = true;
-      add(e, "有人親眼證實舞台的支架有問題", { site: -20 });
+      add(e, "Someone saw for themselves that the stage's supports are faulty", { site: -20 });
     } else if (e.type === "state") {
       const key = String(d.key);
-      if (key === "stage" && d.to === "closed") add(e, "舞台被封鎖", { site: -35, time: -25, people: -15, crowd: -15 });
-      else if (key === "police") add(e, "警察出動", { crowd: -15, time: -10 });
+      if (key === "stage" && d.to === "closed") add(e, "The stage was closed off", { site: -35, time: -25, people: -15, crowd: -15 });
+      else if (key === "police") add(e, "The police were called out", { crowd: -15, time: -10 });
       else if (key === "festival" && d.to === "cancelled") cancelled = true;
     } else if (e.type === "article") {
       // what the article is about decides what it does: a scandal, a scare, gossip, a denial — or nothing at all
       // (a piece about cheap fish at the harbour does not touch the festival)
       const cited = ((d.claims as string[] | undefined) ?? []).filter((c) => topicOf(c) && topicOf(c) !== "other");
       const yes = (set: Set<string>) => cited.some((c) => set.has(topicOf(c)) && says(c) === "yes");
-      if (yes(MONEY_TOPICS)) add(e, "經費醜聞上了新聞", { money: -25, mayor: -25, mood: -20 });
-      else if (yes(SAFETY_TOPICS)) add(e, "安全疑慮上了新聞", { mood: -15, crowd: -10 });
-      else if (yes(GOSSIP_TOPICS)) add(e, "八卦文章讓更多人想來看開場", { crowd: 5, mayor: -5 });
-      else if (cited.length && cited.every((c) => says(c) === "no")) add(e, "一篇闢謠的文章傳開了", { mood: -5 });
-    } else if (e.type === "statement" && e.actor === "mayor") add(e, "市長被迫出面澄清", { mayor: -10 });
+      if (yes(MONEY_TOPICS)) add(e, "A money scandal made the news", { money: -25, mayor: -25, mood: -20 });
+      else if (yes(SAFETY_TOPICS)) add(e, "Safety worries made the news", { mood: -15, crowd: -10 });
+      else if (yes(GOSSIP_TOPICS)) add(e, "A gossip piece made more people want to see the opening", { crowd: 5, mayor: -5 });
+      else if (cited.length && cited.every((c) => says(c) === "no")) add(e, "An article debunking the rumor got around", { mood: -5 });
+    } else if (e.type === "statement" && e.actor === "mayor") add(e, "The mayor had to come out and set the record straight", { mayor: -10 });
     else if (e.type === "gather") {
       gathered = true;
-      add(e, "攤商聚集抗議", { mood: -15, supplies: -15, time: -10, ...(e.place === "townhall" ? { mayor: -10 } : {}) });
-    } else if (e.type === "notice" && e.actor === "organizer") add(e, "志明貼出安撫公告", { mood: 10, crowd: 10 });
+      add(e, "Stall owners gathered in protest", { mood: -15, supplies: -15, time: -10, ...(e.place === "townhall" ? { mayor: -10 } : {}) });
+    } else if (e.type === "notice" && e.actor === "organizer") add(e, "Zhiming put up a reassuring notice", { mood: 10, crowd: 10 });
   }
 
   // shops count as they stand now: one that closed and reopened is open
@@ -162,13 +163,13 @@ export function readinessOf(events: SimEvent[], claims: { id: string; topic: str
   const now = snapshotAt(events, info, evalAt);
   for (const [shop, ev] of now.closed) {
     const e = events.find((x) => x.id === ev)!;
-    if (shop === "flower") add(e, "花店關門", { supplies: -10 });
-    else if (shop === "bakery") add(e, "麵包店關門", { supplies: -20 });
-    else add(e, "店家關門", { supplies: -10 });
+    if (shop === "flower") add(e, "The flower shop closed", { supplies: -10 });
+    else if (shop === "bakery") add(e, "The bakery closed", { supplies: -20 });
+    else add(e, "A shop closed", { supplies: -10 });
   }
 
   const milestones = milestonesUpTo(events, info, upTo);
-  for (const m of milestones) if (Object.keys(m.delta).length) changes.push({ event: m.causes[0] ?? "", t: m.at, why: `${m.zh}：${m.text}`, delta: m.delta });
+  for (const m of milestones) if (Object.keys(m.delta).length) changes.push({ event: m.causes[0] ?? "", t: m.at, why: `${m.zh}: ${m.text}`, delta: m.delta });
 
   const meters = Object.fromEntries(METERS.map((m) => [m.id, m.start])) as Record<Meter, number>;
   for (const c of changes) for (const [k, v] of Object.entries(c.delta)) meters[k as Meter] = Math.max(0, Math.min(100, meters[k as Meter] + (v ?? 0)));
@@ -176,8 +177,8 @@ export function readinessOf(events: SimEvent[], claims: { id: string; topic: str
   const broken = METERS.filter((m) => meters[m.id] < THRESHOLD);
   const missing = broken.map((m) => {
     if (m.id !== "supplies") return m.short;
-    const what = [now.closed.has("flower") && "沒有花飾", now.closed.has("bakery") && "沒有點心"].filter(Boolean);
-    return what.length ? what.join("、") : m.short;
+    const what = [now.closed.has("flower") && "flower decorations", now.closed.has("bakery") && "pastries"].filter(Boolean);
+    return what.length ? `No ${what.join(" or ")}` : m.short;
   });
   let kind: Readiness["outcome"]["kind"] = "on";
   if (cancelled) kind = "cancelled";
@@ -200,19 +201,21 @@ export function readinessOf(events: SimEvent[], claims: { id: string; topic: str
   const ordered = [...tags].sort((a, b) => TAGS[a].prio - TAGS[b].prio);
   const said = new Set(broken.map((m) => IMPLIED[m.id]).filter(Boolean));
   const extra = ordered.filter((t) => !said.has(t)).map((t) => TAGS[t].zh);
-  const short = { on: "照常", reduced: "縮水", postponed: "延後", cancelled: "取消" }[kind];
-  const lines = [...missing, ...extra].slice(0, 3);
+  const short = { on: "on", reduced: "scaled down", postponed: "postponed", cancelled: "cancelled" }[kind];
+  // each line reads on its own ("No doves at the opening"); inside the sentence it starts small
+  const lines = [...missing, ...extra].slice(0, 3).map((l) => l.charAt(0).toLowerCase() + l.slice(1));
+  const and = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}` : xs[0]);
   const text =
     kind === "cancelled"
-      ? "今晚的燈籠節：取消了。"
+      ? "Tonight's Lantern Festival: cancelled."
       : kind === "postponed"
-        ? `今晚的燈籠節：延後舉行——${lines.join("，")}。`
+        ? `Tonight's Lantern Festival: postponed — ${lines.join("; ")}.`
         : kind === "reduced"
-          ? `今晚的燈籠節：縮水舉行——${lines.join("，")}。`
+          ? `Tonight's Lantern Festival: scaled down — ${lines.join("; ")}.`
           : lines.length
             ? ordered.every((t) => TAGS[t].good)
-              ? `今晚的燈籠節：照常舉行，${lines.join("，")}。`
-              : `今晚的燈籠節：照常舉行，但${lines.join("、")}。`
-            : "今晚的燈籠節：照常舉行。";
+              ? `Tonight's Lantern Festival: on as planned, and ${lines.join("; ")}.`
+              : `Tonight's Lantern Festival: on as planned, but ${and(lines)}.`
+            : "Tonight's Lantern Festival: on as planned.";
   return { meters, changes, milestones, outcome: { kind, missing, tags: ordered, text, short } };
 }

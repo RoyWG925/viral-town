@@ -19,7 +19,7 @@ test("an untouched evening: every milestone goes to plan and the festival is on,
   const r = readinessOf([]);
   assert.equal(r.outcome.kind, "on");
   assert.deepEqual(r.outcome.tags, []);
-  assert.equal(r.outcome.text, "今晚的燈籠節：照常舉行。");
+  assert.equal(r.outcome.text, "Tonight's Lantern Festival: on as planned.");
   assert.deepEqual(r.milestones.map((m) => m.status), ["ok", "ok", "ok", "ok", "ok"]);
 });
 
@@ -37,10 +37,10 @@ test("the flower shop still shut at 18:00: no pigeons, and the closing is the lo
   assert.equal(p.status, "failed");
   assert.deepEqual(p.causes, [close.id]);
   assert.ok(r.outcome.tags.includes("no_pigeons"));
-  assert.ok(r.outcome.text.includes("沒有白鴿"));
+  assert.ok(r.outcome.text.toLowerCase().includes("no doves"), r.outcome.text);
 });
 
-test("美玲's own worry keeps the birds back only if she believes a danger, and the belief is the cause", () => {
+test("Meiling's own worry keeps the birds back only if she believes a danger, and the belief is the cause", () => {
   const sure = belief("florist", "c1", "pigeons_sick", "yes", 0.7, 100);
   assert.equal(readinessOf([sure]).milestones.find((m) => m.id === "pigeons")!.causes[0], sure.id);
   // believing the birds are healthy is not a danger
@@ -53,7 +53,7 @@ test("direction matters: a denial is not a scandal, believing the lanterns are s
   const denial = readinessOf([belief("journalist", "c1", "mayor_embezzled", "no", 0.9), ev("article", 60, { claims: ["c1"] }, { actor: "journalist" })]);
   assert.ok(!denial.changes.some((c) => c.delta.money), "a denial does not cost the festival money");
   const safe = readinessOf(["baker", "florist", "cafe", "vendor", "police", "organizer"].map((who) => belief(who, "c2", "lanterns_flammable", "no", 0.9)));
-  assert.ok(!safe.changes.some((c) => c.why.includes("安全謠言")));
+  assert.ok(!safe.changes.some((c) => c.why.includes("Safety rumors")));
   const fish = readinessOf([belief("journalist", "c3", "other", "yes", 0.9), ev("article", 60, { claims: ["c3"] }, { actor: "journalist" })]);
   assert.equal(fish.changes.length, 0);
   assert.equal(fish.outcome.kind, "on");
@@ -69,7 +69,7 @@ test("word of mouth: belief alone moves nothing; a believer who passes it on cou
   // eight believers who all pass it on: capped at -12
   const who = ["baker", "florist", "cafe", "vendor", "police", "organizer", "journalist", "mayor"];
   const many = readinessOf(who.flatMap((w, i) => [belief(w, "c1", "stage_unsafe", "yes", 0.8, 20 + i), talk(w, "cafe", ["c1"], 30 + i)]));
-  const crowd = many.changes.filter((c) => c.why.includes("怕出事")).reduce((s, c) => s + (c.delta.crowd ?? 0), 0);
+  const crowd = many.changes.filter((c) => c.why.includes("might go wrong")).reduce((s, c) => s + (c.delta.crowd ?? 0), 0);
   assert.equal(crowd, -12);
   for (const c of many.changes) assert.ok(many.changes.length && c.event, "every change names its event");
 });
@@ -91,7 +91,7 @@ test("the live clock only counts milestones already reached; the 20:00 tags exis
 });
 
 const call = (content: string): LlmCall => ({ content, status: 200, latencyMs: 5, attempts: 1, promptTokens: 100, completionTokens: 20, platformCost: 0, estCost: 0, rateHeaders: {}, provider: "fake" });
-const TELL = { feeling: "😟 擔心", act: "worry", understanding: "x", thought: "得跟人說", claims: [], stances: [], actions: [{ type: "tell", target: "cafe", message: "舞台好像不太穩" }, { type: "phone", target: "journalist", message: "舞台好像不太穩" }] };
+const TELL = { feeling: "😟 Worried", act: "worry", understanding: "x", thought: "I have to tell someone", claims: [], stances: [], actions: [{ type: "tell", target: "cafe", message: "The stage seems a bit shaky" }, { type: "phone", target: "journalist", message: "The stage seems a bit shaky" }] };
 const ALL8 = ["baker", "florist", "journalist", "cafe", "police", "mayor", "organizer", "vendor"];
 
 test("every story reaches 20:00: after the decision budget, the milestones and the festival still play, and nobody decides anything new", async () => {
@@ -100,12 +100,12 @@ test("every story reaches 20:00: after the decision budget, the milestones and t
     calls++;
     return call(JSON.stringify(TELL));
   };
-  const run = await simulate({ active: ALL8, seedNpc: "baker", seedText: "舞台好像不太穩", seed: 41, policy: "gemma", chat, maxDecisions: 3, maxPerNpc: 3 });
+  const run = await simulate({ active: ALL8, seedNpc: "baker", seedText: "The stage seems a bit shaky", seed: 41, policy: "gemma", chat, maxDecisions: 3, maxPerNpc: 3 });
   assert.equal(run.ended.reason, "budget");
   assert.equal(run.ended.t, 300, "the evening is played to the festival");
   assert.equal(run.events.filter((e) => e.type === "milestone").length, 5);
   const fest = run.events.find((e) => e.type === "festival")!;
-  assert.ok(fest && fest.t === 300 && String(fest.zh).startsWith("今晚的燈籠節"));
+  assert.ok(fest && fest.t === 300 && String(fest.zh).startsWith("Tonight's Lantern Festival"));
   assert.ok(calls <= 3 * 2 + 3, "no model calls after the budget (retries aside)");
   const real = run.decisions.filter((d) => !d.validation.some((v) => v.kind === "budget"));
   assert.equal(real.length, 3, "only the budgeted decisions were made");
@@ -115,8 +115,8 @@ test("every story reaches 20:00: after the decision budget, the milestones and t
 });
 
 test("the festival event says the same as the results would", async () => {
-  const run = await simulate({ active: ALL8, seedNpc: "vendor", seedText: "今天天氣不錯", seed: 42, policy: "gemma", chat: async () => call(JSON.stringify({ ...TELL, actions: [{ type: "none", why: "x" }] })), maxDecisions: 5 });
+  const run = await simulate({ active: ALL8, seedNpc: "vendor", seedText: "Nice weather today", seed: 42, policy: "gemma", chat: async () => call(JSON.stringify({ ...TELL, actions: [{ type: "none", why: "x" }] })), maxDecisions: 5 });
   const fest = run.events.find((e) => e.type === "festival")!;
   assert.equal(fest.zh, readinessOf(run.events, run.claims).outcome.text);
-  assert.equal(fest.zh, "今晚的燈籠節：照常舉行。");
+  assert.equal(fest.zh, "Tonight's Lantern Festival: on as planned.");
 });

@@ -8,12 +8,31 @@ export type MilestoneId = "stage_check" | "pigeons" | "vendors" | "police" | "re
 export type Meter = "people" | "supplies" | "money" | "site" | "mayor" | "mood" | "crowd" | "time";
 
 export const MILESTONES: { id: MilestoneId; at: number; zh: string }[] = [
-  { id: "stage_check", at: 120, zh: "17:00 舞台巡查" },
-  { id: "pigeons", at: 180, zh: "18:00 白鴿送到舞台" },
-  { id: "vendors", at: 210, zh: "18:30 攤商進場" },
-  { id: "police", at: 240, zh: "19:00 警力部署" },
-  { id: "rehearsal", at: 270, zh: "19:30 開場彩排" },
+  { id: "stage_check", at: 120, zh: "17:00 Stage walk-through" },
+  { id: "pigeons", at: 180, zh: "18:00 Doves delivered to the stage" },
+  { id: "vendors", at: 210, zh: "18:30 Stall owners set up" },
+  { id: "police", at: 240, zh: "19:00 Police take their posts" },
+  { id: "rehearsal", at: 270, zh: "19:30 Opening rehearsal" },
 ];
+
+/**
+ * What a look or an inspection found, in the words the older Chinese logs (lab/runs, public/recorded) used for each
+ * fact's check. The facts now speak English; these keep those logs reading the same (the stage defect for the 20:00
+ * meters, the hidden problems for tonight's goals).
+ */
+export const LEGACY_CHECK_ZH: Record<string, string> = {
+  pigeons: "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。",
+  pigeons_sick: "鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。",
+  stage_uninspected: "舞台沒有任何安全檢查紀錄，左後方的一根支架明顯鬆動。",
+  lanterns_unsafe: "燈籠上貼著防火材質的合格標籤。",
+  budget_overrun: "公開的慶典收支表上，實際支出比原本的預算多了三成。",
+  oven_expired: "烤箱的安全檢查貼紙日期是兩個月前，已經過期。",
+};
+
+/** Every wording of a fact's check that a log may contain: the current one first, then the older Chinese one. */
+export function checkTexts(f: { id: string; check?: { zh: string } }): string[] {
+  return [...new Set([f.check?.zh, LEGACY_CHECK_ZH[f.id]].filter((x): x is string => !!x))];
+}
 
 export interface MilestoneResult {
   id: MilestoneId;
@@ -97,38 +116,38 @@ export function milestoneOf(id: MilestoneId, events: SimEvent[], info: Map<strin
   const m = MILESTONES.find((x) => x.id === id)!;
   const s = snapshotAt(events, info, m.at);
   const r = (status: MilestoneResult["status"], text: string, causes: string[] = [], delta: MilestoneResult["delta"] = {}, tag?: string): MilestoneResult => ({ id, at: m.at, zh: m.zh, status, text, causes, delta, tag });
-  if (s.festivalCancelled) return r("failed", "燈籠節已經取消了", [s.festivalCancelled]);
+  if (s.festivalCancelled) return r("failed", "The Lantern Festival has already been cancelled", [s.festivalCancelled]);
   switch (id) {
     case "stage_check":
-      if (s.stageClosed) return r("moved", "舞台已被封鎖，節目改到廣場空地", [s.stageClosed], {}, "on_square");
-      return r("ok", "巡查完畢，舞台照常使用");
+      if (s.stageClosed) return r("moved", "The stage is taped off, so the show moves to the open plaza", [s.stageClosed], {}, "on_square");
+      return r("ok", "Walk-through done; the stage is good to go");
     case "pigeons": {
       const shut = s.closed.get("flower");
-      if (shut) return r("failed", "美玲的花店關著，白鴿沒有送來", [shut], { supplies: -15 }, "no_pigeons");
+      if (shut) return r("failed", "Meiling's Flowers is closed, so the doves never arrived", [shut], { supplies: -15 }, "no_pigeons");
       // her own worry about danger, already in the log: she keeps the birds back (no new decision is made for her)
       const fear = believes(s, "florist", DANGER_TO_PIGEONS, 0.6);
-      if (fear) return r("failed", "美玲把白鴿留在店裡，不放心讓牠們上場", [fear.ev], { supplies: -15 }, "no_pigeons");
-      if (s.stageClosed) return r("moved", "白鴿送到了，改在廣場放飛", [s.stageClosed]);
-      return r("ok", "一百隻白鴿送到舞台邊");
+      if (fear) return r("failed", "Meiling kept the doves at her shop; she doesn't trust it's safe for them", [fear.ev], { supplies: -15 }, "no_pigeons");
+      if (s.stageClosed) return r("moved", "The doves arrived; they'll be released on the plaza instead", [s.stageClosed]);
+      return r("ok", "A hundred white doves arrived beside the stage");
     }
     case "vendors": {
       const protest = s.gathers.find((g) => g.actor === "vendor");
-      if (protest) return r("failed", `攤商們沒有進場，還聚在${placeZh(protest.place)}討公道`, [protest.ev], { supplies: -15, mood: -10 }, "vendor_strike");
+      if (protest) return r("failed", `The stall owners never set up; they're still at ${placeZh(protest.place)} demanding answers`, [protest.ev], { supplies: -15, mood: -10 }, "vendor_strike");
       const stall = s.closed.get("stall");
-      if (stall) return r("moved", "阿珠的攤位沒開，廣場少了章魚燒", [stall], { supplies: -5 });
-      return r("ok", "攤商陸續進場擺攤");
+      if (stall) return r("moved", "Azhu's stall stayed shut, so there's no takoyaki on the plaza", [stall], { supplies: -5 });
+      return r("ok", "The stall owners are setting up one by one");
     }
     case "police":
       if (s.police && s.police.place !== "stage" && s.police.place !== "plaza")
-        return r("moved", `警力被派去${placeZh(s.police.place)}，廣場只剩一半人手`, [s.police.ev], { crowd: -10 }, "thin_police");
-      if (s.police) return r("ok", `警察已經在${placeZh(s.police.place)}待命`, [s.police.ev]);
-      return r("ok", "警察照計畫在廣場就位");
+        return r("moved", `Officers were sent to ${placeZh(s.police.place)}, leaving the plaza half-staffed`, [s.police.ev], { crowd: -10 }, "thin_police");
+      if (s.police) return r("ok", `The police are already standing by at ${placeZh(s.police.place)}`, [s.police.ev]);
+      return r("ok", "The police are in position on the plaza, as planned");
     case "rehearsal": {
       // 美咲's daughter performs tonight; a mother sure the stage is unsafe keeps her off it (her belief is in the log)
       const worry = s.stageClosed ? null : believes(s, "cafe", new Set(["stage_unsafe"]), 0.6);
-      if (worry) return r("failed", "美咲不讓女兒上台，開場少了一個節目", [worry.ev], { people: -10 }, "no_daughter");
-      if (s.stageClosed) return r("moved", "彩排改在廣場空地", [s.stageClosed], {}, "on_square");
-      return r("ok", "彩排順利");
+      if (worry) return r("failed", "Misaki won't let her daughter on stage, so the opening is one act short", [worry.ev], { people: -10 }, "no_daughter");
+      if (s.stageClosed) return r("moved", "The rehearsal moves to the open plaza", [s.stageClosed], {}, "on_square");
+      return r("ok", "The rehearsal goes smoothly");
     }
   }
 }

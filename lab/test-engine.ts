@@ -6,8 +6,9 @@ import { FACTS } from "../src/sim/scenario.ts";
 
 const ALL8 = ["baker", "florist", "journalist", "cafe", "police", "mayor", "organizer", "vendor"];
 const SENTENCES = [
-  "聽說市長很害怕鴿子。", "聽說廣場的舞台是趕工搭的，可能撐不住人。", "攤位費漲價是因為鎮公所把錢花光了。",
-  "慶典那批鴿子好像生病了。", "今晚好像有人要在慶典上搞破壞。", "港口今天的魚特別便宜。",
+  "I heard the mayor is terrified of pigeons.", "I heard the stage on the plaza was thrown up in a rush and might not hold people.",
+  "The stall fee went up because the town hall spent all the money.", "The festival pigeons seem to be sick.",
+  "Someone is planning to sabotage the festival tonight.", "Fish at the harbor is extra cheap today.",
 ];
 
 async function runs(): Promise<{ run: RunResult; frontiers: number[]; emittedAfter: { t: number; frontier: number }[] }[]> {

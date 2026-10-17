@@ -21,7 +21,29 @@ const recorded = (id: string) => {
   const j = JSON.parse(readFileSync(`lab/runs/${batch}/${rest.join("-")}.json`, "utf8"));
   return (j.run ?? j) as RunResult;
 };
+const CJK = /[㐀-鿿]/;
 const grams = (t: string, n = 4) => [...t.replace(/[，。、！？；：「」\s]/g, "")].map((_, i, a) => a.slice(i, i + n).join("")).filter((g) => g.length === n);
+// English copy is checked in word pairs, about as long as the four-character Chinese pieces: two words in a row,
+// small words skipped, never across punctuation or an emoji; the town's public names (the stall owners, the
+// Lantern Festival…) count as one word, as 攤商 and 燈籠節 did
+const SMALL = new Set(
+  "a an the and or but of to in on at for with by from as is are was were be been being it its this that these those he she him her his they them their you your i me my we our up out so too just can can't could no not any all".split(" "),
+);
+const PUBLIC = ["lantern festival", "stall owners", "stall owner", "stall fee", "town hall", "notice board", "news blog", "festival stage"];
+const pairs = (t: string) => {
+  let s = t.toLowerCase().replace(/’/g, "'");
+  for (const x of PUBLIC) s = s.replaceAll(x, x.replace(/ /g, "_"));
+  const out: string[] = [];
+  for (const clause of s.split(/[^a-z0-9_'%\s]+/)) {
+    const w = clause.split(/\s+/).map((x) => x.replace(/^'+|'+$/g, "")).filter((x) => x && !SMALL.has(x));
+    for (let i = 0; i + 1 < w.length; i++) out.push(`${w[i]} ${w[i + 1]}`);
+  }
+  return out;
+};
+/** The pieces of `t` that `copy` repeats: four-character pieces of a Chinese text, word pairs of an English one. */
+const echoed = (copy: string, t: string) => (CJK.test(t) ? grams(t).filter((g) => copy.includes(g)) : pairs(t).filter((g) => pairs(copy).includes(g)));
+// a promise of what someone will do (an ability says "can")
+const PROMISE = /會|\b(will|won't|would)\b/i;
 
 test("every core resident has a role card", () => {
   assert.deepEqual([...CAST].sort(), [...ALL8].sort());
@@ -39,16 +61,16 @@ test("ability chips are exactly the persona's own actions; contacts are its phon
   }
 });
 
-test("role copy never promises (會) and never gives away wants, secrets or fact keywords", () => {
+test("role copy never promises (will / 會) and never gives away wants, secrets or fact keywords", () => {
   const keywords = FACTS.flatMap((f) => f.keywords);
   for (const p of PERSONAS) {
     const copy = [ROLES[p.id].tag, ...toolsOf(p.id).map((t) => t.label)].join(" ");
-    assert.ok(!copy.includes("會"), `${p.id}: copy says 會: ${copy}`);
-    for (const k of keywords) assert.ok(!copy.includes(k), `${p.id}: copy contains fact keyword ${k}`);
-    for (const g of grams(p.wants)) assert.ok(!copy.includes(g), `${p.id}: copy echoes wants (${g})`);
-    for (const s of p.secrets) for (const g of grams(FACTS.find((f) => f.id === s)!.zh)) assert.ok(!copy.includes(g), `${p.id}: copy echoes secret ${s} (${g})`);
+    assert.ok(!PROMISE.test(copy), `${p.id}: copy promises (will/會): ${copy}`);
+    for (const k of keywords) assert.ok(!copy.toLowerCase().includes(k.toLowerCase()), `${p.id}: copy contains fact keyword ${k}`);
+    assert.deepEqual(echoed(copy, p.wants), [], `${p.id}: copy echoes wants`);
+    for (const s of p.secrets) assert.deepEqual(echoed(copy, FACTS.find((f) => f.id === s)!.zh), [], `${p.id}: copy echoes secret ${s}`);
   }
-  for (const label of Object.values(TOOL)) assert.ok(!label!.includes("會"), label);
+  for (const label of Object.values(TOOL)) assert.ok(!PROMISE.test(label!), label);
 });
 
 test("a resident's first example chip changed the world in P5–P9, wherever such an input exists", () => {
@@ -62,8 +84,9 @@ test("a resident's first example chip changed the world in P5–P9, wherever suc
     }
   }
   if (!changed.size) return; // lab runs not present in this checkout
-  for (const [npc, texts] of changed) assert.ok(texts.has(ROLES[npc].examples[0]), `${npc}: first example "${ROLES[npc].examples[0]}" never changed the world`);
-  for (const npc of ["baker", "cafe"]) assert.ok(!ROLES[npc].examples[0].includes("鴿子"), `${npc}: the pigeon line fizzled 5/5 and must not lead`);
+  // the recorded runs logged the Chinese wording of each chip (examplesZh); an English run logs the English one
+  for (const [npc, texts] of changed) assert.ok(texts.has(ROLES[npc].examples[0]) || texts.has(ROLES[npc].examplesZh[0]), `${npc}: first example "${ROLES[npc].examples[0]}" never changed the world`);
+  for (const npc of ["baker", "cafe"]) assert.ok(!/pigeon|dove/i.test(ROLES[npc].examples[0]) && !ROLES[npc].examplesZh[0].includes("鴿子"), `${npc}: the pigeon line fizzled 5/5 and must not lead`);
 });
 
 test("suggestNext: two other residents, outside the reached set when the story fizzled (P1-meme-organizer)", () => {
@@ -74,14 +97,14 @@ test("suggestNext: two other residents, outside the reached set when the story f
     assert.equal(next.length, 2, id);
     for (const s of next) {
       assert.notEqual(s.npc, run.config.seedNpc, id);
-      assert.ok(!/會/.test(s.why), `${id}: ${s.why}`);
+      assert.ok(!PROMISE.test(s.why), `${id}: ${s.why}`);
     }
     const outside = run.config.active.filter((n) => n !== run.config.seedNpc && !card.reached.includes(n));
     if (id === "P1-meme-organizer") assert.ok(outside.length > 0 && next.some((s) => outside.includes(s.npc)), `${id}: ${next.map((s) => s.npc)}`);
   }
 });
 
-test("今晚行程: P5-lantern-baker counts down to 老周's 17:00 stage round only once he carries a safety belief", () => {
+test("tonight's schedule: P5-lantern-baker counts down to Chief Zhou's 17:00 stage round only once he carries a safety belief", () => {
   const run = recorded("P5-lantern-baker");
   const evs = sorted(run);
   const r = ROUTINE.find((x) => x.who === "police" && x.with === "organizer")!;
@@ -93,17 +116,17 @@ test("今晚行程: P5-lantern-baker counts down to 老周's 17:00 stage round o
     first ??= played.at(-1)!.t;
     // the reason is in what has played: a belief of a kind the meeting is about
     assert.ok(played.some((e) => e.type === "belief" && (e.actor === "police" || e.actor === "organizer") && Number(e.data.to) >= 0.3), "countdown without a carried belief");
-    assert.match(up.text, /老周/);
-    assert.ok(!/封鎖|出動|取消|會/.test(up.text), `the chip implies an outcome: ${up.text}`);
+    assert.ok(up.text.includes(PERSONAS.find((p) => p.id === "police")!.name), up.text);
+    assert.ok(!/封鎖|出動|取消|會|\b(clos(?:e|ed|es|ing)|seal(?:ed|s)?|sen[dt]|dispatch(?:ed|es)?|cancel(?:l?ed|s)?|called off|will|won't)\b/i.test(up.text), `the chip implies an outcome: ${up.text}`);
   }
   assert.ok(first !== null && first >= r.at - 15 && first < r.at, `countdown never appeared before 17:00 (first ${first})`);
-  // 阿珠's fee meeting is about policy/scandal; nobody in this lantern story carries that
+  // Azhu's fee meeting is about policy/scandal; nobody in this lantern story carries that
   for (let i = 1; i <= evs.length; i++) assert.notEqual(upcomingMeeting(run, evs.slice(0, i), evs[i - 1].t)?.at, 210);
   const ticks = meetingTicks(run, evs, evs.at(-1)!.t, true);
   assert.ok(ticks.length > 0 && ticks.every((t) => t.state !== "ahead"));
 });
 
-test("補一句: the second seed is a root of the story, printed on the card", async () => {
+test("one more line: the second seed is a root of the story, printed on the card", async () => {
   let asked = 0;
   // small talk fizzles at once under the rule policy, so the engine offers the lull
   const run = await simulate({

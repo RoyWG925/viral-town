@@ -3,12 +3,18 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { simulate, type RunResult } from "../src/sim/engine.ts";
-import { PERSONAS } from "../src/sim/scenario.ts";
+import { FACTS, PERSONAS } from "../src/sim/scenario.ts";
 import { storyOf } from "../src/town/story.ts";
 
 const ALL8 = ["baker", "florist", "journalist", "cafe", "police", "mayor", "organizer", "vendor"];
 const runs: { name: string; run: RunResult }[] = [];
-for (const [i, text] of ["聽說市長很害怕鴿子。", "聽說廣場的舞台是趕工搭的，可能撐不住人。", "今晚好像有人要在慶典上搞破壞。", "港口今天的魚特別便宜。"].entries())
+const SEEDS = [
+  "I heard the mayor is terrified of pigeons.",
+  "I heard the stage in the plaza was thrown together in a rush and might not hold anyone.",
+  "Looks like someone is planning to sabotage the festival tonight.",
+  "Fish at the harbor is extra cheap today.",
+];
+for (const [i, text] of SEEDS.entries())
   for (const npc of ["baker", "police", "journalist"]) runs.push({ name: `rules-${npc}-${i}`, run: await simulate({ active: ALL8, seedNpc: npc, seedText: text, seed: 3 + i, policy: "rules", maxDecisions: 30, maxPerNpc: 6 }) });
 for (const dir of ["public/recorded", "lab/runs/P1"]) {
   if (!existsSync(dir)) continue;
@@ -48,9 +54,9 @@ test("a world-change headline only appears when that change happened", () => {
   for (const { name, run } of runs) {
     const card = storyOf(run);
     const has = (key: string) => run.events.some((e) => e.type === "state" && e.data.key === key);
-    if (card.headline.includes("燈籠節取消")) assert.ok(has("festival"), name);
-    if (card.headline.includes("舞台被封鎖")) assert.ok(has("stage"), name);
-    if (card.headline.includes("警察出動")) assert.ok(has("police"), name);
+    if (card.headline.includes("Lantern Festival called off")) assert.ok(has("festival"), name);
+    if (card.headline.includes("stage sealed off")) assert.ok(has("stage"), name);
+    if (card.headline.includes("Police called out")) assert.ok(has("police"), name);
   }
 });
 
@@ -67,14 +73,17 @@ test("digging up a different hidden truth is the headline, not 'nothing found' (
   if (!existsSync(f)) return;
   const run = JSON.parse(readFileSync(f, "utf8")).run as RunResult;
   const card = storyOf(run);
-  assert.ok(card.headline.includes("預算超支"), card.headline);
-  assert.ok(run.events.some((e) => e.type === "inspect" && String(e.data.found).includes("多了三成")), "the finding is in the log");
+  assert.ok(card.headline.includes("set out to check one thing and found another") && card.headline.includes("over budget"), card.headline);
+  // the log is in Chinese: the finding is the overrun check in its older wording
+  const check = FACTS.find((x) => x.id === "budget_overrun")!.check!;
+  assert.ok(run.events.some((e) => e.type === "inspect" && [check.zh, check.legacyZh].some((w) => w && String(e.data.found).includes(w))), "the finding is in the log");
 });
 
 test("a true fact seen first-hand is a finding even if it lowered a belief (P12 wobble-organizer)", () => {
   const f = "lab/runs/P12/wobble-organizer.json";
   if (!existsSync(f)) return;
   const card = storyOf(JSON.parse(readFileSync(f, "utf8")).run as RunResult);
-  assert.ok(!card.headline.includes("查無實據"), card.headline);
-  assert.ok(card.headline.includes("支架"), card.headline);
+  assert.ok(!card.headline.includes("no sign of it"), card.headline);
+  // the log is in Chinese: the strut is 支架 there
+  assert.ok(/went and checked: /.test(card.headline) && /支架|strut/.test(card.headline), card.headline);
 });

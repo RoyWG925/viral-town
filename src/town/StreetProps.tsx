@@ -474,7 +474,7 @@ export default function StreetProps() {
   return (
     <group>
       {STALLS.map((s) => (
-        <Stall key={s.zh} s={s} />
+        <Stall key={s.name} s={s} />
       ))}
       {BINS.map((b) => (
         <Bin key={`${b.x}${b.z}`} x={b.x} z={b.z} />

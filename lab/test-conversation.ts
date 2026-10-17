@@ -72,3 +72,22 @@ test("a rumour about the mayor held by three people reaches the mayor as public 
   assert.ok(String(heard[0].data.text).includes("鎮上好幾個人在傳"));
   assert.ok(run.decisions.some((d) => d.npc === "mayor"), "the mayor gets to respond");
 });
+
+test("a blocked repeat sinks in: the speaker gets to decide what to do instead (once per pair)", async () => {
+  const stage = { ref: "new", source: "m1", statement: "舞台支架鬆了", topic: "stage_unsafe", says: "yes", category: "safety" };
+  const run = await simulate({
+    active: ALL8, seedNpc: "police", seedText: "舞台支架好像鬆了", seed: 24, policy: "gemma", maxDecisions: 8,
+    chat: script({
+      老周: [
+        { feeling: "😠 生氣", act: "angry", understanding: "舞台有問題", thought: "去跟志明講兩次", claims: [stage], stances: [{ claim: 0, verdict: "believe", confidence: 0.45, why: "要確認", cites: ["m1"] }], actions: [{ type: "tell", target: "organizer", message: "志明，支架鬆了！", cites: ["#0"] }, { type: "tell", target: "organizer", message: "志明，我再說一次，支架鬆了！", cites: ["#0"] }] },
+        { feeling: "🤔 思考", act: "ponder", understanding: "說了也沒用", thought: "那我自己去查", claims: [], stances: [], actions: [{ type: "inspect", place: "stage", why: "親自檢查" }] },
+      ],
+    }),
+  });
+  const blocked = run.events.find((e) => e.type === "rejected" && e.actor === "police" && String(e.data.why).includes("說過同一件事"));
+  assert.ok(blocked, "the second line is blocked");
+  const thought = run.events.find((e) => e.type === "deliver" && e.target === "police" && e.data.via === "hunch" && String(e.data.text).includes("再說一次也一樣"));
+  assert.ok(thought, "it sinks in");
+  assert.ok(run.decisions.some((d) => d.npc === "police" && d.triggers.includes(thought!.id)), "and they decide again");
+  assert.equal(run.events.filter((e) => e.type === "deliver" && e.target === "police" && e.data.via === "hunch").length, 1, "only once per pair");
+});

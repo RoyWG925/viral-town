@@ -500,6 +500,15 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       return Math.abs(conf - r.conf) >= 0.25 || (face && !r.face);
     });
   }
+  // Saying it again was blocked: instead of a dead end, it sinks in that talking more will not change the other
+  // person, and they decide what to do now (act, or let it go) — once per pair, so it can never loop.
+  const sunk = new Set<string>();
+  function sinkIn(n: Npc, target: Npc, t: Minutes, cause: string) {
+    const key = `${n.p.id}>${target.p.id}`;
+    if (sunk.has(key)) return;
+    sunk.add(key);
+    at(t + REACT, () => deliver(n, "self", "hunch", "inform", `這件事我已經跟${target.p.name}說過了，再說一次也一樣。接下來我該怎麼做？`, [], t + REACT, cause));
+  }
   function countTalk(a: Npc, b: Npc) {
     a.talks.set(b.p.id, (a.talks.get(b.p.id) ?? 0) + 1);
     b.talks.set(a.p.id, (b.talks.get(a.p.id) ?? 0) + 1);
@@ -561,7 +570,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           return next(t);
         }
         if (a.type === "tell" && isRepeat(n, target, claimIds, true)) {
-          reject(n, t, cause, "已經跟對方說過同一件事了", a);
+          sinkIn(n, target, t, reject(n, t, cause, "已經跟對方說過同一件事了", a));
           return next(t);
         }
         const go = target.dest ?? target.place;
@@ -599,7 +608,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           return next(t);
         }
         if (isRepeat(n, target, claimIds, false)) {
-          reject(n, t, cause, "已經跟對方說過同一件事了", a);
+          sinkIn(n, target, t, reject(n, t, cause, "已經跟對方說過同一件事了", a));
           return next(t);
         }
         if (target.busyUntil > t) {

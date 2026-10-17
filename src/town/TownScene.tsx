@@ -19,9 +19,7 @@ import GameUI from "./GameUI";
 import { agentFor, show } from "./director";
 import { ui } from "./ui";
 import { advance, clock, END_HOUR, formatHour, skyAt, START_HOUR, updateGlow } from "./clock";
-import { crowd } from "./crowdSim";
 import { LITE } from "./quality";
-import { pets } from "./petSim";
 
 // Camera presets: the HUD asks for one and CameraRig glides there.
 // The default frames the main road and the green in front, the plaza in the middle and the town hall behind.
@@ -203,21 +201,16 @@ function SunAndSky() {
   );
 }
 
+/**
+ * Explore-mode HUD, light by default: a one-line title, and a small clock chip with the festival countdown.
+ * Time, views and speed open from the chip only when wanted — the town is the screen, not the panels.
+ */
 function Hud({ onHide }: { onHide: () => void }) {
   const [hour, setHour] = useState(clock.hour);
   const [speed, setSpeed] = useState(clock.speed);
-  const [stats, setStats] = useState({ walking: 0, chatting: 0, inside: 0, working: 0 });
+  const [open, setOpen] = useState(false);
   useEffect(() => {
-    const id = setInterval(() => {
-      setHour(clock.hour);
-      const a = crowd.agents;
-      setStats({
-        walking: a.filter((x) => x.mode === "walk").length,
-        chatting: a.filter((x) => x.mode === "chat").length,
-        inside: a.filter((x) => x.mode === "inside").length,
-        working: a.filter((x) => x.mode === "work" || x.job).length,
-      });
-    }, 250);
+    const id = setInterval(() => setHour(clock.hour), 250);
     return () => clearInterval(id);
   }, []);
   const speeds = [
@@ -226,60 +219,66 @@ function Hud({ onHide }: { onHide: () => void }) {
     { v: 4, label: "4×" },
     { v: 12, label: "12×" },
   ];
+  const left = Math.max(0, 20 - hour);
+  const countdown = left <= 0 ? "燈籠節進行中" : `燈籠節倒數 ${Math.floor(left)}:${String(Math.floor((left % 1) * 60)).padStart(2, "0")}`;
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-wrap items-start justify-between gap-3 p-4">
-      <div className="pointer-events-auto rounded-2xl bg-white/85 px-5 py-3 shadow-lg backdrop-blur">
-        <p className="text-xs font-semibold text-slate-500">VIRAL · 一句話的蝴蝶效應</p>
-        <h1 className="text-2xl font-extrabold text-slate-800">霧港鎮 Mistport</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          {crowd.agents.length} 位鎮民：{stats.walking} 人在走動、{stats.chatting} 人在聊天、{stats.inside} 人在店裡、{stats.working} 人在工作
-        </p>
-        <p className="text-xs text-slate-500">
-          🐾 {pets.list.filter((p) => p.species === "cat").length} 隻貓、{pets.list.filter((p) => p.species === "dog").length} 隻狗在鎮上閒晃（點牠們摸摸頭）
-        </p>
-        <button onClick={onHide} className="mt-2 rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-300">
-          隱藏介面（H）
-        </button>
+    <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3">
+      <div className="pointer-events-auto rounded-full bg-white/75 px-4 py-1.5 shadow backdrop-blur">
+        <span className="text-sm font-extrabold text-slate-800">霧港鎮</span>
+        <span className="ml-2 text-xs font-semibold text-slate-500">VIRAL · 一句話的蝴蝶效應</span>
       </div>
-      <div className="pointer-events-auto w-[min(100%,360px)] rounded-2xl bg-white/85 px-5 py-3 shadow-lg backdrop-blur">
-        <div className="flex items-baseline justify-between">
-          <span className="text-3xl font-extrabold tabular-nums text-slate-800">{formatHour(hour)}</span>
-          <span className="text-xs text-slate-500">燈籠節 20:00 開始</span>
-        </div>
-        <input
-          aria-label="時間"
-          type="range"
-          min={START_HOUR}
-          max={END_HOUR}
-          step={0.01}
-          value={hour}
-          onChange={(e) => {
-            clock.hour = Number(e.target.value);
-            setHour(clock.hour);
-          }}
-          className="mt-2 w-full accent-orange-500"
-        />
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          {(Object.keys(VIEWS) as ViewId[]).map((id) => (
-            <button key={id} onClick={() => (camRequest.view = id)} className="rounded-full bg-orange-100 px-2 py-1 text-sm font-semibold text-orange-800 hover:bg-orange-200">
-              {VIEWS[id].label}
-            </button>
-          ))}
-        </div>
-        <div className="mt-2 flex gap-2">
-          {speeds.map((s) => (
-            <button
-              key={s.v}
-              onClick={() => {
-                clock.speed = s.v;
-                setSpeed(s.v);
+      <div className="pointer-events-auto flex flex-col items-end gap-2">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="flex items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 shadow backdrop-blur hover:bg-white"
+          aria-expanded={open}
+          title="時間、視角與速度"
+        >
+          <span className="text-base font-extrabold tabular-nums text-slate-800">{formatHour(hour)}</span>
+          <span className="text-xs font-semibold text-orange-600">🏮 {countdown}</span>
+          <span className="text-xs text-slate-400">{open ? "▴" : "▾"}</span>
+        </button>
+        {open && (
+          <div className="w-[min(92vw,300px)] rounded-2xl bg-white/90 px-4 py-3 shadow-lg backdrop-blur">
+            <input
+              aria-label="時間"
+              type="range"
+              min={START_HOUR}
+              max={END_HOUR}
+              step={0.01}
+              value={hour}
+              onChange={(e) => {
+                clock.hour = Number(e.target.value);
+                setHour(clock.hour);
               }}
-              className={`flex-1 rounded-full px-2 py-1 text-sm font-semibold ${speed === s.v ? "bg-slate-800 text-white" : "bg-slate-200 text-slate-700"}`}
-            >
-              {s.label}
+              className="w-full accent-orange-500"
+            />
+            <div className="mt-2 grid grid-cols-3 gap-1.5">
+              {(Object.keys(VIEWS) as ViewId[]).map((id) => (
+                <button key={id} onClick={() => (camRequest.view = id)} className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-800 hover:bg-orange-200">
+                  {VIEWS[id].label}
+                </button>
+              ))}
+            </div>
+            <div className="mt-2 flex gap-1.5">
+              {speeds.map((x) => (
+                <button
+                  key={x.v}
+                  onClick={() => {
+                    clock.speed = x.v;
+                    setSpeed(x.v);
+                  }}
+                  className={`flex-1 rounded-full px-2 py-0.5 text-xs font-semibold ${speed === x.v ? "bg-slate-800 text-white" : "bg-slate-200 text-slate-700"}`}
+                >
+                  {x.label}
+                </button>
+              ))}
+            </div>
+            <button onClick={onHide} className="mt-2 w-full rounded-full bg-slate-100 px-3 py-0.5 text-xs text-slate-500 hover:bg-slate-200">
+              隱藏全部介面（H）
             </button>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

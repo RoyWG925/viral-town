@@ -8,7 +8,8 @@ import { formatHour } from "./clock";
 
 const FESTIVAL_HOUR = 20;
 
-export default function ClockPill({ hour, story = false, children }: { hour: number; story?: boolean; children?: ReactNode }) {
+/** `trouble`: what has already gone wrong for the festival in what has played (words, never the meter numbers) */
+export default function ClockPill({ hour, story = false, trouble, children }: { hour: number; story?: boolean; trouble?: string | null; children?: ReactNode }) {
   const [open, setOpen] = useState(false);
   const left = FESTIVAL_HOUR - hour;
   const countdown = left <= 0 ? "燈籠節開始了" : `燈籠節還有 ${Math.floor(left)}:${String(Math.floor((left % 1) * 60)).padStart(2, "0")}`;
@@ -18,11 +19,13 @@ export default function ClockPill({ hour, story = false, children }: { hour: num
     <>
       <span className="text-[11px] font-bold tracking-wide text-slate-400 max-sm:hidden">霧港鎮</span>
       <b className="text-sm font-extrabold tabular-nums text-slate-800">{formatHour(hour)}</b>
-      <span className={`text-xs font-semibold ${left < 1 ? "text-amber-600" : "text-orange-600"}`}>🏮 {countdown}</span>
+      <span className={`text-xs font-semibold ${trouble ? "text-rose-600" : left < 1 ? "text-amber-600" : "text-orange-600"}`} title={trouble ?? undefined}>
+        🏮 {trouble ? `燈籠節不妙 · ${countdown.replace("燈籠節", "")}` : countdown}
+      </span>
       {children && <span className="text-[10px] text-slate-400">{open ? "▴" : "▾"}</span>}
     </>
   );
-  const cls = `pointer-events-auto flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 shadow backdrop-blur ${urgent ? "animate-pulse ring-2 ring-amber-400" : ""}`;
+  const cls = `pointer-events-auto flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 shadow backdrop-blur ${urgent ? "animate-pulse ring-2 ring-amber-400" : trouble ? "ring-2 ring-rose-300" : ""}`;
   if (!children) return <div className={cls}>{body}</div>;
   return (
     <div className="flex flex-col items-start gap-1.5">

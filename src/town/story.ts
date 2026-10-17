@@ -5,6 +5,7 @@
 import type { RunResult } from "../sim/engine.ts";
 import { FACTS, PERSONAS, PLACES, TOPIC_CATEGORY } from "../sim/scenario.ts";
 import { topicFact } from "../sim/view.ts";
+import { readinessOf } from "../sim/readiness.ts";
 import type { Motive, SimEvent } from "../sim/types.ts";
 import { contactsOf, powerOf } from "./roles.ts";
 
@@ -45,6 +46,8 @@ export interface StoryCard {
   whispers: { npc: string; text: string }[];
   /** which planted sentence the spine starts from (0 = the first, 1 = the 補一句) */
   spineRoot: number;
+  /** how the festival went at 20:00, from the readiness meters (a rule over the log; never a model call) */
+  festival: { kind: "on" | "reduced" | "postponed" | "cancelled"; short: string; text: string; missing: string[] };
   /** one line of someone's card this story showed them acting on (from their own logged motive) */
   reveal?: { npc: string; key: Exclude<Motive, "none">; label: string; text: string; event: string; t: number };
 }
@@ -209,7 +212,7 @@ export function storyOf(run: RunResult): StoryCard {
     .filter((e): e is SimEvent => !!e);
   const seedClaims = (run.claims ?? []).filter((c) => firstDecides.some((d) => c.by === d.actor && (c.origin === d.id || d.causes.includes(c.origin))));
   const whispers = seeds.filter((e) => e.data.second && e.target).map((e) => ({ npc: e.target!, text: String(e.data.text) }));
-  const card: StoryCard = {
+  const card: StoryCard = { festival: { kind: "on", short: "照常", text: "", missing: [] },
     icon: "💬", headline: "", sub: "", spine, reached, wildest: wildest && wildest.similarity < 0.55 ? wildest : undefined,
     whispers, spineRoot: root ? Math.max(0, seeds.indexOf(root)) : 0,
   };
@@ -448,6 +451,7 @@ export function storyOf(run: RunResult): StoryCard {
   }
   if (near) card.closest = { npc: near.npc, could: couldOf(near.npc, near.topic), did: near.did, conf: near.conf };
   card.reveal = revealOf(events);
+  card.festival = readinessOf(events, run.claims ?? []).outcome;
   return card;
 }
 

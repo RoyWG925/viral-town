@@ -4,6 +4,7 @@
 // watch it play out in town → results, causal chain, What If.
 // The chrome stays light: a clock pill, the cast, the small goals, and ONE line saying what is happening now.
 import { useEffect, useMemo, useRef, useState } from "react";
+import { readinessOf } from "../sim/readiness.ts";
 import { simulate, type RunResult } from "../sim/engine.ts";
 import { remoteChat } from "../sim/remoteChat.ts";
 import type { DecisionRecord, SimEvent } from "../sim/types.ts";
@@ -346,13 +347,20 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
   const runStamps = useMemo(() => (current && source !== "rules" ? hitsOf(current.run) : []), [current, source]);
   const goalTools = Object.fromEntries(Object.entries(GOAL_BY_TOOL).filter(([, g]) => !goals[g]).map(([tool, g]) => [tool, goalOf(g)?.zh ?? g]));
   const storyHour = 15 + show.gameT / 60;
+  // the festival's trouble so far, from what has PLAYED (the meters stay hidden; only what broke is named)
+  const played = show.i;
+  const trouble = useMemo(() => {
+    if (phase !== "playing" || !show.run) return null;
+    const o = readinessOf(show.order.slice(0, played), show.run.claims ?? []).outcome;
+    return o.kind === "on" ? null : o.missing.join("、");
+  }, [phase, played]);
 
   return (
     <div data-phase={phase} className="pointer-events-none absolute inset-0">
       {/* top bar: the clock (explore draws its own with the drawer), the cast, the small goals */}
       {phase === "playing" && (
         <div className="pointer-events-none absolute left-3 top-3 flex flex-col items-start gap-1">
-          <ClockPill hour={storyHour} story />
+          <ClockPill hour={storyHour} story trouble={trouble} />
           {replayOf && (
             <span title={replayOf} className="pointer-events-auto rounded-full bg-slate-800/75 px-2.5 py-0.5 text-[11px] text-white shadow">
               📼 真實 Gemma 推演紀錄（不重新呼叫模型）

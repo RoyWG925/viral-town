@@ -160,7 +160,7 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
   const prevStory = useMemo(() => (previous ? storyOf(previous.run) : null), [previous]);
   const [min, setMin] = useState(false);
   const [copied, setCopied] = useState(false);
-  const festival = run.world.festival === "cancelled" ? "取消" : "照常";
+  const festival = story.festival.short;
   const stats = { reach: story.reached.length, depth: m.depth, world: m.worldChanges, festival };
   const stampWords = useMemo(() => stamps.map((h) => `${goalOf(h.id)?.icon ?? ""} ${goalOf(h.id)?.zh ?? h.id}`), [stamps]);
   // dev-only: lets the automated playthrough save the share card it would download
@@ -172,7 +172,7 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
     const lines = [`我在 VIRAL 霧港鎮對${nameOf(saved.npc)}說了一句：「${saved.text}」`];
     for (const w of story.whispers) lines.push(`後來又對${nameOf(w.npc)}補了一句：「${w.text}」`);
     lines.push(`結果：${story.icon} ${story.headline}`);
-    lines.push(`傳到 ${m.reach} 位居民、${m.depth} 層、引發 ${m.worldChanges} 個世界變化，燈籠節${run.world.festival === "cancelled" ? "被取消了" : "照常舉行"}。`);
+    lines.push(`傳到 ${m.reach} 位居民、${m.depth} 層、引發 ${m.worldChanges} 個世界變化。${story.festival.text}`);
     if (stampWords.length) lines.push(`今日戰績：${stampWords.join("、")}`);
     if (hl[0]) lines.push(hl[0]);
     lines.push("（每位居民都由 Gemma 依自己知道的事判斷，世界由遊戲引擎驗證。）");
@@ -222,6 +222,11 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
                   </li>
                 ))}
               </ul>
+            )}
+            {story.festival.kind !== "on" && (
+              <p className="mt-2 rounded-xl bg-rose-50 px-3 py-1.5 text-xs leading-snug text-rose-900 ring-1 ring-rose-200" title="根據今晚發生的事推算：舞台、物資、經費、民意……任何一樣撐不住，燈籠節就會受影響">
+                🏮 <b>{story.festival.text}</b>
+              </p>
             )}
             {story.reveal && (
               <p className="mt-2 rounded-xl bg-violet-50 px-3 py-1.5 text-xs leading-snug text-violet-900 ring-1 ring-violet-200" title="從這個故事裡，這位居民自己說出的行動理由">
@@ -331,6 +336,7 @@ export function EndTitle({ run, stamps }: { run: RunResult; stamps: ChallengeHit
           {card.icon} {card.headline}
         </p>
         {card.sub && <p className="mt-1 text-sm text-slate-600">{card.sub}</p>}
+        {card.festival.kind !== "on" && <p className="mt-2 text-sm font-bold text-rose-700">🏮 {card.festival.text}</p>}
         {stamps.length > 0 && <p className="mt-2 text-sm font-bold text-orange-600">{stamps.map((h) => goalOf(h.id)?.icon).join(" ")} 蓋了 {stamps.length} 個章</p>}
       </div>
     </div>

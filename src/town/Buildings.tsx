@@ -4,18 +4,22 @@ import { useMemo, useRef, type ReactNode } from "react";
 import { useFrame } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { BUILDINGS, FLOOR_H, GROUND_H, doorX, frame, wallHeight, type BuildingDef, type ShopKind } from "./layout";
 import { mat, shade } from "./materials";
-import { chalkTexture, homeTexture, iconTexture, interiorTexture, signTexture, stripeTexture, wallTexture } from "./textures";
+import { chalkTexture, flagTexture, homeTexture, iconTexture, interiorTexture, signTexture, stripeTexture, vbannerTexture, wallTexture } from "./textures";
 import { clock, glow, interiorMaterial } from "./clock";
+import { Flag, Instances, Puffs, UNIT_BOX, type Inst } from "./SetPieces";
 
 const ICONS: Record<ShopKind, string> = {
   police: "🚓", bakery: "🥐", flower: "🌷", townhall: "🏛️", cafe: "☕", news: "📰", books: "📚", ramen: "🍜", mart: "🏪", seafood: "🐟",
 };
+// Chalkboards may only show public facts (the festival, the doves, the fee, 美咲's daughter performing):
+// never a resident's secret such as police staffing or the blog's trouble.
 const CHALK: Record<ShopKind, string[]> = {
   bakery: ["今日推薦", "菠蘿麵包", "燈籠麵包"],
-  flower: ["燈籠節", "花束 9 折", "歡迎光臨"],
-  cafe: ["本日咖啡", "冰拿鐵", "可頌套餐"],
+  flower: ["燈籠節花飾", "今日花束", "花束 9 折"],
+  cafe: ["今晚 8 點", "女兒登台！", "本日咖啡"],
   news: ["號外！", "燈籠節", "今晚 8 點"],
   books: ["新書上架", "推理小說", "繪本特價"],
   police: ["失物招領", "請洽櫃台", ""],
@@ -63,6 +67,7 @@ function Roof({ b, w, d, H, wallMat }: { b: BuildingDef; w: number; d: number; H
             <boxGeometry args={[w + 0.6, 0.14, 0.24]} />
           </mesh>
           <Chimney x={w * 0.28} y={0.6} z={-d * 0.2} color={shade(b.wall, -0.2)} />
+          {b.kind === "bakery" && <Puffs position={[w * 0.28, 2.35, -d * 0.2]} />}
         </group>
       );
     case "hip":
@@ -840,16 +845,82 @@ function TownHall({ b }: { b: BuildingDef }) {
         </mesh>
       ))}
       <ClockTower y={H + 0.3} z={-2.6} wall={b.wall} roof={b.roofColor} />
-      {[-f.w * 0.42, f.w * 0.42].map((x, i) => (
-        <group key={x} position={[x, 0, front + 0.6]}>
-          <mesh position={[0, 2.2, 0]} material={mat("#d9d9d9", 0.4, 0.6)}>
-            <cylinderGeometry args={[0.04, 0.05, 4.4, 6]} />
-          </mesh>
-          <mesh position={[0.42, 3.9, 0]} material={mat(i ? "#ffd23f" : "#2f5a37", 0.7)}>
-            <boxGeometry args={[0.8, 0.5, 0.03]} />
-          </mesh>
+      <SeatOfPower w={f.w} H={H} front={front} />
+    </group>
+  );
+}
+
+const FLAG_POLE = 9.4;
+const TOWER_FLAG = new THREE.MeshStandardMaterial({ color: "#e2574c", side: THREE.DoubleSide, roughness: 0.8 });
+const POLE = new THREE.CylinderGeometry(0.045, 0.07, FLAG_POLE, 8);
+const FINIAL = new THREE.SphereGeometry(0.1, 10, 8);
+const VBANNER = new THREE.PlaneGeometry(0.95, 2.8);
+// A red runner in town hall space: a short apron on the plaza, up the three steps (tread, riser), across the portico.
+const CARPET: Inst[] = [
+  { p: [0, 0.045, 6.2], s: [1.5, 0.02, 1.0] },
+  { p: [0, 0.12, 5.71], s: [1.5, 0.24, 0.02] },
+  { p: [0, 0.25, 5.55], s: [1.5, 0.02, 0.3] },
+  { p: [0, 0.3, 5.41], s: [1.5, 0.12, 0.02] },
+  { p: [0, 0.37, 5.25], s: [1.5, 0.02, 0.3] },
+  { p: [0, 0.42, 5.11], s: [1.5, 0.12, 0.02] },
+  { p: [0, 0.49, 4.8], s: [1.5, 0.02, 0.6] },
+  { p: [0, 0.41, 3.4], s: [1.5, 0.02, 2.25] },
+];
+
+/** What makes the town hall read as the seat of power: tall flags above the roofline, festival banners
+ *  between the columns, a red carpet up the steps and a press podium on the portico (all inside its footprint). */
+function SeatOfPower({ w, H, front }: { w: number; H: number; front: number }) {
+  const m = useMemo(() => {
+    const flag = (bg: string, glyph: string, ink?: string) => new THREE.MeshStandardMaterial({ map: flagTexture(bg, glyph, ink), side: THREE.DoubleSide, roughness: 0.8 });
+    const banner = new THREE.MeshStandardMaterial({ map: vbannerTexture(["燈", "籠", "節"]), roughness: 0.7, emissive: "#ffffff", emissiveIntensity: 0.1 });
+    banner.emissiveMap = banner.map;
+    // the town flag is cream with a green seal: a dark green one vanished against the trees behind it
+    return { town: flag("#f6f1d5", "霧", "#2f5a37"), festival: flag("#c2332f", "燈"), banner };
+  }, []);
+  const at = useMemo(() => {
+    const sides = [-1, 1].map((side) => side * w * 0.42);
+    return {
+      poles: sides.map((x): Inst => ({ p: [x, FLAG_POLE / 2, front + 0.6] })),
+      finials: sides.map((x): Inst => ({ p: [x, FLAG_POLE + 0.08, front + 0.6] })),
+      banners: [-2.6, 2.6].map((x): Inst => ({ p: [x, H - 2.45, front - 0.42] })),
+    };
+  }, [w, H, front]);
+  const gold = mat("#d4af37", 0.35, 0.4);
+  return (
+    <group name="set:townhall">
+      <Instances geo={POLE} material={mat("#d9d9d9", 0.4, 0.6)} items={at.poles} castShadow />
+      <Instances geo={FINIAL} material={gold} items={at.finials} />
+      {/* the town's colours and the festival's, flying outward so they frame the facade */}
+      {([-1, 1] as const).map((side) => (
+        <group key={side} position={[side * w * 0.42, FLAG_POLE - 0.12, front + 0.6]}>
+          <Flag w={1.8} h={1.1} dir={side} material={side < 0 ? m.town : m.festival} phase={side} />
         </group>
       ))}
+      <Instances geo={VBANNER} material={m.banner} items={at.banners} />
+      <Instances geo={UNIT_BOX} material={mat("#b5262b", 0.9)} items={CARPET} />
+      <Podium z={front - 0.8} gold={gold} />
+    </group>
+  );
+}
+
+// The press podium: where the mayor would face the plaza to make a statement. The microphone leans back
+// toward whoever stands behind it.
+const PODIUM_WOOD = mergeGeometries([
+  new THREE.BoxGeometry(0.75, 1.1, 0.5).translate(0, 0.55, 0),
+  new THREE.BoxGeometry(0.86, 0.06, 0.56).rotateX(-0.35).translate(0, 1.14, -0.03),
+]);
+const PODIUM_MIC = mergeGeometries([
+  new THREE.CylinderGeometry(0.012, 0.012, 0.42, 6).rotateX(-0.55).translate(0.14, 1.33, 0.1),
+  new THREE.SphereGeometry(0.04, 10, 8).translate(0.14, 1.52, -0.02),
+]);
+function Podium({ z, gold }: { z: number; gold: THREE.Material }) {
+  return (
+    <group position={[0, 0.42, z]}>
+      <mesh geometry={PODIUM_WOOD} castShadow material={mat("#6b4f3a", 0.6)} />
+      <mesh position={[0, 0.72, 0.26]} rotation={[Math.PI / 2, 0, 0]} material={gold}>
+        <cylinderGeometry args={[0.16, 0.16, 0.03, 20]} />
+      </mesh>
+      <mesh geometry={PODIUM_MIC} material={mat("#2b2b2b", 0.4, 0.6)} />
     </group>
   );
 }
@@ -907,9 +978,9 @@ function ClockTower({ y, z, wall, roof }: { y: number; z: number; wall: string; 
       <mesh position={[0, 4.8, 0]} material={mat("#7a5a3a")}>
         <cylinderGeometry args={[0.04, 0.04, 1.6, 6]} />
       </mesh>
-      <mesh position={[0.45, 5.3, 0]} material={mat("#e2574c")}>
-        <boxGeometry args={[0.85, 0.5, 0.03]} />
-      </mesh>
+      <group position={[0, 5.55, 0]}>
+        <Flag w={0.9} h={0.55} material={TOWER_FLAG} phase={2} />
+      </group>
     </group>
   );
 }

@@ -6,6 +6,7 @@ import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import { crowd, spawnCrowd, stepCrowd, type Agent } from "./crowdSim";
 import { agentFor, show } from "./director";
+import { BASE_GAIT, dress, kitFor, mixPose } from "./kits";
 import { mat } from "./materials";
 import { DT_MAX } from "./quality";
 import { bubbleTexture } from "./textures";
@@ -43,6 +44,7 @@ const G = {
   scarf: new THREE.TorusGeometry(0.19, 0.07, 8, 16).rotateX(Math.PI / 2),
   skirt: new THREE.ConeGeometry(0.32, 0.34, 14, 1, true),
   apron: new THREE.BoxGeometry(0.36, 0.42, 0.03),
+  belly: new THREE.SphereGeometry(0.2, 12, 10).scale(1.1, 1, 0.85),
   balloon: new THREE.SphereGeometry(0.22, 14, 10).scale(1, 1.18, 1),
   string: new THREE.CylinderGeometry(0.006, 0.006, 1, 4).translate(0, 0.5, 0),
   bubble: new THREE.PlaneGeometry(0.95, 0.83),
@@ -132,7 +134,7 @@ function Balloons() {
   );
 }
 
-interface Pose {
+export interface Pose {
   legL: number;
   legR: number;
   armLx: number;
@@ -195,6 +197,37 @@ function actPose(kind: string, t: number): Partial<Pose> {
       return { armRx: -1.4, armRz: -0.3 + w(10, 0.35), headY: w(5, 0.25) };
     case "talk:complain":
       return { armLx: -0.8 + w(9, 0.3), armRx: -0.8 - w(9, 0.3), lean: 0.12 };
+    // everyday-scene acting (no model involved): greetings, street hawking, little bits of comedy
+    // a raised arm swings out sideways (armRz): on these big-headed bodies an arm raised straight up hides behind the head,
+    // and one raised forward foreshortens to nothing from the high camera
+    case "wave":
+      return { armRx: 0.25, armRz: -2.1 + w(10, 0.35), headZ: 0.1, headX: -0.08 };
+    case "hawk":
+      return { armRx: 0.1 + w(11, 0.1), armRz: -1.85 + w(11, 0.3), lift: Math.abs(w(11)) * 0.03, lean: 0.06, headX: -0.12 };
+    case "offer":
+      return { armLx: -1.3, armRx: -1.3, armLz: -0.15, armRz: 0.15, lean: 0.14, headX: 0.05 };
+    case "yell":
+      return { armLx: -2.2, armRx: -2.2, armLz: -0.55, armRz: 0.55, lean: 0.12, headX: -0.22, squash: 1 + w(12, 0.025) };
+    case "scan":
+      return { armRx: -2.75, armRz: 0.35, headY: w(0.9, 0.7), headX: -0.12 };
+    case "photo": {
+      const snap = (t % 1.4) < 0.12 ? 1 : 0;
+      return { armLx: -2.0, armRx: -2.0, armLz: -0.5, armRz: 0.5, lean: 0.06 + snap * 0.04, headX: -0.05, squash: 1 - snap * 0.02 };
+    }
+    case "clap": {
+      const c = 0.5 + 0.5 * Math.sin(t * 16);
+      return { armLx: -1.35, armRx: -1.35, armLz: -0.15 - 0.3 * c, armRz: 0.15 + 0.3 * c, lift: Math.abs(w(8)) * 0.04, headZ: w(4, 0.08) };
+    }
+    case "bow": {
+      const down = ease(0.4) * Math.max(0, Math.min(1, (1.6 - t) / 0.4));
+      return { lean: 0.55 * down, headX: 0.3 * down, armLx: 0.1, armRx: 0.1, armLz: -0.05, armRz: 0.05 };
+    }
+    case "speech":
+      return { armRx: -1.9 + w(3, 0.3), armRz: -0.6 + w(3, 0.2), armLx: -0.6, lean: -0.08, headY: w(1.2, 0.35), headX: -0.1 };
+    case "trip": {
+      const fall = t < 0.5 ? ease(0.25) : Math.max(0, 1 - (t - 0.5) / 0.6);
+      return { lean: 0.5 * fall, armLx: -2.2 * fall, armRx: -2.4 * fall, armLz: 0.6 * fall, armRz: -0.6 * fall, back: 0.25 * ease(0.4), headX: -0.2 * fall };
+    }
     default:
       if (kind.startsWith("talk")) return { armRx: -0.9 + w(5, 0.35), armLx: -0.6 - w(4, 0.3), lean: 0.06 };
       return {};
@@ -225,7 +258,16 @@ function Person({ agent }: { agent: Agent }) {
   const crate = useRef<THREE.Mesh>(null);
   const phone = useRef<THREE.Mesh>(null);
   const head = useRef<THREE.Group>(null);
-  const l = agent.look;
+  const level = useRef<THREE.Group>(null);
+  const idleW = useRef(0);
+  // core residents wear their signature kit; everyone else gets a softened palette (display only)
+  const kit = useMemo(() => kitFor(agent.post), [agent.post]);
+  const l = useMemo(() => dress(agent.look, kit), [agent.look, kit]);
+  const bw = kit?.bw ?? 1;
+  const gait = kit?.gait ?? BASE_GAIT;
+  const belly = kit?.belly ?? 0;
+  const apron = kit?.apron ?? { sx: 1, sy: 1, y: 0.6 };
+  const shoulder = 0.21 * bw + 0.06;
   const m = useMemo(
     () => ({
       skin: mat(l.skin, 0.6), shirt: mat(l.shirt, 0.8), pants: mat(l.pants, 0.85), hair: mat(l.hair, 0.7), hat: mat(l.hatColor, 0.7),
@@ -235,15 +277,17 @@ function Person({ agent }: { agent: Agent }) {
     [l],
   );
 
-  useFrame(() => {
+  useFrame((_, dt) => {
     const r = root.current;
     if (!r) return;
     const moving = agent.mode === "walk" ? Math.min(1, Math.hypot(agent.vx, agent.vz) / 0.6) : 0;
     const sitting = agent.mode === "sit";
     const ground = sitting && agent.poi?.activity === "picnic";
     const playing = agent.mode === "play";
-    const s = Math.sin(agent.phase);
-    let y = Math.abs(Math.cos(agent.phase)) * 0.06 * moving;
+    // gait changes how a walk looks (step rhythm, swing, bob), never how fast anyone travels
+    const step = agent.phase * gait.cadence;
+    const s = Math.sin(step);
+    let y = Math.abs(Math.cos(step)) * gait.bounce * moving;
     if (sitting) y = ground ? -0.27 : 0.1;
     if (playing) y = Math.abs(Math.sin(agent.phase * 0.6)) * 0.35;
     const now = performance.now() / 1000;
@@ -251,24 +295,34 @@ function Person({ agent }: { agent: Agent }) {
     const cheer = playing ? -2.6 + Math.sin(agent.phase) * 0.3 : 0;
     const carrying = agent.prop === "crate";
     const calling = agent.prop === "phone";
-    const legSwing = s * 0.6 * moving;
+    const legSwing = s * gait.stride * moving;
     // the everyday body, then any acting layered on top of it
     const base: Pose = {
       legL: sitting ? -1.45 : legSwing,
       legR: sitting ? -1.45 : -legSwing,
-      armLx: carrying ? -1.25 : playing ? cheer : -s * 0.55 * moving + (agent.mode === "chat" ? -0.35 + talk : 0),
+      armLx: carrying ? -1.25 : playing ? cheer : -s * gait.arm * moving + (agent.mode === "chat" ? -0.35 + talk : 0),
       armLz: 0,
-      armRx: calling ? -2.5 : carrying ? -1.25 : playing ? cheer : agent.prop === "balloons" ? -0.9 : s * 0.55 * moving,
+      armRx: calling ? -2.5 : carrying ? -1.25 : playing ? cheer : agent.prop === "balloons" ? -0.9 : s * gait.arm * moving,
       armRz: calling ? -0.55 : 0,
-      lean: 0,
-      tilt: moving ? s * 0.05 : Math.sin(now * 1.1 + agent.id) * 0.025,
-      squash: 1 + (moving ? Math.abs(Math.cos(agent.phase)) * 0.03 : Math.sin(now * 2 + agent.id) * 0.012),
+      lean: gait.lean * moving,
+      tilt: moving ? s * gait.sway : Math.sin(now * 1.1 + agent.id) * 0.025,
+      squash: 1 + (moving ? Math.abs(Math.cos(step)) * 0.03 : Math.sin(now * 2 + agent.id) * 0.012),
       headX: 0,
       headY: 0,
       headZ: 0,
       lift: 0,
       back: 0,
     };
+    if (kit && !carrying && !playing && !sitting) {
+      const t = now + agent.id * 1.7;
+      // the held prop (tray, takoyaki) stays up in the left hand, walking included
+      if (kit.hold) Object.assign(base, kit.hold(t));
+      // idle tells only at their post with nothing else going on; they fade out the moment acting, a call or a script starts
+      // (a resident borrowed by an everyday scene acts for the scene instead)
+      const want = kit.idle && agent.mode === "work" && !agent.script && !agent.vig && !agent.act && !calling ? 1 : 0;
+      idleW.current += (want - idleW.current) * Math.min(1, dt * 4);
+      if (kit.idle && idleW.current > 0.01) mixPose(base, kit.idle(t), idleW.current);
+    }
     const pose = agent.act && !sitting ? blendAct(base, agent.act, calling) : base;
     const bx = Math.sin(agent.heading) * pose.back;
     const bz = Math.cos(agent.heading) * pose.back;
@@ -294,6 +348,8 @@ function Person({ agent }: { agent: Agent }) {
       torso.current.scale.y = pose.squash;
     }
     if (head.current) head.current.rotation.set(-0.22 + pose.headX, pose.headY, pose.headZ);
+    // undo the arm's and torso's pitch and roll so a tray stays flat (and a cane hangs straight)
+    if (level.current) level.current.rotation.set(-(pose.armLx + pose.lean), 0, -pose.armLz, "ZYX");
     if (bubble.current) {
       bubble.current.visible = !!agent.bubble && agent.visible > 0.5 && !(agent.post && show.says.some((x) => agentFor(x.anchor ?? x.npc) === agent));
       if (agent.bubble) bubble.current.material = bubbleMat(agent.bubble);
@@ -311,16 +367,25 @@ function Person({ agent }: { agent: Agent }) {
         <mesh geometry={G.shoe} material={m.dark} position={[0, -0.36, 0.04]} />
       </group>
       <group ref={torso}>
-        <mesh geometry={G.body} material={m.shirt} position={[0, 0.65, 0]} castShadow />
+        <mesh geometry={G.body} material={m.shirt} position={[0, 0.65, 0]} scale={[bw, 1, bw * 0.95]} castShadow />
+        {/* a belly under an apron is the apron's colour, so the apron reads as wrapping round it */}
+        {belly > 0 && <mesh geometry={G.belly} material={l.apron ? m.apron : m.shirt} position={[0, 0.58, 0.1 * bw]} scale={belly} />}
         {l.skirt && <mesh geometry={G.skirt} material={m.shirt} position={[0, 0.45, 0]} castShadow />}
-        {l.apron && <mesh geometry={G.apron} material={m.apron} position={[0, 0.6, 0.2]} />}
+        {l.apron && <mesh geometry={G.apron} material={m.apron} position={[0, apron.y, 0.2 * bw]} scale={[apron.sx * bw, apron.sy, 1]} />}
         {l.backpack && <mesh geometry={G.backpack} material={m.pack} position={[0, 0.72, -0.25]} castShadow />}
-        {l.scarf && <mesh geometry={G.scarf} material={m.scarf} position={[0, 0.9, 0]} />}
-        <group ref={armL} position={[0.27, 0.82, 0]}>
+        {l.scarf && <mesh geometry={G.scarf} material={m.scarf} position={[0, 0.9, 0]} scale={[bw, 1, bw]} />}
+        {kit?.Torso && <kit.Torso bw={bw} />}
+        <group ref={armL} position={[shoulder, 0.82, 0]}>
           <mesh geometry={G.arm} material={m.shirt} castShadow />
           <mesh geometry={G.hand} material={m.skin} position={[0, -0.33, 0]} />
+          {/* held props live in the left hand, so the phone (right hand) and talking gestures still read */}
+          {kit?.Hand && (
+            <group ref={kit.level ? level : undefined} position={[0, -0.33, 0]}>
+              <kit.Hand bw={bw} />
+            </group>
+          )}
         </group>
-        <group ref={armR} position={[-0.27, 0.82, 0]}>
+        <group ref={armR} position={[-shoulder, 0.82, 0]}>
           <mesh geometry={G.arm} material={m.shirt} castShadow />
           <mesh geometry={G.hand} material={m.skin} position={[0, -0.33, 0]} />
           <mesh ref={phone} geometry={G.phone} material={m.dark} position={[0, -0.36, 0.06]} visible={false} />
@@ -368,11 +433,12 @@ function Person({ agent }: { agent: Agent }) {
               <mesh geometry={G.chefPuff} material={m.white} position={[0, 0.6, 0]} />
             </>
           )}
+          {kit?.Head && <kit.Head bw={bw} />}
         </group>
       </group>
       {agent.prop === "balloons" && <Balloons />}
       {agent.job && <mesh ref={crate} geometry={G.crate} material={mat("#b07a45", 0.8)} position={[0, 0.95, 0.42]} castShadow visible={false} />}
-      <Billboard position={[0, 2.0, 0]}>
+      <Billboard position={[0, 2.0 + (kit?.top ?? 0), 0]}>
         <mesh ref={bubble} geometry={G.bubble} visible={false} renderOrder={10} />
       </Billboard>
     </group>

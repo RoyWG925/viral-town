@@ -152,6 +152,67 @@ export function bannerTexture() {
   return toTexture(c);
 }
 
+// A tall festival banner for the town hall colonnade: one gold character per tier on deep red.
+export function vbannerTexture(chars: string[]) {
+  const [c, g] = canvas(160, 480);
+  g.fillStyle = "#b5262b";
+  g.fillRect(0, 0, 160, 480);
+  g.strokeStyle = "#e9b949";
+  g.lineWidth = 10;
+  g.strokeRect(9, 9, 142, 462);
+  g.fillStyle = "#ffe08a";
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.font = 'bold 96px "Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif';
+  chars.forEach((ch, i) => g.fillText(ch, 80, 88 + i * 152));
+  return toTexture(c);
+}
+
+// A flag: plain field with an emblem character in a ring (gold unless another ink is given).
+export function flagTexture(bg: string, glyph: string, ink = "#ffe08a") {
+  const [c, g] = canvas(256, 160);
+  g.fillStyle = bg;
+  g.fillRect(0, 0, 256, 160);
+  g.fillStyle = "rgba(255,255,255,0.12)";
+  g.fillRect(0, 0, 256, 18);
+  g.fillRect(0, 142, 256, 18);
+  g.strokeStyle = ink;
+  g.lineWidth = 8;
+  g.beginPath();
+  g.arc(128, 80, 50, 0, Math.PI * 2);
+  g.stroke();
+  g.fillStyle = ink;
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.font = 'bold 64px "Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif';
+  g.fillText(glyph, 128, 84);
+  return toTexture(c);
+}
+
+// The stage backdrop: deep red pleated curtain under a gold valance, a dark field that makes performers pop.
+export function curtainTexture() {
+  const [c, g] = canvas(512, 256);
+  const pleats = 18;
+  const pw = 512 / pleats;
+  for (let i = 0; i < pleats; i++) {
+    const grad = g.createLinearGradient(i * pw, 0, (i + 1) * pw, 0);
+    grad.addColorStop(0, "#5e1219");
+    grad.addColorStop(0.45, "#962231");
+    grad.addColorStop(1, "#6a141d");
+    g.fillStyle = grad;
+    g.fillRect(i * pw, 0, pw + 1, 256);
+  }
+  g.fillStyle = "#c99a2e";
+  g.fillRect(0, 0, 512, 22);
+  g.fillStyle = "#e9b949";
+  for (let x = 0; x < 512; x += 32) {
+    g.beginPath();
+    g.arc(x + 16, 22, 14, 0, Math.PI);
+    g.fill();
+  }
+  return toTexture(c);
+}
+
 export function bubbleTexture(text: string) {
   const [c, g] = canvas(128, 112);
   g.fillStyle = "#ffffff";

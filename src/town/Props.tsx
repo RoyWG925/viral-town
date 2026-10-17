@@ -4,6 +4,7 @@ import { useLayoutEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Line } from "@react-three/drei";
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import {
   BENCHES, BIG_TREE, BUILDINGS, CAFE_TABLES, FILL_TREES, FOUNTAIN, LAMPS, LANTERN_POLES, PLANTERS, STAGE, STREET_TREES, onMainSidewalk, toWorld,
 } from "./layout";
@@ -11,6 +12,8 @@ import { agentFor, show } from "./director";
 import { mat } from "./materials";
 import { bannerTexture, rng, stripeTexture } from "./textures";
 import { clock, glow, skyAt } from "./clock";
+import { fx } from "./fx";
+import { DevCam, StageDressing } from "./SetPieces";
 
 const CANOPY = ["#7cb342", "#9ccc65", "#5fa845", "#f4a259", "#e9724c", "#f6bd60", "#8bc34a", "#4f9a4a"];
 const BLOB = new THREE.IcosahedronGeometry(1, 1);
@@ -109,20 +112,27 @@ function StreetLamp({ x, z }: { x: number; z: number }) {
   );
 }
 
+// Real lights only where stories play out at night: the shopping street, the cafe terrace and the town hall
+// corners of the plaza. All lights are mounted at load (intensity 0) so dusk never triggers a shader recompile.
+const LIT = new Set([1, 3, 7, 8, 9]);
 function Lamps() {
   const lights = useRef<(THREE.PointLight | null)[]>([]);
+  const festival = useRef<THREE.PointLight>(null);
   useFrame(() => {
     const on = skyAt(clock.hour).lightsOn;
     lights.current.forEach((l) => l && (l.intensity = on * 14));
+    // one warm wash from the fountain lantern over the plaza, the stage and the town hall steps
+    if (festival.current) festival.current.intensity = on * 26;
   });
   return (
     <group>
       {LAMPS.map((l, i) => (
         <group key={i}>
           <StreetLamp x={l.x} z={l.z} />
-          {i % 3 === 0 && <pointLight ref={(el) => void (lights.current[i] = el)} position={[l.x, 3.6, l.z]} color="#ffc27a" distance={9} decay={1.6} intensity={0} />}
+          {LIT.has(i) && <pointLight ref={(el) => void (lights.current[i] = el)} position={[l.x, 3.6, l.z]} color="#ffc27a" distance={9} decay={1.6} intensity={0} />}
         </group>
       ))}
+      <pointLight ref={festival} position={[FOUNTAIN.x, 5.2, FOUNTAIN.z]} color="#ffb36b" distance={20} decay={1.3} intensity={0} />
     </group>
   );
 }
@@ -209,7 +219,8 @@ function lanternStrings() {
 }
 
 function Lanterns() {
-  const strings = useMemo(lanternStrings, []);
+  const strings = useMemo(() => lanternStrings(), []);
+  const segments = useMemo(() => strings.flatMap((pts) => pts.slice(1).flatMap((p, i) => [pts[i], p])), [strings]);
   const spots = useMemo(() => strings.flatMap((pts) => pts.filter((_, i) => i % 2 === 1 && i < 24).map((p) => p.clone().add(new THREE.Vector3(0, -0.28, 0)))), [strings]);
   const geo = useMemo(() => new THREE.SphereGeometry(0.2, 12, 10).scale(1, 1.25, 1), []);
   const refs = useRef<(THREE.InstancedMesh | null)[]>([]);
@@ -228,11 +239,11 @@ function Lanterns() {
   }, [spots]);
   return (
     <group>
-      {strings.map((pts, i) => (
-        <Line key={i} points={pts} color="#3b3030" lineWidth={1.2} />
-      ))}
+      {/* every string in one line-segment list: one draw call */}
+      <Line points={segments} segments color="#3b3030" lineWidth={1.2} />
+      {/* no shadows: a few dozen lantern dots made a dotted pattern on the faces underneath */}
       {glow.lanterns.map((material, k) => (
-        <instancedMesh key={k} ref={(el) => void (refs.current[k] = el)} args={[geo, material, spots.length]} castShadow />
+        <instancedMesh key={k} ref={(el) => void (refs.current[k] = el)} args={[geo, material, spots.length]} />
       ))}
       {LANTERN_POLES.map((p, i) => (
         <mesh key={i} position={[p.x, RIM_H / 2, p.z]} castShadow material={mat("#7a5a3a")}>
@@ -262,8 +273,28 @@ function Fountain() {
       <mesh position={[0, (POLE_TOP + 1.5) / 2, 0]} castShadow material={mat("#7a5a3a")}>
         <cylinderGeometry args={[0.09, 0.12, POLE_TOP - 1.5, 8]} />
       </mesh>
-      <mesh position={[0, POLE_TOP + 0.2, 0]} material={glow.lanterns[0]}>
-        <sphereGeometry args={[0.35, 14, 10]} />
+      <FountainLantern y={POLE_TOP} />
+    </group>
+  );
+}
+
+// The plaza's centrepiece: a tiered red-and-orange paper lantern with gold caps, crowning the fountain pole.
+// The gold fittings are merged into one mesh, so the whole lantern is three draw calls.
+const LANTERN_GOLD = mergeGeometries([
+  new THREE.CylinderGeometry(0.3, 0.22, 0.12, 16).translate(0, 0.06, 0),
+  new THREE.CylinderGeometry(0.3, 0.36, 0.1, 16).translate(0, 1.0, 0),
+  new THREE.ConeGeometry(0.22, 0.22, 16).translate(0, 1.62, 0),
+  ...[-1, 1].map((s) => new THREE.ConeGeometry(0.06, 0.32, 8).rotateZ(Math.PI).translate(s * 0.38, 0.68, 0)),
+]);
+function FountainLantern({ y }: { y: number }) {
+  return (
+    <group name="set:fountain" position={[0, y, 0]}>
+      <mesh geometry={LANTERN_GOLD} material={mat("#d4af37", 0.35, 0.4)} />
+      <mesh position={[0, 0.55, 0]} scale={[1, 0.8, 1]} material={glow.lanterns[0]}>
+        <sphereGeometry args={[0.55, 18, 12]} />
+      </mesh>
+      <mesh position={[0, 1.32, 0]} scale={[1, 0.85, 1]} material={glow.lanterns[1]}>
+        <sphereGeometry args={[0.34, 16, 10]} />
       </mesh>
     </group>
   );
@@ -276,6 +307,24 @@ function Stage() {
     return m;
   }, []);
   const { w, d } = STAGE;
+  const post = useRef<THREE.Group>(null);
+  const flap = useRef<THREE.Group>(null);
+  const wobble = useRef({ until: 0, start: 0 });
+  // The stage-rush scene sets fx.stageWobbleUntil: the left-rear post shudders and the banner sways, then both
+  // settle back exactly upright. The stage is never shown permanently askew (a look can't tell it is unsound).
+  useFrame(() => {
+    const now = performance.now();
+    if (fx.stageWobbleUntil !== wobble.current.until) wobble.current = { until: fx.stageWobbleUntil, start: now };
+    const left = fx.stageWobbleUntil - now;
+    let a = 0;
+    if (left > 0) {
+      const t = (now - wobble.current.start) / 1000;
+      a = Math.sin(t * 18) * 0.07 * Math.min(1, left / 300) * (0.45 + 0.55 * Math.exp(-t * 1.2));
+    }
+    // the post rocks forward and back and leans outward only, so it never cuts into the backdrop
+    if (post.current) post.current.rotation.set(a, 0, Math.abs(a) * 0.5);
+    if (flap.current) flap.current.rotation.set(a * 0.8, 0, a * 0.2);
+  });
   return (
     <group position={[STAGE.x, 0, STAGE.z]} rotation={[0, STAGE.rot, 0]}>
       <mesh position={[0, 0.35, 0]} castShadow receiveShadow material={mat("#b5835a", 0.8)}>
@@ -284,17 +333,24 @@ function Stage() {
       <mesh position={[0, 0.3, d / 2 + 0.02]} material={mat("#c2332f", 0.8)}>
         <boxGeometry args={[w, 0.5, 0.04]} />
       </mesh>
-      {[-w / 2 + 0.3, w / 2 - 0.3].map((x) => (
-        <mesh key={x} position={[x, 2.3, -d / 2 + 0.2]} castShadow material={mat("#7a5a3a")}>
+      <group ref={post} position={[-w / 2 + 0.3, 0.7, -d / 2 + 0.2]}>
+        <mesh position={[0, 1.6, 0]} castShadow material={mat("#7a5a3a")}>
           <cylinderGeometry args={[0.07, 0.07, 3.2, 8]} />
         </mesh>
-      ))}
-      <mesh position={[0, 3.1, -d / 2 + 0.2]} castShadow material={banner}>
-        <planeGeometry args={[w - 0.8, (w - 0.8) / 4]} />
+      </group>
+      <mesh position={[w / 2 - 0.3, 2.3, -d / 2 + 0.2]} castShadow material={mat("#7a5a3a")}>
+        <cylinderGeometry args={[0.07, 0.07, 3.2, 8]} />
       </mesh>
+      {/* the banner hangs from its top edge, so it swings rather than slides */}
+      <group ref={flap} position={[0, 3.9, -d / 2 + 0.2]}>
+        <mesh position={[0, -0.8, 0]} castShadow material={banner}>
+          <planeGeometry args={[w - 0.8, (w - 0.8) / 4]} />
+        </mesh>
+      </group>
       <mesh position={[0.6, 1.25, 0.3]} material={mat("#333", 0.4, 0.6)}>
         <cylinderGeometry args={[0.025, 0.025, 1.1, 6]} />
       </mesh>
+      <StageDressing w={w} d={d} />
     </group>
   );
 }
@@ -358,6 +414,7 @@ export default function Props() {
       <Stage />
       <FlowerPots />
       <Planters />
+      <DevCam />
     </group>
   );
 }

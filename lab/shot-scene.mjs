@@ -17,6 +17,7 @@ page.on("pageerror", (e) => errors.push(String(e).slice(0, 200)));
 await page.goto(`http://localhost:3002/${liteArg === "1" ? "?lite" : ""}`, { waitUntil: "domcontentloaded" });
 await page.waitForFunction(() => !!window.__show && !!window.__crowd?.agents?.length && !!window.__clock, null, { timeout: 180_000 });
 await page.waitForTimeout(4000);
+if (process.env.HIDE_UI) await page.keyboard.press("h");
 if (rec) {
   await page.getByRole("button", { name: /錄製的實驗/ }).click();
   const ids = await page.evaluate(async () => (await (await fetch("/recorded/index.json")).json()).map((x) => x.id));

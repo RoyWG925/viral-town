@@ -1,12 +1,18 @@
 "use client";
 
 import { useLayoutEffect, useMemo, useRef } from "react";
-import { RoundedBox } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import { Line, RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
-import { BINS, BUILDINGS, BUS_STOP, CRATES, FENCES, FLOWER_BEDS, LAMPS, MAILBOX, STALLS, VENDING, YARDS, doorX, fromLocal, type Yard } from "./layout";
+import {
+  BINS, BUILDINGS, BUS_STOP, CAFE_TABLES, CRATES, FENCES, FLOWER_BEDS, LAMPS, LANTERN_POLES, MAILBOX, STALLS, VENDING, YARDS, doorX, fromLocal, type Yard,
+} from "./layout";
+import { walkable } from "./nav";
 import { mat } from "./materials";
-import { iconTexture, rng, signTexture, stripeTexture } from "./textures";
+import { chalkTexture, iconTexture, rng, signTexture, stripeTexture } from "./textures";
 import { glow } from "./clock";
+import { LITE } from "./quality";
+import { BULB, Gulls, HarbourCrane, Instances, UNIT_BOX, catenary, useBulbMaterial, useShotFade, type Inst } from "./SetPieces";
 
 function Stall({ s }: { s: (typeof STALLS)[number] }) {
   const m = useMemo(() => {
@@ -44,6 +50,67 @@ function Stall({ s }: { s: (typeof STALLS)[number] }) {
           <sphereGeometry args={[0.14, 10, 8]} />
         </mesh>
       ))}
+      {s === STALLS[2] && <AFrame x={-1.6} z={0.3} rot={0.45} lines={["攤位費", "漲一倍？！", "章魚燒照舊"]} />}
+    </group>
+  );
+}
+
+/** A sidewalk chalkboard. Its footprint sits inside a stall's blocked margin, so nobody walks through it. */
+function AFrame({ x, z, rot, lines }: { x: number; z: number; rot: number; lines: string[] }) {
+  const face = useMemo(() => {
+    const wood = mat("#8a5a3a");
+    return [wood, wood, wood, wood, new THREE.MeshStandardMaterial({ map: chalkTexture(lines), roughness: 0.9 }), wood];
+  }, [lines]);
+  return (
+    <group position={[x, 0, z]} rotation={[0, rot, 0]}>
+      <mesh position={[0, 0.5, 0.12]} rotation={[-0.18, 0, 0]} castShadow material={face}>
+        <boxGeometry args={[0.62, 0.95, 0.04]} />
+      </mesh>
+      <mesh position={[0, 0.5, -0.12]} rotation={[0.18, 0, 0]} castShadow material={mat("#8a5a3a")}>
+        <boxGeometry args={[0.62, 0.95, 0.04]} />
+      </mesh>
+    </group>
+  );
+}
+
+/** Not on a walkable cell anywhere under a footprint of radius r: props may only stand where nobody walks. */
+const solid = (x: number, z: number, r: number) => [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r]].every(([dx, dz]) => !walkable(x + dx, z + dz));
+
+// Stock stacked behind the plaza stalls (inside each stall's footprint, beside the vendor) and potted plants
+// beside shop doors. Instanced: a few draw calls for the whole town.
+const POT = new THREE.CylinderGeometry(0.22, 0.17, 0.4, 10);
+const LEAVES = new THREE.IcosahedronGeometry(0.3, 1);
+function LifeProps() {
+  const { crates, pots, leaves } = useMemo(() => {
+    const crates: Inst[] = [];
+    STALLS.slice(0, 3).forEach((st, i) => {
+      for (const [lx, ly, size, c] of [[-0.85, 0.22, 0.44, "#c49a6c"], [-0.85, 0.62, 0.36, "#a87f55"], [0.85, 0.2, 0.4, i === 2 ? "#3a86ff" : "#c49a6c"]] as const) {
+        const p = fromLocal(st, lx, -1.0);
+        if (solid(p.x, p.z, size / 2)) crates.push({ p: [p.x, ly, p.z], r: [0, st.rot + i * 0.2, 0], s: size, c });
+      }
+    });
+    const pots: Inst[] = [];
+    const leaves: Inst[] = [];
+    const r = rng(31);
+    for (const b of BUILDINGS) {
+      if (b.kind === "house" || b.kind === "warehouse" || b.kind === "townhall") continue;
+      // the shopfront lives in the building body (annexes shift it): the visual door is at 0.31 of its width
+      const aw = b.annex ? b.w * 0.3 : 0;
+      const bodyW = b.w - aw;
+      const cx = b.annex === "left" ? aw / 2 : b.annex === "right" ? -aw / 2 : 0;
+      // beside the door, on the side away from the shopkeeper (the window ledge fills the other side)
+      const p = fromLocal(b, cx + bodyW * 0.31 + 0.8, b.d / 2 + 0.2);
+      if (!solid(p.x, p.z, 0.2)) continue;
+      pots.push({ p: [p.x, 0.2, p.z] });
+      leaves.push({ p: [p.x, 0.58, p.z], s: 0.85 + r() * 0.3, c: ["#5fb256", "#ff6fa0", "#ffd23f", "#5fb256"][Math.floor(r() * 4)] });
+    }
+    return { crates, pots, leaves };
+  }, []);
+  return (
+    <group name="set:life">
+      <Instances geo={UNIT_BOX} material={mat("#ffffff", 0.8)} items={crates} castShadow />
+      <Instances geo={POT} material={mat("#c4643e")} items={pots} castShadow />
+      <Instances geo={LEAVES} material={mat("#ffffff", 0.85)} items={leaves} castShadow />
     </group>
   );
 }
@@ -259,14 +326,122 @@ function FlowerBeds() {
   );
 }
 
-function Pennants() {
+// --- festoons: bunting over the shopping street, bulbs over the cafe terrace -------------------------------
+
+type Span = [THREE.Vector3Tuple, THREE.Vector3Tuple, number]; // from, to, sag
+const B = (id: string) => BUILDINGS.find((b) => b.id === id)!;
+const onFacade = (id: string, lx: number, y: number): THREE.Vector3Tuple => {
+  const b = B(id);
+  const p = fromLocal(b, lx, b.d / 2 + 0.05);
+  return [p.x, y, p.z];
+};
+const onLamp = (i: number, y = 3.5): THREE.Vector3Tuple => [LAMPS[i].x, y, LAMPS[i].z];
+
+/** Zig-zag across the shopping street, strung only between shop facades and the existing lamp and lantern posts. */
+function buntingSpans(): Span[] {
+  // spans leave the facades at an angle and skip the flower shop front, so no flags hang across a shop sign;
+  // the last two fan out from the plaza's corner lantern pole, where the default camera sees them
+  const pole: THREE.Vector3Tuple = [LANTERN_POLES[0].x, 4.0, LANTERN_POLES[0].z];
+  return [
+    [onFacade("bakery", 2.6, 3.85), onLamp(1), 0.55],
+    [onLamp(1), onFacade("flower", -2.5, 3.5), 0.55],
+    [onFacade("flower", 2.5, 3.5), pole, 0.5],
+    [onFacade("ramen", -2.5, 3.5), pole, 0.35],
+  ];
+}
+
+/** The cafe terrace: from the street lamps over the umbrella tops, and back to the corner of the cafe's annex
+ *  (strings from the main facade crossed the cafe's sign). */
+function terraceSpans(): Span[] {
+  const cafe = B("cafe");
+  const annex = fromLocal(cafe, cafe.w / 2 - 0.1, cafe.d * 0.28 + 0.05); // the lower annex is set back from the front
+  const u = CAFE_TABLES.slice(0, 2).map((t): THREE.Vector3Tuple => [t.x, 2.95, t.z]);
+  return [
+    [onLamp(2), u[0], 0.45],
+    [u[0], u[1], 0.2],
+    [u[1], onLamp(3), 0.45],
+    [[annex.x, 2.75, annex.z], u[1], 0.2],
+  ];
+}
+
+/** Points every `step` metres along each sagging span, with the span's heading. */
+function alongSpans(spans: Span[], step: number) {
+  return spans.flatMap(([a, b, sag]) => {
+    const len = Math.hypot(b[0] - a[0], b[2] - a[2]);
+    const pts = catenary(a, b, sag, Math.max(2, Math.round(len / step)));
+    const yaw = Math.atan2(-(b[2] - a[2]), b[0] - a[0]);
+    return pts.slice(1, -1).map((p) => ({ p, yaw }));
+  });
+}
+/** All spans as one line-segment list: one draw call for every string. */
+function stringSegments(spans: Span[]) {
+  return spans.flatMap(([a, b, sag]) => {
+    const pts = catenary(a, b, sag, 16);
+    return pts.slice(1).flatMap((p, i) => [pts[i], p]);
+  });
+}
+
+const PENNANT = new THREE.BufferGeometry();
+PENNANT.setAttribute("position", new THREE.Float32BufferAttribute([-0.25, 0, 0, 0.25, 0, 0, 0, -0.55, 0], 3));
+PENNANT.computeVertexNormals();
+const PENNANT_COLOURS = ["#e2574c", "#ffd23f", "#3a86ff", "#6bcb77", "#ff8fab"];
+
+function Bunting() {
+  const spans = useMemo(() => buntingSpans(), []);
+  const flags = useMemo(() => alongSpans(spans, 0.58), [spans]);
+  const segments = useMemo(() => stringSegments(spans), [spans]);
+  const material = useMemo(() => new THREE.MeshStandardMaterial({ color: "#ffffff", side: THREE.DoubleSide, roughness: 0.8 }), []);
+  const ref = useRef<THREE.InstancedMesh>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const place = useMemo(
+    () => (t: number) => {
+      const mesh = ref.current;
+      if (!mesh) return;
+      flags.forEach((f, i) => {
+        dummy.position.copy(f.p);
+        // flutter about the string: turn to the span's heading first, then swing
+        dummy.rotation.set(Math.sin(t * 2.2 + i * 0.7) * 0.22, f.yaw, 0, "YXZ");
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+      });
+      mesh.instanceMatrix.needsUpdate = true;
+    },
+    [flags, dummy],
+  );
+  useLayoutEffect(() => {
+    const mesh = ref.current;
+    if (!mesh) return;
+    const c = new THREE.Color();
+    flags.forEach((_, i) => mesh.setColorAt(i, c.set(PENNANT_COLOURS[i % PENNANT_COLOURS.length])));
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    place(0);
+    mesh.computeBoundingSphere();
+  }, [flags, place]);
+  useFrame(({ clock: c }) => {
+    if (!LITE) place(c.elapsedTime);
+  });
+  const group = useRef<THREE.Group>(null);
+  useShotFade(group, useMemo(() => flags.map((f) => f.p), [flags]), 3.5);
   return (
-    <group>
-      {LAMPS.slice(0, 7).map((l, i) => (
-        <mesh key={i} position={[l.x + 0.32, 3.1, l.z]} castShadow material={mat(["#e2574c", "#ffd23f", "#3a86ff"][i % 3], 0.7)}>
-          <boxGeometry args={[0.55, 0.85, 0.03]} />
-        </mesh>
-      ))}
+    <group ref={group} name="set:bunting">
+      <Line points={segments} segments color="#5a4a3a" lineWidth={1} />
+      <instancedMesh ref={ref} args={[PENNANT, material, flags.length]} />
+    </group>
+  );
+}
+
+function TerraceLights() {
+  const spans = useMemo(() => terraceSpans(), []);
+  const along = useMemo(() => alongSpans(spans, 0.45), [spans]);
+  const bulbs = useMemo<Inst[]>(() => along.map((f) => ({ p: [f.p.x, f.p.y - 0.07, f.p.z] })), [along]);
+  const segments = useMemo(() => stringSegments(spans), [spans]);
+  const material = useBulbMaterial();
+  const group = useRef<THREE.Group>(null);
+  useShotFade(group, useMemo(() => along.map((f) => f.p), [along]), 3.5);
+  return (
+    <group ref={group} name="set:terrace">
+      <Line points={segments} segments color="#3b3030" lineWidth={1} />
+      <Instances geo={BULB} material={material} items={bulbs} />
     </group>
   );
 }
@@ -308,7 +483,11 @@ export default function StreetProps() {
         <YardLife key={`${y.house}${y.side}`} y={y} seed={200 + i} />
       ))}
       <FlowerBeds />
-      <Pennants />
+      <Bunting />
+      <TerraceLights />
+      <LifeProps />
+      <HarbourCrane />
+      <Gulls />
       <Bikes />
     </group>
   );

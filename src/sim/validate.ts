@@ -27,12 +27,18 @@ export interface Checked {
 
 const str = (v: unknown, max: number) => typeof v === "string" && v.trim().length > 0 && v.length <= max;
 
+/**
+ * Length caps on what the model writes, in characters. They were set for Chinese answers; English needs about 1.7×
+ * the characters for the same content, so each is scaled by that. The prompt quotes the message caps from here.
+ */
+export const LIMITS = { understanding: 340, thought: 270, feeling: 40, statement: 170, message: 240, article: 680 } as const;
+
 /** Normalise loosely-typed model output into a DecisionOutput, or explain what is wrong. */
 export function coerce(raw: unknown): { out: DecisionOutput | null; errors: string[] } {
   const errors: string[] = [];
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { out: null, errors: ["回覆必須是一個 JSON 物件"] };
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { out: null, errors: ["the reply must be one JSON object"] };
   const r = raw as Record<string, unknown>;
-  const arr = (k: string) => (Array.isArray(r[k]) ? (r[k] as unknown[]) : r[k] == null ? [] : (errors.push(`${k} 必須是陣列`), []));
+  const arr = (k: string) => (Array.isArray(r[k]) ? (r[k] as unknown[]) : r[k] == null ? [] : (errors.push(`${k} must be an array`), []));
   const out: DecisionOutput = {
     understanding: typeof r.understanding === "string" ? r.understanding : "",
     claims: arr("claims").map((c) => (c && typeof c === "object" ? (c as DecisionOutput["claims"][number]) : ({} as DecisionOutput["claims"][number]))),
@@ -52,7 +58,7 @@ export function coerce(raw: unknown): { out: DecisionOutput | null; errors: stri
  * Anything that touches the world (actions, targets, places, thresholds, secrets) stays strict, and so does which
  * claim a stance or cite points at: a claim reference that names no claim is sent back, never guessed or dropped.
  */
-/** "0.5（不確定）" → 0.5, "60%" → 0.6, "七成" stays NaN (then it is sent back) */
+/** "0.5 (not sure)" → 0.5, "60%" → 0.6, "seventy percent" stays NaN (then it is sent back) */
 function readNumber(x: string): number {
   const m = /-?\d+(?:\.\d+)?/.exec(x);
   if (!m) return NaN;
@@ -201,6 +207,47 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
   return { out: { ...out, claims, stances, actions, feeling, act, motive }, notes };
 }
 
+// ---- leak keywords: could they have put this giveaway phrase together from what they heard? ----
+// A Chinese keyword (Chinese answers, old logs): yes when every character of it was in what they heard. An English
+// keyword: yes when every content word of it was, as a word (loosely stemmed, with a few everyday paraphrases), so
+// "the oven's inspection has expired" can come from "the oven is past its safety inspection", but "the stage was
+// never inspected" cannot come from "the stage looks shaky".
+const HAN = /\p{Script=Han}/u;
+/** how English is compared: lower case, straight apostrophes, single spaces */
+const plain = (s: string) => s.toLowerCase().replace(/[’‘`]/g, "'").replace(/\s+/g, " ");
+const derivableZh = (k: string, heard: string) => heard.includes(k) || [...k].every((ch) => heard.includes(ch));
+const STOP = new Set(
+  ("a an the and or but if so as is are was were be been being am has have had do does did done not no never nor of to for on in at by " +
+    "with from about into onto than then that this these those there here it its they them their he him his she her we us our you your i me " +
+    "my what which who whom whose when where why how all any some each every just only also very really still even again ever yet will would " +
+    "shall should can could may might must wo ca let get got gets getting go goes going gone went usual usually normal normally regular regularly").split(" "),
+);
+/** a few everyday paraphrases, by stem: the stem on the left counts as the one on the right */
+const SAME: Record<string, string> = {
+  check: "inspect", examin: "inspect",
+  past: "expir", overdu: "expir", laps: "expir", outdat: "expir",
+  fill: "plug", plugg: "plug", patch: "plug", gap: "hol",
+  officer: "polic", cop: "polic",
+  argu: "fight", argument: "fight", quarrel: "fight", fought: "fight",
+  pictur: "photo", pic: "photo", photograph: "photo",
+  shak: "wobbl", loos: "wobbl",
+  percent: "%", thirt: "30",
+  took: "tak", taken: "tak", paid: "pay", overran: "overrun", cutt: "cut",
+};
+const SUFFIXES = ["ations", "ation", "ions", "ion", "ings", "ing", "als", "al", "ies", "ied", "es", "ed", "s", "y", "e"];
+function stem(w: string): string {
+  const suf = SUFFIXES.find((x) => w.endsWith(x) && w.length - x.length >= 3);
+  const s = suf ? w.slice(0, -suf.length) : w;
+  return SAME[s] ?? s;
+}
+/** the content words of an English text, stemmed */
+function contentWords(s: string): string[] {
+  const t = plain(s).replace(/n't\b/g, " not").replace(/'(s|re|ve|ll|d|m)\b/g, "");
+  return (t.match(/[\p{L}\p{N}]+|%/gu) ?? []).filter((w) => !STOP.has(w)).map(stem);
+}
+const heardWords = (heard: string) => new Set(contentWords(heard));
+const derivableEn = (k: string, heard: string, words: Set<string>) => plain(heard).includes(plain(k)) || contentWords(k).every((w) => words.has(w));
+
 export function checkDecision(view: View, out: DecisionOutput, opts: { requireActions?: boolean; requireReading?: boolean } = {}): Checked {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -211,17 +258,17 @@ export function checkDecision(view: View, out: DecisionOutput, opts: { requireAc
   const knowIds = new Set(view.knowledge.map((k) => k.id));
 
   if (requireReading) {
-    if (!str(out.understanding, 200)) errors.push("understanding 要用一句話寫出你怎麼理解（200 字內）");
-    if (!str(out.thought, 160)) errors.push("thought 要寫一句內心獨白（160 字內）");
-    if (!str(out.feeling, 24)) errors.push("feeling 要是一個表情符號加一個詞");
-    if (out.claims.length > 4) errors.push("claims 最多 4 條");
+    if (!str(out.understanding, LIMITS.understanding)) errors.push(`understanding must say in one sentence how you read this (under ${LIMITS.understanding} characters)`);
+    if (!str(out.thought, LIMITS.thought)) errors.push(`thought must be one line of inner monologue (under ${LIMITS.thought} characters)`);
+    if (!str(out.feeling, LIMITS.feeling)) errors.push("feeling must be one emoji plus one word");
+    if (out.claims.length > 4) errors.push("at most 4 claims");
   }
   out.claims.forEach((c, i) => {
-    if (!str(c.statement, 100)) errors.push(`claims[${i}].statement 要是一句話（100 字內）`);
-    if (!TOPIC_IDS.has(c.topic)) errors.push(`claims[${i}].topic 必須是主題清單裡的編號`);
-    if (!["yes", "no", "unclear"].includes(c.says)) errors.push(`claims[${i}].says 必須是 yes、no 或 unclear`);
-    if (!CATEGORIES.includes(c.category)) errors.push(`claims[${i}].category 不在允許的分類裡`);
-    if (c.ref !== "new" && !myBeliefs.has(c.ref)) errors.push(`claims[${i}].ref 只能是 "new" 或你已有的說法編號`);
+    if (!str(c.statement, LIMITS.statement)) errors.push(`claims[${i}].statement must be one sentence (under ${LIMITS.statement} characters)`);
+    if (!TOPIC_IDS.has(c.topic)) errors.push(`claims[${i}].topic must be an id from the topic list`);
+    if (!["yes", "no", "unclear"].includes(c.says)) errors.push(`claims[${i}].says must be yes, no or unclear`);
+    if (!CATEGORIES.includes(c.category)) errors.push(`claims[${i}].category is not one of the allowed categories`);
+    if (c.ref !== "new" && !myBeliefs.has(c.ref)) errors.push(`claims[${i}].ref can only be "new" or the id of a claim you already have`);
   });
 
   // stances: confidence is bounded by trust and knowledge
@@ -239,7 +286,7 @@ export function checkDecision(view: View, out: DecisionOutput, opts: { requireAc
   const refSeen = new Set<string>();
   out.claims.forEach((c, i) => {
     if (c.ref !== "new") {
-      if (refSeen.has(c.ref)) errors.push(`claims[${i}]：同一條舊說法（${c.ref}）只能出現一次`);
+      if (refSeen.has(c.ref)) errors.push(`claims[${i}]: the same old claim (${c.ref}) can only be listed once`);
       refSeen.add(c.ref);
     }
   });
@@ -248,14 +295,14 @@ export function checkDecision(view: View, out: DecisionOutput, opts: { requireAc
   out.stances.forEach((s, i) => {
     if (typeof s.claim !== "number" || !Number.isInteger(s.claim) || s.claim < 0 || s.claim >= out.claims.length) {
       // name the positions and their own claim ids that do exist (the ids are on their own prompt)
-      const mine = [...myBeliefs.keys()].join("、");
-      errors.push(`stances[${i}].claim 對不到任何一條說法：要填 claims 陣列裡的位置（${out.claims.length ? `0 到 ${out.claims.length - 1}` : "這次 claims 是空的"}），或你已有的說法編號（${mine || "你還沒有任何說法"}）`);
+      const mine = [...myBeliefs.keys()].join(", ");
+      errors.push(`stances[${i}].claim doesn't point at any claim: use a position in the claims array (${out.claims.length ? `0 to ${out.claims.length - 1}` : "claims is empty this time"}), or the id of a claim you already have (${mine || "you don't have any claims yet"})`);
       return;
     }
-    if (seen.has(s.claim)) errors.push(`同一條說法只能有一個立場（stances[${i}]）`);
+    if (seen.has(s.claim)) errors.push(`only one stance per claim (stances[${i}])`);
     seen.add(s.claim);
-    if (!["believe", "doubt", "disbelieve"].includes(s.verdict)) errors.push(`stances[${i}].verdict 必須是 believe、doubt 或 disbelieve`);
-    if (typeof s.confidence !== "number" || !Number.isFinite(s.confidence) || s.confidence < 0 || s.confidence > 1) errors.push(`stances[${i}].confidence 必須是 0 到 1 的數字`);
+    if (!["believe", "doubt", "disbelieve"].includes(s.verdict)) errors.push(`stances[${i}].verdict must be believe, doubt or disbelieve`);
+    if (typeof s.confidence !== "number" || !Number.isFinite(s.confidence) || s.confidence < 0 || s.confidence > 1) errors.push(`stances[${i}].confidence must be a number from 0 to 1`);
     else {
       const c = out.claims[s.claim];
       const prior = c.ref !== "new" ? myBeliefs.get(c.ref) : undefined;
@@ -271,17 +318,17 @@ export function checkDecision(view: View, out: DecisionOutput, opts: { requireAc
       // (capping it silently left residents acting on a belief they could not hold)
       if (range.against && s.confidence >= 0.5) {
         const truth = view.knowledge.find((k) => k.id === range.against)?.zh ?? "";
-        errors.push(`stances[${i}]：你自己知道「${truth}」，「${c.statement}」跟你知道的事相反，confidence 不能是 ${s.confidence}。confidence 是這件事為真的機率，不是你希不希望別人這樣相信。請照你知道的事重新判斷；要不要說出真相、隱瞞或利用這個傳聞，由你決定。`);
+        errors.push(`stances[${i}]: you yourself know “${truth.replace(/[.。]$/, "")}”, and “${c.statement.replace(/[.。]$/, "")}” contradicts what you know, so its confidence can't be ${s.confidence}. Confidence is the chance that it's true, not how much you'd like others to believe it. Judge it again from what you know; whether to tell the truth, keep quiet or make use of the rumor is up to you.`);
       }
       if (s.verdict === "believe" && v < 0.5) warnings.push(`stance ${i} says believe but the engine caps confidence at ${v.toFixed(2)} (${range.reason})`);
     }
-    for (const id of s.cites ?? []) if (!knowIds.has(id) && !msgIds.has(id) && !myBeliefs.has(id)) errors.push(`stances[${i}].cites 引用了不存在的編號 ${id}`);
+    for (const id of s.cites ?? []) if (!knowIds.has(id) && !msgIds.has(id) && !myBeliefs.has(id)) errors.push(`stances[${i}].cites names an id that doesn't exist: ${id}`);
   });
-  if (requireReading && out.claims.length && !out.stances.length) errors.push("每條說法都要有立場 stances");
+  if (requireReading && out.claims.length && !out.stances.length) errors.push("every claim needs a stance in stances");
 
   // actions
-  if (requireActions && !out.actions.length) errors.push("actions 至少要有一個（不想做事就用 none）");
-  if (out.actions.length > 2) errors.push("actions 最多 2 個");
+  if (requireActions && !out.actions.length) errors.push("actions needs at least one entry (use none if you don't want to do anything)");
+  if (out.actions.length > 2) errors.push("at most 2 actions");
   const allowed = new Set<ActionKind>(["none", ...view.actions]);
   const people = new Map(view.people.map((p) => [p.id, p]));
   const catOf = (topic: string, model: Category) => TOPIC_CATEGORY[topic] ?? (topic === "other" ? model : "other");
@@ -315,63 +362,64 @@ export function checkDecision(view: View, out: DecisionOutput, opts: { requireAc
   };
   out.actions.forEach((a, i) => {
     if (!allowed.has(a.type)) {
-      errors.push(`actions[${i}].type「${a.type}」不是你能做的行動`);
+      errors.push(`actions[${i}].type “${a.type}” is not something you can do`);
       return;
     }
-    if (a.type === "none" && out.actions.length > 1) errors.push("none 不能和其他行動一起出現");
+    if (a.type === "none" && out.actions.length > 1) errors.push("none can't be listed together with other actions");
     if (NEEDS_TARGET.includes(a.type)) {
       const p = a.target ? people.get(a.target) : undefined;
-      if (!p) errors.push(`actions[${i}].target 必須是你能聯絡的人的編號`);
-      else if (a.type === "phone" && !p.relation.phone) errors.push(`你沒有 ${p.name} 的電話，只能當面去說`);
-      if (a.intent && !INTENTS.includes(a.intent)) errors.push(`actions[${i}].intent 不在允許的清單裡`);
+      if (!p) errors.push(`actions[${i}].target must be the id of someone you can contact`);
+      else if (a.type === "phone" && !p.relation.phone) errors.push(`you don't have ${p.name}'s number; you can only tell them in person`);
+      if (a.intent && !INTENTS.includes(a.intent)) errors.push(`actions[${i}].intent is not one of the allowed intents`);
     }
-    if (NEEDS_PLACE.includes(a.type) && (!a.place || !PLACE_IDS.has(a.place))) errors.push(`actions[${i}].place 必須是地點清單裡的編號`);
-    if (NEEDS_MESSAGE.includes(a.type) && !str(a.message, a.type === "publish_article" ? 400 : 140)) errors.push(`actions[${i}].message 要寫出你要說或寫的內容（${a.type === "publish_article" ? 400 : 140} 字以內）`);
+    if (NEEDS_PLACE.includes(a.type) && (!a.place || !PLACE_IDS.has(a.place))) errors.push(`actions[${i}].place must be an id from the place list`);
+    const maxMessage = a.type === "publish_article" ? LIMITS.article : LIMITS.message;
+    if (NEEDS_MESSAGE.includes(a.type) && !str(a.message, maxMessage)) errors.push(`actions[${i}].message must say what you say or write (under ${maxMessage} characters)`);
     for (const id of a.cites ?? []) {
       const okId = knowIds.has(id) || msgIds.has(id) || myBeliefs.has(id) || (/^#\d+$/.test(id) && Number(id.slice(1)) < out.claims.length);
-      if (!okId) errors.push(`actions[${i}].cites 引用了不存在的編號 ${id}`);
+      if (!okId) errors.push(`actions[${i}].cites names an id that doesn't exist: ${id}`);
     }
     const grounds = citeConf(a.cites);
     const best = (pred: (x: { c: { topic: string; category: Category }; conf: number }) => boolean) => Math.max(0, ...grounds.filter(pred).map((g) => g.conf));
     // the model only sees its own number; say what the engine allows it to be sure of, and why
-    const actually = (v: number) => (grounds.length ? `（以你目前的消息來源，你對它的把握其實只有 ${v.toFixed(2)}：只是聽人說的、沒有親眼證據，把握有上限）` : "");
+    const actually = (v: number) => (grounds.length ? ` (from your sources so far, your confidence in it can really only be ${v.toFixed(2)}: it's only what people told you, with no evidence you saw yourself, so it has a ceiling)` : "");
     switch (a.type) {
       case "dispatch_police":
-        if (best((g) => ["safety", "crime"].includes(g.c.category)) < 0.5) errors.push(`出動警力需要你有相當把握（信心 0.5 以上）的安全或治安疑慮，並在 cites 裡引用它${actually(best((g) => ["safety", "crime"].includes(g.c.category)))}；把握不夠的話，可以先去現場看看、問人，或先不行動`);
+        if (best((g) => ["safety", "crime"].includes(g.c.category)) < 0.5) errors.push(`Sending officers needs a safety or crime worry you're fairly sure of (confidence 0.5 or more), cited in cites${actually(best((g) => ["safety", "crime"].includes(g.c.category)))}; if you're not sure enough, you can go and look first, ask around, or hold off for now`);
         break;
       case "cancel_festival": {
         const safety = best((g) => g.c.category === "safety");
         const strong = grounds.filter((g) => g.conf >= 0.5).length;
         if (!(safety >= 0.7 || (strong >= 2 && view.publicEvents.length > 0)))
-          errors.push(`取消燈籠節需要很有把握的安全疑慮（0.7 以上），或兩個以上有把握的理由加上鎮上已經出現的公開壓力，並在 cites 裡引用${actually(safety)}；把握不夠的話，可以先查證、找人談，或發表聲明`);
+          errors.push(`Cancelling the Lantern Festival needs a safety worry you're very sure of (0.7 or more), or two or more reasons you're sure of plus public pressure that's already showing in town, cited in cites${actually(safety)}; if you're not sure enough, you can check first, talk to people, or make a statement`);
         break;
       }
       case "publish_article":
-        if (best(() => true) < 0.3) errors.push("發文需要引用至少一條你覺得有可能（信心 0.3 以上）的說法");
+        if (best(() => true) < 0.3) errors.push("Publishing an article needs at least one claim in cites that you think could be true (confidence 0.3 or more)");
         break;
       case "rally":
-        if (best(() => true) < 0.5) errors.push(`號召大家聚集需要你有把握（0.5 以上）的理由，並在 cites 裡引用${actually(best(() => true))}`);
+        if (best(() => true) < 0.5) errors.push(`Calling people to gather needs a reason you're sure of (0.5 or more), cited in cites${actually(best(() => true))}`);
         break;
       case "close_stage": {
         const knowsDefect = view.known["stage_uninspected"] === true;
-        if (!knowsDefect && best((g) => g.c.topic === "stage_unsafe") < 0.6) errors.push(`封鎖舞台需要你確定舞台有問題${actually(best((g) => g.c.topic === "stage_unsafe"))}`);
+        if (!knowsDefect && best((g) => g.c.topic === "stage_unsafe") < 0.6) errors.push(`Taping off the stage needs you to be sure something is wrong with it${actually(best((g) => g.c.topic === "stage_unsafe"))}`);
         break;
       }
       case "close_shop":
       case "public_statement":
-        if (!(a.cites ?? []).length) errors.push(`actions[${i}] 需要在 cites 裡說明是因為哪條資訊`);
+        if (!(a.cites ?? []).length) errors.push(`actions[${i}] needs cites saying which information it's because of`);
         break;
     }
   });
 
   // unknown information: words that give away facts this NPC has no way of knowing
   const said = [out.understanding, out.thought, out.feeling, ...out.claims.map((c) => c.statement), ...out.stances.map((s) => s.why ?? ""), ...out.actions.map((a) => `${a.message ?? ""} ${a.why ?? ""}`)].join(" ");
+  const saidLow = plain(said);
+  const heard = heardWords(view.heardText);
   for (const f of FACTS) {
     if (f.public || f.id in view.known) continue;
-    // a paraphrase of something they heard is not a leak: every character of the phrase was in what they heard
-    const derivable = (k: string) => view.heardText.includes(k) || [...k].every((ch) => view.heardText.includes(ch));
-    const kw = f.keywords.find((k) => said.includes(k) && !derivable(k));
-    if (kw) errors.push(`你的回覆用到了你沒有聽說過的具體細節（「${kw}」）。請只根據上面列出的資訊思考`);
+    const kw = f.keywords.find((k) => (HAN.test(k) ? said.includes(k) && !derivableZh(k, view.heardText) : saidLow.includes(plain(k)) && !derivableEn(k, view.heardText, heard)));
+    if (kw) errors.push(`your answer uses a specific detail you have never heard of (“${kw}”). Think only from the information listed above`);
   }
   return { ok: errors.length === 0, errors, warnings, confidence, sources: claimSources, limits };
 }

@@ -4,7 +4,7 @@ import { ACT_LIST } from "./acts.ts";
 import { PLACES, TOPICS } from "./scenario.ts";
 import { DECISION_BUDGET_MS, parseJSON, pause, type Chat, type ChatMessage } from "./llm.ts";
 import type { ActionKind, DecisionOutput, LlmRecord, Persona, ValidationEntry } from "./types.ts";
-import { checkDecision, coerce, normalize, type Checked } from "./validate.ts";
+import { LIMITS, checkDecision, coerce, normalize, type Checked } from "./validate.ts";
 import { describeTrust, type InboxItem, type View } from "./view.ts";
 
 export type Variant = "single" | "two-stage" | "free-actions" | "eager";
@@ -21,61 +21,64 @@ export interface MindResult {
   stopped?: boolean;
 }
 
-/** The gist of why the rules stopped an action, for a one-line beat on screen. */
+/**
+ * The gist of why the rules stopped an action, for a one-line beat on screen. The engine writes it after
+ * "<name> wanted to <action>, but ", so it reads on from "but" with no subject of its own.
+ */
 function refusalGist(errors: string[]): string {
   const e = errors[0] ?? "";
-  if (/信心|把握|確定/.test(e)) return "把握還不夠";
-  if (/電話/.test(e)) return "沒有對方的電話";
-  if (/沒有聽說過|秘密/.test(e)) return "那不是能說出口的事";
-  if (/地點|place/.test(e)) return "去不了那裡";
-  return "這件事現在做不到";
+  if (/confiden|\bsure\b/i.test(e)) return "there wasn't enough to go on yet";
+  if (/'s number|phone/i.test(e)) return "there was no number to call";
+  if (/never heard|secret/i.test(e)) return "that wasn't something to say out loud";
+  if (/place/i.test(e)) return "there was no way to get there";
+  return "it couldn't be done just now";
 }
 
 const ACTION_ZH: Record<ActionKind, string> = {
-  none: "不做任何事，繼續手邊的事",
-  tell: "走過去當面跟某人說（需要 target、intent、message）",
-  phone: "打電話給有電話的熟人（適合急事或對方很遠；重要的事當面說比較容易讓人相信）（需要 target、message）",
-  ask: "去問某人一件事（需要 target、message）",
-  go_look: "親自走去某個地方看看（需要 place）",
-  inspect: "以你的專業仔細檢查某個地方：設施、建物，或公開的文件與帳目（需要 place）",
-  close_shop: "暫時關店（需要 cites 說明原因）",
-  open_shop: "重新開店",
-  post_notice: "在廣場布告欄貼一張公告（需要 message）",
-  publish_article: "在新聞部落格發一篇文章（message 寫標題和內文）",
-  public_statement: "對全鎮發表公開聲明（需要 message、cites）",
-  cancel_festival: "宣布取消今晚的燈籠節（需要 message、cites）",
-  dispatch_police: "派警員到某個地方（需要 place、cites）",
-  close_stage: "封鎖慶典舞台，不准任何人上台",
-  rally: "號召攤商到某個地方聚集表達訴求（需要 place、message、cites）",
+  none: "do nothing and carry on with what you were doing",
+  tell: "walk over and tell someone face to face (needs target, intent, message)",
+  phone: "call someone you know who has a phone (good for urgent things or when they're far away; something important is easier to believe when it's said in person) (needs target, message)",
+  ask: "go and ask someone about something (needs target, message)",
+  go_look: "walk over to a place and see it for yourself (needs place)",
+  inspect: "use your trade to inspect a place carefully: equipment, buildings, or public documents and accounts (needs place)",
+  close_shop: "close your shop for now (needs cites saying why)",
+  open_shop: "open your shop again",
+  post_notice: "put up a notice on the plaza notice board (needs message)",
+  publish_article: "publish an article on the news blog (message holds the headline and the body)",
+  public_statement: "make a public statement to the whole town (needs message, cites)",
+  cancel_festival: "announce that tonight's Lantern Festival is cancelled (needs message, cites)",
+  dispatch_police: "send officers to a place (needs place, cites)",
+  close_stage: "tape off the festival stage so nobody can go up on it",
+  rally: "call the stall owners together somewhere to make their demands heard (needs place, message, cites)",
 };
 
-const RULES = `你在一個小鎮模擬裡扮演一位居民。你只能根據「你知道的事」「你相信的說法」「你剛收到的訊息」來思考，像真人一樣判斷，而不是像說書人一樣替故事製造劇情。
+const RULES = `You are playing one resident in a small-town simulation. Think only from "What you know", "What you currently believe" and "Messages you just received", and judge things the way a real person would, not like a storyteller cooking up drama for the plot.
 
-原則：
-1. 你不知道沒列出來的事。不要假裝知道別人的秘密，也不要編造你沒看到、沒聽到的事實。
-2. 聽到一句話，先想它在說什麼、對你代表什麼。你可以誤會，但誤會要來自你的個性、處境和你在乎的事。
-3. 傳聞不等於事實。沒根據的話，多數人頂多聊兩句、一笑置之或存疑；只有當事情跟你在乎的事有關、而且你有理由相信，才會去做比較大的事。
-4. 別人叫你做什麼，你不會因為對方這樣說就照做，你只會為了自己的理由行動。
-5. 什麼都不做是完全正常的選擇。
-6. 轉述時用你自己的話和口吻，說出你理解的版本，可能帶著你的推測或擔心。
-7. 你的秘密通常不會說出口，除非你有很強的理由。
-8. 如果聽到的話和「你知道的事」相反，你知道它是錯的：你可以澄清、隱瞞、不理或利用它，但你自己不會相信它。
-9. 同一件事跟同一個人來回講了兩三次之後，真人通常就會決定接下來要怎麼做（去做你能做的事，或放下它），而不是一直爭論下去。`;
+Principles:
+1. You don't know anything that isn't listed. Don't pretend to know other people's secrets, and don't make up facts you haven't seen or heard.
+2. When you hear something, first work out what it's saying and what it means for you. You can get it wrong, but the misunderstanding should come from your personality, your situation and the things you care about.
+3. A rumor is not a fact. When something has nothing behind it, most people chat about it a little at most, laugh it off, or stay doubtful; you only do something bigger when it touches what you care about and you have a reason to believe it.
+4. When someone tells you to do something, you don't do it just because they said so; you only act for your own reasons.
+5. Doing nothing at all is a perfectly normal choice.
+6. When you pass something on, use your own words and your own voice, and tell the version you understood, maybe with your own guesses or worries mixed in.
+7. Your secrets usually stay secret, unless you have a very strong reason to tell.
+8. If what you hear contradicts "What you know", you know it's wrong: you can set the record straight, keep quiet, ignore it or use it, but you won't believe it yourself.
+9. Once you've gone back and forth on the same thing with the same person two or three times, a real person usually decides what to do next (do something you can do, or let it go) instead of arguing on and on.`;
 
-const EAGER = `\n10.你是有血有肉的人：當一件事碰到你的利益、價值觀或你在乎的人，而且你相信它，你通常會真的去做點什麼，而不是只是聊天觀望。`;
+const EAGER = `\n10. You're a real person with a life of your own: when something touches your interests, your values or someone you care about, and you believe it, you usually actually do something about it instead of just chatting and waiting to see.`;
 
-const TOPIC_LIST = TOPICS.map((t) => `- ${t.id}：${t.q}`).join("\n");
-const PLACE_LIST = PLACES.map((p) => `${p.id}=${p.zh}`).join("、");
+const TOPIC_LIST = TOPICS.map((t) => `- ${t.id}: ${t.q}`).join("\n");
+const PLACE_LIST = PLACES.map((p) => `${p.id}=${p.zh}`).join("; ");
 
-const SCHEMA_READ = `"feeling": "一個表情符號加一個詞，例如 😟 擔心",
-  "act": "你當下看得見的反應，從反應清單選一個編號",
-  "understanding": "你認為這則訊息在說什麼、對你代表什麼（30 字內）",
-  "claims": [{"ref": "new（新的說法），或你已有的說法編號（例如 c2）", "source": "這條說法來自哪則訊息（例如 m1）", "statement": "用一句話寫出這條說法", "topic": "主題編號", "says": "yes / no / unclear：這條說法對該主題問題的回答", "category": "safety|crime|scandal|health|policy|event|personal|absurd|other"}],
-  "stances": [{"claim": "這次 claims 裡的位置（數字，從 0 開始）；或直接填你已有說法的編號字串，例如 \"c2\"", "verdict": "believe / doubt / disbelieve", "confidence": "你認為這條說法是真的機率：0＝一定是假的，0.5＝不知道，1＝一定是真的", "why": "為什麼這樣判斷（20 字內）", "cites": ["依據的編號，例如 m1、pigeons、c2"]}],
+const SCHEMA_READ = `"feeling": "one emoji plus one word, e.g. 😟 worried",
+  "act": "the reaction others can see on you right now: pick one id from the reaction list",
+  "understanding": "what you think this message is saying and what it means for you (one short sentence, about 15 words)",
+  "claims": [{"ref": "new (a new claim), or the id of a claim you already have (e.g. c2)", "source": "which message this claim came from (e.g. m1)", "statement": "the claim, in one sentence", "topic": "topic id", "says": "yes / no / unclear: this claim's answer to the topic's question", "category": "safety|crime|scandal|health|policy|event|personal|absurd|other"}],
+  "stances": [{"claim": "the claim's position in this answer's claims (a number, starting at 0); or the id of a claim you already have, as a string, e.g. \"c2\"", "verdict": "believe / doubt / disbelieve", "confidence": "the chance you think this claim is true: 0 = definitely false, 0.5 = no idea, 1 = definitely true", "why": "why you judge it this way (about 10 words)", "cites": ["the ids it rests on, e.g. m1, pigeons, c2"]}],
 
-  "thought": "一句內心獨白（30 字內）",
-  "motive": "這次你的反應主要是被你自己的哪一項推動：want（今晚想要）/ fear（怕）/ bias（看事情的偏誤）/ gossip（傳話的習慣）/ bottom（底線）/ price（價碼）/ none（都不是）"`;
-const SCHEMA_ACT = `"actions": [{"type": "行動編號", "target": "對象編號（需要時）", "place": "地點編號（需要時）", "intent": "inform/warn/ask/answer/deny/complain/request/joke", "message": "你要說或寫的話（140 字內；發文 400 字內）", "cites": ["依據的編號；這次的新說法用 #0、#1"]}]`;
+  "thought": "one line of inner monologue (about 15 words)",
+  "motive": "which part of you mainly drove this reaction: want (what you want tonight) / fear (what you're afraid of) / bias (how you tend to see things) / gossip (your gossip habit) / bottom (the line you won't cross) / price (your price) / none (none of these)"`;
+const SCHEMA_ACT = `"actions": [{"type": "action id", "target": "person id (when needed)", "place": "place id (when needed)", "intent": "inform/warn/ask/answer/deny/complain/request/joke", "message": "what you say or write (under ${LIMITS.message} characters; an article under ${LIMITS.article})", "cites": ["the ids it rests on; this answer's new claims are #0, #1"]}]`;
 
 export function systemPrompt(variant: Variant, stage: "single" | "read" | "act") {
   // the free-actions variant must not see the legal action menu (that is what it tests)
@@ -86,18 +89,18 @@ export function systemPrompt(variant: Variant, stage: "single" | "read" | "act")
     stage === "read"
       ? ""
       : variant === "free-actions"
-        ? "\nactions 最多 2 個，依序執行。行動用你自己的話描述在 type（例如「去舞台看看」），不想做事就給 [{\"type\":\"none\"}]。"
-        : "\nactions 最多 2 個，依序執行；只能用「你可以做的事」裡的行動編號。不想做事就給 [{\"type\":\"none\",\"why\":\"...\"}]。";
+        ? "\nAt most 2 actions, carried out in order. Describe each action in your own words in type (e.g. \"go and look at the stage\"); if you don't want to do anything, give [{\"type\":\"none\"}]."
+        : "\nAt most 2 actions, carried out in order; use only the action ids under \"What you can do\". If you don't want to do anything, give [{\"type\":\"none\",\"why\":\"...\"}].";
   return `${rules}
 
-主題清單（只是用來替說法分類；清單上的問題大多只是鎮上的閒話，出現在清單上不代表是真的，不要因為清單上有就去猜測）：
+Topic list (only for sorting claims; most questions on it are just town gossip, and being on the list doesn't make anything true, so don't start guessing at something just because it's listed):
 ${TOPIC_LIST}
 
-地點編號：${PLACE_LIST}
+Place ids: ${PLACE_LIST}
 
-反應清單（act 從這裡選一個最符合你此刻心情的；就算決定不行動，也要選出你真正的感受，例如懷疑選 doubt、擔心選 worried、覺得好笑選 giggle，不要每次都選 shrug）：${ACT_LIST}
+Reaction list (for act, pick the one that best fits how you feel right now; even if you decide not to act, pick what you really feel, e.g. doubt when you're suspicious, worried when you're anxious, giggle when it's funny; don't pick shrug every time): ${ACT_LIST}
 
-只用繁體中文，只回覆一個 JSON 物件：
+Write in English only: every free-text field (feeling, understanding, statement, why, thought, message) is in English; ids and the listed values stay exactly as given. Reply with exactly one JSON object and nothing else:
 ${shape}${actionNote}`;
 }
 
@@ -108,33 +111,64 @@ export const SYSTEM_PROMPTS: readonly string[] = [
   systemPrompt("two-stage", "act"),
 ];
 
-/** The validator's correction turn, sent after the model's answer: RETRY_HEAD + the errors + RETRY_TAIL. */
-export const RETRY_HEAD = "你的回覆沒有通過檢查：";
-export const RETRY_TAIL = "。請修正後重新回覆完整的 JSON。";
+/** The validator's correction turn, sent after the model's answer: RETRY_HEAD + the errors + RETRY_TAIL (see retryNote). */
+export const RETRY_HEAD = "Your answer didn't pass the checks:\n- ";
+export const RETRY_TAIL = "\nPlease fix this and reply again with the complete JSON.";
+export const retryNote = (errors: string[]) => `${RETRY_HEAD}${errors.join("\n- ")}${RETRY_TAIL}`;
+
+/**
+ * The fixed parts of every user prompt, in the order they appear. apiGuard.ts reads requests against these same
+ * strings and builders, so the route and the prompt cannot drift apart.
+ */
+export const SECTION = {
+  who: "## Who you are",
+  habit: "## Your habits",
+  card: "## Your situation",
+  publicInfo: "## Public information about the town",
+  know: "## What you know",
+  believe: "## What you currently believe",
+  remember: "## What you remember",
+  events: "## What you've heard is going on in town lately",
+  inbox: "## Messages you just received",
+  people: "## People you can contact",
+  can: "## What you can do",
+  reading: "## Your reading just now",
+} as const;
+/** the sections every resident's prompt has, in order (habit, card, can and reading depend on the resident and stage) */
+export const REQUIRED_SECTIONS: readonly string[] = [SECTION.publicInfo, SECTION.know, SECTION.believe, SECTION.remember, SECTION.events, SECTION.inbox, SECTION.people];
+/** how a prompt ends: the single (or read) question, or the act stage's question after the reading */
+export const PROMPT_ENDINGS = { single: "\n\nHow do you read this, what do you think, and what will you do?", act: "\nBased on this reading, what do you do next?" } as const;
+/** the first lines of every prompt, up to the resident's own line */
+export const promptOpening = (clock: string, placeZh: string) => `It's ${clock}, and you're at ${placeZh}. The Lantern Festival starts at 20:00.\n\n${SECTION.who}\n`;
+/** the start of the resident's own line under "Who you are" */
+export const whoLine = (p: Pick<Persona, "name" | "roleZh">) => `You are ${p.name}, ${p.roleZh}. Personality: `;
+
+/** first letter up, for a line that starts with a name or a source ("a stranger" → "A stranger") */
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function inboxLine(m: InboxItem, view: View): string {
-  const q = `「${m.text}」`;
+  const q = `“${m.text}”`;
   switch (m.via) {
     case "seed":
-      return `你剛才在${view.placeZh}聽到一位不認識的客人說：${q}`;
+      return `Just now at ${view.placeZh}, you heard a stranger say: ${q}`;
     case "hunch":
-      return `你腦中突然冒出一個念頭：${q}（你不記得是從哪裡聽來的，也不確定是不是真的）`;
+      return `A thought suddenly popped into your head: ${q} (You don't remember where you heard it, and you're not sure it's true.)`;
     case "face":
-      return `${m.fromZh}剛剛當面跟你說（${m.intent}）：${q}`;
+      return `${cap(m.fromZh)} just told you face to face (${m.intent}): ${q}`;
     case "phone":
-      return `${m.fromZh}打電話跟你說（${m.intent}）：${q}`;
+      return `${cap(m.fromZh)} called you and said (${m.intent}): ${q}`;
     case "article":
-      return `你看到${m.fromZh}在新聞部落格發的文章：${q}`;
+      return `You read an article ${m.fromZh} published on the news blog: ${q}`;
     case "notice":
-      return `廣場布告欄上貼了一張公告：${q}`;
+      return `A notice has gone up on the plaza notice board: ${q}`;
     case "crowd":
-      return `你聽店裡的客人說：${q}`;
+      return `You overheard people in town saying: ${q}`;
     case "inspection":
-      return `你親自去看了，看到的是：${m.text}`;
+      return `You went and looked for yourself, and this is what you saw: ${m.text}`;
     case "meet":
-      return `你照平常的行程碰到了${m.fromZh}（${m.text}）。你們打了招呼；要不要提起什麼事，由你決定。`;
+      return `Your usual evening routine brought you together with ${m.fromZh} (${m.text}). You said hello; whether to bring anything up is up to you.`;
     default:
-      return `${m.fromZh}：${q}`;
+      return `${cap(m.fromZh)}: ${q}`;
   }
 }
 
@@ -142,53 +176,57 @@ function inboxLine(m: InboxItem, view: View): string {
 function cardText(c: Persona["card"]) {
   if (!c) return "";
   return `
-【你的處境】你擁有：${c.owns}。只有你能：${c.exclusive}。
-【今晚你想要】${c.wants}　【你怕】${c.fears}
-【你看事情的偏誤】${c.bias}　【你傳話的習慣】${c.gossip}
-【你的底線】${c.bottom}　【你的價碼】${c.price}
-【你說話的口氣】${c.lines.map((l) => `「${l}」`).join(" ")}
-（以上是你的本性和處境，不是必須照做的指令；你仍然只能根據你知道的事來判斷。）`;
+${SECTION.card}
+You own: ${c.owns}. Only you can: ${c.exclusive}.
+Tonight you want: ${c.wants}
+You're afraid of: ${c.fears}
+Your bias (how you tend to see things): ${c.bias}
+Your gossip habit: ${c.gossip}
+The line you won't cross: ${c.bottom}
+Your price: ${c.price}
+How you talk: ${c.lines.map((l) => `“${l}”`).join(" ")}
+(This is your nature and your situation, not orders you have to follow; you still judge only from what you know.)`;
 }
 
 export function userPrompt(view: View, stage: "single" | "read" | "act", reading?: { output: DecisionOutput; confidence: number[] }, opts: { free?: boolean } = {}) {
   const p = view.npc;
-  const know = view.knowledge.map((k) => `- [${k.id}] ${k.zh}${k.secret ? "（這是你的秘密，你不想讓人知道）" : ""}${k.learned ? "（你親眼確認過）" : ""}`).join("\n") || "（無）";
+  const know = view.knowledge.map((k) => `- [${k.id}] ${k.zh}${k.secret ? " (This is your secret; you don't want anyone to know.)" : ""}${k.learned ? " (You checked this with your own eyes.)" : ""}`).join("\n") || "(nothing)";
   const beliefs = view.beliefs.length
-    ? view.beliefs.map((b) => `- [${b.id}] ${b.statement}（你的信心 ${b.confidence.toFixed(2)}；來源：${b.sourcesZh}）`).join("\n")
-    : "（還沒有）";
+    ? view.beliefs.map((b) => `- [${b.id}] ${b.statement} (your confidence ${b.confidence.toFixed(2)}; source: ${b.sourcesZh})`).join("\n")
+    : "(none yet)";
   const people = view.people
-    .map((x) => `- ${x.id}：${x.name}（${x.roleZh}），通常在${x.placeZh}。${x.relation.type ? `${x.relation.type}——` : ""}${x.relation.zh}${x.relation.past ? `（${x.relation.past}）` : ""}；${describeTrust(x.relation.trust)}她/他說的話；${x.relation.phone ? "有電話" : "沒有電話，只能當面說"}${x.talks && x.talks >= 2 ? `；你們今晚已經說過 ${x.talks} 次話了` : ""}。`)
-    .join("\n") || "（目前聯絡不到任何人）";
-  const actions = ["none" as ActionKind, ...view.actions].map((a) => `- ${a}：${ACTION_ZH[a]}`).join("\n");
+    .map((x) => `- ${x.id}: ${x.name} (${x.roleZh}), usually at ${x.placeZh}. ${x.relation.type ? `${cap(x.relation.type)}. ` : ""}${cap(x.relation.zh)}${x.relation.past ? ` (${x.relation.past})` : ""}. ${cap(describeTrust(x.relation.trust))} what they say; ${x.relation.phone ? "you have their number" : "you don't have their number, so it has to be in person"}${x.talks && x.talks >= 2 ? `; you've already talked ${x.talks} times tonight` : ""}.`)
+    .join("\n") || "(there's nobody you can reach right now)";
+  const actions = ["none" as ActionKind, ...view.actions].map((a) => `- ${a}: ${ACTION_ZH[a]}`).join("\n");
   const inbox = view.inbox.map((m) => `- [${m.id}] ${inboxLine(m, view)}`).join("\n");
-  const memory = view.memory.length ? view.memory.slice(-8).map((m) => `- ${m}`).join("\n") : "（無）";
-  const events = view.publicEvents.length ? view.publicEvents.slice(-6).map((m) => `- ${m}`).join("\n") : "（沒聽說什麼）";
-  let s = `現在是 ${view.clock}，你在${view.placeZh}。燈籠節 20:00 開始。
-
-【你是誰】${p.name}，${p.roleZh}。個性：${p.traits} 你在乎的：${p.wants}${p.habit ? `
-【你的習慣】${p.habit}（這是你平常的傾向，不是一定要做）` : ""}${cardText(p.card)}
-【小鎮公開資訊】${view.publicInfo}
-【你知道的事】
+  const memory = view.memory.length ? view.memory.slice(-8).map((m) => `- ${m}`).join("\n") : "(nothing)";
+  const events = view.publicEvents.length ? view.publicEvents.slice(-6).map((m) => `- ${m}`).join("\n") : "(you haven't heard of anything)";
+  let s = `${promptOpening(view.clock, view.placeZh)}${whoLine(p)}${p.traits} What you care about: ${p.wants}${p.habit ? `
+${SECTION.habit}
+${p.habit} (This is what you usually tend to do, not something you have to do.)` : ""}${cardText(p.card)}
+${SECTION.publicInfo}
+${view.publicInfo}
+${SECTION.know}
 ${know}
-【你目前相信的說法】
+${SECTION.believe}
 ${beliefs}
-【你記得的事】
+${SECTION.remember}
 ${memory}
-【你知道鎮上最近發生的事】
+${SECTION.events}
 ${events}
-【剛收到的訊息】
+${SECTION.inbox}
 ${inbox}
-【你能聯絡的人】
+${SECTION.people}
 ${people}`;
-  if (stage !== "read" && !opts.free) s += `\n【你可以做的事】\n${actions}`;
+  if (stage !== "read" && !opts.free) s += `\n${SECTION.can}\n${actions}`;
   if (stage === "act" && reading) {
-    const lines = reading.output.claims.map((c, i) => `- #${i} ${c.statement}（你的信心 ${reading.confidence[i]?.toFixed(2) ?? "0"}）`).join("\n");
-    s += `\n【你剛才的判斷】\n你的理解：${reading.output.understanding}\n你的想法：${reading.output.thought}\n${lines || "（沒有形成具體說法）"}\n根據這些判斷，你接下來要做什麼？`;
-  } else s += "\n\n你會怎麼理解、怎麼想、怎麼做？";
+    const lines = reading.output.claims.map((c, i) => `- #${i} ${c.statement} (your confidence ${reading.confidence[i]?.toFixed(2) ?? "0"})`).join("\n");
+    s += `\n${SECTION.reading}\nYour understanding: ${reading.output.understanding}\nYour thought: ${reading.output.thought}\n${lines || "(no specific claim formed)"}${PROMPT_ENDINGS.act}`;
+  } else s += PROMPT_ENDINGS.single;
   return s;
 }
 
-const FALLBACK: DecisionOutput = { understanding: "", claims: [], stances: [], feeling: "😶 愣住", thought: "（沒能做出判斷）", actions: [{ type: "none", why: "fallback" }] };
+const FALLBACK: DecisionOutput = { understanding: "", claims: [], stances: [], feeling: "😶 frozen", thought: "(couldn't come to a decision)", actions: [{ type: "none", why: "fallback" }] };
 
 /** Pull "feeling" and "act" out of a partly generated JSON answer, once both are complete. */
 export function earlyReaction(text: string): { feeling: string; act: string } | null {
@@ -272,13 +310,13 @@ async function ask(
     validation.push({ attempt, stage, kind: errors.length ? "validator" : "ok", errors, notes: norm?.notes.length ? norm.notes : undefined });
     if (out && checked && errors.length === 0) return { out, checked };
     if (out && !parsed.error) last = out;
-    msgs = [...msgs, { role: "assistant", content: r.content }, { role: "user", content: `${RETRY_HEAD}${errors.join("；")}${RETRY_TAIL}` }];
+    msgs = [...msgs, { role: "assistant", content: r.content }, { role: "user", content: retryNote(errors) }];
   }
   // a story nobody is watching keeps nothing, not even a salvaged reading
   if (watch.stopped()) return null;
   // Out of tries. If the resident's reading of the situation was valid and only what they wanted to *do* broke a
   // rule (e.g. sending the police on one stranger's word), keep their real thinking, keep the actions that are
-  // allowed, and record the refused ones as a visible beat — instead of replacing everything with "😶 愣住".
+  // allowed, and record the refused ones as a visible beat — instead of replacing everything with "😶 frozen".
   if (last) {
     const none = [{ type: "none" as const, why: "refused" }];
     const reading = check({ ...last, actions: none });

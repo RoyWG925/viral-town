@@ -4,13 +4,14 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { simulate } from "../src/sim/engine.ts";
 import { FACTS, PERSONAS } from "../src/sim/scenario.ts";
+import { SECTION, whoLine } from "../src/sim/mind.ts";
 import type { Chat, ChatMessage, LlmCall } from "../src/sim/llm.ts";
 
 const ALL8 = ["baker", "florist", "journalist", "cafe", "police", "mayor", "organizer", "vendor"];
 const call = (content: string): LlmCall => ({ content, status: 200, latencyMs: 5, attempts: 1, promptTokens: 100, completionTokens: 20, platformCost: 0, estCost: 0, rateHeaders: {}, provider: "fake" });
 const NONE = { feeling: "😐 Meh", act: "shrug", understanding: "x", thought: "Fine", claims: [], stances: [], actions: [{ type: "none", why: "x" }] };
-/** Which resident a prompt is for: only their own prompt carries their own traits (whatever language the prompt is in). */
-const whoIs = (prompt: string) => PERSONAS.find((p) => prompt.includes(p.traits))?.id ?? "";
+/** Which resident (by id) a prompt is for: the line under its "Who you are" heading, written by mind.ts's own whoLine. */
+const whoIs = (prompt: string) => PERSONAS.find((p) => prompt.includes(`${SECTION.who}\n${whoLine(p)}`))?.id ?? "";
 /** A scripted model: each resident (by id) answers from their own list, in order, then does nothing. */
 function script(by: Record<string, object[]>): Chat {
   const used: Record<string, number> = {};

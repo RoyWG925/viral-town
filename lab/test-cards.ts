@@ -26,8 +26,8 @@ const saying = (text: string): DecisionOutput => ({
   understanding: "Nothing much", thought: "Just chatting", feeling: "🙂 calm", claims: [], stances: [],
   actions: [{ type: "tell", target: "", message: text, intent: "inform", cites: [] }],
 });
-// the validator's "you have not heard of this" error quotes the giveaway phrase (in either language)
-const leakError = (e: string) => e.includes("沒有聽說過") || FACTS.some((x) => x.keywords.some((k) => e.includes(k)));
+// the validator's "you have never heard of this" error, which quotes the giveaway phrase
+const leakError = (e: string) => e.includes("never heard") || FACTS.some((x) => x.keywords.some((k) => e.includes(k)));
 const NEW = ["mayor_owes_baker", "florist_heard_strut", "mayor_organizer_quarrel", "daughter_stage_fright", "organizer_cut_corners", "florist_paid_by_townhall", "vendors_unpaid"];
 
 test("every resident has a full card, and each new secret has a holder and leak keywords", () => {
@@ -118,5 +118,5 @@ test("the prompt says how often you have already talked with someone tonight", (
   const v = viewFor("journalist");
   v.people = v.people.map((x) => (x.id === "baker" ? { ...x, talks: 3 } : x));
   // the wording belongs to mind.ts; the count is what matters
-  assert.ok(/你們今晚已經說過 3 次話了|\b3 times\b/.test(userPrompt(v, "single")));
+  assert.ok(/\b3 times\b/.test(userPrompt(v, "single")));
 });

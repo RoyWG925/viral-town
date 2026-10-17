@@ -14,7 +14,7 @@ import { Flag, Instances, Puffs, UNIT_BOX, type Inst } from "./SetPieces";
 const ICONS: Record<ShopKind, string> = {
   police: "🚓", bakery: "🥐", flower: "🌷", townhall: "🏛️", cafe: "☕", news: "📰", books: "📚", ramen: "🍜", mart: "🏪", seafood: "🐟",
 };
-// Chalkboards may only show public facts (the festival, the doves, the fee, Misaki's daughter performing):
+// Chalkboards may only show public facts (the festival, the doves, the fee, Molly's daughter performing):
 // never a resident's secret such as police staffing or the blog's trouble. Short lines: long ones shrink to fit.
 const CHALK: Record<ShopKind, string[]> = {
   bakery: ["Today's picks", "Pineapple buns", "Lantern rolls"],

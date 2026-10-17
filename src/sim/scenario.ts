@@ -7,8 +7,8 @@ import type { Fact, Persona, Place, WorldState } from "./types.ts";
 // `zh` is the name every prompt, event line and UI label reads (English now, written to sit mid-sentence:
 // "usually at the café"); `en` is the short sign-style name.
 export const PLACES: Place[] = [
-  { id: "bakery", zh: "Ade's Bakery", en: "Ade's Bakery", spot: "bakery" },
-  { id: "flower", zh: "Meiling's Flowers", en: "Meiling's Flowers", spot: "flower" },
+  { id: "bakery", zh: "Barney's Bakery", en: "Barney's Bakery", spot: "bakery" },
+  { id: "flower", zh: "Daisy's Flowers", en: "Daisy's Flowers", spot: "flower" },
   { id: "news", zh: "Mistport News", en: "Mistport News", spot: "news" },
   { id: "cafe", zh: "the café", en: "Café", spot: "cafe" },
   { id: "police", zh: "the police station", en: "Police station", spot: "police" },
@@ -34,7 +34,7 @@ export const TOPICS: { id: string; q: string; fact: string | null }[] = [
   { id: "oven_unsafe", q: "Is there a safety problem with the bakery's oven?", fact: "oven_expired" },
   { id: "threat", q: "Is someone planning to sabotage the festival or hurt people?", fact: "threat" },
   { id: "birds_banned", q: "Is the town going to ban keeping birds or feeding pigeons?", fact: "bird_ban" },
-  { id: "mayor_owes_baker", q: "Does the mayor owe Ade for last year's pastries?", fact: "mayor_owes_baker" },
+  { id: "mayor_owes_baker", q: "Does the mayor owe Barney for last year's pastries?", fact: "mayor_owes_baker" },
   { id: "other", q: "None of the above (something else, or it doesn't fit)", fact: null },
 ];
 
@@ -80,16 +80,16 @@ export const FACTS: Fact[] = [
     keywords: ["oven inspection", "oven's inspection", "oven's safety inspection", "oven safety check", "inspection expired", "inspection has expired", "expired two months", "烤箱的安全檢查", "烤箱檢查過期", "烤箱過期", "檢查已經過期", "檢查過期"],
     check: { place: "bakery", by: "expert", roles: ["police"], zh: "The safety inspection sticker on the oven is dated two months ago. It has expired.", legacyZh: "烤箱的安全檢查貼紙日期是兩個月前，已經過期。" },
   },
-  { id: "florist_guilt", zh: "Privately, Meiling thinks releasing the doves is cruel, but she took the organizer's money to set up the dove cages.", value: true, keywords: ["took the organizer's money", "took money from the organizer", "took Zhiming's money", "paid to set up the dove cages", "paid to set up the cages", "收了主辦人的錢", "收錢佈置鴿籠"] },
-  { id: "blog_failing", zh: "Xiaowen's news blog is about to go under and badly needs traffic.", value: true, keywords: ["blog is going under", "blog is about to go under", "blog is dying", "blog is failing", "blog won't last", "needs traffic", "部落格快撐不下去", "部落格快倒", "急需流量", "部落格撐不下去"] },
-  { id: "cafe_daughter", zh: "Misaki, the café owner, has a daughter performing on the stage tonight.", value: true, keywords: [] },
+  { id: "florist_guilt", zh: "Privately, Daisy thinks releasing the doves is cruel, but she took the organizer's money to set up the dove cages.", value: true, keywords: ["took the organizer's money", "took money from the organizer", "took Gus's money", "paid to set up the dove cages", "paid to set up the cages", "收了主辦人的錢", "收錢佈置鴿籠"] },
+  { id: "blog_failing", zh: "Penny's news blog is about to go under and badly needs traffic.", value: true, keywords: ["blog is going under", "blog is about to go under", "blog is dying", "blog is failing", "blog won't last", "needs traffic", "部落格快撐不下去", "部落格快倒", "急需流量", "部落格撐不下去"] },
+  { id: "cafe_daughter", zh: "Molly, the café owner, has a daughter performing on the stage tonight.", value: true, keywords: [] },
   // v2: what each resident holds over someone else (true facts; the holder guards them like their own secret)
-  { id: "mayor_owes_baker", zh: "Mayor Lin still hasn't paid Ade for the pastries from last year's Lantern Festival.", value: true, keywords: ["hasn't paid for the pastries", "never paid for the pastries", "unpaid pastry bill", "pastry money", "owes the bakery", "owes Ade", "點心錢還沒付", "欠阿德錢", "欠麵包店", "沒付點心錢", "點心錢沒付"] },
-  { id: "florist_heard_strut", zh: "While setting up the dove cages, Meiling heard the workers complain that a strut at the back left of the stage wobbles.", value: true, keywords: ["strut wobbles", "wobbly strut", "strut is wobbling", "strut was wobbling", "strut that wobbles", "workers complained about the strut", "workers complaining about the strut", "支架會晃", "工人抱怨支架", "支架在晃"] },
-  { id: "mayor_organizer_quarrel", zh: "Last week Mayor Lin and Zhiming had a huge fight at the town hall's back door, and Xiaowen got photos.", value: true, keywords: ["fight at the back door", "argument at the back door", "shouting match at the back door", "back-door fight", "photos of the fight", "photos of the argument", "pictures of the fight", "photos of them fighting", "後門吵架", "後門大吵", "吵架的照片"] },
-  { id: "daughter_stage_fright", zh: "Misaki's daughter is actually terrified of going on stage and wants to drop out of tonight's show.", value: true, keywords: ["stage fright", "scared to go on stage", "afraid to go on stage", "terrified of going on stage", "drop out of the show", "pull out of the show", "doesn't want to go on stage", "doesn't want to perform", "怕上台", "想退出演出", "怯場", "不想上台"] },
-  { id: "organizer_cut_corners", zh: "Last year Zhiming cut corners on an event too, and Chief Zhou helped hush it up.", value: true, keywords: ["cut corners last year", "cutting corners last year", "corners cut last year", "hushed it up last year", "Chief Zhou hushed it up", "Zhou covered for him", "trouble at last year's event", "去年也偷工減料", "去年偷工減料", "去年的活動也出過事"] },
-  { id: "florist_paid_by_townhall", zh: "The money Meiling got for setting up the dove cages actually came from the town hall, through Zhiming.", value: true, keywords: ["town hall paid for the dove cages", "town hall paid for the cages", "money came from the town hall", "paid for by the town hall", "town hall footed the bill", "公所撥的", "鎮公所付的佈置費", "佈置費是公所"] },
+  { id: "mayor_owes_baker", zh: "Mayor Higgins still hasn't paid Barney for the pastries from last year's Lantern Festival.", value: true, keywords: ["hasn't paid for the pastries", "never paid for the pastries", "unpaid pastry bill", "pastry money", "owes the bakery", "owes Barney", "點心錢還沒付", "欠阿德錢", "欠麵包店", "沒付點心錢", "點心錢沒付"] },
+  { id: "florist_heard_strut", zh: "While setting up the dove cages, Daisy heard the workers complain that a strut at the back left of the stage wobbles.", value: true, keywords: ["strut wobbles", "wobbly strut", "strut is wobbling", "strut was wobbling", "strut that wobbles", "workers complained about the strut", "workers complaining about the strut", "支架會晃", "工人抱怨支架", "支架在晃"] },
+  { id: "mayor_organizer_quarrel", zh: "Last week Mayor Higgins and Gus had a huge fight at the town hall's back door, and Penny got photos.", value: true, keywords: ["fight at the back door", "argument at the back door", "shouting match at the back door", "back-door fight", "photos of the fight", "photos of the argument", "pictures of the fight", "photos of them fighting", "後門吵架", "後門大吵", "吵架的照片"] },
+  { id: "daughter_stage_fright", zh: "Molly's daughter is actually terrified of going on stage and wants to drop out of tonight's show.", value: true, keywords: ["stage fright", "scared to go on stage", "afraid to go on stage", "terrified of going on stage", "drop out of the show", "pull out of the show", "doesn't want to go on stage", "doesn't want to perform", "怕上台", "想退出演出", "怯場", "不想上台"] },
+  { id: "organizer_cut_corners", zh: "Last year Gus cut corners on an event too, and Chief Harlow helped hush it up.", value: true, keywords: ["cut corners last year", "cutting corners last year", "corners cut last year", "hushed it up last year", "Chief Harlow hushed it up", "Zhou covered for him", "trouble at last year's event", "去年也偷工減料", "去年偷工減料", "去年的活動也出過事"] },
+  { id: "florist_paid_by_townhall", zh: "The money Daisy got for setting up the dove cages actually came from the town hall, through Gus.", value: true, keywords: ["town hall paid for the dove cages", "town hall paid for the cages", "money came from the town hall", "paid for by the town hall", "town hall footed the bill", "公所撥的", "鎮公所付的佈置費", "佈置費是公所"] },
   { id: "vendors_unpaid", zh: "Half the stall owners still haven't paid the raised stall fee.", value: true, keywords: ["haven't paid the stall fee", "haven't paid their stall fee", "not paid the stall fee", "unpaid stall fee", "stall fees unpaid", "half the stall owners haven't paid", "還沒繳攤位費", "沒繳攤位費", "一半攤商沒繳", "攤位費還沒繳"] },
   { id: "threat", zh: "Someone is planning to sabotage the festival.", value: false, keywords: [], notZh: "Nobody is planning to sabotage the festival." },
   { id: "bird_ban", zh: "The town hall plans to ban keeping birds and feeding pigeons.", value: false, keywords: [], notZh: "The town hall has no plans to ban keeping birds or feeding pigeons." },
@@ -103,25 +103,25 @@ const rel = (trust: number, phone: boolean, zh: string, more: { type?: string; p
 // Card lines are also shown to the player (town notebook, story reveal), so they avoid pronouns.
 export const PERSONAS: Persona[] = [
   {
-    id: "baker", name: "Ade", role: "baker", roleZh: "the baker", home: "bakery",
+    id: "baker", name: "Barney", role: "baker", roleZh: "the baker", home: "bakery",
     traits: "Honest, big-hearted and a big talker; when you get nervous, you just have to tell someone.", wants: "Good business, getting along with the neighbors, and no trouble.",
     habit: "Once you're nervous you can't stop talking, and you'll often just close the shop and go tell people face to face.",
     credulity: 0.7, talkative: 0.85, knows: ["festival", "pigeons", "stall_fee", "oven_expired", "mayor_owes_baker"], secrets: ["oven_expired", "mayor_owes_baker"],
     relations: {
       florist: rel(0.5, true, "Your ex, right next door", { type: "Exes, still blaming each other", past: "she called off your engagement ten years ago, and you still haven't gotten over it" }), cafe: rel(0.7, true, "You bring her bread every morning"), vendor: rel(0.6, false, "A friend from the stalls"),
-      mayor: rel(0.5, false, "A regular who comes in for bread", { type: "Owes you money", past: "he still hasn't paid you for the pastries from last year's Lantern Festival" }), journalist: rel(0.6, true, "Xiaowen often drops by the shop fishing for news", { type: "You're her source", past: "the bakery is where Xiaowen picks up the town's news" }),
+      mayor: rel(0.5, false, "A regular who comes in for bread", { type: "Owes you money", past: "he still hasn't paid you for the pastries from last year's Lantern Festival" }), journalist: rel(0.6, true, "Penny often drops by the shop fishing for news", { type: "You're her source", past: "the bakery is where Penny picks up the town's news" }),
     },
     card: {
       owns: "all the pastries for the festival (lantern puffs), and the busiest shop in town", exclusive: "get a story all over town in a single day, through the shop's customers",
       wants: "a public thank-you from the mayor at the opening", fears: "trouble at the shop dragging the neighbors in, and becoming the joke of the town",
-      bias: "takes everything personally", gossip: "doubles every number in the retelling; never takes a worry straight to Meiling",
+      bias: "takes everything personally", gossip: "doubles every number in the retelling; never takes a worry straight to Daisy",
       bottom: "will never leave the festival without pastries", price: "a public humiliation from the mayor, and out comes the unpaid pastry bill",
       lines: ["Listen, I'm telling you and only you.", "Aiyo, this is bad, this is really bad!"],
     },
     actions: ["close_shop", "open_shop"],
   },
   {
-    id: "florist", name: "Meiling", role: "florist", roleZh: "the florist", home: "flower",
+    id: "florist", name: "Daisy", role: "florist", roleZh: "the florist", home: "flower",
     traits: "Gentle, careful and devoted to animals; quick to blame yourself, and quick to imagine the worst.", wants: "Beautiful flowers for the festival, and no animal getting hurt.",
     habit: "When something involves animals or children, you drop what you're doing and go see for yourself; when a friend is in trouble, you go along with them.",
     credulity: 0.5, talkative: 0.6, knows: ["festival", "pigeons", "stall_fee", "florist_guilt", "cafe_daughter", "pigeons_sick", "florist_heard_strut"], secrets: ["florist_guilt", "florist_heard_strut"],
@@ -132,19 +132,19 @@ export const PERSONAS: Persona[] = [
     card: {
       owns: "all the flower decorations, and the keys to the dove cages", exclusive: "keep the doves out of the show",
       wants: "to know the doves won't get frightened before they're released", fears: "an animal or a child getting hurt over something sensed all along and never said out loud",
-      bias: "always expects the worst", gossip: "adds “poor things!” to anything about animals; takes worries to Xiaowen first",
+      bias: "always expects the worst", gossip: "adds “poor things!” to anything about animals; takes worries to Penny first",
       bottom: "won't let the doves be released anywhere dangerous", price: "any chance the doves get hurt, and out comes the story of the money and the strut",
       lines: ["Isn't that a little cruel, though...?", "I-I'm only worried, that's all."],
     },
     actions: ["close_shop", "open_shop"],
   },
   {
-    id: "journalist", name: "Xiaowen", role: "journalist", roleZh: "the reporter who runs the town's news blog", home: "news",
+    id: "journalist", name: "Penny", role: "journalist", roleZh: "the reporter who runs the town's news blog", home: "news",
     traits: "Curious and sharp, always digging to the bottom of things; you love a sensational headline.", wants: "A scoop big enough to bring the blog's traffic back.",
     habit: "When you hear something worth writing up, you check it yourself first (digging through public records is fastest); once you have proof you publish, without waiting for the other side to respond.",
     credulity: 0.55, talkative: 0.8, knows: ["festival", "pigeons", "stall_fee", "blog_failing", "mayor_organizer_quarrel"], secrets: ["blog_failing", "mayor_organizer_quarrel"],
     relations: {
-      baker: rel(0.6, true, "The bakery is your news outpost", { type: "Your source", past: "you often drop by the shop to get the town's news from Ade" }),
+      baker: rel(0.6, true, "The bakery is your news outpost", { type: "Your source", past: "you often drop by the shop to get the town's news from Barney" }),
       florist: rel(0.65, true, "Your high school classmate"), cafe: rel(0.5, true, "You're a regular at her café"), vendor: rel(0.5, true, "You often speak up for the stall owners"),
       police: rel(0.35, false, "He keeps stonewalling your stories"), mayor: rel(0.2, false, "You often write unflattering stories about the mayor"), organizer: rel(0.4, false, "You've interviewed him a few times"),
     },
@@ -158,7 +158,7 @@ export const PERSONAS: Persona[] = [
     actions: ["publish_article", "inspect"],
   },
   {
-    id: "mayor", name: "Mayor Lin", role: "mayor", roleZh: "the mayor", home: "townhall",
+    id: "mayor", name: "Mayor Higgins", role: "mayor", roleZh: "the mayor", home: "townhall",
     traits: "Proud and smooth; your worst fear is being blamed when something goes wrong, and you hate being laughed at.", wants: "A smooth Lantern Festival, a smooth reelection, and the budget overrun kept out of sight.",
     habit: "Image is everything: once a rumor about you or the Lantern Festival spreads around town, you tend to step out in person, set the record straight and make a statement, rather than just making phone calls in private.",
     credulity: 0.3, talkative: 0.4, knows: ["festival", "pigeons", "stall_fee", "budget_overrun", "fee_for_budget", "mayor_pigeons", "mayor_embezzled", "bird_ban", "florist_paid_by_townhall", "mayor_owes_baker"], secrets: ["budget_overrun", "fee_for_budget", "florist_paid_by_townhall", "mayor_owes_baker"],
@@ -169,14 +169,14 @@ export const PERSONAS: Persona[] = [
     card: {
       owns: "the power to cancel the Lantern Festival, and the town hall's books", exclusive: "make public statements; cancel the Lantern Festival",
       wants: "a smooth opening speech that helps the reelection", fears: "losing face in front of the whole town",
-      bias: "the more people talk, the stronger the urge to deny", gossip: "sends Zhiming to block bad news first; once it's all over town, steps out in person to set the record straight",
-      bottom: "never admits the overrun out loud", price: "if the reporter really gets hold of the books, the blame goes to Zhiming",
-      lines: ["Friends and neighbors, this is all a misunderstanding.", "Zhiming, you handle this."],
+      bias: "the more people talk, the stronger the urge to deny", gossip: "sends Gus to block bad news first; once it's all over town, steps out in person to set the record straight",
+      bottom: "never admits the overrun out loud", price: "if the reporter really gets hold of the books, the blame goes to Gus",
+      lines: ["Friends and neighbors, this is all a misunderstanding.", "Gus, you handle this."],
     },
     actions: ["public_statement", "cancel_festival"],
   },
   {
-    id: "organizer", name: "Zhiming", role: "organizer", roleZh: "the festival organizer", home: "stage",
+    id: "organizer", name: "Gus", role: "organizer", roleZh: "the festival organizer", home: "stage",
     traits: "A show-off, and impatient; when something goes wrong, your first thought is how to dodge the blame.", wants: "A grand, glorious Lantern Festival, and no blame landing on you.",
     habit: "When something goes wrong, your first move is to tell everyone “everything is perfectly safe,” and you often pin a notice on the plaza notice board to calm people down.",
     credulity: 0.5, talkative: 0.6, knows: ["festival", "pigeons", "stall_fee", "stage_uninspected", "fee_for_budget", "lanterns_unsafe", "pigeons_sick", "mayor_organizer_quarrel"], secrets: ["stage_uninspected", "fee_for_budget"],
@@ -194,12 +194,12 @@ export const PERSONAS: Persona[] = [
     actions: ["inspect", "post_notice", "close_stage"],
   },
   {
-    id: "police", name: "Chief Zhou", role: "police", roleZh: "the police chief", home: "police",
+    id: "police", name: "Chief Harlow", role: "police", roleZh: "the police chief", home: "police",
     traits: "Careful and upright; any possible threat puts you on edge, and you'd rather do too much than let something happen.", wants: "A quiet, safe night.",
     habit: "You'd rather go and see the scene and check it yourself; when you're sure of a safety problem, you deal with it on the spot.",
     credulity: 0.45, talkative: 0.3, knows: ["festival", "pigeons", "stall_fee", "police_half", "organizer_cut_corners"], secrets: ["police_half", "organizer_cut_corners"],
     relations: {
-      mayor: rel(0.8, true, "Your partner of many years"), cafe: rel(0.7, true, "An old friend; you have coffee at her place every day"), organizer: rel(0.5, true, "You have to work together on events", { type: "Go way back", past: "last year one of Zhiming's events went wrong, and you were the one who helped keep it quiet" }),
+      mayor: rel(0.8, true, "Your partner of many years"), cafe: rel(0.7, true, "An old friend; you have coffee at her place every day"), organizer: rel(0.5, true, "You have to work together on events", { type: "Go way back", past: "last year one of Gus's events went wrong, and you were the one who helped keep it quiet" }),
       journalist: rel(0.35, false, "Always trying to get something out of you"),
     },
     card: {
@@ -212,7 +212,7 @@ export const PERSONAS: Persona[] = [
     actions: ["dispatch_police", "inspect", "close_stage"],
   },
   {
-    id: "cafe", name: "Misaki", role: "cafe", roleZh: "the café owner", home: "cafe",
+    id: "cafe", name: "Molly", role: "cafe", roleZh: "the café owner", home: "cafe",
     traits: "Warm, loves a good bit of gossip, and fiercely protective of your daughter.", wants: "Your daughter's performance going well tonight, and a busy café.",
     habit: "You're the town's news hub: when you hear something, you talk it over with your regulars and old friends first, and anything about your daughter goes straight to the police chief.",
     credulity: 0.6, talkative: 0.9, knows: ["festival", "pigeons", "stall_fee", "cafe_daughter", "daughter_stage_fright", "police_half"], secrets: ["daughter_stage_fright"],
@@ -223,14 +223,14 @@ export const PERSONAS: Persona[] = [
     card: {
       owns: "the café (the whole town's living room), and a daughter going on stage tonight", exclusive: "run the town's living room: the most regulars, and every bit of news gets to the café first",
       wants: "the girl's show tonight going without a hitch", fears: "something happening to the girl on stage",
-      bias: "believes anything that involves kids", gossip: "talks it over with the regulars first, then calls Chief Zhou; makes it all sound heartfelt",
-      bottom: "the girl does not go on an unsafe stage", price: "for the girl's sake, Chief Zhou's secret comes out",
+      bias: "believes anything that involves kids", gossip: "talks it over with the regulars first, then calls Chief Harlow; makes it all sound heartfelt",
+      bottom: "the girl does not go on an unsafe stage", price: "for the girl's sake, Chief Harlow's secret comes out",
       lines: ["Have a coffee first, then tell me slowly.", "My daughter's going on stage tonight!"],
     },
     actions: ["close_shop", "open_shop"],
   },
   {
-    id: "vendor", name: "Azhu", role: "vendor", roleZh: "the takoyaki stall owner, who speaks for the stall owners", home: "stall",
+    id: "vendor", name: "Rosa", role: "vendor", roleZh: "the takoyaki stall owner, who speaks for the stall owners", home: "stall",
     traits: "Blunt, loud and big on fairness, and fed up to here with the town hall.", wants: "The stall fee back down where it was, and good business tonight.",
     habit: "When the town hall makes you mad, you round up the other stall owners to go demand what's fair together, instead of stewing alone.",
     credulity: 0.65, talkative: 0.8, knows: ["festival", "pigeons", "stall_fee", "vendors_unpaid", "blog_failing"], secrets: ["vendors_unpaid"],
@@ -274,11 +274,11 @@ export const PUBLIC_BIO: Record<string, { bio: string; examples: string[] }> = {
   baker: { bio: "The friendliest baker in town: a loud voice, lots of friends, and news often starts spreading from his counter.", examples: ["I heard the mayor is terrified of pigeons.", "I heard the health department is doing a surprise check on the oven today.", "The stage in the plaza looks kind of wobbly."] },
   florist: { bio: "The gentle florist doing the flowers for tonight's Lantern Festival. She has a soft spot for little animals.", examples: ["The festival doves look kind of sick.", "I heard a lot of the released doves end up dying.", "The mayor says they're releasing twice as many doves tonight."] },
   journalist: { bio: "The reporter behind the town's news blog. She has a sharp nose and lives for a scoop.", examples: ["I heard the town hall's festival accounts don't add up this year.", "The stall fee went up because the town hall ran out of money.", "I heard the mayor is terrified of pigeons."] },
-  mayor: { bio: "Mayor Lin, head of the whole Lantern Festival, who cares most about the festival going smoothly and about his own image.", examples: ["A reporter is asking around about the festival budget.", "The stall owners might go protest at the town hall tonight.", "There might be a safety problem with the stage."] },
-  organizer: { bio: "Zhiming, the Lantern Festival organizer, rushing back and forth by the stage.", examples: ["The police say they're coming to check the stage.", "Someone says the lanterns are cheap junk.", "The mayor is not happy with tonight's arrangements."] },
-  police: { bio: "Chief Zhou: careful, upright, and in charge of keeping order at tonight's Lantern Festival.", examples: ["Someone is going to sabotage the festival tonight.", "There might be a safety problem with the stage.", "The stall owners are planning to make trouble at the town hall."] },
-  cafe: { bio: "Misaki runs the café. She's warm and chatty, and her daughter performs on stage tonight.", examples: ["I heard the stage was built from old recycled boards.", "Tonight's lanterns catch fire really easily.", "The mayor is terrified of pigeons."] },
-  vendor: { bio: "Azhu from the takoyaki stall speaks for the stall owners, and she's furious about this year's stall fee hike.", examples: ["The stall fee went up to plug a hole in the town hall's books.", "I heard it's going to pour tonight.", "The mayor pocketed the festival money."] },
+  mayor: { bio: "Mayor Higgins, head of the whole Lantern Festival, who cares most about the festival going smoothly and about his own image.", examples: ["A reporter is asking around about the festival budget.", "The stall owners might go protest at the town hall tonight.", "There might be a safety problem with the stage."] },
+  organizer: { bio: "Gus, the Lantern Festival organizer, rushing back and forth by the stage.", examples: ["The police say they're coming to check the stage.", "Someone says the lanterns are cheap junk.", "The mayor is not happy with tonight's arrangements."] },
+  police: { bio: "Chief Harlow: careful, upright, and in charge of keeping order at tonight's Lantern Festival.", examples: ["Someone is going to sabotage the festival tonight.", "There might be a safety problem with the stage.", "The stall owners are planning to make trouble at the town hall."] },
+  cafe: { bio: "Molly runs the café. She's warm and chatty, and her daughter performs on stage tonight.", examples: ["I heard the stage was built from old recycled boards.", "Tonight's lanterns catch fire really easily.", "The mayor is terrified of pigeons."] },
+  vendor: { bio: "Rosa from the takoyaki stall speaks for the stall owners, and she's furious about this year's stall fee hike.", examples: ["The stall fee went up to plug a hole in the town hall's books.", "I heard it's going to pour tonight.", "The mayor pocketed the festival money."] },
 };
 
 /**
@@ -299,9 +299,9 @@ export const LOOK_LIMITS: Partial<Record<string, string>> = {
 // of them carries a belief of that kind; otherwise it passes quietly. (Before: any belief at all triggered every
 // meeting, so the 17:00 stage walk-through fired in most stories and nearly every road led to the stage — P3.)
 export const ROUTINE: { at: number; who: string; with: string; place: string; zh: string; about?: import("./types.ts").Category[] }[] = [
-  { at: 90, who: "baker", with: "cafe", place: "cafe", zh: "Ade drops off bread at the café" }, // neighbours: any gossip
-  { at: 120, who: "police", with: "organizer", place: "stage", zh: "Chief Zhou walks the stage with Zhiming on a safety round", about: ["safety", "crime", "event"] },
-  { at: 150, who: "journalist", with: "mayor", place: "townhall", zh: "Xiaowen interviews the mayor at the town hall" }, // a reporter asks about anything
-  { at: 180, who: "florist", with: "organizer", place: "stage", zh: "Meiling brings the flower decorations to the stage", about: ["event", "safety", "health"] },
-  { at: 210, who: "vendor", with: "mayor", place: "townhall", zh: "Azhu pays her stall fee at the town hall", about: ["policy", "scandal"] },
+  { at: 90, who: "baker", with: "cafe", place: "cafe", zh: "Barney drops off bread at the café" }, // neighbours: any gossip
+  { at: 120, who: "police", with: "organizer", place: "stage", zh: "Chief Harlow walks the stage with Gus on a safety round", about: ["safety", "crime", "event"] },
+  { at: 150, who: "journalist", with: "mayor", place: "townhall", zh: "Penny interviews the mayor at the town hall" }, // a reporter asks about anything
+  { at: 180, who: "florist", with: "organizer", place: "stage", zh: "Daisy brings the flower decorations to the stage", about: ["event", "safety", "health"] },
+  { at: 210, who: "vendor", with: "mayor", place: "townhall", zh: "Rosa pays her stall fee at the town hall", about: ["policy", "scandal"] },
 ];

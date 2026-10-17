@@ -155,7 +155,7 @@ export function readinessOf(events: SimEvent[], claims: { id: string; topic: str
     else if (e.type === "gather") {
       gathered = true;
       add(e, "Stall owners gathered in protest", { mood: -15, supplies: -15, time: -10, ...(e.place === "townhall" ? { mayor: -10 } : {}) });
-    } else if (e.type === "notice" && e.actor === "organizer") add(e, "Zhiming put up a reassuring notice", { mood: 10, crowd: 10 });
+    } else if (e.type === "notice" && e.actor === "organizer") add(e, "Gus put up a reassuring notice", { mood: 10, crowd: 10 });
   }
 
   // shops count as they stand now: one that closed and reopened is open

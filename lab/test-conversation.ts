@@ -27,10 +27,10 @@ const oven = { ref: "new", source: "m1", statement: "The oven's inspection has e
 
 test("the listener answers on the spot, and the speaker waits for it instead of walking home", async () => {
   const run = await simulate({
-    active: ALL8, seedNpc: "police", seedText: "I heard the oven at Ade's Bakery is past its safety inspection", seed: 21, policy: "gemma", maxDecisions: 6,
+    active: ALL8, seedNpc: "police", seedText: "I heard the oven at Barney's Bakery is past its safety inspection", seed: 21, policy: "gemma", maxDecisions: 6,
     chat: script({
-      police: [{ feeling: "🤔 Doubtful", act: "doubt", understanding: "The oven might be a problem", thought: "I'll ask Ade", claims: [oven], stances: [{ claim: 0, verdict: "doubt", confidence: 0.4, why: "a stranger said it", cites: ["m1"] }], actions: [{ type: "ask", target: "baker", message: "Ade, is your oven's inspection still valid?", cites: ["#0"] }] }],
-      baker: [{ feeling: "😰 Nervous", act: "nervous", understanding: "Chief Zhou is asking about the oven", thought: "Uh-oh", claims: [], stances: [], actions: [{ type: "tell", target: "police", message: "Y-yes, it should still be good, I think...", why: "covering" }] }],
+      police: [{ feeling: "🤔 Doubtful", act: "doubt", understanding: "The oven might be a problem", thought: "I'll ask Barney", claims: [oven], stances: [{ claim: 0, verdict: "doubt", confidence: 0.4, why: "a stranger said it", cites: ["m1"] }], actions: [{ type: "ask", target: "baker", message: "Barney, is your oven's inspection still valid?", cites: ["#0"] }] }],
+      baker: [{ feeling: "😰 Nervous", act: "nervous", understanding: "Chief Harlow is asking about the oven", thought: "Uh-oh", claims: [], stances: [], actions: [{ type: "tell", target: "police", message: "Y-yes, it should still be good, I think...", why: "covering" }] }],
     }),
   });
   const talks = run.events.filter((e) => e.type === "talk");
@@ -48,12 +48,12 @@ test("when the listener goes to look, the person they were talking with comes al
   const run = await simulate({
     active: ALL8, seedNpc: "cafe", seedText: "The stage looks like it's about to collapse", seed: 22, policy: "gemma", maxDecisions: 6,
     chat: script({
-      cafe: [{ feeling: "😟 Worried", act: "worried", understanding: "The stage is dangerous", thought: "I'll find Chief Zhou", claims: [{ ref: "new", source: "m1", statement: "The stage is about to collapse", topic: "stage_unsafe", says: "yes", category: "safety" }], stances: [{ claim: 0, verdict: "believe", confidence: 0.45, why: "worried about my daughter", cites: ["m1"] }], actions: [{ type: "tell", target: "police", message: "Chief Zhou, they say the stage is about to collapse!", cites: ["#0"] }] }],
-      police: [{ feeling: "🤔 Doubtful", act: "doubt", understanding: "Misaki says the stage is dangerous", thought: "Let's go and look together", claims: [], stances: [], actions: [{ type: "go_look", place: "stage", why: "see for myself" }] }],
+      cafe: [{ feeling: "😟 Worried", act: "worried", understanding: "The stage is dangerous", thought: "I'll find Chief Harlow", claims: [{ ref: "new", source: "m1", statement: "The stage is about to collapse", topic: "stage_unsafe", says: "yes", category: "safety" }], stances: [{ claim: 0, verdict: "believe", confidence: 0.45, why: "worried about my daughter", cites: ["m1"] }], actions: [{ type: "tell", target: "police", message: "Chief Harlow, they say the stage is about to collapse!", cites: ["#0"] }] }],
+      police: [{ feeling: "🤔 Doubtful", act: "doubt", understanding: "Molly says the stage is dangerous", thought: "Let's go and look together", claims: [], stances: [], actions: [{ type: "go_look", place: "stage", why: "see for myself" }] }],
     }),
   });
   const follow = run.events.find((e) => e.type === "move" && e.actor === "cafe" && e.data.follow === "police");
-  assert.ok(follow, "Misaki should walk along with Chief Zhou");
+  assert.ok(follow, "Molly should walk along with Chief Harlow");
   assert.ok(follow!.zh.includes("went along with"), follow!.zh);
   const sawToo = run.events.find((e) => e.type === "look" && e.actor === "cafe" && e.data.found);
   assert.ok(sawToo && sawToo.zh.includes("together with"), "the companion sees the place with their own eyes");
@@ -83,7 +83,7 @@ test("a blocked repeat sinks in: the speaker gets to decide what to do instead (
     active: ALL8, seedNpc: "police", seedText: "One of the stage supports seems loose", seed: 24, policy: "gemma", maxDecisions: 8,
     chat: script({
       police: [
-        { feeling: "😠 Angry", act: "angry", understanding: "Something's wrong with the stage", thought: "I'll tell Zhiming twice", claims: [stage], stances: [{ claim: 0, verdict: "believe", confidence: 0.45, why: "need to be sure", cites: ["m1"] }], actions: [{ type: "tell", target: "organizer", message: "Zhiming, a support is loose!", cites: ["#0"] }, { type: "tell", target: "organizer", message: "Zhiming, I'm telling you again, a support is loose!", cites: ["#0"] }] },
+        { feeling: "😠 Angry", act: "angry", understanding: "Something's wrong with the stage", thought: "I'll tell Gus twice", claims: [stage], stances: [{ claim: 0, verdict: "believe", confidence: 0.45, why: "need to be sure", cites: ["m1"] }], actions: [{ type: "tell", target: "organizer", message: "Gus, a support is loose!", cites: ["#0"] }, { type: "tell", target: "organizer", message: "Gus, I'm telling you again, a support is loose!", cites: ["#0"] }] },
         { feeling: "🤔 Thinking", act: "ponder", understanding: "Telling him is no use", thought: "Then I'll check it myself", claims: [], stances: [], actions: [{ type: "inspect", place: "stage", why: "check in person" }] },
       ],
     }),

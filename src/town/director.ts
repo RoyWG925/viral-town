@@ -22,11 +22,11 @@ export const agentFor = (npc: string): Agent | null => (NPC_POST[npc] ? agentAt(
 export const nameOf = (npc: string) => PERSONAS.find((p) => p.id === npc)?.name ?? npc;
 // places as they read in the middle of an English sentence ("heads to the plaza"); others fall back to the scenario
 const PLACE_EN: Record<string, string> = {
-  bakery: "Ade's Bakery", flower: "Meiling's Flowers", news: "Mistport News", cafe: "the café", police: "the police station",
+  bakery: "Barney's Bakery", flower: "Daisy's Flowers", news: "Mistport News", cafe: "the café", police: "the police station",
   townhall: "the town hall", plaza: "the plaza", stage: "the festival stage", stall: "the takoyaki stall", harbour: "the harbor",
 };
 export const placeName = (id: string) => PLACE_EN[id] ?? PLACES.find((p) => p.id === id)?.zh ?? id;
-/** "Ade", "Ade and Meiling", "Ade, Meiling and Misaki" */
+/** "Barney", "Barney and Daisy", "Barney, Daisy and Molly" */
 export const listOf = (words: string[]) => (words.length < 3 ? words.join(" and ") : `${words.slice(0, -1).join(", ")} and ${words.at(-1)}`);
 /** Reading weight of a line: a Chinese character (old recorded runs) reads as slowly as ~1.7 Latin letters. */
 const WIDE = /[\u2E80-\u9FFF\uF900-\uFAFF\uFF00-\uFFEF]/;

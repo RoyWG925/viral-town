@@ -49,18 +49,18 @@ test("a shop closed and opened again is not headlined as closed (review C12)", a
 });
 
 test("a closing that held is still the headline, and beats one that was undone", async () => {
-  // Meiling closes for good and calls Ade, who closes and opens again
+  // Daisy closes for good and calls Barney, who closes and opens again
   const run = await simulate({
     active: ALL8, seedNpc: "florist", seedText: "I heard the bakery oven's inspection has expired.", seed: 32, policy: "gemma", maxDecisions: 6,
     chat: script({
-      florist: [worried("m1", [{ type: "phone", target: "baker", message: "Ade, I heard your oven's inspection has expired!", cites: ["#0"] }, { type: "close_shop", cites: ["#0"] }])],
+      florist: [worried("m1", [{ type: "phone", target: "baker", message: "Barney, I heard your oven's inspection has expired!", cites: ["#0"] }, { type: "close_shop", cites: ["#0"] }])],
       baker: [worried("m2", [{ type: "close_shop", cites: ["#0"] }, { type: "open_shop" }])],
     }),
   });
-  assert.deepEqual(shopStates(run, "flower"), ["closed"], "Meiling closed");
-  assert.deepEqual(shopStates(run, "bakery"), ["closed", "open"], "Ade closed and opened");
+  assert.deepEqual(shopStates(run, "flower"), ["closed"], "Daisy closed");
+  assert.deepEqual(shopStates(run, "bakery"), ["closed", "open"], "Barney closed and opened");
   const card = storyOf(run);
-  assert.ok(card.headline.includes("Meiling's Flowers") && card.headline.includes("shuts its doors"), card.headline);
+  assert.ok(card.headline.includes("Daisy's Flowers") && card.headline.includes("shuts its doors"), card.headline);
   assert.ok(!card.headline.includes("Bakery"), card.headline);
 });
 
@@ -105,24 +105,24 @@ const load = (f: string) => {
   return (j.run ?? j) as RunResult;
 };
 
-test("P20 budget-journalist: the rally's chain is the article that reached Azhu, not a call made after the rally", () => {
+test("P20 budget-journalist: the rally's chain is the article that reached Rosa, not a call made after the rally", () => {
   const f = "lab/runs/P20/budget-journalist.json";
   if (!existsSync(f)) return;
   const run = load(f);
   const card = storyOf(run);
   assert.ok(card.spine.every((h) => h.t <= 101.85), card.spine.map((h) => `${h.via}@${h.t.toFixed(1)}`).join(" "));
-  assert.equal(card.outcome, "e138", card.headline); // Azhu's rally at 101.8
+  assert.equal(card.outcome, "e138", card.headline); // Rosa's rally at 101.8
   assertChain(f, run);
-  assert.ok(card.spine.some((h) => h.via === "article" && h.from === "journalist" && h.to === "vendor"), "the article Azhu read is the step that got her there");
+  assert.ok(card.spine.some((h) => h.via === "article" && h.from === "journalist" && h.to === "vendor"), "the article Rosa read is the step that got her there");
 });
 
-test("P19 oven-police: the dispatch's chain holds nothing from after 140.9 (what Chief Zhou saw himself)", () => {
+test("P19 oven-police: the dispatch's chain holds nothing from after 140.9 (what Chief Harlow saw himself)", () => {
   const f = "lab/runs/P19/oven-police.json";
   if (!existsSync(f)) return;
   const run = load(f);
   const card = storyOf(run);
   assert.ok(card.spine.every((h) => h.t <= 140.9), card.spine.map((h) => `${h.via}@${h.t.toFixed(1)}`).join(" "));
-  assert.equal(card.outcome, "e87", card.headline); // Chief Zhou sends officers to the stage at 140.9
+  assert.equal(card.outcome, "e87", card.headline); // Chief Harlow sends officers to the stage at 140.9
   assertChain(f, run);
   // (this log is in Chinese: the strut is 支架 there)
   assert.ok(card.spine.some((h) => h.via === "inspect" && /支架|strut/.test(h.text)), "the loose strut he found is on the way to the dispatch");
@@ -197,7 +197,7 @@ function formedBy(run: RunResult, look: SimEvent): SimEvent[] {
 }
 
 test("a sight's pill is what they made of what they saw, not the opposite rumour that look dropped (P20 wobble-organizer, P19 lantern-baker)", () => {
-  // Chief Zhou sees the loose strut: the same decision drops "the stage is all ready" to 0 and sets "the strut is loose" to 0.98
+  // Chief Harlow sees the loose strut: the same decision drops "the stage is all ready" to 0 and sets "the strut is loose" to 0.98
   for (const [f, ids] of [["public/recorded/P20-wobble-organizer.json", ["e18"]], ["public/recorded/P19-lantern-baker.json", ["e19", "e160"]]] as const) {
     if (!existsSync(f)) continue;
     const card = storyOf(load(f));
@@ -231,7 +231,7 @@ test("every recorded run: a sight's pill is their belief in what they saw, or no
 });
 
 test("a look logged before the engine's highlight shows what the story is about, not whatever it listed first (C1v16 stage-cafe)", () => {
-  // Chief Zhou went to see whether the stage would hold; Xiaowen to check a stage rumour (and, having seen the birds
+  // Chief Harlow went to see whether the stage would hold; Penny to check a stage rumour (and, having seen the birds
   // once, held a belief about them): the pigeons are no step of either story
   for (const f of ["lab/runs/C1v16/stage-cafe.json", "lab/runs/B1v16/stage-florist.json"]) {
     if (!existsSync(f)) continue;

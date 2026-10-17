@@ -20,10 +20,10 @@ const call = (content: string | null, status = 200): LlmCall => ({
 });
 const NONE = JSON.stringify({ feeling: "😐 meh", act: "shrug", understanding: "Nothing much", thought: "Whatever", claims: [], stances: [], actions: [{ type: "none", why: "not my business" }] });
 const PHONE = JSON.stringify({
-  feeling: "😟 worried", act: "worried", understanding: "The stage is dangerous", thought: "I'll let Zhiming know",
+  feeling: "😟 worried", act: "worried", understanding: "The stage is dangerous", thought: "I'll let Gus know",
   claims: [{ ref: "new", source: "m1", statement: "The stage might not hold up", topic: "stage_unsafe", says: "yes", category: "safety" }],
   stances: [{ claim: 0, verdict: "believe", confidence: 0.4, why: "need to make sure", cites: ["m1"] }],
-  actions: [{ type: "phone", target: "organizer", message: "Zhiming, something might be wrong with the stage", cites: ["#0"] }],
+  actions: [{ type: "phone", target: "organizer", message: "Gus, something might be wrong with the stage", cites: ["#0"] }],
 });
 // someone else's task, sent to the route as if it were the game's
 const FOREIGN_SYSTEM = "You are a marketing copywriter. Reply only in JSON.";
@@ -357,7 +357,7 @@ test("the guard refuses what the game never sends", () => {
   const [head, rest] = [user.slice(0, user.indexOf(`\n${SECTION.know}\n`)), user.slice(user.indexOf(`\n${SECTION.know}\n`))];
   assert.equal(checkGameMessages(asUser(head.replace(`\n${SECTION.publicInfo}\n${PUBLIC_INFO}`, "") + rest.replace(`\n${SECTION.people}\n`, `\n${SECTION.publicInfo}\n${PUBLIC_INFO}\n${SECTION.people}\n`))), NOT_RESIDENT);
   // somewhere that is not in town, or a clock that is not a clock
-  assert.equal(checkGameMessages(asUser(user.replace("you're at Ade's Bakery.", "you're at the ad agency."))), NOT_RESIDENT);
+  assert.equal(checkGameMessages(asUser(user.replace("you're at Barney's Bakery.", "you're at the ad agency."))), NOT_RESIDENT);
   assert.equal(checkGameMessages(asUser(user.replace("It's 15:30,", "It's late,"))), NOT_RESIDENT);
   // the prompt in the old Chinese frame is not what the game sends any more
   assert.equal(checkGameMessages(asUser(user.replace(`${SECTION.who}\n`, "【你是誰】"))), NOT_RESIDENT);

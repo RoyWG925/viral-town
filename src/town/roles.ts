@@ -46,7 +46,7 @@ export const ROLES: Record<string, Role> = {
   },
   police: {
     icon: "🚓", tag: "🚓 The law: can send officers, close the stage, inspect in person; hard for a stranger to convince", short: "The law",
-    examples: ["I heard the safety check on the oven at Ade's Bakery ran out ages ago. Something could go wrong any minute.", "Someone's planning to sabotage the festival tonight."],
+    examples: ["I heard the safety check on the oven at Barney's Bakery ran out ages ago. Something could go wrong any minute.", "Someone's planning to sabotage the festival tonight."],
     examplesZh: ["聽說阿德麵包店的烤箱檢查早就過期了，隨時可能出事。", "今晚有人要在慶典上搞破壞。"],
   },
   mayor: {

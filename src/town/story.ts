@@ -136,7 +136,7 @@ export function stepLine(h: Hop, n = Infinity): { who: string; words: string } {
   };
 }
 
-// the names of a card's lines, as the town notebook calls them ("Ade's fears — …", "could …, but chose to …")
+// the names of a card's lines, as the town notebook calls them ("Barney's fears — …", "could …, but chose to …")
 const MOTIVE_LABEL: Record<string, string> = { price: "price", bottom: "line they won't cross", fear: "fears", want: "wants tonight", bias: "bias", gossip: "gossip habit" };
 // the most telling first: what would make them turn, what they will never do, what scares them…
 const MOTIVE_RANK = ["price", "bottom", "fear", "want", "bias", "gossip"];
@@ -465,8 +465,8 @@ export function storyOf(run: RunResult): StoryCard {
     if (!fact && !nothing) continue;
     const before = events.filter((x) => x.type === "belief" && x.actor === e.actor && x.t < e.t).at(-1);
     const after = before && events.find((x) => x.type === "belief" && x.actor === e.actor && x.t >= e.t && x.data.claim === before.data.claim);
-    // a true hidden fact seen with their own eyes is a finding, whichever of their beliefs it lowered (Chief Zhou
-    // doubting Zhiming's "the stage is fine" after seeing the strut is not "nothing found" — P12)
+    // a true hidden fact seen with their own eyes is a finding, whichever of their beliefs it lowered (Chief Harlow
+    // doubting Gus's "the stage is fine" after seeing the strut is not "nothing found" — P12)
     const dir: "up" | "down" =
       fact && fact.value ? "up" : nothing || (fact && !fact.value) || (before && after && Number(after.data.to) < Number(before.data.to) - 0.1) ? "down" : "up";
     if (nothing && !(before && Number(before.data.to) >= 0.3)) continue; // finding nothing only matters if they had something to check
@@ -491,7 +491,7 @@ export function storyOf(run: RunResult): StoryCard {
   const hopsN = spine.filter((h) => h.via === "talk" || h.via === "phone").length;
   const via = hopsN ? ` after ${plural(hopsN, "retelling")}` : "";
   // earlier big happenings that led to this one (causal ancestors in the log), so "police at the takoyaki stall"
-  // says why: "First Xiaowen posted “…”, then Chief Zhou sent officers."
+  // says why: "First Penny posted “…”, then Chief Harlow sent officers."
   const before: SimEvent[] = [];
   if (top) {
     const seen = new Set([top.id]);
@@ -580,7 +580,7 @@ export function storyOf(run: RunResult): StoryCard {
     Object.assign(card, { icon: "💬", headline: `One sentence pulled ${reached.length} people in`, sub: "The whole town is buzzing, but nobody has done anything big yet." });
   }
   // a 🔍 headline is about that one look: the chain leads to it, not on to whatever was said or seen last
-  // ("Xiaowen went and checked: no sign of it" at 24.7 over a chain running on to 41.1: B1 fee-journalist)
+  // ("Penny went and checked: no sign of it" at 24.7 over a chain running on to 41.1: B1 fee-journalist)
   if (told && told !== top) {
     ({ spine, root, traced } = chainTo(told, toldSeen));
     Object.assign(card, { spine, outcome: told.id, spineRoot: root ? Math.max(0, seeds.indexOf(root)) : 0 });

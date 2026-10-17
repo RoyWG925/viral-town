@@ -123,10 +123,10 @@ export function milestoneOf(id: MilestoneId, events: SimEvent[], info: Map<strin
       return r("ok", "Walk-through done; the stage is good to go");
     case "pigeons": {
       const shut = s.closed.get("flower");
-      if (shut) return r("failed", "Meiling's Flowers is closed, so the doves never arrived", [shut], { supplies: -15 }, "no_pigeons");
+      if (shut) return r("failed", "Daisy's Flowers is closed, so the doves never arrived", [shut], { supplies: -15 }, "no_pigeons");
       // her own worry about danger, already in the log: she keeps the birds back (no new decision is made for her)
       const fear = believes(s, "florist", DANGER_TO_PIGEONS, 0.6);
-      if (fear) return r("failed", "Meiling kept the doves at her shop; she doesn't trust it's safe for them", [fear.ev], { supplies: -15 }, "no_pigeons");
+      if (fear) return r("failed", "Daisy kept the doves at her shop; she doesn't trust it's safe for them", [fear.ev], { supplies: -15 }, "no_pigeons");
       if (s.stageClosed) return r("moved", "The doves arrived; they'll be released on the plaza instead", [s.stageClosed]);
       return r("ok", "A hundred white doves arrived beside the stage");
     }
@@ -134,7 +134,7 @@ export function milestoneOf(id: MilestoneId, events: SimEvent[], info: Map<strin
       const protest = s.gathers.find((g) => g.actor === "vendor");
       if (protest) return r("failed", `The stall owners never set up; they're still at ${placeZh(protest.place)} demanding answers`, [protest.ev], { supplies: -15, mood: -10 }, "vendor_strike");
       const stall = s.closed.get("stall");
-      if (stall) return r("moved", "Azhu's stall stayed shut, so there's no takoyaki on the plaza", [stall], { supplies: -5 });
+      if (stall) return r("moved", "Rosa's stall stayed shut, so there's no takoyaki on the plaza", [stall], { supplies: -5 });
       return r("ok", "The stall owners are setting up one by one");
     }
     case "police":
@@ -145,7 +145,7 @@ export function milestoneOf(id: MilestoneId, events: SimEvent[], info: Map<strin
     case "rehearsal": {
       // 美咲's daughter performs tonight; a mother sure the stage is unsafe keeps her off it (her belief is in the log)
       const worry = s.stageClosed ? null : believes(s, "cafe", new Set(["stage_unsafe"]), 0.6);
-      if (worry) return r("failed", "Misaki won't let her daughter on stage, so the opening is one act short", [worry.ev], { people: -10 }, "no_daughter");
+      if (worry) return r("failed", "Molly won't let her daughter on stage, so the opening is one act short", [worry.ev], { people: -10 }, "no_daughter");
       if (s.stageClosed) return r("moved", "The rehearsal moves to the open plaza", [s.stageClosed], {}, "on_square");
       return r("ok", "The rehearsal goes smoothly");
     }

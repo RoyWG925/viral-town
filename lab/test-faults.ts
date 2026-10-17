@@ -76,7 +76,7 @@ const stageClaim = { ref: "new", source: "m1", statement: "The stage might not h
 
 test("a glance is not an inspection: a casual look says what it could not show, and reveals nothing hidden", async () => {
   const run = await simulate({
-    active: ALL8, seedNpc: "police", seedText: "I heard the oven at Ade's Bakery is way past its safety inspection", seed: 6, policy: "gemma", maxDecisions: 3,
+    active: ALL8, seedNpc: "police", seedText: "I heard the oven at Barney's Bakery is way past its safety inspection", seed: 6, policy: "gemma", maxDecisions: 3,
     chat: firstThen({
       feeling: "🤔 doubtful", act: "doubt", understanding: "The oven might be a problem", thought: "I'll go and look",
       claims: [{ ref: "new", source: "m1", statement: "The oven is past its safety inspection", topic: "oven_unsafe", says: "yes", category: "safety" }],
@@ -96,9 +96,9 @@ test("saying the same thing again is blocked, but the first time in person after
   const twoCalls = await simulate({
     active: ALL8, seedNpc: "police", seedText: "The stage is about to collapse", seed: 8, policy: "gemma", maxDecisions: 3,
     chat: firstThen({
-      feeling: "😟 worried", act: "worried", understanding: "The stage is dangerous", thought: "I'll let Zhiming know", claims: [stageClaim],
+      feeling: "😟 worried", act: "worried", understanding: "The stage is dangerous", thought: "I'll let Gus know", claims: [stageClaim],
       stances: [{ claim: 0, verdict: "believe", confidence: 0.4, why: "need to make sure", cites: ["m1"] }],
-      actions: [{ type: "phone", target: "organizer", message: "Zhiming, something might be wrong with the stage", cites: ["#0"] }, { type: "phone", target: "organizer", message: "Zhiming, something might be wrong with the stage!", cites: ["#0"] }],
+      actions: [{ type: "phone", target: "organizer", message: "Gus, something might be wrong with the stage", cites: ["#0"] }, { type: "phone", target: "organizer", message: "Gus, something might be wrong with the stage!", cites: ["#0"] }],
     }),
   });
   assert.equal(twoCalls.events.filter((e) => e.type === "phone" && e.actor === "police" && !e.data.missed).length, 1);
@@ -107,9 +107,9 @@ test("saying the same thing again is blocked, but the first time in person after
   const callThenVisit = await simulate({
     active: ALL8, seedNpc: "police", seedText: "The stage is about to collapse", seed: 8, policy: "gemma", maxDecisions: 3,
     chat: firstThen({
-      feeling: "😟 worried", act: "worried", understanding: "The stage is dangerous", thought: "Call Zhiming, then tell him in person", claims: [stageClaim],
+      feeling: "😟 worried", act: "worried", understanding: "The stage is dangerous", thought: "Call Gus, then tell him in person", claims: [stageClaim],
       stances: [{ claim: 0, verdict: "believe", confidence: 0.4, why: "need to make sure", cites: ["m1"] }],
-      actions: [{ type: "phone", target: "organizer", message: "Zhiming, something might be wrong with the stage", cites: ["#0"] }, { type: "tell", target: "organizer", message: "I'm telling you to your face: the stage needs sorting out", cites: ["#0"] }],
+      actions: [{ type: "phone", target: "organizer", message: "Gus, something might be wrong with the stage", cites: ["#0"] }, { type: "tell", target: "organizer", message: "I'm telling you to your face: the stage needs sorting out", cites: ["#0"] }],
     }),
   });
   assert.ok(callThenVisit.events.some((e) => e.type === "talk" && e.actor === "police" && e.target === "organizer"), "the visit after the call should happen");
@@ -149,15 +149,15 @@ test("after a look, a resident whose next decision is coming does not walk home 
 });
 
 test("wanting too much on a stranger's word keeps the thinking and shows the refusal (live run regression)", async () => {
-  // the real answer from a live run: Chief Zhou wanted to send officers to the bakery on one stranger's sentence
+  // the real answer from a live run: Chief Harlow wanted to send officers to the bakery on one stranger's sentence
   const answer = {
     feeling: "😟 worried", act: "worried", understanding: "The bakery oven is a safety hazard and could cause an accident during the festival.",
-    claims: [{ ref: "c0", source: "m1", statement: "The oven at Ade's Bakery is way past its safety inspection and could go wrong any minute", topic: "oven_unsafe", says: "yes", category: "safety" }],
+    claims: [{ ref: "c0", source: "m1", statement: "The oven at Barney's Bakery is way past its safety inspection and could go wrong any minute", topic: "oven_unsafe", says: "yes", category: "safety" }],
     stances: [{ claim: "c0", verdict: "believe", confidence: "0.6", why: "you can't take chances with safety", cites: ["m1"] }],
     thought: "We're short-handed tonight as it is; we can't afford any accidents. I need to check this, fast.",
-    actions: [{ type: "dispatch_police", place: "bakery", intent: "inform", message: "Go and patrol around Ade's Bakery", cites: ["c0"] }],
+    actions: [{ type: "dispatch_police", place: "bakery", intent: "inform", message: "Go and patrol around Barney's Bakery", cites: ["c0"] }],
   };
-  const run = await simulate({ active: ALL8, seedNpc: "police", seedText: "I heard the oven at Ade's Bakery is way past its safety inspection and could go wrong any minute.", seed: 11, policy: "gemma", maxDecisions: 3,
+  const run = await simulate({ active: ALL8, seedNpc: "police", seedText: "I heard the oven at Barney's Bakery is way past its safety inspection and could go wrong any minute.", seed: 11, policy: "gemma", maxDecisions: 3,
     // the model insists on the same answer when sent back (as it did live), then later residents do nothing
     chat: fake((n) => call(JSON.stringify(n < 2 ? answer : { feeling: "😐 meh", act: "shrug", understanding: "x", thought: "y", claims: [], stances: [], actions: [{ type: "none", why: "x" }] }))) });
   const d = run.decisions[0];

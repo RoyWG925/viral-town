@@ -150,7 +150,7 @@ test("without claim topics the made-up-rumour goal never fires; a topic on the b
   }
 });
 
-test("recorded P5-lantern-baker: the made-up lantern rumour is stamped on Chief Zhou's inspection that finds the strut", () => {
+test("recorded P5-lantern-baker: the made-up lantern rumour is stamped on Chief Harlow's inspection that finds the strut", () => {
   const rec = RECORDED.find((r) => r.name.endsWith("P5-lantern-baker.json"));
   if (!rec) return;
   const h = challengesHit(rec.run.events, cfgOf(rec.run)).find((x) => x.id === "truth");
@@ -165,16 +165,16 @@ const TWO_WHISPERS: SimEvent[] = [
   ev(2, 20, "deliver", { target: "baker", causes: ["e1"], data: { via: "seed" } }),
   ev(3, 20.2, "decide", { actor: "baker", causes: ["e2"] }),
   ev(4, 20.2, "belief", { actor: "baker", causes: ["e3"], data: { claim: "c1", topic: "stage_unsafe" } }),
-  ev(5, 60, "inspect", { actor: "police", place: "stage", data: { found: `${STAGE_CHECK} Zhiming (festival organizer) is here.` } }),
-  ev(6, 70, "talk", { actor: "vendor", target: "police", data: { text: "Chief Zhou!" } }),
+  ev(5, 60, "inspect", { actor: "police", place: "stage", data: { found: `${STAGE_CHECK} Gus (festival organizer) is here.` } }),
+  ev(6, 70, "talk", { actor: "vendor", target: "police", data: { text: "Chief Harlow!" } }),
   ev(7, 100, "seed", { target: "vendor", data: { text: "The mayor bought a new car with the festival money", second: true } }),
   ev(8, 100, "deliver", { target: "vendor", causes: ["e7"], data: { via: "seed" } }),
   ev(9, 100.2, "decide", { actor: "vendor", causes: ["e8"] }),
   ev(10, 100.2, "belief", { actor: "vendor", causes: ["e9"], data: { claim: "c2", topic: "mayor_embezzled" } }),
   ev(11, 130, "inspect", { actor: "police", place: "stage", data: { found: STAGE_CHECK } }),
   ev(12, 150, "inspect", { actor: "journalist", place: "townhall", data: { found: BUDGET_CHECK } }),
-  ev(13, 160, "talk", { actor: "vendor", target: "police", data: { text: "Chief Zhou!" } }),
-  ev(14, 170, "talk", { actor: "police", target: "vendor", data: { text: "Azhu." } }),
+  ev(13, 160, "talk", { actor: "vendor", target: "police", data: { text: "Chief Harlow!" } }),
+  ev(14, 170, "talk", { actor: "police", target: "vendor", data: { text: "Rosa." } }),
 ];
 
 test("a second whisper plants claims too, judged as of each event", () => {
@@ -183,7 +183,7 @@ test("a second whisper plants claims too, judged as of each event", () => {
   // the stage was the player's own (true) rumour, so finding it is no accident; the overrun under a made-up car story is
   assert.equal(hit(TWO_WHISPERS, "truth"), "e12");
   assert.equal(hit(TWO_WHISPERS.slice(0, 11), "truth"), undefined);
-  // Azhu walking up to Chief Zhou counts before anyone whispered to her, not after
+  // Rosa walking up to Chief Harlow counts before anyone whispered to her, not after
   assert.equal(hit(TWO_WHISPERS, "strangers"), "e6");
   assert.equal(hit(TWO_WHISPERS.filter((e) => e.id !== "e6"), "strangers"), "e14");
   // the first whisper alone was true: no made-up rumour, no stamp

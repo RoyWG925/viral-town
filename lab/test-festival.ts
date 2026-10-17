@@ -40,7 +40,7 @@ test("the flower shop still shut at 18:00: no pigeons, and the closing is the lo
   assert.ok(r.outcome.text.toLowerCase().includes("no doves"), r.outcome.text);
 });
 
-test("Meiling's own worry keeps the birds back only if she believes a danger, and the belief is the cause", () => {
+test("Daisy's own worry keeps the birds back only if she believes a danger, and the belief is the cause", () => {
   const sure = belief("florist", "c1", "pigeons_sick", "yes", 0.7, 100);
   assert.equal(readinessOf([sure]).milestones.find((m) => m.id === "pigeons")!.causes[0], sure.id);
   // believing the birds are healthy is not a danger

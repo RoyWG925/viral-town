@@ -64,7 +64,7 @@ test("a paraphrase of what they heard is not a leak", () => {
 });
 
 test("an English paraphrase is fine only when every content word of the giveaway was heard", () => {
-  // the stage never had its inspection: only the organizer knows; Misaki only hears talk
+  // the stage never had its inspection: only the organizer knows; Molly only hears talk
   const said = base({ thought: "The stage was never inspected, was it?" });
   const shaky = checkDecision(viewFor("cafe", { heardText: "Someone said the stage looks a bit shaky." }), said);
   assert.ok(leaks(shaky.errors).length === 1 && shaky.errors[0].includes("stage was never inspected"), shaky.errors.join("|"));
@@ -77,8 +77,8 @@ test("an English paraphrase is fine only when every content word of the giveaway
 });
 
 test("a relayed rumour cannot become much surer than its teller", () => {
-  const v = viewFor("florist", { inbox: [{ id: "m1", from: "baker", fromZh: "Ade", via: "phone", intent: "ask", text: "I heard the mayor is scared of pigeons. Have you heard?", trust: 0.8, senderConf: 0.49 }] });
-  const r = checkDecision(v, base({ stances: [{ claim: 0, verdict: "believe", confidence: 0.9, why: "Ade said so", cites: ["m1"] }] }));
+  const v = viewFor("florist", { inbox: [{ id: "m1", from: "baker", fromZh: "Barney", via: "phone", intent: "ask", text: "I heard the mayor is scared of pigeons. Have you heard?", trust: 0.8, senderConf: 0.49 }] });
+  const r = checkDecision(v, base({ stances: [{ claim: 0, verdict: "believe", confidence: 0.9, why: "Barney said so", cites: ["m1"] }] }));
   assert.ok(r.confidence[0] <= 0.64 + 1e-9, `confidence ${r.confidence[0]}`);
 });
 
@@ -89,8 +89,8 @@ test("a stranger contradicting the public schedule stays unlikely", () => {
 });
 
 test("a trusted eyewitness can make someone confident", () => {
-  const v = viewFor("mayor", { inbox: [{ id: "m1", from: "police", fromZh: "Chief Zhou", via: "phone", intent: "warn", text: "I saw it with my own eyes: one of the stage's supports is loose", trust: 0.8, senderConf: 0.98 }] });
-  const r = checkDecision(v, base({ claims: [{ ref: "new", statement: "The stage isn't safe", topic: "stage_unsafe", says: "yes", category: "safety" }], stances: [{ claim: 0, verdict: "believe", confidence: 0.9, why: "Chief Zhou saw it himself", cites: ["m1"] }] }));
+  const v = viewFor("mayor", { inbox: [{ id: "m1", from: "police", fromZh: "Chief Harlow", via: "phone", intent: "warn", text: "I saw it with my own eyes: one of the stage's supports is loose", trust: 0.8, senderConf: 0.98 }] });
+  const r = checkDecision(v, base({ claims: [{ ref: "new", statement: "The stage isn't safe", topic: "stage_unsafe", says: "yes", category: "safety" }], stances: [{ claim: 0, verdict: "believe", confidence: 0.9, why: "Chief Harlow saw it himself", cites: ["m1"] }] }));
   assert.ok(r.confidence[0] >= 0.8, `confidence ${r.confidence[0]}`);
 });
 
@@ -105,7 +105,7 @@ test("an action outside the resident's role is rejected", () => {
 });
 
 test("calling someone without their number is rejected", () => {
-  // (since v2 the baker can call Xiaowen, his source of gossip; he still has no number for the mayor)
+  // (since v2 the baker can call Penny, his source of gossip; he still has no number for the mayor)
   const mayor = PERSONAS.find((p) => p.id === "mayor")!;
   const r = checkDecision(viewFor("baker", { people: [{ id: "mayor", name: mayor.name, roleZh: mayor.roleZh, place: "townhall", placeZh: "townhall", relation: PERSONAS.find((p) => p.id === "baker")!.relations.mayor, busy: false }] }), base({ actions: [{ type: "phone", target: "mayor", message: "Have you heard?", cites: ["#0"] }] }));
   assert.ok(r.errors.some((e) => e.includes(`${mayor.name}'s number`)), r.errors.join("|"));
@@ -142,8 +142,8 @@ test("a stranger's rumour cannot make anyone certain", () => {
 
 test("someone who knows the truth cannot believe the opposite", () => {
   // the mayor knows the budget overran; a claim that it did not is capped near zero
-  const v = viewFor("mayor", { inbox: [{ id: "m1", from: "organizer", fromZh: "Zhiming", via: "face", intent: "inform", text: "The budget didn't actually go over", trust: 0.7 }] });
-  const r = checkDecision(v, base({ claims: [{ ref: "new", statement: "The budget didn't go over", topic: "budget_overrun", says: "no", category: "scandal" }], stances: [{ claim: 0, verdict: "believe", confidence: 0.9, why: "Zhiming said so", cites: ["m1"] }] }));
+  const v = viewFor("mayor", { inbox: [{ id: "m1", from: "organizer", fromZh: "Gus", via: "face", intent: "inform", text: "The budget didn't actually go over", trust: 0.7 }] });
+  const r = checkDecision(v, base({ claims: [{ ref: "new", statement: "The budget didn't go over", topic: "budget_overrun", says: "no", category: "scandal" }], stances: [{ claim: 0, verdict: "believe", confidence: 0.9, why: "Gus said so", cites: ["m1"] }] }));
   assert.ok(r.confidence[0] <= 0.1, `confidence ${r.confidence[0]}`);
 });
 
@@ -187,7 +187,7 @@ test("the chosen act survives parsing; an unknown act is read off the feeling", 
 test("a stance pointing outside the claims list is sent back, not guessed", () => {
   // the florist case: one claim listed, stances on "2" and "0"; guessing "2" = belief c2 stored the opposite belief
   const v = viewFor("florist", {
-    beliefs: [{ id: "c2", statement: "Tonight's lanterns catch fire easily", topic: "lanterns_flammable", says: "yes", category: "safety", confidence: 0.55, sources: ["baker"], sourcesZh: "Ade" }],
+    beliefs: [{ id: "c2", statement: "Tonight's lanterns catch fire easily", topic: "lanterns_flammable", says: "yes", category: "safety", confidence: 0.55, sources: ["baker"], sourcesZh: "Barney" }],
   });
   const raw = base({
     claims: [{ ref: "new", statement: "The lanterns are all certified fire-resistant", topic: "lanterns_flammable", says: "no", category: "safety" }],
@@ -214,7 +214,7 @@ test("with no claims listed, a bare stance number maps to that belief (not ambig
 test("a new claim the model named itself (\"c2\") keeps its stance and can be cited (P4 regression)", () => {
   // shape of the real failing answer: the journalist found the overrun, called it c2, re-listed belief c1 by id
   const v = viewFor("journalist", {
-    beliefs: [{ id: "c1", statement: "The mayor bought a new car with the stall fees", topic: "mayor_embezzled", says: "yes", category: "scandal", confidence: 0.2, sources: ["vendor"], sourcesZh: "Azhu" }],
+    beliefs: [{ id: "c1", statement: "The mayor bought a new car with the stall fees", topic: "mayor_embezzled", says: "yes", category: "scandal", confidence: 0.2, sources: ["vendor"], sourcesZh: "Rosa" }],
     knowledge: [...viewFor("journalist").knowledge, { id: "budget_overrun", zh: FACTS.find((f) => f.id === "budget_overrun")!.check!.zh, secret: false, learned: true }],
   });
   v.known = { ...v.known, budget_overrun: true }; // as the engine does for a fact found by inspecting

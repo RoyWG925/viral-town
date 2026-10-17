@@ -202,11 +202,11 @@ export const BUILDINGS: BuildingDef[] = [
   },
   {
     id: "flower", kind: "flower", x: -18.8, z: -1, w: 5.6, d: 5, rot: 1.15, floors: 1, roof: "hip",
-    wall: "#f5a9c5", roofColor: "#7b4ba0", trim: "#fff0f6", awning: ["#8fd18b", "#fff0f6"], sign: { name: "Meiling's Flowers", sub: "FLORIST", bg: "#ffffff", fg: "#b03a78" },
+    wall: "#f5a9c5", roofColor: "#7b4ba0", trim: "#fff0f6", awning: ["#8fd18b", "#fff0f6"], sign: { name: "Daisy's Flowers", sub: "FLORIST", bg: "#ffffff", fg: "#b03a78" },
   },
   {
     id: "bakery", kind: "bakery", x: -23.9, z: 6.4, w: 6.2, d: 6, rot: 1.3, floors: 2, roof: "pitched", balcony: true,
-    wall: "#f7c48e", roofColor: "#c4643e", trim: "#fff4e3", awning: ["#e2574c", "#fff4e3"], sign: { name: "Ade's Bakery", sub: "FRESH BREAD DAILY", bg: "#7a3b1d", fg: "#ffe9c2" },
+    wall: "#f7c48e", roofColor: "#c4643e", trim: "#fff4e3", awning: ["#e2574c", "#fff4e3"], sign: { name: "Barney's Bakery", sub: "FRESH BREAD DAILY", bg: "#7a3b1d", fg: "#ffe9c2" },
   },
   // south-east block between the plaza and the main road
   {

@@ -13,8 +13,8 @@ a little comic; short sentences; British-or-American is fine but be consistent w
 | 布告欄 | the notice board |
 | 鎮公所 | the town hall |
 | 霧港新聞社 / 新聞部落格 | Mistport News / the news blog |
-| 阿德麵包店 | Ade's Bakery |
-| 美玲花店 | Meiling's Flowers |
+| 阿德麵包店 | Barney's Bakery |
+| 美玲花店 | Daisy's Flowers |
 | 咖啡廳 | the café |
 | 警察局 | the police station |
 | 章魚燒攤 | the takoyaki stall |
@@ -28,14 +28,14 @@ a little comic; short sentences; British-or-American is fine but be consistent w
 ## The eight residents (names keep their Taiwanese flavor)
 | id | 中文 | English name | Role line |
 |---|---|---|---|
-| baker | 阿德 | Ade | the baker |
-| florist | 美玲 | Meiling | the florist |
-| journalist | 小雯 | Xiaowen | the reporter (runs the town's news blog) |
-| mayor | 林市長 | Mayor Lin | the mayor |
-| organizer | 志明 | Zhiming | the festival organizer |
-| police | 老周 | Chief Zhou | the police chief |
-| cafe | 美咲 | Misaki | the café owner |
-| vendor | 阿珠 | Azhu | the takoyaki stall owner (speaks for the stall owners) |
+| baker | 阿德 | Barney | the baker |
+| florist | 美玲 | Daisy | the florist |
+| journalist | 小雯 | Penny | the reporter (runs the town's news blog) |
+| mayor | 林市長 | Mayor Higgins | the mayor |
+| organizer | 志明 | Gus | the festival organizer |
+| police | 老周 | Chief Harlow | the police chief |
+| cafe | 美咲 | Molly | the café owner |
+| vendor | 阿珠 | Rosa | the takoyaki stall owner (speaks for the stall owners) |
 
 ## Game terms
 | 中文 | English |

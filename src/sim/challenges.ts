@@ -18,23 +18,23 @@ export interface Challenge {
 // Copy invites and never promises: hints say who has which public power ("can", "might"), never what is hidden
 // and never what "will" happen.
 export const CHALLENGES: Challenge[] = [
-  { id: "town", icon: "🗣️", zh: "Get one sentence all over town", hint: "Six people need to hear it; chatty Ade and Misaki, who has the most regulars, can both help it spread" },
-  { id: "truth", icon: "🔍", zh: "Let a made-up rumor dig up a real problem", hint: "It can be invented, as long as someone who can check things in person goes and looks; Chief Zhou, Xiaowen and Zhiming can all check" },
-  { id: "stage", icon: "🚧", zh: "Get the stage closed off", hint: "Chief Zhou and Zhiming can both close off the stage, but first they have to feel it's truly dangerous" },
-  { id: "article", icon: "📰", zh: "Get Xiaowen into The Mistport Gazette", hint: "Xiaowen can publish a story the whole town sees; she has a sharp nose and loves a scoop" },
-  { id: "police", icon: "🚓", zh: "Get the police called out", hint: "Chief Zhou can send officers, but a stranger has a hard time convincing him" },
+  { id: "town", icon: "🗣️", zh: "Get one sentence all over town", hint: "Six people need to hear it; chatty Barney and Molly, who has the most regulars, can both help it spread" },
+  { id: "truth", icon: "🔍", zh: "Let a made-up rumor dig up a real problem", hint: "It can be invented, as long as someone who can check things in person goes and looks; Chief Harlow, Penny and Gus can all check" },
+  { id: "stage", icon: "🚧", zh: "Get the stage closed off", hint: "Chief Harlow and Gus can both close off the stage, but first they have to feel it's truly dangerous" },
+  { id: "article", icon: "📰", zh: "Get Penny into The Mistport Gazette", hint: "Penny can publish a story the whole town sees; she has a sharp nose and loves a scoop" },
+  { id: "police", icon: "🚓", zh: "Get the police called out", hint: "Chief Harlow can send officers, but a stranger has a hard time convincing him" },
   { id: "strangers", icon: "🤝", zh: "Get two people who don't know each other talking face to face", hint: "Some people never cross paths and don't have each other's number; something has to bring one of them to the other's door" },
-  { id: "shop", icon: "🔒", zh: "Get a shop to close for the day", hint: "Ade, Meiling, Misaki and Azhu can all close up shop, but only for something more pressing than business", hidden: true },
-  { id: "gather", icon: "✊", zh: "Get the stall owners to gather", hint: "Azhu can rally the stall owners with one shout; she's fed up with the higher stall fee", hidden: true },
-  { id: "statement", icon: "📣", zh: "Get the mayor to make a public statement", hint: "Mayor Lin can address the whole town; he cares most about his image", hidden: true },
-  { id: "cancel", icon: "🏮", zh: "Get the Lantern Festival cancelled", hint: "Only Mayor Lin can cancel the Lantern Festival, and he cares most about it going smoothly", hidden: true },
+  { id: "shop", icon: "🔒", zh: "Get a shop to close for the day", hint: "Barney, Daisy, Molly and Rosa can all close up shop, but only for something more pressing than business", hidden: true },
+  { id: "gather", icon: "✊", zh: "Get the stall owners to gather", hint: "Rosa can rally the stall owners with one shout; she's fed up with the higher stall fee", hidden: true },
+  { id: "statement", icon: "📣", zh: "Get the mayor to make a public statement", hint: "Mayor Higgins can address the whole town; he cares most about his image", hidden: true },
+  { id: "cancel", icon: "🏮", zh: "Get the Lantern Festival cancelled", hint: "Only Mayor Higgins can cancel the Lantern Festival, and he cares most about it going smoothly", hidden: true },
 ];
 
 export interface ChallengeHit {
   id: string;
   eventId: string;
   t: number;
-  /** one short line quoting the log, e.g. "17:10 Chief Zhou closed off the festival stage" */
+  /** one short line quoting the log, e.g. "17:10 Chief Harlow closed off the festival stage" */
   evidence: string;
 }
 

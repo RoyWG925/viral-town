@@ -87,8 +87,8 @@ test("an unknown motive becomes none instead of a retry; a known one is kept", (
 
 test("the decide event carries the motive, and the story reveals the most telling line with the card's own words", async () => {
   const answers: Record<string, object> = {
-    baker: { feeling: "😰 nervous", act: "nervous", understanding: "Someone is laughing at me", thought: "Oh no", motive: "fear", claims: [], stances: [], actions: [{ type: "phone", target: "journalist", message: "Xiaowen, I have to tell you something", cites: [] }] },
-    journalist: { feeling: "🤨 doubtful", act: "doubt", understanding: "Ade is panicking", thought: "The more he denies it, the fishier it gets", motive: "bias", claims: [], stances: [], actions: [{ type: "none", why: "Watch first" }] },
+    baker: { feeling: "😰 nervous", act: "nervous", understanding: "Someone is laughing at me", thought: "Oh no", motive: "fear", claims: [], stances: [], actions: [{ type: "phone", target: "journalist", message: "Penny, I have to tell you something", cites: [] }] },
+    journalist: { feeling: "🤨 doubtful", act: "doubt", understanding: "Barney is panicking", thought: "The more he denies it, the fishier it gets", motive: "bias", claims: [], stances: [], actions: [{ type: "none", why: "Watch first" }] },
   };
   const chat: Chat = async (msgs) => {
     // each prompt carries only its own card (test above), so its price line names who is deciding, in any language

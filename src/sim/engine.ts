@@ -171,7 +171,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
   }
   const SOURCE_ZH: Record<string, string> = { unknown: "a stranger", crowd: "people in town", notice: "the notice board", self: "yourself", news: "the news", hunch: "your own thought" };
   const name = (id: string) => npcs.get(id)?.p.name ?? SOURCE_ZH[id] ?? id;
-  /** how a message is remembered, as the start of a memory line: "Ade said", "You saw for yourself", "You thought" */
+  /** how a message is remembered, as the start of a memory line: "Barney said", "You saw for yourself", "You thought" */
   const heardAs = (m: Message) =>
     m.via === "hunch"
       ? m.from === "self" ? "You thought" : "You had a thought"

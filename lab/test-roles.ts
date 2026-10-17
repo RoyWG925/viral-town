@@ -104,7 +104,7 @@ test("suggestNext: two other residents, outside the reached set when the story f
   }
 });
 
-test("tonight's schedule: P5-lantern-baker counts down to Chief Zhou's 17:00 stage round only once he carries a safety belief", () => {
+test("tonight's schedule: P5-lantern-baker counts down to Chief Harlow's 17:00 stage round only once he carries a safety belief", () => {
   const run = recorded("P5-lantern-baker");
   const evs = sorted(run);
   const r = ROUTINE.find((x) => x.who === "police" && x.with === "organizer")!;
@@ -120,7 +120,7 @@ test("tonight's schedule: P5-lantern-baker counts down to Chief Zhou's 17:00 sta
     assert.ok(!/封鎖|出動|取消|會|\b(clos(?:e|ed|es|ing)|seal(?:ed|s)?|sen[dt]|dispatch(?:ed|es)?|cancel(?:l?ed|s)?|called off|will|won't)\b/i.test(up.text), `the chip implies an outcome: ${up.text}`);
   }
   assert.ok(first !== null && first >= r.at - 15 && first < r.at, `countdown never appeared before 17:00 (first ${first})`);
-  // Azhu's fee meeting is about policy/scandal; nobody in this lantern story carries that
+  // Rosa's fee meeting is about policy/scandal; nobody in this lantern story carries that
   for (let i = 1; i <= evs.length; i++) assert.notEqual(upcomingMeeting(run, evs.slice(0, i), evs[i - 1].t)?.at, 210);
   const ticks = meetingTicks(run, evs, evs.at(-1)!.t, true);
   assert.ok(ticks.length > 0 && ticks.every((t) => t.state !== "ahead"));

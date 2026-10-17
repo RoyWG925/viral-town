@@ -47,10 +47,10 @@ export const CHAT_PAIRS: [string, string][] = [
  * "A"/"Two"/"Neighbors"), so each one reads as a clause: a name or a plain subject, then what they are doing.
  */
 export const SCENE_TEXT = {
-  stageRush: { label: "🏮 Zhiming is rushing the stage crew", hurry: "Hurry up! We start at eight!", oops: "It's fine, it's fine! Don't touch!" },
-  haggle: { label: "🐙 Azhu is griping about the stall fee", hawk: "Takoyaki! Hot off the griddle!", ask: "Can you go a little cheaper?", fee: "My stall fee doubled! Cheaper? Ha!" },
-  samples: { label: "🥐 Ade hands out samples, talking nonstop", offer: "Just baked! Have a taste!", chatter: "Let me tell you, back in my day…", follow: "Hey, wait, I'm not finished…" },
-  patrol: { label: "👮 Chief Zhou strolls the plaza on patrol", scold: "No running on the plaza!" },
+  stageRush: { label: "🏮 Gus is rushing the stage crew", hurry: "Hurry up! We start at eight!", oops: "It's fine, it's fine! Don't touch!" },
+  haggle: { label: "🐙 Rosa is griping about the stall fee", hawk: "Takoyaki! Hot off the griddle!", ask: "Can you go a little cheaper?", fee: "My stall fee doubled! Cheaper? Ha!" },
+  samples: { label: "🥐 Barney is handing out samples", offer: "Just baked! Have a taste!", chatter: "Let me tell you, back in my day…", follow: "Hey, wait, I'm not finished…" },
+  patrol: { label: "👮 Chief Harlow is on patrol", scold: "No running on the plaza!" },
   catChase: { label: (cat: string) => `🐱 A kid is chasing ${cat}` },
   bicker: {
     bike: { label: "🚲 Two neighbors are arguing over a bike", a: "Your bike's blocking my door again!", b: "No way! That's your bike!", truce: "Fine, fine, I'll move it." },
@@ -58,9 +58,9 @@ export const SCENE_TEXT = {
     bench: { label: "🪑 Two old-timers both want the bench", a: "I was sitting here first!", b: "I don't see your name on it!", truce: "Fine. Half each." },
   },
   gossip: {
-    label: "☕ Misaki's whispering to customers again",
+    label: "☕ Molly's whispering to customers again",
     // neutral small talk only: dating, weather, a cute dog, her daughter's turn on stage (all public)
     topics: ["Psst, I hear the bookshop owner is seeing someone!", "They say it'll be sunny tomorrow.", "That corgi in the park got even chubbier!", "My daughter's on stage tonight. Come watch!"],
   },
-  speech: { label: "🎩 Mayor Lin is rehearsing a speech", open: "Ladies and gentlemen of Mistport…", lost: "Tonight… um… which page was I on?" },
+  speech: { label: "🎩 The mayor rehearses a speech", open: "Ladies and gentlemen of Mistport…", lost: "Tonight… um… which page was I on?" },
 };

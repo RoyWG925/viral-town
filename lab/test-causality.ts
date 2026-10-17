@@ -1,11 +1,13 @@
 // The story card tells where things ended up, and only what led there: a change undone later is not the outcome
 // (a shop closed, then opened again), and the chain holds nothing but recorded causes of the outcome — never a
-// conversation from after it (P20 budget-journalist, P19 oven-police). node --test lab/test-causality.ts
+// conversation from after it (P20 budget-journalist, P19 oven-police), never past the check a 🔍 headline reports
+// (B1 fee-journalist) — and a sight on it carries what they made of what they saw. node --test lab/test-causality.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { simulate, type RunResult } from "../src/sim/engine.ts";
 import type { Chat, ChatMessage, LlmCall } from "../src/sim/llm.ts";
+import { FACTS, PERSONAS } from "../src/sim/scenario.ts";
 import type { SimEvent } from "../src/sim/types.ts";
 import { storyOf } from "../src/town/story.ts";
 
@@ -121,7 +123,8 @@ test("P19 oven-police: the dispatch's chain holds nothing from after 140.9 (what
   assert.ok(card.spine.some((h) => h.via === "inspect" && h.text.includes("支架")), "the loose strut he found is on the way to the dispatch");
 });
 
-test("every recorded run: the chain is only causes of its outcome, never later than it", () => {
+/** Every recorded run log (lab batches and the published replays). */
+function recorded(): string[] {
   const files: string[] = [];
   for (const base of ["lab/runs", "public/recorded"]) {
     if (!existsSync(base)) continue;
@@ -130,6 +133,11 @@ test("every recorded run: the chain is only causes of its outcome, never later t
       for (const f of statSync(p).isDirectory() ? readdirSync(p).map((x) => `${p}/${x}`) : [p]) if (f.endsWith(".json") && !/index|summary|fun-metrics/.test(f)) files.push(f);
     }
   }
+  return files;
+}
+
+test("every recorded run: the chain is only causes of its outcome, never later than it", () => {
+  const files = recorded();
   let n = 0;
   for (const f of files) {
     const run = load(f);
@@ -140,9 +148,10 @@ test("every recorded run: the chain is only causes of its outcome, never later t
   if (files.length) assert.ok(n > 0);
 });
 
+const ev = (id: string, t: number, type: SimEvent["type"], causes: string[], more: Pick<SimEvent, "actor" | "target" | "data">): SimEvent => ({ id, t, type, causes, zh: "", ...more });
+
 test("no recorded path from the sentence to the outcome: the card says so instead of borrowing other talk", () => {
   // officers sent with no recorded cause, and a conversation that has nothing to do with it
-  const ev = (id: string, t: number, type: SimEvent["type"], causes: string[], more: Pick<SimEvent, "actor" | "target" | "data">): SimEvent => ({ id, t, type, causes, zh: "", ...more });
   const run = {
     config: { active: ALL8, seedNpc: "baker", seedText: "聽說市長很害怕鴿子。" },
     events: [
@@ -156,4 +165,126 @@ test("no recorded path from the sentence to the outcome: the card says so instea
   assert.equal(card.outcome, "e3");
   assert.equal(card.spine.length, 0, card.spine.map((h) => h.text).join(" / "));
   assert.ok(card.chainGap, "the card says there is no chain");
+});
+
+test("an untraced talk is no chain, and a card that names no result does not speak of one", () => {
+  // a conversation with no recorded cause, under a headline that says nothing happened
+  const run = {
+    config: { active: ALL8, seedNpc: "baker", seedText: "聽說市長很害怕鴿子。" },
+    events: [
+      ev("e1", 20, "seed", [], { target: "baker", data: { text: "聽說市長很害怕鴿子。" } }),
+      ev("e2", 30, "talk", [], { actor: "florist", target: "police", data: { text: "今天的花賣得不錯。" } }),
+    ],
+    decisions: [], claims: [],
+  } as unknown as RunResult;
+  const card = storyOf(run);
+  assert.equal(card.spine.length, 0, card.spine.map((h) => h.text).join(" / "));
+  assert.ok(!card.chainGap?.includes("結果"), `${card.headline} / ${card.chainGap}`);
+});
+
+const nameOf = (id: string) => PERSONAS.find((p) => p.id === id)?.name ?? id;
+/** The beliefs the looker formed on taking in what this look showed them (the decision its inspection fed). */
+function formedBy(run: RunResult, look: SimEvent): SimEvent[] {
+  const del = run.events.find((x) => x.type === "deliver" && x.causes[0] === look.id && x.target === look.actor);
+  const dec = del && run.decisions.find((d) => d.inbox.includes(String(del.data.message)));
+  const dEv = dec && run.events.find((x) => x.type === "decide" && x.data.decision === dec.id);
+  return dEv ? run.events.filter((x) => x.type === "belief" && x.causes.includes(dEv.id)) : [];
+}
+
+test("a sight's pill is what they made of what they saw, not the opposite rumour that look dropped (P20 wobble-organizer, P19 lantern-baker)", () => {
+  // 老周 sees the loose strut: the same decision drops 「舞台一切準備就緒」 to 0 and sets 「支架鬆動」 to 0.98
+  for (const [f, ids] of [["public/recorded/P20-wobble-organizer.json", ["e18"]], ["public/recorded/P19-lantern-baker.json", ["e19", "e160"]]] as const) {
+    if (!existsSync(f)) continue;
+    const card = storyOf(load(f));
+    for (const id of ids) {
+      const h = card.spine.find((x) => x.event === id);
+      assert.ok(h, `${f}: ${id} is on the chain`);
+      assert.ok(h!.verdict !== "disbelieve" && (h!.conf === undefined || h!.conf >= 0.5), `${f}: ${id} 「${h!.text.slice(0, 20)}」 shows ${h!.verdict} ${h!.conf}`);
+    }
+    if (f.includes("P20")) assert.deepEqual(((h) => [h?.verdict, h?.conf])(card.spine.find((x) => x.event === "e18")), ["believe", 0.98]);
+  }
+});
+
+test("every recorded run: a sight's pill is their belief in what they saw, or none", () => {
+  let n = 0;
+  for (const f of recorded()) {
+    const run = load(f);
+    if (!run?.events) continue;
+    const claimOf = (id: unknown) => (run.claims ?? []).find((c) => c.id === id);
+    for (const h of storyOf(run).spine) {
+      if ((h.via !== "look" && h.via !== "inspect") || h.conf === undefined) continue;
+      const fact = FACTS.find((x) => x.check && h.text.includes(x.check.zh));
+      assert.ok(fact, `${f}: ${h.event} 「${h.text.slice(0, 20)}」 has a pill but shows no fact`);
+      const look = run.events.find((e) => e.id === h.event)!;
+      // a claim that says what the sight showed: about that fact, asserting it exactly when it is true
+      const mine = formedBy(run, look).filter((b) => ((c) => c?.fact === fact!.id && c.asserts === fact!.value)(claimOf(b.data.claim)));
+      assert.ok(mine.some((b) => b.data.verdict === h.verdict && Number(b.data.to) === h.conf), `${f}: ${h.event} 「${h.text.slice(0, 20)}」 ${h.verdict} ${h.conf} is not their belief in what they saw`);
+      n++;
+    }
+  }
+  if (recorded().length) assert.ok(n > 0);
+});
+
+test("a look logged before the engine's highlight shows what the story is about, not whatever it listed first (C1v16 stage-cafe)", () => {
+  // 老周 went to see whether the stage would hold; 小雯 to check a stage rumour (and, having seen the birds once,
+  // held a belief about them): the pigeons are no step of either story
+  for (const f of ["lab/runs/C1v16/stage-cafe.json", "lab/runs/B1v16/stage-florist.json"]) {
+    if (!existsSync(f)) continue;
+    const card = storyOf(load(f));
+    assert.ok(card.spine.every((h) => !h.text.includes("鴿")), `${f}: ${card.spine.map((h) => `${h.via}@${h.t.toFixed(1)} ${h.text.slice(0, 12)}`).join(" / ")}`);
+  }
+  for (const g of recorded()) {
+    const run = load(g);
+    if (!run?.events) continue;
+    const card = storyOf(run);
+    // the facts the story is about: what each first listener made of a planted sentence, and the topic most people held
+    const firsts = run.events.filter((s) => s.type === "seed").map((s) => run.events.find((x) => x.type === "decide" && x.actor === s.target && x.t >= s.t && !x.data.budget));
+    const people = new Map<string, Set<string>>();
+    for (const c of run.claims ?? []) if (c.topic !== "other") (people.get(c.topic) ?? people.set(c.topic, new Set()).get(c.topic)!).add(c.by);
+    const most = [...people.entries()].sort((x, y) => y[1].size - x[1].size)[0]?.[0];
+    const about = new Set((run.claims ?? []).filter((c) => c.topic === most || firsts.some((d) => d && c.by === d.actor && (c.origin === d.id || d.causes.includes(c.origin)))).map((c) => c.fact));
+    for (const h of card.spine) {
+      const e = run.events.find((x) => x.id === h.event)!;
+      // (the look a 🔍 headline names is told as the headline says)
+      if ((h.via !== "look" && h.via !== "inspect") || e.data.highlight !== undefined || h.event === card.outcome) continue;
+      const fact = FACTS.find((x) => x.check && x.check.by !== "expert" && h.text.includes(x.check.zh));
+      if (fact) assert.ok(about.has(fact.id), `${g}: ${h.event} shows 「${h.text.slice(0, 16)}」 in a story about ${[...about].join("/")}`);
+    }
+  }
+});
+
+test("a 親自查證 headline's chain ends at the check it reports (B1 fee-journalist, C1v16 stage-cafe)", () => {
+  for (const [f, id] of [["lab/runs/B1/fee-journalist.json", "e9"], ["lab/runs/C1v16/stage-cafe.json", "e30"]] as const) {
+    if (!existsSync(f)) continue;
+    const run = load(f);
+    const card = storyOf(run);
+    const check = run.events.find((e) => e.id === id)!;
+    assert.ok(card.headline.startsWith(`${nameOf(check.actor!)}親自`), card.headline);
+    assert.equal(card.outcome, id, `${f}: ${card.headline}`);
+    assert.ok(card.spine.every((h) => h.t <= check.t), `${f}: ${card.spine.map((h) => `${h.via}@${h.t.toFixed(1)}`).join(" ")}`);
+    assert.equal(card.spine.at(-1)?.event, id, `${f}: the check itself closes the chain`);
+    assertChain(f, run);
+  }
+});
+
+test("every recorded 🔍 headline: the chain leads to the look the headline reports", () => {
+  let n = 0;
+  for (const f of recorded()) {
+    const run = load(f);
+    if (!run?.events) continue;
+    const card = storyOf(run);
+    if (card.icon !== "🔍") continue;
+    const o = run.events.find((e) => e.id === card.outcome);
+    assert.ok(o && (o.type === "look" || o.type === "inspect") && card.headline.startsWith(nameOf(o.actor!)), `${f}: ${card.headline} → ${o?.type} by ${o?.actor}`);
+    // what the headline (for 查無實據, its sub line) says they saw is what that look showed
+    const said = card.headline.includes("本來在查別的事")
+      ? FACTS.find((x) => x.check && x.zh.startsWith(/卻查出：(.+?)…?$/.exec(card.headline)![1]))!.check!.zh
+      : card.headline.includes("查無實據")
+        ? /^「(.+?)…?」$/.exec(card.sub)![1]
+        : /親自查證：(.+?)…?$/.exec(card.headline)![1];
+    assert.ok(String(o!.data.found).includes(said), `${f}: ${o!.id} did not show 「${said}」`);
+    if (!card.chainGap) assert.ok(card.spine.at(-1)?.event === o!.id && card.spine.at(-1)!.text.startsWith(said), `${f}: the chain does not end at 「${said}」`);
+    n++;
+  }
+  if (recorded().length) assert.ok(n > 0);
 });

@@ -40,7 +40,7 @@ export interface StoryCard {
   sub: string;
   /** the player's sentence → … → the last version on the way to the outcome: only its recorded causes, in time order */
   spine: Hop[];
-  /** the logged event the spine leads to (the biggest happening), when there is one */
+  /** the logged event the spine leads to (the biggest happening, or the look a 🔍 headline reports), when there is one */
   outcome?: string;
   /** said instead of a chain when the log has no readable one from the planted sentence to the outcome */
   chainGap?: string;
@@ -190,30 +190,52 @@ export function storyOf(run: RunResult): StoryCard {
       .at(-1);
   };
   // what the listener made of THIS message: the belief formed by the decision whose inbox held it (`to`: whose
-  // reading, for words that reached many)
-  const verdictOf = (hop: SimEvent, to?: string): { verdict?: string; conf?: number } => {
+  // reading, for words that reached many; `about`: only a belief in a claim it accepts)
+  const verdictOf = (hop: SimEvent, to?: string, about?: (claim: unknown) => boolean): { verdict?: string; conf?: number } => {
     const del = hop.type === "deliver" ? hop : events.find((x) => x.type === "deliver" && x.causes[0] === hop.id && (!to || x.target === to));
     const dec = del && run.decisions.find((d) => d.inbox.includes(String(del.data.message)));
     const dEv = dec && events.find((x) => x.type === "decide" && x.data.decision === dec.id);
-    const b = dEv && events.find((x) => x.type === "belief" && x.causes.includes(dEv.id));
+    const b = dEv && events.find((x) => x.type === "belief" && x.causes.includes(dEv.id) && (!about || about(x.data.claim)));
     return b ? { verdict: String(b.data.verdict), conf: Number(b.data.to) } : {};
   };
   const hopOf = (e: SimEvent): Hop => ({ from: e.actor!, to: e.target!, via: e.type as "talk" | "phone", text: String(e.data.text), heard: heardBy(e), t: e.t, event: e.id, ...verdictOf(e) });
   const hops = events.filter((e) => (e.type === "talk" || e.type === "phone") && !e.data.missed && e.actor && e.target).map(hopOf);
+  const claimOf = (id: unknown) => (run.claims ?? []).find((c) => c.id === id);
+  // what each listener first made of a planted sentence (the first one, and any 補一句)
+  // claims record the message that triggered the decision as their origin
+  const firstDecides = seeds
+    .map((s) => events.find((e) => e.type === "decide" && e.actor === s.target && e.t >= s.t && !e.data.budget))
+    .filter((e): e is SimEvent => !!e);
+  const seedClaims = (run.claims ?? []).filter((c) => firstDecides.some((d) => c.by === d.actor && (c.origin === d.id || d.causes.includes(c.origin))));
+  // what the story is about: the planted topic, and the topic most people ended up on
+  const storyTopics = new Set<string>(seedClaims.map((c) => c.topic));
+  {
+    const counts = new Map<string, Set<string>>();
+    for (const c of run.claims ?? []) if (c.topic !== "other") (counts.get(c.topic) ?? counts.set(c.topic, new Set()).get(c.topic)!).add(c.by);
+    const dom = [...counts.entries()].sort((x, y) => y[1].size - x[1].size)[0];
+    if (dom) storyTopics.add(dom[0]);
+  }
+  const storyFacts = new Set([...storyTopics].map((t) => topicFact(t)).filter(Boolean) as string[]);
+  // the checkable fact a sight shows, if any
+  const factIn = (p: string) => FACTS.find((f) => f.check && p.includes(f.check.zh));
   // of all a look showed, the part that matters: a hidden problem only an expert finds; else the sight that was on
-  // their mind (the engine's highlight, when it is one); else what a glance could not show them; else the first
-  const sightOf = (e: SimEvent) => {
+  // their mind (the engine's highlight, when it is one; a log from before it has none, so: a check of something the
+  // story is about); else what a glance could not show them; else the first. An old log's first is often a check of
+  // something else (the pigeon cages under a stage story: C1v16 stage-cafe): then the first sight that is no check
+  // and no list of who was there, or nothing worth a step
+  const sightOf = (e: SimEvent): string | undefined => {
     const found = String(e.data.found);
     const parts = found.split(/\s+/).filter(Boolean);
-    const expert = parts.find((p) => FACTS.some((f) => f.check?.by === "expert" && p.includes(f.check.zh)));
-    const onMind = parts.find((p) => p === e.data.highlight && FACTS.some((f) => f.check?.zh === p));
+    const old = e.data.highlight === undefined;
+    const expert = parts.find((p) => factIn(p)?.check?.by === "expert");
+    const onMind = parts.find((p) => factIn(p) && (p === e.data.highlight || (old && storyFacts.has(factIn(p)!.id))));
     const limit = parts.find((p) => p === LOOK_LIMITS[String(e.place)] || p.includes("不是你的專業"));
-    return expert ?? onMind ?? limit ?? parts[0] ?? found;
+    return expert ?? onMind ?? limit ?? (old ? parts.find((p) => !factIn(p) && !p.endsWith("在這裡。")) : (parts[0] ?? found));
   };
-  // a step of a causal path a reader can follow (`next`: the event after it on the path): a retelling; words made
-  // public, with the one on the path who took them in; talk of the town that reached someone (a closing noticed,
-  // a rumour many repeat); or what someone saw with their own eyes
-  const stepOf = (e: SimEvent, next?: SimEvent): Hop | null => {
+  // a step of a causal path a reader can follow (`next`: the event after it on the path; `seen`: for a look, the
+  // sight to tell): a retelling; words made public, with the one on the path who took them in; talk of the town that
+  // reached someone (a closing noticed, a rumour many repeat); or what someone saw with their own eyes
+  const stepOf = (e: SimEvent, next?: SimEvent, seen?: string): Hop | null => {
     const d = e.data as Record<string, unknown>;
     if ((e.type === "talk" || e.type === "phone") && !d.missed && e.actor && e.target) return hopOf(e);
     if ((e.type === "article" || e.type === "notice" || e.type === "statement") && e.actor && next?.type === "deliver" && next.target)
@@ -221,9 +243,50 @@ export function storyOf(run: RunResult): StoryCard {
     // (a statement passed on by the crowd is the statement's step above)
     if (e.type === "deliver" && d.via === "crowd" && e.target && byId.get(e.causes[0])?.type !== "statement")
       return { from: String(d.from ?? "crowd"), to: e.target, via: "crowd", text: String(d.text), t: e.t, event: e.id, ...verdictOf(e) };
-    if ((e.type === "look" || e.type === "inspect") && d.found && e.actor)
-      return { from: e.actor, to: e.actor, via: e.type, text: sightOf(e), t: e.t, event: e.id, ...verdictOf(e, e.actor) };
+    if ((e.type === "look" || e.type === "inspect") && d.found && e.actor) {
+      const text = seen ?? sightOf(e);
+      if (!text) return null;
+      // what they made of it: their belief in a claim that says what they saw. The same look often drops the
+      // opposite rumour too, and that 「不信 0%」 under the loose strut they had just found read as doubting their own
+      // eyes (P20 wobble-organizer). A sight that shows no fact gets no pill.
+      const f = factIn(text);
+      const saysIt = (c: unknown) => ((x) => !!f && x?.fact === f.id && x.asserts === f.value)(claimOf(c));
+      return { from: e.actor, to: e.actor, via: e.type, text, t: e.t, event: e.id, ...(f ? verdictOf(e, e.actor, saysIt) : {}) };
+    }
     return null;
+  };
+  // the path of recorded causes from a planted sentence to `out`, as the steps of it a reader can follow (`seen`:
+  // the sight to tell for `out` itself, when the headline names it). Only that path: every step a recorded cause,
+  // so never later than `out` (a chain once borrowed whatever talk there was, a call made after the rally it "led
+  // to": P20 budget-journalist). The same person seeing the same thing again adds nothing.
+  const chainTo = (out: SimEvent, seen?: string): { spine: Hop[]; root?: SimEvent; traced: boolean } => {
+    const prev = new Map<string, string>();
+    const queue = [out.id];
+    const visited = new Set(queue);
+    let from: SimEvent | undefined;
+    while (queue.length) {
+      const id = queue.shift()!;
+      if (seedIds.has(id)) {
+        from = byId.get(id);
+        break;
+      }
+      for (const c of byId.get(id)?.causes ?? []) if (!visited.has(c)) (visited.add(c), prev.set(c, id), queue.push(c));
+    }
+    const path: SimEvent[] = [];
+    if (from) for (let id: string | undefined = from.id; id; id = prev.get(id)) path.push(byId.get(id)!);
+    const steps: Hop[] = [];
+    for (const [i, e] of path.entries()) {
+      const h = e.t <= out.t ? stepOf(e, path[i + 1], e === out ? seen : undefined) : null;
+      if (!h) continue;
+      if (h.via === "look" || h.via === "inspect") {
+        const twin = steps.findIndex((x) => (x.via === "look" || x.via === "inspect") && x.from === h.from && x.text === h.text);
+        if (twin >= 0 && e !== out) continue;
+        // the look the headline names stays: an earlier identical one gives way
+        if (twin >= 0) steps.splice(twin, 1);
+      }
+      steps.push(h);
+    }
+    return { spine: steps, root: from ?? seed, traced: !!from };
   };
 
   // where each part of the world stood at the end (its last change): a change undone later (a shop closed, then
@@ -236,40 +299,9 @@ export function storyOf(run: RunResult): StoryCard {
   // the biggest happening; among equals the later one, which is usually the outcome (police sent, then the stage
   // closed; a friend's shop shut, then the bakery itself)
   const top = events.reduce<SimEvent | null>((best, e) => (weight(e) > 0 && weight(e) >= (best ? weight(best) : 0) ? e : best), null);
-  let spine: Hop[] = [];
-  let root: SimEvent | undefined = seed;
-  // the outcome goes back to a planted sentence through recorded causes
-  let traced = false;
-  if (top) {
-    const prev = new Map<string, string>();
-    const queue = [top.id];
-    const seen = new Set(queue);
-    while (queue.length) {
-      const id = queue.shift()!;
-      if (seedIds.has(id)) {
-        root = byId.get(id);
-        traced = true;
-        break;
-      }
-      for (const c of byId.get(id)?.causes ?? []) if (!seen.has(c)) (seen.add(c), prev.set(c, id), queue.push(c));
-    }
-    const path: SimEvent[] = [];
-    if (traced) for (let id: string | undefined = root?.id; id; id = prev.get(id)) path.push(byId.get(id)!);
-    // that path and nothing else: every step a recorded cause of the outcome, so never later than it (a chain once
-    // borrowed whatever talk there was, a call made after the rally it "led to": P20 budget-journalist). The same
-    // person seeing the same thing again adds nothing.
-    const sights = new Set<string>();
-    for (const [i, e] of path.entries()) {
-      const h = e.t <= top.t ? stepOf(e, path[i + 1]) : null;
-      if (!h) continue;
-      if (h.via === "look" || h.via === "inspect") {
-        if (sights.has(`${h.from}|${h.text}`)) continue;
-        sights.add(`${h.from}|${h.text}`);
-      }
-      spine.push(h);
-    }
-    if (top.type === "talk" || top.type === "phone") spine = spine.length ? spine : [hopOf(top)];
-  }
+  // `traced`: the outcome goes back to a planted sentence through recorded causes (a talk that does not is no chain
+  // of this sentence, so it is not put under it)
+  let { spine, root, traced } = top ? chainTo(top) : { spine: [] as Hop[], root: seed, traced: false };
 
   const reached = [...new Set(events.filter((e) => e.type === "deliver" && e.target && e.data.via !== "inspection").map((e) => e.target!))];
   const wildest = hops
@@ -277,12 +309,6 @@ export function storyOf(run: RunResult): StoryCard {
     .map((h) => ({ ...h, similarity: similarity(h.heard!, h.text) }))
     .sort((a, b) => a.similarity - b.similarity)[0];
 
-  // what each listener first made of a planted sentence (the first one, and any 補一句)
-  // claims record the message that triggered the decision as their origin
-  const firstDecides = seeds
-    .map((s) => events.find((e) => e.type === "decide" && e.actor === s.target && e.t >= s.t && !e.data.budget))
-    .filter((e): e is SimEvent => !!e);
-  const seedClaims = (run.claims ?? []).filter((c) => firstDecides.some((d) => c.by === d.actor && (c.origin === d.id || d.causes.includes(c.origin))));
   const whispers = seeds.filter((e) => e.data.second && e.target).map((e) => ({ npc: e.target!, text: String(e.data.text) }));
   const card: StoryCard = { festival: { kind: "on", short: "照常", text: "", missing: [] },
     icon: "💬", headline: "", sub: "", spine, outcome: top?.id, reached, wildest: wildest && wildest.similarity < 0.55 ? wildest : undefined,
@@ -335,14 +361,6 @@ export function storyOf(run: RunResult): StoryCard {
   // the most telling first-hand check: someone went to look and the engine showed them the real state of
   // something the story is about (the planted topic, the topic most people ended up on, or what they believed)
   const clipS = (t: string, n: number) => (t.length > n ? `${t.slice(0, n)}…` : t);
-  const storyTopics = new Set<string>(seedClaims.map((c) => c.topic));
-  {
-    const counts = new Map<string, Set<string>>();
-    for (const c of run.claims ?? []) if (c.topic !== "other") (counts.get(c.topic) ?? counts.set(c.topic, new Set()).get(c.topic)!).add(c.by);
-    const dom = [...counts.entries()].sort((x, y) => y[1].size - x[1].size)[0];
-    if (dom) storyTopics.add(dom[0]);
-  }
-  const storyFacts = new Set([...storyTopics].map((t) => topicFact(t)).filter(Boolean) as string[]);
   let checked: { e: SimEvent; text: string; dir: "up" | "down"; coverUp: boolean } | null = null;
   const seedFacts = new Set(seedClaims.map((c) => topicFact(c.topic)).filter(Boolean) as string[]);
   const aboutSeed = (e: SimEvent) => {
@@ -417,9 +435,9 @@ export function storyOf(run: RunResult): StoryCard {
     const prev = before.map(happened).filter(Boolean).slice(-2);
     return prev.length ? `先是${prev.join("，接著")}，最後${last}。` : `${last}${via}。`;
   };
-  // nothing on record a reader can follow from what the player said to the outcome (no path of causes at all, or
-  // one that shows nobody passing anything on while someone else did it): say so rather than fill the chain
-  if (top && (!traced || (!spine.length && top.actor !== root?.target && !before.some(happened)))) card.chainGap = "從這句話到這個結果，紀錄裡找不到一條說得清的因果線。";
+  // the happening the headline reports: the outcome, or the one look a 🔍 headline is about (and the sight it names)
+  let told: SimEvent | undefined = top && rank(top) >= 5 ? top : undefined;
+  let toldSeen: string | undefined;
   if (top && rank(top) >= 5) {
     if (top.type === "state" && d.key === "festival") Object.assign(card, { icon: "🏮", headline: "燈籠節取消了！", sub: `${actor}宣布取消${via}。${!traced ? "" : whispers.length ? "一切從你悄悄說的話開始。" : `一切從你對${nameOf(seedNpc)}說的一句話開始。`}` });
     else if (top.type === "state" && d.key === "stage") Object.assign(card, { icon: "🚧", headline: "慶典舞台被封鎖", sub: chainOf(`${actor}下令封鎖`) });
@@ -433,6 +451,7 @@ export function storyOf(run: RunResult): StoryCard {
     else if (top.type === "notice") Object.assign(card, { icon: "📋", headline: "廣場布告欄貼出公告", sub: `「${String(d.text).slice(0, 40)}」` });
   } else if (discovery && (!checked || checked.dir === "down")) {
     const who = nameOf(discovery.e.actor!);
+    [told, toldSeen] = [discovery.e, discovery.fact.check!.zh];
     const wondering = events.filter((x) => x.type === "belief" && x.actor === discovery!.e.actor && x.t <= discovery!.e.t).at(-1);
     Object.assign(card, {
       icon: "🔍",
@@ -442,6 +461,7 @@ export function storyOf(run: RunResult): StoryCard {
   } else if (checked) {
     // no world change, but someone went and saw the truth for themselves: that is the payoff
     const who = nameOf(checked.e.actor!);
+    [told, toldSeen] = [checked.e, checked.text];
     Object.assign(card, {
       icon: "🔍",
       headline: checked.dir === "down" ? `${who}親自去查：查無實據` : `${who}親自查證：${clipS(checked.text, 22)}`,
@@ -457,6 +477,17 @@ export function storyOf(run: RunResult): StoryCard {
   } else if (reached.length >= 3) {
     Object.assign(card, { icon: "💬", headline: `一句話把 ${reached.length} 個人捲了進來`, sub: "鎮上議論紛紛，但還沒有人真的採取大動作。" });
   }
+  // a 🔍 headline is about that one look: the chain leads to it, not on to whatever was said or seen last
+  // (「小雯親自去查：查無實據」 at 24.7 over a chain running on to 41.1: B1 fee-journalist)
+  if (told && told !== top) {
+    ({ spine, root, traced } = chainTo(told, toldSeen));
+    Object.assign(card, { spine, outcome: told.id, spineRoot: root ? Math.max(0, seeds.indexOf(root)) : 0 });
+  }
+  // nothing on record a reader can follow from what the player said to what the headline reports (no path of causes
+  // at all, or one that shows nobody passing anything on while someone else did it): say so rather than fill the
+  // chain. A headline that reports no result does not get one named here.
+  if (told && (!traced || (!spine.length && told.actor !== root?.target && !before.some(happened)))) card.chainGap = "從這句話到這個結果，紀錄裡找不到一條說得清的因果線。";
+  else if (top && !told && !traced) card.chainGap = "紀錄裡找不到這句話一路傳下去的因果線。";
 
   if (!card.headline) {
     // the rumour died: name who it stopped with, in their own words

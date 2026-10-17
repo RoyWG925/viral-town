@@ -23,9 +23,10 @@ import { EndTitle, Results, type SavedRun } from "./ResultsPanel";
 import { GOAL_BY_TOOL, GoalsNote, goalOf, hitsOf, useGoalStamps } from "./GoalsNote";
 import WhisperAgain, { type LullOffer } from "./WhisperAgain";
 import { setMusic, type Mood } from "./music";
+import Opening from "./Opening";
 
 export type { SavedRun };
-type Phase = "explore" | "compose" | "simulating" | "playing" | "results";
+type Phase = "intro" | "explore" | "compose" | "simulating" | "playing" | "results";
 type Mode = "stream" | "full";
 type Policy = "gemma" | "rules";
 type Whisper = { npc: string; text: string } | null;
@@ -37,6 +38,7 @@ let ACTIVE = [...DEFAULT_ACTIVE];
 const HISTORY_KEY = "viral.history.v1";
 // after the first whisper the "how to play" hint gives its place to the town's everyday ticker
 const WHISPERED_KEY = "viral.whispered.v1";
+const OPENING_KEY = "viral.opening.v1";
 
 function loadHistory(): SavedRun[] {
   try {
@@ -145,6 +147,8 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
     ui.setActive(ACTIVE);
     setHistory(loadHistory());
     setWhispered(readFlag(WHISPERED_KEY));
+    // the opening plays on the first visit only (🎬 brings it back)
+    if (!readFlag(OPENING_KEY)) setPhase((p) => (p === "explore" ? "intro" : p));
     fetch("/recorded/index.json").then((r) => (r.ok ? r.json() : [])).then(setRecorded).catch(() => setRecorded([]));
     // leaving the page never leaves the engine waiting on a 補一句 answer
     return () => lullAnswer.current?.(null);
@@ -382,18 +386,29 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
           )}
         </div>
       )}
-      {phase !== "results" && (
+      {phase === "intro" && (
+        <Opening
+          onDone={() => {
+            setFlag(OPENING_KEY);
+            setPhase((p) => (p === "intro" ? "explore" : p));
+          }}
+        />
+      )}
+      {phase !== "results" && phase !== "intro" && (
         <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center">
           <CastStrip phase={phase} />
         </div>
       )}
-      {phase !== "results" && <GoalsNote progress={goals} toast={toast} />}
+      {phase !== "results" && phase !== "intro" && <GoalsNote progress={goals} toast={toast} />}
 
       {phase === "explore" && (
         <div className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-center gap-2 px-3">
           {showRecords && <RecordsPopover recorded={recorded} history={history} onRecorded={(id) => { unlockAudio(); playRecorded(id); }} onHistory={playHistory} />}
           <div className="flex items-center gap-2">
             {whispered ? <DailyLine /> : <div className="rounded-full bg-white/90 px-4 py-1.5 text-sm font-semibold text-slate-700 shadow">👆 點一位有名牌的居民，偷偷說一句話，然後看小鎮怎麼回應</div>}
+            <button onClick={() => setPhase("intro")} title="Watch the opening again" className="pointer-events-auto rounded-full bg-slate-800/80 px-3 py-1.5 text-sm font-semibold text-white shadow">
+              🎬
+            </button>
             {(recorded.length > 0 || history.length > 0) && (
               <button onClick={() => setShowRecords((v) => !v)} aria-expanded={showRecords} className="pointer-events-auto rounded-full bg-slate-800/80 px-3 py-1.5 text-sm font-semibold text-white shadow">
                 📼 錄製的實驗

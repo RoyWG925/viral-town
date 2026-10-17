@@ -230,7 +230,8 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
   const ended = phase === "playing" && show.status === "done" && !show.growing && !!current;
   useEffect(() => {
     if (!ended) return;
-    const id = setTimeout(() => setPhase("results"), 4200);
+    // a festival scene already showed the ending: the paper comes up quickly; older logs keep the end title a moment
+    const id = setTimeout(() => setPhase("results"), show.run?.events.some((e) => e.type === "festival") ? 1500 : 4200);
     return () => clearTimeout(id);
   }, [ended]);
 
@@ -438,7 +439,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
           <p className="animate-[fadein_0.4s_ease-out] rounded-full bg-slate-900/75 px-5 py-1.5 text-base font-extrabold tracking-wide text-white shadow-xl">{show.title.text}</p>
         </div>
       )}
-      {phase === "playing" && show.status === "done" && !show.growing && show.run && current && <EndTitle run={show.run} stamps={runStamps} />}
+      {phase === "playing" && show.status === "done" && !show.growing && show.run && current && !show.run.events.some((e) => e.type === "festival") && <EndTitle run={show.run} stamps={runStamps} />}
       {phase === "results" && current && (
         <Results
           saved={current}

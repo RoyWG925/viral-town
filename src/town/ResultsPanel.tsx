@@ -139,6 +139,43 @@ function nudgeOf(run: RunResult, story: StoryCard, seedNpc: string, progress: Go
   return null;
 }
 
+/** Up to three things that changed the town tonight, from the log: world changes first, then milestones that failed. */
+function keyEventsOf(run: RunResult): { icon: string; text: string; t: number }[] {
+  const rank = (e: RunResult["events"][number]) => {
+    const d = e.data as Record<string, unknown>;
+    if (e.type === "state") return d.key === "festival" ? 0 : d.key === "stage" ? 1 : d.key === "police" ? 2 : 4;
+    return { article: 3, gather: 3, statement: 5, notice: 6, milestone: 7 }[e.type as string] ?? 99;
+  };
+  const icon: Record<string, string> = { article: "📰", gather: "✊", statement: "📣", notice: "📋" };
+  const picked = run.events
+    .filter((e) => (e.type === "state" && e.data.key !== "writing") || ["article", "gather", "statement", "notice"].includes(e.type) || (e.type === "milestone" && e.data.status !== "ok"))
+    .sort((a, b) => rank(a) - rank(b) || a.t - b.t)
+    .slice(0, 3)
+    .sort((a, b) => a.t - b.t);
+  return picked.map((e) => {
+    const d = e.data as Record<string, unknown>;
+    const i = e.type === "state" ? (d.key === "stage" ? "🚧" : d.key === "police" ? "🚓" : d.key === "festival" ? "🏮" : "🔒") : e.type === "milestone" ? (d.status === "failed" ? "❌" : "↪️") : icon[e.type];
+    const text = e.type === "milestone" ? `${String(d.zh)}: ${String(d.text)}` : e.zh;
+    return { icon: i, text: text.length > 70 ? `${text.slice(0, 68)}…` : text, t: e.t };
+  });
+}
+
+/** Who passed it to whom, in order of first hearing (the player first). */
+function spreadOf(run: RunResult, seedNpc: string): string[] {
+  const order = [seedNpc];
+  for (const e of [...run.events].sort((a, b) => a.t - b.t)) {
+    if ((e.type === "talk" || (e.type === "phone" && !e.data.missed)) && e.target && !order.includes(e.target)) order.push(e.target);
+  }
+  return order;
+}
+
+const STAMP: Record<string, { label: string; cls: string }> = {
+  on: { label: "ON", cls: "border-emerald-600 text-emerald-700" },
+  reduced: { label: "SCALED DOWN", cls: "border-amber-600 text-amber-700" },
+  postponed: { label: "POSTPONED", cls: "border-rose-600 text-rose-700" },
+  cancelled: { label: "CANCELLED", cls: "border-rose-800 text-rose-800" },
+};
+
 export function Results({ saved, previous, stamps, recorded, progress, onWhatIf, onReplay, onClose, onRetry }: {
   saved: SavedRun;
   previous: SavedRun | null;
@@ -162,7 +199,9 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
   const story = useMemo(() => ({ ...baseStory, reveal: revealOf(run.events, knownLines(loadJournal())) }), [baseStory, run]);
   const next = useMemo(() => suggestNext(run, story), [run, story]);
   const prevStory = useMemo(() => (previous ? storyOf(previous.run) : null), [previous]);
-  const [min, setMin] = useState(false);
+  const keyEvents = useMemo(() => keyEventsOf(run), [run]);
+  const spread = useMemo(() => spreadOf(run, saved.npc), [run, saved.npc]);
+  const [panel, setPanel] = useState<"none" | "again" | "details">("none");
   const [copied, setCopied] = useState(false);
   const festival = story.festival.short;
   const stats = { reach: story.reached.length, depth: m.depth, world: m.worldChanges, festival };
@@ -173,180 +212,216 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
     (window as unknown as { __shareCard?: () => string }).__shareCard = () => drawShareCard(story, saved.npc, saved.text, stats, stampWords).toDataURL("image/png");
   });
   const shareText = useMemo(() => {
-    const lines = [`我在 VIRAL 霧港鎮對${nameOf(saved.npc)}說了一句：「${saved.text}」`];
-    for (const w of story.whispers) lines.push(`後來又對${nameOf(w.npc)}補了一句：「${w.text}」`);
-    lines.push(`結果：${story.icon} ${story.headline}`);
-    lines.push(`傳到 ${m.reach} 位居民、${m.depth} 層、引發 ${m.worldChanges} 個世界變化。${story.festival.text}`);
-    if (stampWords.length) lines.push(`今日戰績：${stampWords.join("、")}`);
-    if (hl[0]) lines.push(hl[0]);
-    lines.push("（每位居民都由 Gemma 依自己知道的事判斷，世界由遊戲引擎驗證。）");
+    const lines = [`I whispered one sentence to ${nameOf(saved.npc)} in Mistport (VIRAL): "${saved.text}"`];
+    for (const w of story.whispers) lines.push(`Then I added to ${nameOf(w.npc)}: "${w.text}"`);
+    lines.push(`Result: ${story.icon} ${story.headline}`);
+    lines.push(`${story.festival.text}`);
+    lines.push(`It reached ${m.reach} residents, ${m.depth} retellings deep, ${m.worldChanges} changes to the town.`);
+    if (stampWords.length) lines.push(`Stamps: ${stampWords.join(", ")}`);
+    lines.push("(Every resident is played by Gemma on AMD from what they know; the game engine checks every move.)");
     return lines.join(String.fromCharCode(10));
-  }, [saved, m, run, hl, story, stampWords]);
+  }, [saved, m, story, stampWords]);
   const nudge = nudgeOf(run, story, saved.npc, progress);
   // the one card line this story showed: it goes into the 鎮民筆記 (this browser only)
   useEffect(() => {
     if (story.reveal) addDiscovery(loadJournal(), story.reveal.npc, story.reveal.key, { at: run.wall.startedAt, recorded: !!recorded });
   }, [story, recorded, run]);
   const suggested = new Map(next.map((s) => [s.npc, s.why]));
+  const stamp = STAMP[story.festival.kind] ?? STAMP.on;
+  const variant = story.festival.text.replace(/^[^：:]*[：:]\s*/, "");
 
   return (
-    <div className={`pointer-events-auto absolute right-3 top-3 flex w-[min(94vw,400px)] flex-col overflow-hidden rounded-3xl bg-white/95 shadow-2xl backdrop-blur max-sm:inset-x-2 ${min ? "" : "bottom-3 max-sm:top-auto max-sm:max-h-[72vh]"}`}>
-      <div className="border-b border-slate-200 px-5 pb-3 pt-4">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-[11px] font-bold tracking-wide text-orange-500">霧港小報 · 今晚的頭條{recorded ? <span title={recorded} className="ml-1.5 font-semibold text-slate-400">📼 錄製的真實推演</span> : null}</p>
-          <div className="flex shrink-0 items-center gap-2 text-xs">
-            <button onClick={() => setMin((v) => !v)} className="text-slate-400 hover:text-slate-700">{min ? "▴ 展開" : "▾ 收起"}</button>
-            <button onClick={onClose} aria-label="回到小鎮" title="回到小鎮" className="text-base text-slate-400 hover:text-slate-700">✕</button>
+    // the town dims behind the paper; the finale's lanterns keep drifting up behind it
+    <div className="pointer-events-auto absolute inset-0 flex items-center justify-center bg-slate-950/55 p-3 backdrop-blur-[1px] animate-[fadein_0.5s_ease-out]">
+      <article className="relative flex max-h-[94vh] w-[min(96vw,580px)] flex-col overflow-hidden rounded-2xl bg-[#fbf6ea] shadow-2xl ring-1 ring-black/10">
+        <div className="overflow-y-auto px-6 pb-4 pt-4 max-sm:px-4">
+          {/* masthead */}
+          <div className="flex items-start justify-between gap-2 border-b-2 border-slate-900 pb-1.5">
+            <div>
+              <p className="font-serif text-[22px] font-black leading-none tracking-tight text-slate-900">The Mistport Gazette</p>
+              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Lantern Festival special · 20:00{recorded ? <span title={recorded} className="ml-1.5 normal-case tracking-normal text-slate-400">📼 recorded real Gemma run</span> : null}
+              </p>
+            </div>
+            <button onClick={onClose} aria-label="Back to town" title="Back to town" className="text-lg leading-none text-slate-400 hover:text-slate-800">✕</button>
           </div>
-        </div>
-        <h2 className="mt-1 text-xl font-extrabold leading-snug text-slate-900">
-          {story.icon} {story.headline}
-        </h2>
-        {!min && (
-          <>
-            {story.sub && <p className="mt-1 text-sm leading-snug text-slate-600">{story.sub}</p>}
-            <p className="mt-2 text-sm text-slate-700">
-              你對{nameOf(saved.npc)}說：<b>「{saved.text}」</b>
+
+          {/* headline and the festival stamp */}
+          <div className="relative mt-3 pr-24 max-sm:pr-0">
+            <h2 className="font-serif text-[28px] font-black leading-[1.15] text-slate-900 max-sm:text-2xl">
+              {story.icon} {story.headline}
+            </h2>
+            {story.sub && <p className="mt-1.5 text-sm leading-snug text-slate-600">{story.sub}</p>}
+            <div title={story.festival.text} className={`absolute -right-1 top-0 grid h-[88px] w-[88px] rotate-[-12deg] place-items-center rounded-full border-[3px] bg-white/40 text-center max-sm:static max-sm:mt-2 max-sm:h-auto max-sm:w-auto max-sm:rotate-0 max-sm:rounded-lg max-sm:px-2 max-sm:py-1 ${stamp.cls}`}>
+              <span className="text-[10px] font-black leading-tight tracking-wider">
+                🏮 FESTIVAL
+                <br />
+                <span className="text-[13px]">{stamp.label}</span>
+              </span>
+            </div>
+          </div>
+          <p className="mt-2 text-sm font-semibold leading-snug text-slate-800">🏮 {variant}</p>
+
+          {/* what happened, at a glance */}
+          {keyEvents.length > 0 && (
+            <ul className="mt-3 space-y-1 border-t border-slate-300 pt-2">
+              {keyEvents.map((k, i) => (
+                <li key={i} className="flex gap-2 text-[13px] leading-snug text-slate-700">
+                  <span className="w-11 shrink-0 tabular-nums text-slate-400">{clockOf(k.t)}</span>
+                  <span>{k.icon}</span>
+                  <span>{k.text}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="mt-3 text-[13px] leading-relaxed text-slate-700">
+            <span className="text-slate-500">You whispered to {nameOf(saved.npc)}:</span> <b>“{saved.text}”</b>
+          </p>
+          {story.whispers.map((w, i) => (
+            <p key={i} className="text-[13px] text-slate-700">
+              <span className="text-slate-500">Then to {nameOf(w.npc)}:</span> <b>“{w.text}”</b>
             </p>
-            {story.whispers.map((w, i) => (
-              <p key={i} className="text-sm text-slate-700">
-                你又對{nameOf(w.npc)}補了一句：<b>「{w.text}」</b>
-              </p>
+          ))}
+          <p className="mt-1 flex flex-wrap items-center gap-1 text-[12px] text-slate-600">
+            <span>🗣️ You</span>
+            {spread.slice(0, 6).map((n) => (
+              <span key={n}>→ {ROLES[n]?.icon} {nameOf(n)}</span>
             ))}
-            {stamps.length > 0 && (
-              <ul className="mt-2 space-y-0.5 rounded-xl bg-orange-50 px-3 py-1.5 ring-1 ring-orange-200">
-                {stamps.map((h) => (
-                  // one line per stamp: the goal, then the logged line that ticked it
-                  <li key={h.id} className="truncate text-xs" title={h.evidence}>
-                    <b className="text-orange-800">
-                      ✓ {goalOf(h.id)?.icon} {goalOf(h.id)?.zh}
-                      {recorded ? <span title="在 📼 錄製的實驗裡看到的"> 📼</span> : null}
-                    </b>
-                    <span className="text-slate-500"> · {h.evidence}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {story.festival.kind !== "on" && (
-              <p className="mt-2 rounded-xl bg-rose-50 px-3 py-1.5 text-xs leading-snug text-rose-900 ring-1 ring-rose-200" title="根據今晚發生的事推算：舞台、物資、經費、民意……任何一樣撐不住，燈籠節就會受影響">
-                🏮 <b>{story.festival.text}</b>
-              </p>
-            )}
-            {story.reveal && (
-              <p className="mt-2 rounded-xl bg-violet-50 px-3 py-1.5 text-xs leading-snug text-violet-900 ring-1 ring-violet-200" title="從這個故事裡，這位居民自己說出的行動理由">
-                🔓 你發現了：<b>{nameOf(story.reveal.npc)}的{story.reveal.label}</b>——{story.reveal.text}
-              </p>
-            )}
-            {onRetry && story.icon === "⚠️" && (
-              <button onClick={onRetry} className="mt-2 w-full rounded-xl bg-slate-100 px-3 py-2 text-left text-sm leading-snug text-slate-800 ring-1 ring-slate-300 hover:bg-slate-200">
-                ⟲ 模型剛才沒有回應：<b>同一句話再試一次</b>
-              </button>
-            )}
-            {nudge && (
-              <button onClick={() => onWhatIf(nudge.npc, saved.text)} className="mt-2 w-full rounded-xl bg-amber-50 px-3 py-2 text-left text-sm leading-snug text-amber-900 ring-1 ring-amber-300 hover:bg-amber-100">
-                {nudge.tryIt ? "🎯" : "📌"} {nudge.text} → <b>同一句話告訴{nameOf(nudge.npc)}？</b>
-              </button>
-            )}
-            {previous && prevStory && (
-              <div className="mt-2 rounded-xl bg-sky-50 px-3 py-2 text-xs leading-relaxed text-sky-900" title="同一個世界與隨機種子；Gemma 的回答本身仍有隨機性">
-                <p>上次（告訴{nameOf(previous.npc)}）：{prevStory.icon} {prevStory.headline}</p>
-                <p>這次（告訴{nameOf(saved.npc)}）：{story.icon} {story.headline}</p>
+            {spread.length > 6 && <span className="text-slate-400">+{spread.length - 6} more</span>}
+          </p>
+          {(stamps.length > 0 || story.reveal) && (
+            <div className="mt-2 flex flex-wrap gap-1.5 text-[12px]">
+              {stamps.map((h) => (
+                <span key={h.id} title={h.evidence} className="rounded-full bg-orange-100 px-2 py-0.5 font-bold text-orange-800">
+                  ✓ {goalOf(h.id)?.icon} {goalOf(h.id)?.zh}
+                  {recorded ? " 📼" : ""}
+                </span>
+              ))}
+              {story.reveal && (
+                <span title="A reason this resident gave in their own words tonight" className="rounded-full bg-violet-100 px-2 py-0.5 font-semibold text-violet-800">
+                  🔓 {nameOf(story.reveal.npc)}: {story.reveal.label}
+                </span>
+              )}
+            </div>
+          )}
+          {onRetry && story.icon === "⚠️" && (
+            <button onClick={onRetry} className="mt-3 w-full rounded-xl bg-slate-200 px-3 py-2 text-left text-sm text-slate-800 hover:bg-slate-300">
+              ⟲ The model did not answer this time — <b>try the same sentence again</b>
+            </button>
+          )}
+
+          {/* three ways on */}
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <button onClick={() => setPanel(panel === "again" ? "none" : "again")} className={`rounded-xl py-2 text-sm font-bold shadow ${panel === "again" ? "bg-orange-600 text-white" : "bg-orange-500 text-white hover:bg-orange-600"}`}>
+              ▶ Play again
+            </button>
+            <button onClick={() => setPanel(panel === "details" ? "none" : "details")} className={`rounded-xl py-2 text-sm font-semibold ${panel === "details" ? "bg-slate-800 text-white" : "bg-slate-200 text-slate-800 hover:bg-slate-300"}`}>
+              {panel === "details" ? "▴ Details" : "▾ Details"}
+            </button>
+            <button
+              onClick={() => navigator.clipboard?.writeText(shareText).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1800); }).catch(() => {})}
+              className="rounded-xl bg-slate-200 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-300"
+            >
+              {copied ? "✓ Copied" : "📋 Share"}
+            </button>
+          </div>
+
+          {panel === "again" && (
+            <div className="mt-3 rounded-xl bg-white/70 p-3 ring-1 ring-slate-200">
+              {nudge && (
+                <button onClick={() => onWhatIf(nudge.npc, saved.text)} className="mb-2 w-full rounded-xl bg-amber-50 px-3 py-2 text-left text-sm leading-snug text-amber-900 ring-1 ring-amber-300 hover:bg-amber-100">
+                  {nudge.tryIt ? "🎯" : "📌"} {nudge.text} → <b>tell {nameOf(nudge.npc)} the same thing?</b>
+                </button>
+              )}
+              <p className="mb-1.5 text-xs font-semibold text-slate-500">Same sentence, someone else →</p>
+              <div className="grid grid-cols-4 gap-1.5 max-sm:grid-cols-3">
+                {run.config.active.filter((n) => ROLES[n]).map((n) => {
+                  const why = suggested.get(n);
+                  const self = n === saved.npc;
+                  return (
+                    <button
+                      key={n}
+                      onClick={() => onWhatIf(n, self ? null : saved.text)}
+                      title={self ? "Say something else to the same person" : why ? `Try: ${why}` : ROLES[n].tag}
+                      className={`relative flex flex-col items-center rounded-xl px-1 py-1.5 text-center ${why ? "bg-orange-100 ring-2 ring-orange-400" : "bg-orange-50/70 hover:bg-orange-100"}`}
+                    >
+                      {why && <span className="absolute -right-1 -top-1.5 rounded-full bg-orange-500 px-1 text-[9px] font-bold text-white">try</span>}
+                      <span className="text-xl leading-none">{ROLES[n].icon}</span>
+                      <span className="mt-0.5 text-xs font-bold text-orange-900">{self ? "New line" : nameOf(n)}</span>
+                      <span className="w-full truncate text-[10px] text-slate-500">{self ? nameOf(n) : ROLES[n].short}</span>
+                    </button>
+                  );
+                })}
               </div>
-            )}
-            <p className="mt-2 text-xs text-slate-400">
-              傳到 {m.reach} 人 · {m.depth} 層 · {m.worldChanges} 個世界變化 · 燈籠節{festival}
-            </p>
-          </>
-        )}
-      </div>
-      {!min && (
-        <>
-          <div className="flex-1 overflow-y-auto px-5 py-3">
-            <StoryCardView card={story} seedNpc={saved.npc} seedText={saved.text} hideHeadline hideClosest={!!nudge && !nudge.tryIt} />
-            <details>
-              <summary className="mb-2 cursor-pointer text-xs font-semibold text-slate-500">完整事件因果鏈（{chain.length} 步，可追溯每一個原因）</summary>
-              {hl.length > 0 && (
-                <div className="mb-3 space-y-1.5">
-                  {hl.map((h, i) => (
-                    <p key={i} className="rounded-xl bg-violet-50 px-3 py-2 text-sm text-violet-900">✨ {h}</p>
-                  ))}
+              <div className="mt-2 flex flex-wrap gap-x-3 text-xs font-semibold text-slate-500">
+                <button onClick={onReplay} className="hover:text-slate-800">⟲ Watch it again</button>
+                <button onClick={() => downloadShareCard(story, saved.npc, saved.text, stats, stampWords)} className="hover:text-slate-800">🗞️ Download the front page</button>
+              </div>
+            </div>
+          )}
+
+          {panel === "details" && (
+            <div className="mt-3 space-y-3">
+              <StoryCardView card={story} seedNpc={saved.npc} seedText={saved.text} hideHeadline hideClosest={!!nudge && !nudge.tryIt} />
+              {previous && prevStory && (
+                <div className="rounded-xl bg-sky-50 px-3 py-2 text-xs leading-relaxed text-sky-900" title="Same world and engine seed; Gemma's answers still vary from run to run">
+                  <p>Last time ({nameOf(previous.npc)}): {prevStory.icon} {prevStory.headline}</p>
+                  <p>This time ({nameOf(saved.npc)}): {story.icon} {story.headline}</p>
                 </div>
               )}
-              <ol className="space-y-2">
-                {chain.map((s, i) => (
-                  <li key={i} className="flex gap-2 text-sm">
-                    <span className="w-11 shrink-0 pt-0.5 text-xs tabular-nums text-slate-400">{clockOf(s.t)}</span>
-                    <span>{s.icon}</span>
-                    <div>
-                      <p className="text-slate-800">{s.text}</p>
-                      {s.sub && <p className="text-xs text-slate-500">{s.sub}</p>}
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </details>
-            <details className="mt-3">
-              <summary className="cursor-pointer text-xs text-slate-400">🔬 技術紀錄</summary>
-              <div className="mt-2 rounded-xl bg-slate-100 p-3 text-xs text-slate-600">
-                <p>Gemma-4-31B-IT（AMD Token Factory）呼叫 {m.llmCalls} 次，累計推論 {m.llmSeconds} 秒，{m.tokens} tokens，平台回報成本 US${m.platformCost}</p>
-                <p>居民判斷 {m.decisions} 次；驗證器要求重寫 {m.validatorRetries} 次；改用安全預設 {m.fallbacks} 次；引擎拒絕的行動 {m.rejected} 個</p>
-                <p>模擬用時 {(run.wall.ms / 1000).toFixed(0)} 秒；遊戲時間 {m.gameMinutes} 分鐘；結束原因：{run.ended.reason}</p>
-                <TechDecisions decisions={run.decisions} />
-              </div>
-            </details>
-          </div>
-          <div className="border-t border-slate-200 px-4 pb-3 pt-2.5">
-            <p className="mb-1.5 text-xs font-semibold text-slate-500">同一句話，換一個人聽 →</p>
-            <div className="grid grid-cols-4 gap-1.5 max-sm:grid-cols-3">
-              {run.config.active.filter((n) => ROLES[n]).map((n) => {
-                const why = suggested.get(n);
-                const self = n === saved.npc;
-                return (
-                  <button
-                    key={n}
-                    onClick={() => onWhatIf(n, self ? null : saved.text)}
-                    title={self ? "對同一個人換一句話" : why ? `試試看：${why}` : ROLES[n].tag}
-                    className={`relative flex flex-col items-center rounded-xl px-1 py-1.5 text-center ${why ? "bg-orange-100 ring-2 ring-orange-400" : "bg-orange-50/70 hover:bg-orange-100"}`}
-                  >
-                    {why && <span className="absolute -right-1 -top-1.5 rounded-full bg-orange-500 px-1 text-[9px] font-bold text-white">試試</span>}
-                    <span className="text-xl leading-none">{ROLES[n].icon}</span>
-                    <span className="mt-0.5 text-xs font-bold text-orange-900">{self ? "換一句話" : `告訴${nameOf(n)}`}</span>
-                    <span className="w-full truncate text-[10px] text-slate-500">{self ? nameOf(n) : ROLES[n].short}</span>
-                  </button>
-                );
-              })}
+              <details>
+                <summary className="mb-2 cursor-pointer text-xs font-semibold text-slate-500">Full chain of events ({chain.length} steps, every cause traceable)</summary>
+                {hl.length > 0 && (
+                  <div className="mb-3 space-y-1.5">
+                    {hl.map((h, i) => (
+                      <p key={i} className="rounded-xl bg-violet-50 px-3 py-2 text-sm text-violet-900">✨ {h}</p>
+                    ))}
+                  </div>
+                )}
+                <ol className="space-y-2">
+                  {chain.map((s, i) => (
+                    <li key={i} className="flex gap-2 text-sm">
+                      <span className="w-11 shrink-0 pt-0.5 text-xs tabular-nums text-slate-400">{clockOf(s.t)}</span>
+                      <span>{s.icon}</span>
+                      <div>
+                        <p className="text-slate-800">{s.text}</p>
+                        {s.sub && <p className="text-xs text-slate-500">{s.sub}</p>}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </details>
+              <details>
+                <summary className="cursor-pointer text-xs text-slate-400">🎬 Behind the scenes (model calls, latency, cost)</summary>
+                <div className="mt-2 rounded-xl bg-slate-100 p-3 text-xs text-slate-600">
+                  <p>Gemma-4-31B-IT on AMD Token Factory: {m.llmCalls} calls, {m.llmSeconds} s of inference, {m.tokens} tokens, platform-reported cost US${m.platformCost}</p>
+                  <p>{m.decisions} resident decisions; the validator asked for {m.validatorRetries} rewrites; {m.fallbacks} safe fallbacks; {m.rejected} actions refused by the engine</p>
+                  <p>Simulated in {(run.wall.ms / 1000).toFixed(0)} s; {m.gameMinutes} minutes of story time; ended: {run.ended.reason}</p>
+                  <p className="mt-1">Reach {m.reach} · depth {m.depth} · {m.worldChanges} changes to the town · festival {festival}</p>
+                  <TechDecisions decisions={run.decisions} />
+                </div>
+              </details>
             </div>
-            {next.length > 0 && <p className="mt-1.5 text-[11px] leading-snug text-slate-400">試試：{next.map((s) => `${nameOf(s.npc)}（${s.why}）`).join("；")}</p>}
-            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-slate-500">
-              <button onClick={onReplay} className="hover:text-slate-800">⟲ 重看一次</button>
-              <button
-                onClick={() => navigator.clipboard?.writeText(shareText).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1800); }).catch(() => {})}
-                className="hover:text-slate-800"
-              >
-                {copied ? "✓ 已複製" : "📋 複製分享文字"}
-              </button>
-              <button onClick={() => downloadShareCard(story, saved.npc, saved.text, stats, stampWords)} className="hover:text-slate-800">🗞️ 下載小報</button>
-            </div>
-          </div>
-        </>
-      )}
+          )}
+        </div>
+      </article>
     </div>
   );
 }
 
-/** The punchline: what this sentence led to, from the log, big on screen for a moment. */
+/** The punchline for older logs without a festival scene: what this sentence led to, big on screen for a moment. */
 export function EndTitle({ run, stamps }: { run: RunResult; stamps: ChallengeHit[] }) {
   const card = useMemo(() => storyOf(run), [run]);
   return (
     <div className="pointer-events-none absolute inset-x-0 top-[16%] flex justify-center px-4">
       <div className="max-w-xl animate-[fadein_0.5s_ease-out] rounded-3xl bg-white/92 px-7 py-5 text-center shadow-2xl backdrop-blur">
-        <p className="text-xs font-bold tracking-widest text-orange-500">霧港小報 · 號外</p>
+        <p className="text-xs font-bold tracking-widest text-orange-500">The Mistport Gazette · Special</p>
         <p className="mt-1 text-2xl font-extrabold leading-snug text-slate-900">
           {card.icon} {card.headline}
         </p>
         {card.sub && <p className="mt-1 text-sm text-slate-600">{card.sub}</p>}
         {card.festival.kind !== "on" && <p className="mt-2 text-sm font-bold text-rose-700">🏮 {card.festival.text}</p>}
-        {stamps.length > 0 && <p className="mt-2 text-sm font-bold text-orange-600">{stamps.map((h) => goalOf(h.id)?.icon).join(" ")} 蓋了 {stamps.length} 個章</p>}
+        {stamps.length > 0 && <p className="mt-2 text-sm font-bold text-orange-600">{stamps.map((h) => goalOf(h.id)?.icon).join(" ")} {stamps.length} stamp{stamps.length > 1 ? "s" : ""}</p>}
       </div>
     </div>
   );

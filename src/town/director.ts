@@ -6,6 +6,7 @@ import { PERSONAS, PLACES } from "../sim/scenario.ts";
 import { gapSeconds } from "../sim/timing.ts";
 import type { SimEvent } from "../sim/types.ts";
 import { clockOf } from "../sim/view.ts";
+import { readinessOf } from "../sim/readiness.ts";
 import { actFrom, DAWDLE, HURRY, type Act } from "../sim/acts.ts";
 import { agentAt, crowd, faceToward, perform, releaseScript, scriptGoto, scriptHold, type Agent } from "./crowdSim";
 import { sting, voice } from "./sfx";
@@ -410,6 +411,15 @@ function apply(e: SimEvent) {
         hold = 0.8;
         break;
       }
+      if (dec?.fallback) {
+        // no valid answer from the model (busy or unreachable): say so, never dress it up as the resident's choice
+        bubble(actor, "😶", 2);
+        caption({ who: actor!, icon: "⚠️", tone: "system", text: `Gemma 這次沒有給出有效回答（模型服務可能太忙），${PERSONAS.find((p) => p.id === actor)?.name ?? ""}先愣在原地。` });
+        delete show.thinkingSince[actor!];
+        delete show.early[actor!];
+        hold = 2;
+        break;
+      }
       show.focus = actor!;
       show.infected.add(actor!);
       const a = agentFor(actor!);
@@ -671,10 +681,11 @@ function apply(e: SimEvent) {
       break;
     }
     case "end": {
-      const fest = show.world.festival === "cancelled" ? "燈籠節被取消了。" : "燈籠節照常舉行。";
+      // the same outcome the end title and the results show (from the log), not just "cancelled or not"
+      const fest = show.run ? readinessOf(show.run.events, show.run.claims ?? []).outcome.text : "";
       const reason = String(d.reason);
       const text = reason === "budget" ? "這個晚上的故事，先看到這裡。" : reason === "time" ? "20:00，燈籠節的時間到了。" : String(e.zh);
-      caption({ who: "", icon: "🏁", tone: "system", text, sub: fest });
+      caption({ who: "", icon: "🏁", tone: "system", text: `${text}${fest}` }); // one sentence, then the outcome (a sub would read as a "label：" prefix)
       setShot("overview", { prio: 4 });
       sting.end();
       hold = 2.5;

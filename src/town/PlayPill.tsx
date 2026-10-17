@@ -15,7 +15,7 @@ const pct = (t: number) => `${Math.max(0, Math.min(100, (t / EVENING) * 100))}%`
 
 const iconBtn = "grid h-8 min-w-8 place-items-center rounded-full px-2 text-sm font-bold";
 
-export function PlayPill() {
+export function PlayPill({ onLeave }: { onLeave?: () => void }) {
   const [more, setMore] = useState(false);
   const playing = show.status === "playing";
   return (
@@ -54,6 +54,11 @@ export function PlayPill() {
             >
               {isMuted() ? "🔇 音效：關" : "🔊 音效：開"}
             </button>
+            {onLeave && (
+              <button onClick={() => { setMore(false); onLeave(); }} className="block w-full rounded-lg px-3 py-1.5 text-left hover:bg-slate-100">
+                🏠 回到小鎮
+              </button>
+            )}
             {/* the scene owns the H toggle; this is the same key */}
             <button onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "h" }))} className="block w-full rounded-lg px-3 py-1.5 text-left hover:bg-slate-100">
               🙈 隱藏介面（H）

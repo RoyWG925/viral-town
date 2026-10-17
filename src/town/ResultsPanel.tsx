@@ -139,7 +139,7 @@ function nudgeOf(run: RunResult, story: StoryCard, seedNpc: string, progress: Go
   return null;
 }
 
-export function Results({ saved, previous, stamps, recorded, progress, onWhatIf, onReplay, onClose }: {
+export function Results({ saved, previous, stamps, recorded, progress, onWhatIf, onReplay, onClose, onRetry }: {
   saved: SavedRun;
   previous: SavedRun | null;
   /** the small goals this story achieved */
@@ -150,6 +150,8 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
   onWhatIf: (npc: string, text: string | null) => void;
   onReplay: () => void;
   onClose: () => void;
+  /** the same sentence to the same resident again (offered when the model stopped answering) */
+  onRetry?: () => void;
 }) {
   const run = saved.run;
   const m = useMemo(() => measure(run), [run]);
@@ -234,6 +236,11 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
               <p className="mt-2 rounded-xl bg-violet-50 px-3 py-1.5 text-xs leading-snug text-violet-900 ring-1 ring-violet-200" title="從這個故事裡，這位居民自己說出的行動理由">
                 🔓 你發現了：<b>{nameOf(story.reveal.npc)}的{story.reveal.label}</b>——{story.reveal.text}
               </p>
+            )}
+            {onRetry && story.icon === "⚠️" && (
+              <button onClick={onRetry} className="mt-2 w-full rounded-xl bg-slate-100 px-3 py-2 text-left text-sm leading-snug text-slate-800 ring-1 ring-slate-300 hover:bg-slate-200">
+                ⟲ 模型剛才沒有回應：<b>同一句話再試一次</b>
+              </button>
             )}
             {nudge && (
               <button onClick={() => onWhatIf(nudge.npc, saved.text)} className="mt-2 w-full rounded-xl bg-amber-50 px-3 py-2 text-left text-sm leading-snug text-amber-900 ring-1 ring-amber-300 hover:bg-amber-100">

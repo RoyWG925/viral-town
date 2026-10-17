@@ -1,5 +1,9 @@
 # VIRAL — Overnight progress (2026-10-17, from 01:45 Taipei)
 
+> Historical log of the night of 2026-10-16/17. Since then the project was pushed to a private repo and deployed
+> (https://viral-town.vercel.app); the recordings listed below were replaced by P19–P20 runs. Current state:
+> FUN_ITERATION.md and PLAYTEST_REPORT.md.
+
 Deadline: **2026-10-18 18:00 Taipei** (lablab ACT III). Everything below is local; nothing was published,
 pushed or deployed. Checkpoints are local git commits (`git log`).
 

@@ -1,6 +1,7 @@
 # VIRAL — one whisper, a living town, a chain reaction nobody scripted
 
-> Draft for the AMD Developer Hackathon ACT III (Track 4 · Gemma on AMD). Not published; review before submitting.
+> Draft for the AMD Developer Hackathon ACT III (Track 4 · Gemma on AMD). Shared privately with the team (private repo,
+> deployed at https://viral-town.vercel.app); not submitted yet — review before submitting.
 
 You are a passing stranger in **霧港鎮 Mistport**, a small town getting ready for tonight's lantern festival.
 Click one of eight residents and whisper **one sentence** — anything. Then watch.
@@ -14,7 +15,7 @@ the 霧港小報 — what your sentence turned into, through whose mouths, and w
 
 | Gemma 4 31B (on AMD) decides | The engine (authored, deterministic) decides |
 |---|---|
-| how each resident understands what they heard | the world's truth (17 facts, true and false) |
+| how each resident understands what they heard | the world's truth (24 facts, true and false) |
 | what they privately think and feel, and their visible reaction | who knows what (each resident only sees their own knowledge) |
 | how much they believe each claim, and why | how far a belief may go (trust, credulity, sources, what they know) |
 | whether to act, and what to say in their own words | whether an action is legal and possible (phone numbers, roles, places) |
@@ -41,6 +42,8 @@ world never changes before the full answer is validated.
   arrives in 2.7–9.9 s (mean 4.3 s over 10 stories in batch P5) and the first full decision in 5.8–36.7 s (mean 13–15 s);
   the platform's prompt cache hit rate was ~60%; a long story (22–26 calls) costs US$0.0011–0.0015 as reported by the
   platform. Warming the cache before the first call made no clear difference (A/B, n=4).
+- In the evening peak (P19–P20) the provider was slower: batch means of 7.6–17.8 s to the first visible reaction and
+  21.5–45 s to the first full decision; streamed calls that time out are retried (P20: 39 retries, 0 fallbacks).
 - Prepared (not run): self-hosting on an AMD Instinct MI300X with vLLM — `deploy/amd-mi300x/`.
 
 ## Run it
@@ -56,9 +59,9 @@ npm run dev                         # then open the printed localhost URL
 - `node lab/playtest.ts P1` — real-model playtest batch (10 inputs incl. absurd, fragment, command); logs in `lab/runs/`.
 - `node lab/fun-metrics.ts lab/runs/P1` — first visible reaction, longest wait, beats/minute, endings.
 - `node lab/e2e.mjs live cafe "…"` — headless browser playthrough with screenshots (`lab/shots/`).
-- Tests (no model calls): `node --test lab/test-validators.ts lab/test-engine.ts lab/test-story.ts lab/test-faults.ts`
-  — validators, engine invariants, the results card only retelling the log, and model failures / engine rules with a
-  scripted fake model.
+- Tests (no model calls): `node --test lab/test-*.ts` — 98 tests in 11 suites (~40 s): validators, engine
+  invariants, conversations, 補一句, the results card only retelling the log, festival meters, small goals, and model
+  failures / engine rules with a scripted fake model.
 - `node lab/e2e-prod.mjs http://localhost:3005` — UI-only smoke test against a production build (`next build && next start`).
 - Notes: `lab/LAB_NOTES.md` (experiments A–E), `PLAYTEST_REPORT.md`, `OVERNIGHT_PROGRESS.md`.
 
@@ -69,10 +72,17 @@ to the public accounts, where she found the *real* 30% overrun; her exposé made
 at the stalls, so the headline was 🚓 警察出動到章魚燒攤. Weak sentences (memes, fragments, commands) stop at the first
 resident within seconds, by design.
 
+After the v2 hidden settings (character cards, secrets about each other, typed relationships, festival meters) only
+≈33% of dramatic stories reached a public moment (P12–P16). Two tuning waves (softer fears, more decisions for whoever
+holds first-hand proof, a worry that comes back after a quiet while) brought it to **10 of 16 (P19–P20)**. Every stage
+closure followed the police chief's own inspection, and every exposé followed the reporter's own reading of the
+accounts. The 📼 recordings are from these two batches.
+
 ## Known limits
-- Waits: a long story needs ~3–6 minutes of model time; playback streams while it runs (thinking beats, cutaways),
-  and recordings replay at 2–3×.
-- A story stops at 22 model decisions (9 per resident) to bound time and cost; long stories often reach it and the
+- Waits: a long story needs several minutes of model time (about 5–15 in the evening peak). Playback streams while
+  it runs (thinking beats, cutaways), and recordings replay at 2–3×.
+- A story stops at 22 model decisions to bound time and cost: 7 per resident, or 11 plus a reserve of 3 past the shared
+  cap for whoever has seen a hidden problem first-hand. Big stories usually reach it (10 of 16 in P19–P20), and the
   card says so honestly.
 - Many sentences fizzle at the first resident — by design; the town does not have to care.
 - Entertainment value has been assessed with metrics and AI-assisted ratings, not yet with human playtesters.

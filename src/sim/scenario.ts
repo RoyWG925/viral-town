@@ -213,7 +213,7 @@ export const PERSONAS: Persona[] = [
       journalist: rel(0.5, true, "店裡常客"), mayor: rel(0.45, false, "鎮上的熟面孔"),
     },
     card: {
-      owns: "咖啡廳（全鎮的客廳）、今晚要登台的女兒", exclusive: "電話簿最滿，誰都打得到",
+      owns: "咖啡廳（全鎮的客廳）、今晚要登台的女兒", exclusive: "店是全鎮的客廳，熟客最多，什麼消息都先傳到她這裡",
       wants: "女兒今晚順利演出", fears: "女兒在台上出事",
       bias: "只要扯到孩子就全信", gossip: "先跟熟客聊，再打給老周；講得很溫情",
       bottom: "不讓女兒上不安全的舞台", price: "為了女兒，她會說出老周的秘密",

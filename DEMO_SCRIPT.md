@@ -3,48 +3,74 @@
 Goal: in the first 20–30 seconds a viewer should feel "wait — one sentence did THAT?", and by the end understand
 that every resident's reaction is a real Gemma decision bounded by an engine.
 
-## 30-second hook (for the submission video's opening)
-Use the recording **📼 對老周說「聽說阿德麵包店的烤箱檢查早就過期了…」 → 🚓 警察出動到阿德麵包店** (P5-oven-police) at 2–3×.
-1. 0–3 s — wide town shot; caption: *"I told the police officer one thing about a bakery oven."*
-2. 3–10 s — 老周 glances around the bakery: "a look can't tell if equipment is safe" → he inspects → the found card:
-   the sticker expired two months ago.
-3. 10–18 s — he tells 阿德; 阿德 panics and phones 美玲; 美玲 **pulls down her own shop's shutter** and walks to the
-   police station to ask how to renew a sticker "for a friend".
-4. 18–25 s — 老周: 「妳這位『朋友』是誰？」 → 美玲: 「就是…麵包店的阿德啦！」 → officers dispatched to the bakery.
-5. 25–30 s — end title **🚓 警察出動到阿德麵包店** + "🔎 真相揭曉：烤箱檢查真的過期了（阿德的秘密）".
-   Voice-over idea: *"She only wanted to help."*
+All recordings named here are in **📼 錄製的實驗**. They are real Gemma runs from batches P19–P20, recorded on the
+rules the game uses now (22 decisions; 7 per resident; 11 plus a reserve of 3 for whoever has seen a hidden
+problem first-hand). Logs are in `lab/runs/P19/` and `lab/runs/P20/`.
 
-Alternative hooks (also real recordings): P5-lantern-baker (a false lantern rumour → the police find a real loose
-strut → the stage is closed) · P5-budget-journalist (the reporter reads the public accounts → exposé → the mayor
-drafts a spin). Same sentence, different town: P2-oven-police ended as a stall-fee exposé instead — worth showing
-side by side to make the point that nothing is scripted.
+## 30-second hook (for the submission video's opening)
+Use **📼 對阿德說「今晚的燈籠是便宜貨，一點就燒起來。」** (P19-lantern-baker) at 3×, cut down in editing.
+1. **0–4 s** — Wide town shot. Caption: *"I told the baker the lanterns were cheap and would catch fire. That wasn't true."*
+2. **4–10 s** — 阿德 phones 小雯: 「這事我只跟你講」. She checks the stage and finds the lanterns carry fire-safety
+   labels. Then she reads the town hall's public accounts: **spending is 30% over budget**.
+3. **10–16 s** — She asks the mayor. The mayor phones 志明 to cover it up (「你趕快想個說法來擋掉」). 志明: 「沒事沒事，小問題！」
+   Her exposé goes up: 〈【驚爆！慶典預算黑洞，市長如何揮霍公款？】〉
+4. **16–24 s** — The town escalates it:
+   - 阿德 retells it as **六成**.
+   - 美玲 pulls down her flower shop's shutter.
+   - 志明 posts a reassurance notice.
+   - 老周 stops trusting 「沒事」: he inspects the stage, finds the loose strut and **closes the stage**.
+   - 阿珠 marches four vendors to the town hall.
+5. **24–30 s** — End title **🚧 慶典舞台被封鎖** with the festival outcome 「延後舉行」. Voice-over idea:
+   *"The lanterns were fine. Everything else wasn't."*
+
+Alternative hooks (also real recordings):
+- **P20-stage-cafe** — the café owner hears the stage is unsafe (her daughter performs tonight) and phones 老周.
+  He inspects, hears 志明's 「沒事沒事，小問題！」, and closes the stage within half an hour; later he sends officers.
+  Festival: postponed.
+- **P20-budget-journalist** — exposé, then a shop closes, then the mayor's denial, then a vendors' protest.
+- **P20-wobble-organizer** — only 「舞台好像在晃。」, told to the one man who knows the stage was never inspected.
+  He keeps quiet. At the 17:00 patrol he brags 「沒事沒事」, but 老周 inspects anyway and closes the stage:
+  「我說過我看過了，就不能當沒看到。」
+
+Same sentence, different town: P19-oven-police reached the stage via the 17:00 routine patrol (police sent there),
+while the same oven sentence in P17 and P20 stopped at 老周 verifying the expired sticker. This shows that nothing
+is scripted.
 
 ## 2–3 minute walkthrough
-1. **Premise (10 s)** — the town living on its own: walkers, pets (the calico 麻糬 by the flower shop), shopkeepers.
-   "You are a stranger. Whisper one sentence to one resident."
-2. **Live input (30 s)** — click 美咲 (café), type 「聽說今晚的舞台是用舊木板趕工搭的，很可能撐不住。」.
-   Show: the whisper card, the honest thinking pill with a seconds counter, the streamed gesture after ~3–7 s,
-   then her thought bubble with the belief bar and her phone call to 老周 with what she added highlighted.
-   (Real Gemma, live on AMD Token Factory.)
-3. **Switch to a recording** of the same sentence (📼 P2-stage-cafe) at 2× to avoid waiting on stage: 老周
-   inspects → "有人親自去查了" → the loose strut → 志明's cover-up attempt ("half-believes but passes it on" tags,
-   the mayor's "🏮 有權取消燈籠節？" suspense marker) → **🚧 the stage gets taped off**, bystanders turn to look,
-   act title "第三幕 · 事情鬧大了".
-4. **Ending (20 s)** — the 霧港小報 end title → results card: headline, the chain of retellings with each
-   listener's belief, "差一點" (the mayor could have cancelled the festival), "真相揭曉", the downloadable front page.
-5. **How it works (30 s)** — open "🔬 技術紀錄": calls, latency, tokens, platform cost; say the split:
+1. **Premise (10 s)** — The town living on its own: walkers, pets, everyday scenes (志明 yelling at the stage
+   crew, 阿珠 haggling). "You are a stranger. Whisper one sentence to one resident."
+2. **Live input (30 s)** — Click 美咲 (café) and show her role card (what she can do, who she can phone). Type
+   「聽說今晚的舞台是用舊木板趕工搭的，很可能撐不住。」. Show:
+   - the thinking beat with its seconds counter;
+   - the streamed gesture, then her thought with the belief bar;
+   - her call to 老周.
+
+   This is real Gemma on AMD Token Factory. In the evening peak the first thought can take 20–45 s, so cut there.
+3. **Switch to the recording** of the same sentence (📼 P20-stage-cafe) at 2×:
+   - 老周 inspects → "有人親自去查了" → the loose strut;
+   - 志明's 「沒事沒事，小問題！」 → **🚧 the stage gets taped off**, and the clock turns 「🏮 燈籠節不妙」;
+   - act title "第三幕 · 事情鬧大了".
+4. **Ending (25 s)** — The 霧港小報 end title, then the results card:
+   - the headline and the chain of retellings with each listener's belief;
+   - the stamped small goals and the 🏮 20:00 outcome;
+   - **🔓 你發現了**: one hidden line of a resident's card, now in the 📓 journal;
+   - the downloadable front page.
+5. **How it works (30 s)** — Open "🔬 技術紀錄" (calls, latency, tokens, platform cost) and say the split:
    *Gemma decides how each person understands, believes, feels and acts; the engine owns truth, knowledge and
    what is possible, and validates every answer before anything happens.*
 6. **What If (10 s)** — "告訴小雯" with the same sentence: a different person, a different story.
 
 ## Numbers you can say (all measured, see PLAYTEST_REPORT.md)
-- First visible reaction 2.7–5.4 s (mean 4.3 s over P5's 10 runs, streamed gesture); first full thought 5.8–18.5 s
-  (mean 13.0 s); on AMD Token Factory.
-- A long story: 22–26 Gemma calls, platform-reported cost US$0.0011–0.0014 (P5).
-- Six dramatic sentences, four different endings in one batch (P5); the same sentence can end differently on
-  another run (P2 vs P5 oven).
-- Commands are not obeyed (0/14 earlier rating); 0 secret leaks in rated decisions; every result card line comes from the log.
+- 10 of 16 dramatic stories reached a public moment (stage closed, police sent, exposé, statement, protest) in
+  P19–P20. Every closure followed 老周's own inspection, and every exposé followed 小雯's own reading of the accounts.
+- Response times:
+  - best case (P5, daytime): first visible reaction 2.7–9.9 s, mean 4.3 s;
+  - evening peak (P19–P20): 7.6–17.8 s for the first reaction and 21.5–45 s for the first thought, as batch means.
+- A long story makes 22–36 Gemma calls; platform-reported cost is about US$0.001 per story.
+- In an earlier rated sample, commands were obeyed 0/14 times and no secrets leaked; every results-card line
+  comes from the log.
 
 ## Before recording
-- Use a desktop browser at 1280×800 or larger; sound on (voice blips and stings are subtle).
-- Let the page warm up 5 s before clicking; use 2× for recordings, 1× for the live part.
+- Use a desktop browser at 1280×800 or larger, with sound on (the voice blips and stings are subtle).
+- Let the page warm up 5 s before clicking. Use 2–3× for recordings and 1× for the live part.
+- Record the live part in the daytime if possible; the provider is slowest in the evening.

@@ -16,7 +16,7 @@ export interface Challenge {
 
 // Copy invites and never promises: hints say who has which public power (能/有機會), never what is hidden.
 export const CHALLENGES: Challenge[] = [
-  { id: "town", icon: "🗣️", zh: "讓一句話傳遍全鎮", hint: "要有 6 個人聽說；話多的阿德、電話簿最滿的美咲都有機會幫你傳開" },
+  { id: "town", icon: "🗣️", zh: "讓一句話傳遍全鎮", hint: "要有 6 個人聽說；話多的阿德、熟客最多的美咲都有機會幫你傳開" },
   { id: "truth", icon: "🔍", zh: "讓假消息碰巧挖出真問題", hint: "編的也無妨，只要讓能親自檢查的人跑一趟；老周、小雯、志明都能查" },
   { id: "stage", icon: "🚧", zh: "讓舞台被封鎖", hint: "老周和志明都能封鎖舞台，但得先讓他們覺得真的有危險" },
   { id: "article", icon: "📰", zh: "讓小雯登上霧港小報", hint: "小雯能發文讓全鎮看到；她嗅覺靈敏，最愛追獨家" },

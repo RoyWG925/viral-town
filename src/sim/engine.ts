@@ -49,6 +49,9 @@ export interface SimConfig {
    * enough in the evening. Resolve with one more whisper from the player, or null to let it fade.
    */
   onLull?: (info: { t: Minutes; decisionsLeft: number; reached: NpcId[] }) => Promise<{ npc: NpcId; text: string } | null>;
+  /** checked before every step and every model call: true once nobody is watching this story any more (the player
+   *  left it), so it stops at once instead of spending model calls in the background */
+  shouldStop?: () => boolean;
 }
 
 export interface RunResult {
@@ -265,6 +268,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
 
   async function decide(n: Npc, t: Minutes) {
     n.decisionAt = null;
+    if (cfg.shouldStop?.()) return;
     if (n.busyUntil > t + 1e-6) {
       requestDecision(n, n.busyUntil, n.triggers[n.triggers.length - 1] ?? "e1");
       return;
@@ -877,15 +881,20 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     whispers.length === 0 &&
     maxDecisions - realDecisions >= LULL_MIN_LEFT &&
     [...npcs.values()].every((n) => n.decisionAt === null && !n.mind.inbox.length) &&
-    queue.every((q) => q.kind === "task" && q.idle?.() === true);
+    queue.every((q) => q.kind === "task" && q.idle?.() === true) &&
+    // the story went quiet because the model stopped answering: a second whisper would fail the same way
+    ![...decisions].reverse().find((d) => !d.validation.some((v) => v.kind === "budget"))?.fallback &&
+    !cfg.shouldStop?.();
   async function offerWhisper() {
     const t = Math.max(now, ...events.map((e) => e.t)) + 1;
     if (t > LULL_LATEST) return;
     const reached = [...new Set(events.filter((e) => e.type === "deliver" && e.target && e.data.via !== "inspection").map((e) => e.target!))];
     // everything up to the lull has been computed: let playback catch up while the player decides
     cfg.onFrontier?.(t);
-    const wait = new Promise<null>((res) => setTimeout(() => res(null), 180_000));
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const wait = new Promise<null>((res) => (timer = setTimeout(() => res(null), 180_000)));
     const w = await Promise.race([cfg.onLull!({ t, decisionsLeft: maxDecisions - realDecisions, reached }), wait]).catch(() => null);
+    clearTimeout(timer); // answered: stop the 3-minute wait instead of leaving it pending
     const n = w && npcs.get(w.npc);
     if (!w || !n || !w.text.trim()) {
       whispers.push({ npc: "", text: "", t, event: "" }); // offered once; declined
@@ -896,6 +905,10 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     at(t, () => deliver(n, "unknown", "seed", "inform", w.text, [], t, ev));
   }
   while (true) {
+    if (cfg.shouldStop?.()) {
+      queue.length = 0;
+      break;
+    }
     if (lull()) await offerWhisper();
     if (!queue.length) break;
     const first = popEarliest();

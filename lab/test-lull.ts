@@ -59,3 +59,31 @@ test("no offer while something is still under way (a resident is walking to look
   assert.ok(lookDone, "the look happens");
   assert.ok(offers.every((t) => t >= lookDone.t), "never offered before the look (and the decision after it) played out");
 });
+
+test("no second whisper when the story went quiet because the model stopped answering", async () => {
+  let asked = 0;
+  const garbage: Chat = async () => call("我不知道該說什麼");
+  const run = await simulate({
+    active: ALL8, seedNpc: "vendor", seedText: "今天天氣不錯", seed: 33, policy: "gemma", chat: garbage, maxDecisions: 10,
+    onLull: async () => {
+      asked++;
+      return null;
+    },
+  });
+  assert.ok(run.decisions.at(-1)?.fallback, "the model gave no valid answer");
+  assert.equal(asked, 0, "no 補一句 offered on a failed model");
+});
+
+test("a story the player left stops at once: no more model calls", async () => {
+  let calls = 0;
+  let left = false;
+  const tellAll: Chat = async () => {
+    calls++;
+    left = true; // the player leaves while the first answer is on its way
+    return call(JSON.stringify({ ...NONE, actions: [{ type: "tell", target: "cafe", message: "聽說今晚會下雨" }, { type: "tell", target: "baker", message: "聽說今晚會下雨" }] }));
+  };
+  const run = await simulate({ active: ALL8, seedNpc: "vendor", seedText: "聽說今晚會下雨", seed: 34, policy: "gemma", chat: tellAll, maxDecisions: 10, shouldStop: () => left, onLull: async () => ({ npc: "cafe", text: "x" }) });
+  assert.equal(calls, 1, "nothing after the player left");
+  assert.equal(run.whispers.length, 0);
+  assert.equal(run.events.at(-1)?.type, "end");
+});

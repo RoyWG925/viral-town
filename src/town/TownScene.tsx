@@ -319,7 +319,10 @@ export default function TownScene() {
         </EffectComposer>
         )}
       </Canvas>
-      {hudVisible && <GameUI onPhase={setGamePhase} />}
+      {/* hidden, not unmounted: a live story keeps playing underneath and comes back with the interface */}
+      <div className={hudVisible ? "contents" : "hidden"}>
+        <GameUI onPhase={setGamePhase} />
+      </div>
       {hudVisible ? (
         gamePhase === "explore" || gamePhase === "compose" ? <Hud onHide={() => setHudVisible(false)} /> : null
       ) : (

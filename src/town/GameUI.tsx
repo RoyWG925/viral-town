@@ -135,7 +135,8 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
   const [whatIfFrom, setWhatIfFrom] = useState<SavedRun | null>(null);
   // what is on screen: the dev rules path never stamps goals; a 📼 replay stamps with a 📼 mark
   const [source, setSource] = useState<"gemma" | "rules" | "recorded">("gemma");
-  const abort = useRef(false);
+  /** bumped whenever the story on screen changes (leave, a new whisper, a replay): an older live run sees it and stops */
+  const runSeq = useRef(0);
   const selected = ui.selected;
   const { progress: goals, toast } = useGoalStamps(source !== "rules", source === "recorded");
 
@@ -169,6 +170,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
     if (!r.ok) return;
     const run = (await r.json()) as RunResult;
     const entry = recorded.find((x) => x.id === id);
+    runSeq.current++;
     dropLull();
     ACTIVE = run.config.active;
     ui.setActive(ACTIVE);
@@ -182,6 +184,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
   }
   function playHistory(h: SavedRun) {
     unlockAudio();
+    runSeq.current++;
     dropLull();
     setShowRecords(false);
     setReplayOf(null);
@@ -194,7 +197,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
   /** Back to the quiet town: release the story, the camera and any pending offer. */
   function leave() {
     dropLull();
-    abort.current = true;
+    runSeq.current++;
     resetShow();
     setReplayOf(null);
     setProgress((p) => ({ ...p, error: "" }));
@@ -240,13 +243,16 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
     }
     lastStart.current = { npc, text: sentence, policy, from };
     setWhatIfFrom(from ?? null);
+    // the sentence is planted: the next card starts empty (What If and retry keep their own copy)
+    setText("");
     if (!whispered) {
       setWhispered(true);
       setFlag(WHISPERED_KEY);
     }
     // What If keeps the same world and engine seed, so only the listener or the sentence changes
     const seed = from?.seed ?? Math.floor(Math.random() * 1e6);
-    abort.current = false;
+    const mine = ++runSeq.current;
+    const stale = () => runSeq.current !== mine;
     const t0 = Date.now();
     setProgress({ decisions: 0, events: 0, calls: 0, started: t0, error: "" });
     setCurrent(null);
@@ -267,7 +273,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
     const thinking = new Set<string>();
     const kick = () => {
       // a story the player has left keeps computing in the background: it must not take the town back
-      if (mode !== "stream" || abort.current) return;
+      if (mode !== "stream" || stale()) return;
       show.thinking = thinking;
       // start the show as soon as the thought exists; residents visibly think while Gemma works
       if (!playing && events.length) {
@@ -287,7 +293,8 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
         maxDecisions: 22, maxPerNpc: 7, maxPerNpcFinding: 11, findingReserve: 3,
         // Experiment D: deeper and rated more interesting, with no added forced drama (lab/LAB_NOTES.md)
         variant: "eager",
-        onLull: allowLull ? (info) => (abort.current ? Promise.resolve(null) : offerLull(info)) : undefined,
+        onLull: allowLull ? (info) => (stale() ? Promise.resolve(null) : offerLull(info)) : undefined,
+        shouldStop: stale,
         onEvent: (e) => {
           events.push(e);
           setProgress((p) => ({ ...p, events: events.length }));
@@ -311,7 +318,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
           show.early[who] = x;
         },
       });
-      if (abort.current) return;
+      if (stale()) return;
       const saved: SavedRun = { id: `${Date.now()}`, npc, text: sentence, at: new Date().toISOString(), seed, run, parent: from?.id };
       setCurrent(saved);
       if (policy === "gemma") {
@@ -327,7 +334,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
         setPhase("playing");
       }
     } catch (e) {
-      if (abort.current) return;
+      if (stale()) return;
       setProgress((p) => ({ ...p, error: String(e) }));
       if (playing) {
         // stop waiting for events that will never come, and say so on screen
@@ -419,7 +426,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
         />
       )}
       {phase === "playing" && (lull && caughtUp ? <WhisperAgain key={lull.t} suggestions={lullSuggestions} onAnswer={(w) => lullAnswer.current?.(w)} /> : <AgendaChip />)}
-      {phase === "playing" && <PlayPill />}
+      {phase === "playing" && <PlayPill onLeave={leave} />}
       {phase === "playing" && <Timeline />}
       {phase === "playing" && show.title && show.clock < show.title.until && (
         <div key={show.title.text} className="pointer-events-none absolute inset-x-0 top-[10%] flex justify-center">
@@ -434,6 +441,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
           recorded={source === "recorded" ? replayOf : null}
           progress={goals}
           onClose={leave}
+          onRetry={source === "gemma" ? () => start(current.npc, current.text, "gemma") : undefined}
           onReplay={() => {
             unlockAudio();
             load(current.run, false);

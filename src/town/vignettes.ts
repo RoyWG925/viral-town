@@ -608,7 +608,7 @@ const DEFS: SceneDef[] = [
     },
   },
   {
-    id: "cat-chase", label: TXT.catChase.label("貓"), storySafe: true, cooldown: [60, 110], maxDur: 26, weight: 1,
+    id: "cat-chase", label: TXT.catChase.label("a cat"), storySafe: true, cooldown: [60, 110], maxDur: 26, weight: 1,
     setup() {
       const look = cameraLook();
       const cats = pets.list
@@ -816,10 +816,15 @@ export function endAllScenes() {
   for (const s of [...running]) end(s, "reset");
 }
 
-/** For the director's "meanwhile" cutaway: a storySafe scene playing now, away from the story (label without its emoji). */
+/**
+ * For the director's "meanwhile" cutaway: a storySafe scene playing now, away from the story (label without its
+ * emoji). It follows "Meanwhile, ", so a plain subject ("A kid…", "Two neighbors…") starts lowercase; names stay.
+ */
 export function meanwhileScene(): { at: P; label: string } | null {
   const s = running.find((x) => x.def.storySafe && !nearStory(x.at));
-  return s ? { at: { ...s.at }, label: s.entry.label.replace(/^\S+\s/, "") } : null;
+  if (!s) return null;
+  const label = s.entry.label.replace(/^\S+\s/, "");
+  return { at: { ...s.at }, label: /^(A|An|The|Two|Some|Neighbors)\b/.test(label) ? label[0].toLowerCase() + label.slice(1) : label };
 }
 
 /** Ask for a storySafe scene as soon as possible (a long model wait is coming up). */

@@ -14,7 +14,7 @@ export type PetMode = "walk" | "stand" | "sit" | "loaf" | "sleep" | "groom" | "s
 export interface Pet {
   id: number;
   name: string;
-  title: string; // breed in Chinese, for the name tag
+  title: string; // breed, for the name tag
   species: Species;
   breed: Breed;
   size: number;
@@ -89,50 +89,50 @@ function front(id: string, lx: number, out: number, rest: PetMode): [number, num
 // Each pet has a home turf next to the shops it hangs around (coordinates from the town plan).
 const DEFS: Def[] = [
   {
-    name: "麻糬", title: "三花短腿貓", species: "cat", breed: "calico", size: 0.95, walk: 0.7, run: 2.3,
+    name: "Mochi", title: "short-legged calico", species: "cat", breed: "calico", size: 0.95, walk: 0.7, run: 2.3,
     range: { x0: -25, x1: -9, z0: -7, z1: 11 },
     spots: [front("flower", -1.0, 1.7, "loaf"), front("flower", 1.4, 1.5, "groom"), front("bakery", 1.2, 1.9, "sleep"), front("bakery", -1.6, 1.8, "sit"), [-12.4, -4.4, "loaf"]],
-    friends: ["flower", "bakery"], bubbles: ["🌸", "😺", "喵~", "🥐"],
+    friends: ["flower", "bakery"], bubbles: ["🌸", "😺", "Meow~", "🥐"],
   },
   {
-    name: "胖橘", title: "橘貓", species: "cat", breed: "tabby", size: 1.12, walk: 0.55, run: 2.0,
+    name: "Tubby", title: "orange tabby", species: "cat", breed: "tabby", size: 1.12, walk: 0.55, run: 2.0,
     range: { x0: 11, x1: 28, z0: 0, z1: 12 },
     spots: [[15.0, 9.9, "sleep"], [17.4, 10.3, "sleep"], [21.2, 9.4, "loaf"], [24.4, 3.4, "loaf"]],
-    friends: ["cafe", "mart"], bubbles: ["☕", "😪", "喵~", "🐟"],
+    friends: ["cafe", "mart"], bubbles: ["☕", "😪", "Meow~", "🐟"],
   },
   {
-    name: "煤球", title: "黑貓", species: "cat", breed: "black", size: 0.95, walk: 0.85, run: 2.6,
+    name: "Sooty", title: "black cat", species: "cat", breed: "black", size: 0.95, walk: 0.85, run: 2.6,
     range: { x0: 9, x1: 25, z0: -21, z1: -2 },
     spots: [[12.8, -3.4, "loaf"], [11.0, -8.8, "sit"], [19.2, -16.0, "loaf"], [22.8, -16.2, "groom"]],
-    friends: ["books", "news"], bubbles: ["📚", "😼", "喵~", "✨"],
+    friends: ["books", "news"], bubbles: ["📚", "😼", "Meow~", "✨"],
   },
   {
-    name: "海苔", title: "賓士貓", species: "cat", breed: "tuxedo", size: 1, walk: 0.8, run: 2.5,
+    name: "Nori", title: "tuxedo cat", species: "cat", breed: "tuxedo", size: 1, walk: 0.8, run: 2.5,
     range: { x0: 31, x1: 46, z0: -17, z1: 2 },
     spots: [[33.8, -6.2, "sit"], [34.2, -11.8, "loaf"], [44.6, -8.0, "loaf"], [44.8, -2.6, "sleep"]],
-    friends: ["seafood"], bubbles: ["🐟", "😋", "喵~", "⛵"],
+    friends: ["seafood"], bubbles: ["🐟", "😋", "Meow~", "⛵"],
   },
   {
-    name: "阿柴", title: "柴犬", species: "dog", breed: "shiba", size: 1, walk: 1.2, run: 2.8, walked: true,
-    range: { x0: -62, x1: 58, z0: -38, z1: 32 }, spots: [], friends: [], bubbles: ["🐾", "😊", "汪!"],
+    name: "Chai", title: "Shiba Inu", species: "dog", breed: "shiba", size: 1, walk: 1.2, run: 2.8, walked: true,
+    range: { x0: -62, x1: 58, z0: -38, z1: 32 }, spots: [], friends: [], bubbles: ["🐾", "😊", "Woof!"],
   },
   {
-    name: "奶油", title: "柯基", species: "dog", breed: "corgi", size: 1, walk: 1.0, run: 3.0,
+    name: "Butter", title: "corgi", species: "dog", breed: "corgi", size: 1, walk: 1.0, run: 3.0,
     range: { x0: -63, x1: -41, z0: -20, z1: 10 },
     spots: [[-53.4, 6.2, "sit"], [-47.4, 6.8, "sniff"], [-50.0, 1.8, "loaf"], [-44.4, -4.0, "sit"], [-56.0, -8.0, "sniff"]],
-    friends: [], bubbles: ["🐾", "😆", "汪!", "🎾"],
+    friends: [], bubbles: ["🐾", "😆", "Woof!", "🎾"],
   },
   {
-    name: "布丁", title: "黃金獵犬", species: "dog", breed: "golden", size: 1.08, walk: 1.0, run: 3.2,
+    name: "Pudding", title: "golden retriever", species: "dog", breed: "golden", size: 1.08, walk: 1.0, run: 3.2,
     range: { x0: -12, x1: 11, z0: -4, z1: 10 },
     spots: [[-1.6, 7.4, "sit"], [6.0, 1.4, "sniff"], [-4.6, 2.6, "sleep"], [3.4, 8.2, "sit"], [-8.6, 4.8, "loaf"]],
-    friends: [], bubbles: ["❤️", "🎾", "汪!", "😊"],
+    friends: [], bubbles: ["❤️", "🎾", "Woof!", "😊"],
   },
   {
-    name: "小黑", title: "台灣土狗", species: "dog", breed: "formosan", size: 1.05, walk: 1.1, run: 3.3,
+    name: "Blackie", title: "Formosan mountain dog", species: "dog", breed: "formosan", size: 1.05, walk: 1.1, run: 3.3,
     range: { x0: 31, x1: 46, z0: -38, z1: -14 },
     spots: [[34.8, -21.6, "sleep"], [44.8, -30.0, "sit"], [44.8, -18.6, "sit"], [41.8, -27.8, "sniff"]],
-    friends: [], bubbles: ["🐾", "⚓", "汪!", "🦴"],
+    friends: [], bubbles: ["🐾", "⚓", "Woof!", "🦴"],
   },
 ];
 
@@ -236,7 +236,7 @@ function goZoom(p: Pet) {
   }
   p.zoom = { cx, cz, r, ang, dir: rand() < 0.5 ? -1 : 1 };
   rest(p, "zoom");
-  say(p, pick(["😆", "汪!", "💨"]), 1.8);
+  say(p, pick(["😆", "Woof!", "💨"]), 1.8);
   return true;
 }
 
@@ -267,7 +267,7 @@ function arrive(p: Pet) {
   if (who) {
     p.heading = Math.atan2(who.x - p.x, who.z - p.z);
     p.happy = 3.5;
-    say(p, p.species === "cat" ? pick(["❤️", "喵~", "😺"]) : pick(["❤️", "汪!", "🐾"]));
+    say(p, p.species === "cat" ? pick(["❤️", "Meow~", "😺"]) : pick(["❤️", "Woof!", "🐾"]));
     // the person is pleased to see them (only background townsfolk; residents in a story or a scene are left alone)
     if (!who.script && !who.vig && !who.bubble) {
       who.bubble = pick(["😍", "😊", "🥰"]);
@@ -466,7 +466,7 @@ function scare(cat: Pet) {
   if (cat.cooldown > 0 || (cat.mode === "walk" && cat.speed === cat.runSpeed)) return;
   const dog = pets.list.find((d) => d.species === "dog" && Math.hypot(d.x - cat.x, d.z - cat.z) < 1.8);
   if (!dog || !flee(cat, dog.x, dog.z)) return;
-  if (!dog.bubble) say(dog, pick(["汪!", "💨", "😆"]), 1.6);
+  if (!dog.bubble) say(dog, pick(["Woof!", "💨", "😆"]), 1.6);
   dog.happy = Math.max(dog.happy, 2);
 }
 
@@ -475,7 +475,7 @@ export function pat(p: Pet) {
   p.happy = 3.5;
   p.tag = 6;
   if (p.mode === "sleep") rest(p, "sit");
-  say(p, p.species === "cat" ? pick(["❤️", "喵~", "😻"]) : pick(["❤️", "汪!", "🐾"]), 2.4);
+  say(p, p.species === "cat" ? pick(["❤️", "Meow~", "😻"]) : pick(["❤️", "Woof!", "🐾"]), 2.4);
 }
 
 export function stepPets(dt: number) {

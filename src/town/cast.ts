@@ -41,22 +41,26 @@ export const CHAT_PAIRS: [string, string][] = [
   ["🏮", "🎉"], ["🐙", "😋"], ["🌇", "😌"], ["🐱", "🥰"], ["⚓", "🐟"], ["💬", "😂"], ["🤔", "💡"], ["🎶", "😆"], ["☕", "😊"], ["🎈", "🤩"],
 ];
 
-/** Ticker labels (shown in the 「日常」 line, emoji first) and the short lines the scenes speak. */
+/**
+ * Ticker labels (shown in the "Everyday life" line, emoji first) and the short lines the scenes speak.
+ * A label also follows "Meanwhile, " in the director's cutaway (vignettes.ts meanwhileScene lowercases a leading
+ * "A"/"Two"/"Neighbors"), so each one reads as a clause: a name or a plain subject, then what they are doing.
+ */
 export const SCENE_TEXT = {
-  stageRush: { label: "🏮 志明在舞台邊催工人趕工", hurry: "快一點！八點就要開始了！", oops: "沒事沒事！別碰！" },
-  haggle: { label: "🐙 阿珠又在跟客人抱怨攤位費", hawk: "章魚燒！剛起鍋！", ask: "算便宜一點嘛？", fee: "攤位費漲一倍，怎麼便宜！" },
-  samples: { label: "🥐 阿德在門口發試吃，話匣子關不起來", offer: "剛出爐！試吃看看！", chatter: "跟你們說喔，我年輕的時候…", follow: "欸欸，還沒說完…" },
-  patrol: { label: "👮 老周在廣場慢慢巡邏", scold: "廣場上別用跑的！" },
-  catChase: { label: (cat: string) => `🐱 有個小孩在追${cat}` },
+  stageRush: { label: "🏮 Zhiming is rushing the stage crew", hurry: "Hurry up! We start at eight!", oops: "It's fine, it's fine! Don't touch!" },
+  haggle: { label: "🐙 Azhu is griping about the stall fee", hawk: "Takoyaki! Hot off the griddle!", ask: "Can you go a little cheaper?", fee: "My stall fee doubled! Cheaper? Ha!" },
+  samples: { label: "🥐 Ade hands out samples, talking nonstop", offer: "Just baked! Have a taste!", chatter: "Let me tell you, back in my day…", follow: "Hey, wait, I'm not finished…" },
+  patrol: { label: "👮 Chief Zhou strolls the plaza on patrol", scold: "No running on the plaza!" },
+  catChase: { label: (cat: string) => `🐱 A kid is chasing ${cat}` },
   bicker: {
-    bike: { label: "🚲 兩個鄰居為了腳踏車吵起來了", a: "腳踏車又擋到我家門口！", b: "哪有！明明是你的！", truce: "好啦好啦，我牽走。" },
-    pot: { label: "🪴 鄰居為了一盆花在拌嘴", a: "你家花盆又擺到路中間了！", b: "那是貓推的啦！", truce: "…好啦，一起搬。" },
-    bench: { label: "🪑 兩位老鄰居在搶長椅", a: "這是我先坐的！", b: "上面又沒寫你的名字！", truce: "好啦，一人一半。" },
+    bike: { label: "🚲 Two neighbors are arguing over a bike", a: "Your bike's blocking my door again!", b: "No way! That's your bike!", truce: "Fine, fine, I'll move it." },
+    pot: { label: "🪴 Neighbors squabble over a flowerpot", a: "Your flowerpot's in the road again!", b: "The cat pushed it!", truce: "…Fine. Let's move it together." },
+    bench: { label: "🪑 Two old-timers both want the bench", a: "I was sitting here first!", b: "I don't see your name on it!", truce: "Fine. Half each." },
   },
   gossip: {
-    label: "☕ 美咲又在跟客人說悄悄話",
+    label: "☕ Misaki's whispering to customers again",
     // neutral small talk only: dating, weather, a cute dog, her daughter's turn on stage (all public)
-    topics: ["欸，聽說書店老闆在跟人約會！", "明天好像會出大太陽喔。", "公園那隻柯基又胖了一圈！", "我女兒今晚要上台，記得來看！"],
+    topics: ["Psst, I hear the bookshop owner is seeing someone!", "They say it'll be sunny tomorrow.", "That corgi in the park got even chubbier!", "My daughter's on stage tonight. Come watch!"],
   },
-  speech: { label: "🎩 林市長在鎮公所前練習演講", open: "各位鄉親父老…", lost: "今晚呢…呃…第幾頁？" },
+  speech: { label: "🎩 Mayor Lin is rehearsing a speech", open: "Ladies and gentlemen of Mistport…", lost: "Tonight… um… which page was I on?" },
 };

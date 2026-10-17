@@ -1,5 +1,5 @@
 // The everyday scenes' view of the canvas: where the camera is looking, and their short spoken lines drawn over
-// townsfolk's heads. Lines are a beige pill with a 「日常」 tag (never the story's violet, never a story card), always
+// townsfolk's heads. Lines are a beige pill with an "Everyday life" tag (never the story's violet, never a story card), always
 // the same size on screen. They are added straight to the r3f scene, so the scheduler needs no component mount.
 import * as THREE from "three";
 import { _roots, type RootState } from "@react-three/fiber";
@@ -10,6 +10,8 @@ import { kitFor } from "./kits";
 const MAX_LINES = 4;
 const LINE_RANGE = 50; // metres from where the camera looks
 const LINE_H = 0.036; // height as a fraction of the view (about 29 px on an 800 px window)
+/** The tag on every everyday line: says it is town life, not the story. */
+const TAG = "Everyday life";
 /** The plaza preset, for frames before the canvas exists. */
 const FALLBACK = { x: 1, z: -11, dist: 68, cx: 23, cz: 41 };
 
@@ -45,10 +47,10 @@ function lineTexture(text: string) {
   if (hit) return hit;
   const c = document.createElement("canvas");
   const g = c.getContext("2d")!;
-  const font = '600 40px "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif';
-  const tagFont = '700 24px "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif';
+  const font = '600 40px system-ui, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans TC", sans-serif';
+  const tagFont = '700 24px system-ui, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans TC", sans-serif';
   g.font = tagFont;
-  const tagW = Math.ceil(g.measureText("日常").width) + 18;
+  const tagW = Math.ceil(g.measureText(TAG).width) + 18;
   g.font = font;
   const w = Math.ceil(g.measureText(text).width) + tagW + 54;
   c.width = w;
@@ -75,7 +77,7 @@ function lineTexture(text: string) {
   g.textBaseline = "middle";
   g.font = tagFont;
   g.fillStyle = "#fffaf0";
-  g.fillText("日常", 25, 35);
+  g.fillText(TAG, 25, 35);
   g.font = font;
   g.fillStyle = "#4a443c";
   g.fillText(text, tagW + 28, 36);

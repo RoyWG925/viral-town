@@ -1,15 +1,27 @@
-# VIRAL — one whisper, a living town, a chain reaction nobody scripted
+# VIRAL — one whisper, a living town, an evening nobody scripted
 
 > Draft for the AMD Developer Hackathon ACT III (Track 4 · Gemma on AMD). Shared privately with the team (private repo,
 > deployed at https://viral-town.vercel.app); not submitted yet — review before submitting.
 
-You are a passing stranger in **霧港鎮 Mistport**, a small town getting ready for tonight's lantern festival.
-Click one of eight residents and whisper **one sentence** — anything. Then watch.
+You are not a character in **Mistport** — you are a thought that spreads. The harbor town is getting ready for
+tonight's Lantern Festival at 20:00. Click one of eight residents and whisper **one sentence** — anything. Then watch.
 
 Each resident understands it through what *they* know, want, fear and hide; they may laugh it off, doubt it,
 phone a friend, go and check for themselves, cover something up, or tell the wrong person. The town plays it out:
-people walk over, make calls, inspect the stage, close shops, post notices. When it ends you get the front page of
-the 霧港小報 — what your sentence turned into, through whose mouths, and who stopped it.
+people walk over, make calls, inspect the stage, close shops, post notices. The festival keeps its own clock (stage
+check 17:00, doves 18:00, stalls 18:30, police 19:00, rehearsal 19:30), so every evening reaches 20:00: you watch the
+festival your sentence produced — lanterns, doves, the crowd, the mayor, protest signs — and then read the front page
+of **The Mistport Gazette**: what your sentence turned into, through whose mouths, and what was really true.
+
+## How a game goes
+1. **Opening** (first visit, ~30 s, skippable): who you are, what is at stake, four things worth a question.
+2. **Whisper**: pick a resident (their card shows what they can do and who they can call), type one sentence.
+3. **Watch**: Gemma decides each resident's reaction as the story streams; the camera follows; a clock warns when the
+   festival is in trouble; small goals get stamped; if the story goes quiet early you may add **one more line**.
+4. **20:00**: about eight seconds of the festival as it turned out — the ending is composed from what happened
+   (no doves, stalls on strike, the mayor booed, a packed square, a postponement…), never picked from a script.
+5. **The front page**, then **Play again** (same sentence to someone else, or a new one) or **Details** (the truth,
+   the full chain of causes, What If, and Behind the scenes: calls, latency, cost).
 
 ## What the model does and what the game does
 
@@ -23,7 +35,9 @@ the 霧港小報 — what your sentence turned into, through whose mouths, and w
 | | thresholds for big actions (police, closing the stage, cancelling the festival) |
 
 Every model answer is JSON that the engine parses, normalises and validates; anything invalid goes back to the model
-with the reason. Only validated actions change the world, and every event records its causes, so the results card
+with the reason. The player's sentence is moderated first: a command or jailbreak is just something a stranger said
+(the resident reacts in character, with no new powers), swearing is masked, and sexual content, hate speech and
+self-harm are refused before any model call; residents' own lines pass the same filter. Only validated actions change the world, and every event records its causes, so the results card
 can trace any outcome back to the sentence. Streamed tokens are used only to start a resident's gesture early; the
 world never changes before the full answer is validated.
 

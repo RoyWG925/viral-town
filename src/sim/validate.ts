@@ -40,6 +40,7 @@ export function coerce(raw: unknown): { out: DecisionOutput | null; errors: stri
     feeling: typeof r.feeling === "string" ? r.feeling : "",
     thought: typeof r.thought === "string" ? r.thought : "",
     act: typeof r.act === "string" ? r.act : undefined,
+    motive: typeof r.motive === "string" ? (r.motive as DecisionOutput["motive"]) : undefined,
     actions: arr("actions").map((c) => (c && typeof c === "object" ? (c as ActionIntent) : ({ type: "none" } as ActionIntent))),
   };
   return { out, errors };
@@ -158,8 +159,11 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
   const feeling = /\p{Extended_Pictographic}/u.test(out.feeling) ? out.feeling : `🙂 ${out.feeling}`.trim();
   // the visible reaction is presentation only: an unknown act is read off the feeling, never rejected
   const act = actFrom(out.act, feeling);
+  // the motive is their own reading of themselves: an unknown value becomes "none", never a reason to send it back
+  const MOTIVES = ["want", "fear", "bias", "gossip", "bottom", "price", "none"];
+  const motive = out.motive === undefined ? undefined : MOTIVES.includes(String(out.motive).toLowerCase()) ? (String(out.motive).toLowerCase() as DecisionOutput["motive"]) : "none";
   if (out.act !== undefined && out.act !== act) notes.push(`act ${String(out.act)} → ${act}`);
-  return { out: { ...out, claims, stances, actions, feeling, act }, notes };
+  return { out: { ...out, claims, stances, actions, feeling, act, motive }, notes };
 }
 
 export function checkDecision(view: View, out: DecisionOutput, opts: { requireActions?: boolean; requireReading?: boolean } = {}): Checked {

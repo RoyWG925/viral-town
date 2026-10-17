@@ -104,6 +104,11 @@ export function drawShareCard(card: StoryCard, seedNpc: string, seedText: string
     // two lines if there is room, else one (the reveal is worth more than the near miss below)
     y = block(g, `🔎 真相：${card.truth.text}${card.truth.secretOf.length ? `（${card.truth.secretOf.map(nameOf).join("和")}的秘密）` : ""}`, 70, y + 6, W - 140, 40, y < floor - 90 ? 2 : 1) + 16;
   }
+  if (card.reveal && y < floor - 70) {
+    g.font = `600 26px ${FONT}`;
+    g.fillStyle = "#6d28d9";
+    y = block(g, `🔓 你發現了：${nameOf(card.reveal.npc)}的${card.reveal.label}——${card.reveal.text}`, 70, y + 6, W - 140, 38, 1) + 12;
+  }
   if (card.closest && y < floor - 90) {
     g.font = `600 28px ${FONT}`;
     g.fillStyle = "#7a6f62";

@@ -67,3 +67,39 @@ test("each prompt carries only its own card, with relationship kinds and pasts",
   assert.ok(baker.includes("前任") && baker.includes("退了婚"), "the baker's ex shows with its past");
   assert.ok(baker.includes("債主"), "and the mayor's debt");
 });
+
+// ---- B: the motive a resident gives, the one line a story reveals ---------------------------------------------
+import { normalize, coerce } from "../src/sim/validate.ts";
+import { simulate } from "../src/sim/engine.ts";
+import { revealOf } from "../src/town/story.ts";
+import type { Chat, LlmCall } from "../src/sim/llm.ts";
+
+const reply = (o: object): LlmCall => ({ content: JSON.stringify(o), status: 200, latencyMs: 5, attempts: 1, promptTokens: 100, completionTokens: 20, platformCost: 0, estCost: 0, rateHeaders: {}, provider: "fake" });
+
+test("an unknown motive becomes none instead of a retry; a known one is kept", () => {
+  const raw = { feeling: "😟 擔心", act: "worried", understanding: "x", thought: "y", claims: [], stances: [], actions: [{ type: "none", why: "x" }] };
+  assert.equal(normalize(viewFor("baker"), coerce({ ...raw, motive: "FEAR" }).out!).out.motive, "fear");
+  assert.equal(normalize(viewFor("baker"), coerce({ ...raw, motive: "revenge" }).out!).out.motive, "none");
+  assert.equal(normalize(viewFor("baker"), coerce(raw).out!).out.motive, undefined);
+});
+
+test("the decide event carries the motive, and the story reveals the most telling line with the card's own words", async () => {
+  const answers: Record<string, object> = {
+    阿德: { feeling: "😰 緊張", act: "nervous", understanding: "有人在笑我", thought: "糟了", motive: "fear", claims: [], stances: [], actions: [{ type: "phone", target: "journalist", message: "小雯，我跟你說一件事", cites: [] }] },
+    小雯: { feeling: "🤨 懷疑", act: "doubt", understanding: "阿德慌了", thought: "越否認越可疑", motive: "bias", claims: [], stances: [], actions: [{ type: "none", why: "先觀察" }] },
+  };
+  const chat: Chat = async (msgs) => {
+    const who = /【你是誰】([^，]+)，/.exec(msgs.map((m) => m.content).join("\n"))?.[1] ?? "";
+    return reply(answers[who] ?? { feeling: "😐 無感", act: "shrug", understanding: "x", thought: "y", claims: [], stances: [], actions: [{ type: "none", why: "x" }] });
+  };
+  const run = await simulate({ active: ["baker", "florist", "journalist", "cafe", "police", "mayor", "organizer", "vendor"], seedNpc: "baker", seedText: "大家都在笑你的麵包", seed: 41, policy: "gemma", chat, maxDecisions: 4 });
+  const dec = run.events.find((e) => e.type === "decide" && e.actor === "baker")!;
+  assert.equal(dec.data.motive, "fear");
+  const r = revealOf(run.events)!;
+  // fear outranks bias: the baker's fear, quoted from his card
+  assert.equal(r.npc, "baker");
+  assert.equal(r.key, "fear");
+  assert.equal(r.text, PERSONAS.find((p) => p.id === "baker")!.card!.fears);
+  // an old log without motives reveals nothing
+  assert.equal(revealOf(run.events.map((e) => (e.type === "decide" ? { ...e, data: { ...e.data, motive: undefined } } : e))), undefined);
+});

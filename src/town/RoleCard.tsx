@@ -5,6 +5,8 @@
 import { PERSONAS, PUBLIC_BIO } from "../sim/scenario.ts";
 import { nameOf } from "./director";
 import { contactsOf, credulityOf, ROLES, toolsOf } from "./roles";
+import { useState } from "react";
+import { HIDDEN_FIELDS, loadJournal } from "./journal";
 
 export default function RoleCard({ npc, text, setText, onPlant, onClose, goalTools }: {
   npc: string;
@@ -17,6 +19,7 @@ export default function RoleCard({ npc, text, setText, onPlant, onClose, goalToo
 }) {
   const p = PERSONAS.find((x) => x.id === npc);
   const role = ROLES[npc];
+  const [journal] = useState(loadJournal);
   if (!p || !role) return null;
   const cred = credulityOf(npc);
   const calls = contactsOf(npc).map(nameOf);
@@ -58,6 +61,20 @@ export default function RoleCard({ npc, text, setText, onPlant, onClose, goalToo
       <details className="mt-1 text-xs text-slate-500">
         <summary className="cursor-pointer select-none text-slate-400">關於{p.name}</summary>
         <p className="mt-1">{PUBLIC_BIO[npc]?.bio}</p>
+      </details>
+      <details className="mt-0.5 text-xs text-slate-500">
+        <summary className="cursor-pointer select-none text-slate-400">
+          📓 你對{p.name}的了解 {HIDDEN_FIELDS.filter((f) => journal[npc]?.[f.key]).length}/{HIDDEN_FIELDS.length}
+        </summary>
+        <ul className="mt-1 space-y-0.5">
+          {HIDDEN_FIELDS.map((f) => (
+            <li key={f.key}>
+              <span className="font-semibold text-slate-600">{f.label}：</span>
+              {journal[npc]?.[f.key] && p.card ? p.card[f.field] : <span className="text-slate-300">？？？</span>}
+            </li>
+          ))}
+        </ul>
+        {!HIDDEN_FIELDS.some((f) => journal[npc]?.[f.key]) && <p className="mt-1 text-slate-400">多看幾次{p.name}的故事，就會慢慢摸清這個人。</p>}
       </details>
       <div className="relative mt-2">
         <textarea

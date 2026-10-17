@@ -295,7 +295,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     const out = res.output;
     const dEv = emit("decide", t, `${n.p.name}：${out.thought}`, rec.triggers, {
       actor: n.p.id, place: n.place,
-      data: { decision: rec.id, understanding: out.understanding, thought: out.thought, feeling: out.feeling, policy: rec.policy, fallback: rec.fallback, actions: out.actions.map((a) => a.type) },
+      data: { decision: rec.id, understanding: out.understanding, thought: out.thought, feeling: out.feeling, policy: rec.policy, fallback: rec.fallback, actions: out.actions.map((a) => a.type), motive: out.motive },
     });
     rec.applied.push(dEv);
     // claims and beliefs
@@ -413,7 +413,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
   // ---- public pressure on the mayor ----------------------------------------------------------------
   // Deterministic and honest: once a rumour about the mayor or the town's money is held (≥0.3) by three or more other
   // residents, the mayor hears that it is going round. The line states only what those logged beliefs support.
-  const MAYOR_TOPICS = new Set(["mayor_fears_pigeons", "mayor_embezzled", "budget_overrun", "fee_covers_budget", "birds_banned"]);
+  const MAYOR_TOPICS = new Set(["mayor_fears_pigeons", "mayor_embezzled", "budget_overrun", "fee_covers_budget", "birds_banned", "mayor_owes_baker"]);
   const pressured = new Set<string>();
   function publicPressure(t: Minutes, cause: string) {
     const mayor = npcs.get("mayor");

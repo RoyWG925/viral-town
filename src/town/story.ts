@@ -5,7 +5,7 @@
 import type { RunResult } from "../sim/engine.ts";
 import { FACTS, PERSONAS, PLACES, TOPIC_CATEGORY } from "../sim/scenario.ts";
 import { topicFact } from "../sim/view.ts";
-import type { SimEvent } from "../sim/types.ts";
+import type { Motive, SimEvent } from "../sim/types.ts";
 import { contactsOf, powerOf } from "./roles.ts";
 
 const nameOf = (id: string) => PERSONAS.find((p) => p.id === id)?.name ?? id;
@@ -45,6 +45,30 @@ export interface StoryCard {
   whispers: { npc: string; text: string }[];
   /** which planted sentence the spine starts from (0 = the first, 1 = the 補一句) */
   spineRoot: number;
+  /** one line of someone's card this story showed them acting on (from their own logged motive) */
+  reveal?: { npc: string; key: Exclude<Motive, "none">; label: string; text: string; event: string; t: number };
+}
+
+const MOTIVE_LABEL: Record<string, string> = { price: "價碼", bottom: "底線", fear: "怕的事", want: "今晚想要的", bias: "看事情的偏誤", gossip: "傳話的習慣" };
+// the most telling first: what would make them turn, what they will never do, what scares them…
+const MOTIVE_RANK = ["price", "bottom", "fear", "want", "bias", "gossip"];
+
+/** The most telling card line a resident acted on in this log (their own `motive`); nothing for old logs without it. */
+export function revealOf(events: SimEvent[]): StoryCard["reveal"] {
+  let best: (NonNullable<StoryCard["reveal"]> & { rank: number }) | null = null;
+  for (const e of events) {
+    if (e.type !== "decide" || !e.actor || e.data.fallback || e.data.budget) continue;
+    const key = String(e.data.motive ?? "");
+    const rank = MOTIVE_RANK.indexOf(key);
+    const card = PERSONAS.find((p) => p.id === e.actor)?.card;
+    if (rank < 0 || !card) continue;
+    const field = ({ want: "wants", fear: "fears" } as Record<string, string>)[key] ?? key;
+    if (!best || rank < best.rank) best = { rank, npc: e.actor, key: key as Exclude<Motive, "none">, label: MOTIVE_LABEL[key], text: card[field as keyof typeof card] as string, event: e.id, t: e.t };
+  }
+  if (!best) return undefined;
+  const { rank: _rank, ...reveal } = best;
+  void _rank;
+  return reveal;
 }
 
 const IMPACT: Record<string, string> = {
@@ -423,6 +447,7 @@ export function storyOf(run: RunResult): StoryCard {
     near = { npc, conf: strong[0][1], topic, did };
   }
   if (near) card.closest = { npc: near.npc, could: couldOf(near.npc, near.topic), did: near.did, conf: near.conf };
+  card.reveal = revealOf(events);
   return card;
 }
 

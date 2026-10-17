@@ -70,7 +70,8 @@ const SCHEMA_READ = `"feeling": "一個表情符號加一個詞，例如 😟 �
   "claims": [{"ref": "new（新的說法），或你已有的說法編號（例如 c2）", "source": "這條說法來自哪則訊息（例如 m1）", "statement": "用一句話寫出這條說法", "topic": "主題編號", "says": "yes / no / unclear：這條說法對該主題問題的回答", "category": "safety|crime|scandal|health|policy|event|personal|absurd|other"}],
   "stances": [{"claim": "這次 claims 裡的位置（數字，從 0 開始）；或直接填你已有說法的編號字串，例如 \"c2\"", "verdict": "believe / doubt / disbelieve", "confidence": "你認為這條說法是真的機率：0＝一定是假的，0.5＝不知道，1＝一定是真的", "why": "為什麼這樣判斷（20 字內）", "cites": ["依據的編號，例如 m1、pigeons、c2"]}],
 
-  "thought": "一句內心獨白（30 字內）"`;
+  "thought": "一句內心獨白（30 字內）",
+  "motive": "這次你的反應主要是被你自己的哪一項推動：want（今晚想要）/ fear（怕）/ bias（看事情的偏誤）/ gossip（傳話的習慣）/ bottom（底線）/ price（價碼）/ none（都不是）"`;
 const SCHEMA_ACT = `"actions": [{"type": "行動編號", "target": "對象編號（需要時）", "place": "地點編號（需要時）", "intent": "inform/warn/ask/answer/deny/complain/request/joke", "message": "你要說或寫的話（140 字內；發文 400 字內）", "cites": ["依據的編號；這次的新說法用 #0、#1"]}]`;
 
 export function systemPrompt(variant: Variant, stage: "single" | "read" | "act") {

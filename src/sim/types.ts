@@ -206,8 +206,12 @@ export interface DecisionOutput {
   thought: string;
   /** how they visibly react, from the acting library (presentation only; never changes the world) */
   act?: string;
+  /** which line of their own card mainly drove this (their own reading, like `thought`); players discover cards from it */
+  motive?: Motive;
   actions: ActionIntent[]; // at most 2, executed in order
 }
+
+export type Motive = "want" | "fear" | "bias" | "gossip" | "bottom" | "price" | "none";
 
 export type EventType =
   | "seed"

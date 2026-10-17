@@ -4,6 +4,7 @@
 // story stamped, at most one "差一點" What If, and the cast as a grid of tools to try next. Everything is retold
 // from the log; the full chain and the tech log sit one tap away.
 import { useEffect, useMemo, useState } from "react";
+import { addDiscovery, loadJournal } from "./journal";
 import type { RunResult } from "../sim/engine.ts";
 import { measure, type Metrics } from "../sim/metrics.ts";
 import { PLACES } from "../sim/scenario.ts";
@@ -178,6 +179,10 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
     return lines.join(String.fromCharCode(10));
   }, [saved, m, run, hl, story, stampWords]);
   const nudge = nudgeOf(run, story, saved.npc, progress);
+  // the one card line this story showed: it goes into the 鎮民筆記 (this browser only)
+  useEffect(() => {
+    if (story.reveal) addDiscovery(loadJournal(), story.reveal.npc, story.reveal.key, { at: run.wall.startedAt, recorded: !!recorded });
+  }, [story, recorded, run]);
   const suggested = new Map(next.map((s) => [s.npc, s.why]));
 
   return (
@@ -217,6 +222,11 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
                   </li>
                 ))}
               </ul>
+            )}
+            {story.reveal && (
+              <p className="mt-2 rounded-xl bg-violet-50 px-3 py-1.5 text-xs leading-snug text-violet-900 ring-1 ring-violet-200" title="從這個故事裡，這位居民自己說出的行動理由">
+                🔓 你發現了：<b>{nameOf(story.reveal.npc)}的{story.reveal.label}</b>——{story.reveal.text}
+              </p>
             )}
             {nudge && (
               <button onClick={() => onWhatIf(nudge.npc, saved.text)} className="mt-2 w-full rounded-xl bg-amber-50 px-3 py-2 text-left text-sm leading-snug text-amber-900 ring-1 ring-amber-300 hover:bg-amber-100">

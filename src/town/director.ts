@@ -725,7 +725,7 @@ function apply(e: SimEvent) {
       const mayor = agentFor("mayor");
       if (mayor && kind !== "cancelled" && !tags.includes("mayor_absent")) {
         scriptGoto(mayor, SPOTS.stage.x, SPOTS.stage.z - 0.6, faceToward(mayor, square.x, square.z), 3);
-        say("mayor", "speech", tags.includes("mayor_booed") || tags.includes("protest_rally") ? "各位鄉親……請、請先聽我說！" : "各位鄉親，燈籠節開始囉！", 7);
+        say("mayor", "speech", tags.includes("mayor_booed") || tags.includes("protest_rally") ? "Everyone, please — please, just hear me out!" : "Good evening, Mistport! Let the Lantern Festival begin!", 7);
       }
       if (tags.includes("early_exit")) for (const a of show.extras) a.bubble = "🏃";
       caption({ who: "", icon: "🏮", tone: "world", text: e.zh, sub: "20:00" });

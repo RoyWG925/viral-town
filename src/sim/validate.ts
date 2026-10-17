@@ -49,7 +49,8 @@ export function coerce(raw: unknown): { out: DecisionOutput | null; errors: stri
 /**
  * Forgive harmless formatting slips before checking (each retry costs ~20 s of model time):
  * unknown claim refs become "new", stray citations are dropped, numbers given as strings are read.
- * Anything that touches the world (actions, targets, places, thresholds, secrets) stays strict.
+ * Anything that touches the world (actions, targets, places, thresholds, secrets) stays strict, and so does which
+ * claim a stance or cite points at: a claim reference that names no claim is sent back, never guessed or dropped.
  */
 /** "0.5（不確定）" → 0.5, "60%" → 0.6, "七成" stays NaN (then it is sent back) */
 function readNumber(x: string): number {
@@ -57,6 +58,18 @@ function readNumber(x: string): number {
   if (!m) return NaN;
   const v = Number(m[0]);
   return x.includes("%") || v > 1 ? v / 100 : v;
+}
+
+/**
+ * A reference to a claim, read by its shape alone, before anything is looked up: "c3" is a claim id, "#1" and a bare
+ * number (1 or "1") are positions in this answer's claims, anything else is not a claim reference. (F04: stripping
+ * the "c" and then checking the range read belief c1 as position 1 and updated whatever claim sat there.)
+ */
+function claimRef(x: unknown): { id: string } | { pos: number } | null {
+  if (typeof x === "number") return Number.isInteger(x) && x >= 0 ? { pos: x } : null;
+  if (typeof x !== "string") return null;
+  if (/^c\d+$/.test(x)) return { id: x };
+  return /^#?\d+$/.test(x) ? { pos: Number(x.replace("#", "")) } : null;
 }
 
 export function normalize(view: View, out: DecisionOutput): { out: DecisionOutput; notes: string[] } {
@@ -94,13 +107,32 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
     }
     return { ...s, confidence: c, verdict, cites };
   });
-  // stances that point at a belief id ("c3" or 3) instead of a claim index: map them, or re-list that belief
+  // a stance names its claim by id ("c3": an old belief, or the model's own name for a new claim) or by position;
+  // which one is decided by the shape, never by whether the number happens to fit the list (F04: belief c1 was read
+  // as position 1, another claim was updated, and the real stance was dropped as a duplicate)
   const beliefById = new Map(view.beliefs.map((b) => [b.id, b]));
   const fixed: typeof stances = [];
   for (const st of stances) {
     const raw = st.claim as unknown;
-    let k = typeof raw === "string" ? Number(raw.replace(/^[#c]/, "")) : (raw as number);
-    if (!(Number.isInteger(k) && k >= 0 && k < claims.length)) {
+    const ref = claimRef(raw);
+    let k: number;
+    if (ref && "id" in ref) {
+      const idx = claims.findIndex((c) => c.ref === ref.id);
+      if (idx >= 0) k = idx;
+      else if (invented.has(ref.id)) k = invented.get(ref.id)!;
+      else if (beliefById.has(ref.id)) {
+        const b = beliefById.get(ref.id)!;
+        claims.push({ ref: ref.id, statement: b.statement, topic: b.topic, says: b.says, category: b.category });
+        k = claims.length - 1;
+      } else {
+        // not a claim they have: dropping it silently lost their judgement, so ask again
+        notes.push(`stance claim ${ref.id} is not one of their claims: sent back`);
+        fixed.push({ ...st, claim: -1 });
+        continue;
+      }
+      notes.push(`stance claim ${ref.id} → index ${k}`);
+    } else if (ref && ref.pos < claims.length) k = ref.pos;
+    else {
       // a bare number outside the claims list is ambiguous (a claim position? a belief id?): guessing once
       // stored the opposite of what the model meant, so leave it for the validator to send back
       // with no claims listed at all, a bare number can only mean one of their beliefs (c<n>): not ambiguous
@@ -111,24 +143,10 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
         if (!fixed.some((x) => x.claim === claims.length - 1)) fixed.push({ ...st, claim: claims.length - 1 });
         continue;
       }
-      if (!(typeof raw === "string" && raw.startsWith("c"))) {
-        notes.push(`stance claim ${String(raw)} is outside the claims list: sent back`);
-        fixed.push({ ...st, claim: typeof k === "number" && Number.isFinite(k) ? k : -1 });
-        continue;
-      }
-      const id = raw as string;
-      const idx = claims.findIndex((c) => c.ref === id);
-      if (idx >= 0) k = idx;
-      else if (invented.has(id)) k = invented.get(id)!;
-      else if (beliefById.has(id)) {
-        const b = beliefById.get(id)!;
-        claims.push({ ref: id, statement: b.statement, topic: b.topic, says: b.says, category: b.category });
-        k = claims.length - 1;
-      } else {
-        notes.push(`stance for unknown claim ${String(raw)} dropped`);
-        continue;
-      }
-      notes.push(`stance claim ${String(raw)} → index ${k}`);
+      // (-1, not the number they wrote: claims re-listed later must not make it point somewhere)
+      notes.push(`stance claim ${String(raw)} is outside the claims list: sent back`);
+      fixed.push({ ...st, claim: -1 });
+      continue;
     }
     if (fixed.some((x) => x.claim === k)) {
       notes.push(`duplicate stance for claim ${k} dropped`);
@@ -138,11 +156,20 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
   }
   stances.length = 0;
   stances.push(...fixed);
-  // actions citing a self-named new claim cite it by position
+  // action cites name claims the same way: an old claim keeps its id, the model's own name or a bare number inside the
+  // list becomes "#k", and a claim reference that resolves to nothing stays as written for the validator to send back
   for (const act of out.actions)
-    if (Array.isArray(act.cites)) act.cites = act.cites.map((c) => (invented.has(c) ? `#${invented.get(c)}` : c));
+    if (Array.isArray(act.cites))
+      act.cites = act.cites.map((c) => {
+        const ref = claimRef(c);
+        if (!ref || ids.has(c)) return c;
+        if ("id" in ref) return invented.has(ref.id) ? `#${invented.get(ref.id)}` : ref.id;
+        return ref.pos < claims.length ? `#${ref.pos}` : String(c);
+      });
   // a new claim with no stance says nothing about belief: drop it and renumber the "#k" references
-  const keep = claims.map((c, k) => c.ref !== "new" || stances.some((st) => st.claim === k));
+  // (not while a stance is being sent back: the positions in the message back must be the ones they wrote)
+  const sendingBack = stances.some((st) => st.claim === -1);
+  const keep = claims.map((c, k) => sendingBack || c.ref !== "new" || stances.some((st) => st.claim === k));
   if (keep.some((x) => !x)) {
     const remap = new Map<number, number>();
     let n = 0;
@@ -159,7 +186,7 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
           .map((c) => (/^#\d+$/.test(c) ? (remap.has(Number(c.slice(1))) ? `#${remap.get(Number(c.slice(1)))}` : null) : c))
           .filter((c): c is string => c !== null);
   }
-  let actions = out.actions.map((a) => ({ ...a, cites: (Array.isArray(a.cites) ? a.cites : []).filter((c) => ids.has(c) || /^#\d+$/.test(c)) }));
+  let actions = out.actions.map((a) => ({ ...a, cites: (Array.isArray(a.cites) ? a.cites : []).filter((c) => ids.has(c) || claimRef(c) !== null) }));
   if (actions.length > 1 && actions.some((a) => a.type === "none")) {
     actions = actions.filter((a) => a.type !== "none");
     notes.push("none dropped next to a real action");
@@ -220,7 +247,9 @@ export function checkDecision(view: View, out: DecisionOutput, opts: { requireAc
   const limits: NonNullable<Checked["limits"]> = [];
   out.stances.forEach((s, i) => {
     if (typeof s.claim !== "number" || !Number.isInteger(s.claim) || s.claim < 0 || s.claim >= out.claims.length) {
-      errors.push(`stances[${i}].claim 要填 claims 陣列裡的位置（0 到 ${out.claims.length - 1}）。要對你已經有的說法（例如 c2）表態，先把它放進 claims（ref 填 c2），再用它在 claims 裡的位置`);
+      // name the positions and their own claim ids that do exist (the ids are on their own prompt)
+      const mine = [...myBeliefs.keys()].join("、");
+      errors.push(`stances[${i}].claim 對不到任何一條說法：要填 claims 陣列裡的位置（${out.claims.length ? `0 到 ${out.claims.length - 1}` : "這次 claims 是空的"}），或你已有的說法編號（${mine || "你還沒有任何說法"}）`);
       return;
     }
     if (seen.has(s.claim)) errors.push(`同一條說法只能有一個立場（stances[${i}]）`);

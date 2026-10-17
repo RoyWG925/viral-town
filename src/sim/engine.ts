@@ -91,6 +91,12 @@ const CONV_LINGER = 6;
 
 const placeZh = (id: PlaceId) => PLACES.find((p) => p.id === id)?.zh ?? id;
 const fact = (id: FactId) => FACTS.find((f) => f.id === id)!;
+/** first letter up, for a line that starts with a place or a source ("the plaza" → "The plaza") */
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+/** a sentence that ends in punctuation, so the next one can follow it */
+const sentence = (s: string) => (/[.!?。！？”」]$/.test(s.trim()) ? s.trim() : `${s.trim()}.`);
+/** "A", "A and B", "A, B and C" */
+const andList = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}` : xs[0] ?? "");
 
 function rng(seed: number) {
   let a = seed >>> 0;
@@ -163,8 +169,15 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       mind: { knows: new Set(p.knows), learned: new Map(), beliefs: new Map(), inbox: [], memory: [], decisions: 0, lastDecisionAt: -99, told: new Map(), heardKeys: new Map() },
     });
   }
-  const SOURCE_ZH: Record<string, string> = { unknown: "一位陌生客人", crowd: "客人們", notice: "布告欄", self: "你自己", news: "新聞", hunch: "自己的念頭" };
+  const SOURCE_ZH: Record<string, string> = { unknown: "a stranger", crowd: "people in town", notice: "the notice board", self: "yourself", news: "the news", hunch: "your own thought" };
   const name = (id: string) => npcs.get(id)?.p.name ?? SOURCE_ZH[id] ?? id;
+  /** how a message is remembered, as the start of a memory line: "Ade said", "You saw for yourself", "You thought" */
+  const heardAs = (m: Message) =>
+    m.via === "hunch"
+      ? m.from === "self" ? "You thought" : "You had a thought"
+      : m.from === "self"
+        ? "You saw for yourself"
+        : `${cap(name(m.from))} ${m.via === "phone" ? "said on the phone" : m.via === "article" ? "wrote" : "said"}`;
 
   const emit = (type: EventType, t: Minutes, zh: string, causes: string[], fields: Partial<SimEvent> = {}): string => {
     // full precision: rounding here would let events slip below a frontier already reported to playback
@@ -183,12 +196,12 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     const senderConf = sender && claimIds.length ? Math.max(...claimIds.map((c) => sender.mind.beliefs.get(c)?.confidence ?? 0)) : undefined;
     const m: Message = { id: `m${++msgN}`, from, to: to.p.id, via, intent, text, claims: claimIds, at: t, event: cause, senderConf };
     const how: Record<string, string> = {
-      face: `聽${name(from)}說：「${text}」`, phone: `在電話裡聽${name(from)}說：「${text}」`, inspection: `親眼看到：${text}`,
-      article: `看到${name(from)}的文章：${text}`, notice: `看到布告欄：「${text}」`, crowd: `聽客人說：${text}`, seed: `聽到一位陌生客人說：「${text}」`,
-      hunch: `腦中突然冒出一個念頭：「${text}」`,
-      meet: `碰到了${name(from)}（${text}）`,
+      face: `heard from ${name(from)}: “${text}”`, phone: `heard from ${name(from)} on the phone: “${text}”`, inspection: `saw firsthand: ${text}`,
+      article: `read ${name(from)}'s article: ${text}`, notice: `saw on the notice board: “${text}”`, crowd: `heard people talking: ${text}`, seed: `overheard a stranger say: “${text}”`,
+      hunch: `suddenly had a thought: “${text}”`,
+      meet: `ran into ${name(from)} (${text})`,
     };
-    const ev = emit("deliver", t, `${to.p.name}${how[via] ?? `得知：${text}`}`, [cause], {
+    const ev = emit("deliver", t, `${to.p.name} ${how[via] ?? `learned: ${text}`}`, [cause], {
       target: to.p.id, actor: npcs.has(from) ? from : undefined, place: to.place, data: { message: m.id, via, intent, text, claims: claimIds, from },
     });
     m.event = ev;
@@ -206,7 +219,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     }
     if (repeat) {
       events[events.length - 1].data.repeat = true;
-      to.mind.memory.push(`${clockOf(t)} ${name(from)}又跟你說了一次：「${text.slice(0, 40)}」`);
+      to.mind.memory.push(`${clockOf(t)} ${cap(name(from))} told you again: “${text.slice(0, 68)}”`);
       return;
     }
     to.mind.inbox.push(m);
@@ -242,27 +255,27 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     for (const id of n.mind.knows) {
       known[id] = fact(id).value;
       const f = fact(id);
-      knowledge.push({ id, zh: f.value ? f.zh : (f.notZh ?? `這不是真的：${f.zh.replace(/。$/, "")}。`), secret: n.p.secrets.includes(id), learned: false });
+      knowledge.push({ id, zh: f.value ? f.zh : (f.notZh ?? `This isn't true: ${f.zh.replace(/[。.]$/, "")}.`), secret: n.p.secrets.includes(id), learned: false });
     }
     for (const [id, value] of n.mind.learned) {
       if (id in known) continue;
       known[id] = value;
       const f = fact(id);
-      knowledge.push({ id, zh: f.check?.zh ?? (value ? f.zh : (f.notZh ?? `這不是真的：${f.zh}`)), secret: false, learned: true });
+      knowledge.push({ id, zh: f.check?.zh ?? (value ? f.zh : (f.notZh ?? `This isn't true: ${f.zh}`)), secret: false, learned: true });
     }
     const items: InboxItem[] = inbox.map((m) => ({ id: m.id, from: m.from, fromZh: name(m.from), via: m.via, intent: m.intent, text: m.text, trust: trustIn(n.p, m.from), senderConf: m.senderConf }));
     return {
       npc: n.p, t, clock: clockOf(t), place: n.place, placeZh: placeZh(n.place), knowledge, known,
       beliefs: [...n.mind.beliefs.values()].map((b) => {
         const c = claims.get(b.claim)!;
-        return { id: c.id, statement: c.statement, topic: c.topic, says: c.says, category: c.category, confidence: b.confidence, sources: b.sources, sourcesZh: b.sources.map(name).join("、") };
+        return { id: c.id, statement: c.statement, topic: c.topic, says: c.says, category: c.category, confidence: b.confidence, sources: b.sources, sourcesZh: b.sources.map(name).join(", ") };
       }),
       inbox: items,
       memory: n.mind.memory,
       // residents know where people usually are, not where they are right now; the engine finds them
       people: [...npcs.values()].filter((o) => o !== n).map((o) => ({
         id: o.p.id, name: o.p.name, roleZh: o.p.roleZh, place: o.p.home, placeZh: placeZh(o.p.home),
-        relation: n.p.relations[o.p.id] ?? { trust: 0.35, phone: false, zh: "點頭之交" }, busy: false, talks: n.talks.get(o.p.id) ?? 0,
+        relation: n.p.relations[o.p.id] ?? { trust: 0.35, phone: false, zh: "a nodding acquaintance" }, busy: false, talks: n.talks.get(o.p.id) ?? 0,
       })),
       actions: ["tell", "phone", "ask", "go_look", ...n.p.actions],
       publicEvents: n.publicEvents,
@@ -290,8 +303,8 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       if (globalCap) budgetHit = true;
       rec.fallback = true;
       rec.validation.push({ attempt: 0, kind: "budget", errors: ["decision budget reached"] });
-      for (const m of inbox) n.mind.memory.push(`${clockOf(t)} ${name(m.from)}說：「${m.text}」（你沒有多想）`);
-      rec.applied.push(emit("decide", t, `${n.p.name}聽了，但沒有多想（模擬達到決策上限）`, triggers, { actor: n.p.id, place: n.place, data: { decision: id, budget: true } }));
+      for (const m of inbox) n.mind.memory.push(`${clockOf(t)} ${heardAs(m)}: “${m.text}” (you didn't think much of it)`);
+      rec.applied.push(emit("decide", t, `${n.p.name} heard it but didn't think much of it (the simulation reached its decision limit)`, triggers, { actor: n.p.id, place: n.place, data: { decision: id, budget: true } }));
       cfg.onDecision?.(rec);
       return;
     }
@@ -318,7 +331,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
 
   function apply(n: Npc, t: Minutes, rec: DecisionRecord, res: MindResult, inbox: Message[]) {
     const out = res.output;
-    const dEv = emit("decide", t, `${n.p.name}：${out.thought}`, rec.triggers, {
+    const dEv = emit("decide", t, `${n.p.name}: ${out.thought}`, rec.triggers, {
       actor: n.p.id, place: n.place,
       data: { decision: rec.id, understanding: out.understanding, thought: out.thought, feeling: out.feeling, policy: rec.policy, fallback: rec.fallback, actions: out.actions.map((a) => a.type), motive: out.motive },
     });
@@ -341,7 +354,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       const conf = res.checked.confidence[s.claim] ?? 0;
       const sources = [...new Set([...(prev?.sources ?? []), ...(res.checked.sources?.[s.claim] ?? senders)])];
       n.mind.beliefs.set(cid, { claim: cid, confidence: conf, sources, updatedAt: t, why: s.why });
-      const bEv = emit("belief", t, `${n.p.name}對「${claims.get(cid)!.statement}」的信心：${(prev?.confidence ?? 0).toFixed(2)} → ${conf.toFixed(2)}（${s.verdict}）`, [dEv], {
+      const bEv = emit("belief", t, `${n.p.name}'s confidence in “${claims.get(cid)!.statement}”: ${(prev?.confidence ?? 0).toFixed(2)} → ${conf.toFixed(2)} (${s.verdict})`, [dEv], {
         // `limit` says which engine rule moved the model's number, so the player can be told why
         actor: n.p.id, data: { claim: cid, topic: claims.get(cid)!.topic, says: claims.get(cid)!.says, from: prev?.confidence ?? 0, to: conf, proposed: s.confidence, verdict: s.verdict, why: s.why, limit: res.checked.limits?.[s.claim] },
       });
@@ -353,8 +366,8 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     publicPressure(t, dEv);
     // what they wanted to do but the rules did not allow: part of the story, shown honestly
     for (const r of res.refused ?? [])
-      rec.applied.push(emit("rejected", t + 0.2, `${n.p.name}想${describe(r.action)}，但${r.why}`, [dEv], { actor: n.p.id, place: n.place, data: { action: r.action.type, why: r.why, wanted: true } }));
-    for (const m of inbox) n.mind.memory.push(`${clockOf(m.at)} ${m.from === "self" ? "你親眼看到" : `${name(m.from)}${m.via === "phone" ? "打電話" : ""}說`}：「${m.text.slice(0, 60)}」`);
+      rec.applied.push(emit("rejected", t + 0.2, `${n.p.name} wanted to ${describe(r.action)}, but ${r.why}`, [dEv], { actor: n.p.id, place: n.place, data: { action: r.action.type, why: r.why, wanted: true } }));
+    for (const m of inbox) n.mind.memory.push(`${clockOf(m.at)} ${heardAs(m)}: “${m.text.slice(0, 100)}”`);
     // the plan replaces whatever was left of the previous one
     const plan = (out.actions ?? []).filter((a) => a.type !== "none").slice(0, 2);
     const planId = ++n.planId;
@@ -374,10 +387,10 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     };
     if (plan.length) {
       n.busyUntil = Math.max(n.busyUntil, t + REACT);
-      n.mind.memory.push(`${clockOf(t)} 你決定：${plan.map((a) => describe(a)).join("，然後")}`);
+      n.mind.memory.push(`${clockOf(t)} You decided to ${plan.map((a) => describe(a)).join(", then ")}`);
       at(t + REACT, () => runStep(0, t + REACT));
     } else {
-      n.mind.memory.push(`${clockOf(t)} 你決定先不做什麼。`);
+      n.mind.memory.push(`${clockOf(t)} You decided not to do anything for now.`);
       // nothing more to do here: back to their own place (if they were left standing somewhere)
       at(
         t + REACT,
@@ -392,20 +405,20 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
   const describe = (a: ActionIntent) => {
     const who = a.target ? name(a.target) : "";
     switch (a.type) {
-      case "tell": return `去跟${who}說「${a.message ?? ""}」`;
-      case "phone": return `打電話給${who}說「${a.message ?? ""}」`;
-      case "ask": return `去問${who}「${a.message ?? ""}」`;
-      case "go_look": return `去${placeZh(a.place!)}看看`;
-      case "inspect": return `去檢查${placeZh(a.place!)}`;
-      case "dispatch_police": return `派警力到${placeZh(a.place!)}`;
-      case "close_stage": return "封鎖舞台";
-      case "cancel_festival": return "取消燈籠節";
-      case "publish_article": return "發文爆料";
-      case "public_statement": return "發表聲明";
-      case "post_notice": return "貼公告";
-      case "rally": return "號召攤商聚集";
-      case "close_shop": return "關店";
-      case "open_shop": return "開店";
+      case "tell": return `go tell ${who} “${a.message ?? ""}”`;
+      case "phone": return `call ${who} and say “${a.message ?? ""}”`;
+      case "ask": return `go ask ${who} “${a.message ?? ""}”`;
+      case "go_look": return `go take a look at ${placeZh(a.place!)}`;
+      case "inspect": return `go inspect ${placeZh(a.place!)}`;
+      case "dispatch_police": return `send officers to ${placeZh(a.place!)}`;
+      case "close_stage": return "close off the stage";
+      case "cancel_festival": return "cancel the Lantern Festival";
+      case "publish_article": return "publish an exposé";
+      case "public_statement": return "make a public statement";
+      case "post_notice": return "put up a notice";
+      case "rally": return "rally the stall owners";
+      case "close_shop": return "close the shop";
+      case "open_shop": return "reopen the shop";
       default: return a.type;
     }
   };
@@ -416,14 +429,14 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     const from = n.place;
     n.dest = to;
     n.busyUntil = t + dt;
-    const zh = follow ? `${n.p.name}跟著${follow.p.name}一起走向${placeZh(to)}` : `${n.p.name}從${placeZh(from)}${home ? "走回" : "走向"}${placeZh(to)}`;
+    const zh = follow ? `${n.p.name} went along with ${follow.p.name} to ${placeZh(to)}` : `${n.p.name} ${home ? "walked back" : "walked"} from ${placeZh(from)} to ${placeZh(to)}`;
     const ev = emit("move", t, zh, [cause], { actor: n.p.id, place: from, data: { from, to, arrive: t + dt, home, follow: follow?.p.id } });
     at(
       t + dt,
       () => {
         n.place = to;
         n.dest = null;
-        emit("arrive", t + dt, `${n.p.name}到了${placeZh(to)}`, [ev], { actor: n.p.id, place: to, data: {} });
+        emit("arrive", t + dt, `${n.p.name} arrived at ${placeZh(to)}`, [ev], { actor: n.p.id, place: to, data: {} });
         then(t + dt);
       },
       home ? IDLE : undefined,
@@ -455,7 +468,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       const counts = new Map<string, number>();
       for (const h of held) counts.set(h.b.claim, (counts.get(h.b.claim) ?? 0) + 1);
       const cid = [...counts].sort((x, y) => y[1] - x[1])[0][0];
-      at(t + 5, () => deliver(mayor, "crowd", "crowd", "inform", `鎮上好幾個人在傳：「${claims.get(cid)!.statement}」`, [cid], t + 5, cause));
+      at(t + 5, () => deliver(mayor, "crowd", "crowd", "inform", `Several people in town are saying: “${claims.get(cid)!.statement}”`, [cid], t + 5, cause));
     }
   }
 
@@ -530,7 +543,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     const key = `${n.p.id}>${target.p.id}`;
     if (sunk.has(key)) return;
     sunk.add(key);
-    at(t + REACT, () => deliver(n, "self", "hunch", "inform", `這件事我已經跟${target.p.name}說過了，再說一次也一樣。接下來我該怎麼做？`, [], t + REACT, cause));
+    at(t + REACT, () => deliver(n, "self", "hunch", "inform", `I've already told ${target.p.name} about this; saying it again won't change anything. What should I do next?`, [], t + REACT, cause));
   }
   function countTalk(a: Npc, b: Npc) {
     a.talks.set(b.p.id, (a.talks.get(b.p.id) ?? 0) + 1);
@@ -546,7 +559,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
   }
 
   function reject(n: Npc, t: Minutes, cause: string, why: string, a: ActionIntent) {
-    return emit("rejected", t, `${n.p.name}沒能${describe(a)}：${why}`, [cause], { actor: n.p.id, data: { action: a.type, why } });
+    return emit("rejected", t, `${n.p.name} couldn't ${describe(a)}: ${why}`, [cause], { actor: n.p.id, data: { action: a.type, why } });
   }
 
   /** What someone sees at a place: checkable facts (an expert's eye only for an inspection in their trade), the state of
@@ -573,8 +586,9 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
         return at(next, () => tryAt(next));
       }
       const left = Math.round(FESTIVAL_AT - t);
-      const leftZh = left >= 60 ? `${Math.floor(left / 60)} 小時${left % 60 ? ` ${left % 60} 分鐘` : ""}` : `${left} 分鐘`;
-      deliver(n, "self", "hunch", "inform", `我一直放不下${clockOf(t0)}親眼看到的事：${f.check!.zh}離燈籠節開始只剩 ${leftZh}。接下來我該怎麼做？`, [], t, cause);
+      const plural = (k: number, unit: string) => `${k} ${unit}${k === 1 ? "" : "s"}`;
+      const leftZh = left >= 60 ? `${plural(Math.floor(left / 60), "hour")}${left % 60 ? ` ${plural(left % 60, "minute")}` : ""}` : plural(left, "minute");
+      deliver(n, "self", "hunch", "inform", `I can't stop thinking about what I saw with my own eyes at ${clockOf(t0)}: ${sentence(f.check!.zh)} The Lantern Festival starts in just ${leftZh}. What should I do next?`, [], t, cause);
     };
     at(t0 + MULL_QUIET, () => tryAt(t0 + MULL_QUIET));
   }
@@ -590,22 +604,22 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       seen.push(f.check!.zh);
     }
     const highlight = checks.find((f) => onMind.has(f.id))?.check?.zh;
-    if (place === "plaza" && world.notices.length) seen.push(`布告欄上貼著：${world.notices.map((x) => `「${x.text}」`).join("、")}`);
-    if (world.gatherings[place]) seen.push(`這裡聚集了 ${world.gatherings[place].people.length + world.gatherings[place].extras} 個人在${world.gatherings[place].cause}`);
-    if (world.police.deployed && world.police.place === place && (world.police.arriveAt ?? 0) <= t) seen.push("警察已經在這裡了。");
-    if (place === "stage" && world.stage === "closed") seen.push("舞台已經被封鎖了。");
-    if (world.shops[place] === "closed") seen.push(`${placeZh(place)}今天暫停營業。`);
+    if (place === "plaza" && world.notices.length) seen.push(`On the notice board: ${world.notices.map((x) => `“${x.text}”`).join(", ")}.`);
+    if (world.gatherings[place]) seen.push(`${world.gatherings[place].people.length + world.gatherings[place].extras} people have gathered here: “${world.gatherings[place].cause}”.`);
+    if (world.police.deployed && world.police.place === place && (world.police.arriveAt ?? 0) <= t) seen.push("The police are already here.");
+    if (place === "stage" && world.stage === "closed") seen.push("The stage has been taped off.");
+    if (world.shops[place] === "closed") seen.push(`${cap(placeZh(place))} is closed for the day.`);
     // who is around is part of what you see (and someone you could go and ask)
-    const here = [...npcs.values()].filter((o) => o !== n && o.place === place && !o.dest).map((o) => `${o.p.name}（${o.p.roleZh}）`);
+    const here = [...npcs.values()].filter((o) => o !== n && o.place === place && !o.dest).map((o) => `${o.p.name} (${o.p.roleZh})`);
     // what this look could not have shown them (a glance is not an inspection; not their trade)
     const missed = FACTS.filter((f) => f.check?.place === place && f.check.by === "expert" && !checks.includes(f));
     // a careful look by someone for whom it is not their trade: say so, and who could tell (public roles)
     const whoCan = [...new Set(missed.flatMap((f) => f.check!.roles ?? []))].map((r) => PERSONAS.find((p) => p.role === r)?.roleZh).filter(Boolean);
-    const limit = !missed.length ? undefined : expert && whoCan.length ? `你仔細看了，但這不是你的專業，看不出所以然；這種事得找${whoCan.join("或")}這類懂行的人來檢查。` : LOOK_LIMITS[place];
-    if (!seen.length) seen.push(limit ? `${placeZh(place)}表面上看起來一切如常。` : `${placeZh(place)}看起來一切如常，沒看到什麼特別的。`);
+    const limit = !missed.length ? undefined : expert && whoCan.length ? `You looked carefully, but this isn't your trade and you can't make much of it; it takes someone who knows the work (${whoCan.join(" or ")}) to check this.` : LOOK_LIMITS[place];
+    if (!seen.length) seen.push(limit ? `On the surface, everything at ${placeZh(place)} looks normal.` : `Everything at ${placeZh(place)} looks normal; nothing out of the ordinary.`);
     if (limit) seen.push(limit);
-    if (here.length) seen.push(`${here.join("、")}在這裡。`);
-    return { text: seen.join(" "), highlight: highlight ?? (limit ? `${seen[0]}${limit}` : seen[0]) };
+    if (here.length) seen.push(`${andList(here)} ${here.length > 1 ? "are" : "is"} here.`);
+    return { text: seen.join(" "), highlight: highlight ?? (limit ? `${seen[0]} ${limit}` : seen[0]) };
   }
 
   function exec(n: Npc, a: ActionIntent, t: Minutes, cause: string, claimIds: string[], next: (t: Minutes) => void) {
@@ -617,11 +631,11 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       case "tell":
       case "ask": {
         if (!target) {
-          reject(n, t, cause, "找不到這個人", a);
+          reject(n, t, cause, "no such person here", a);
           return next(t);
         }
         if (a.type === "tell" && isRepeat(n, target, claimIds, true)) {
-          sinkIn(n, target, t, reject(n, t, cause, "已經跟對方說過同一件事了", a));
+          sinkIn(n, target, t, reject(n, t, cause, "already told them the same thing", a));
           return next(t);
         }
         const go = target.dest ?? target.place;
@@ -630,17 +644,17 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           const leaving = target.dest !== null && target.dest !== n.place;
           const arriving = target.dest === n.place;
           if (leaving || (target.place !== n.place && !arriving)) {
-            reject(n, ta, cause, `${target.p.name}${leaving ? "剛好離開了" : "不在這裡"}`, a);
+            reject(n, ta, cause, `${target.p.name} ${leaving ? "had just left" : "wasn't there"}`, a);
             return next(ta);
           }
-          whenFree(n, target, ta, (tg) => { if (alive()) { reject(n, tg, cause, `${target.p.name}一直在忙`, a); next(tg); } }, (tb) => {
+          whenFree(n, target, ta, (tg) => { if (alive()) { reject(n, tg, cause, `${target.p.name} was busy the whole time`, a); next(tg); } }, (tb) => {
             if (!alive()) return;
             if (target.place !== n.place || target.dest) {
-              reject(n, tb, cause, `${target.p.name}已經離開了`, a);
+              reject(n, tb, cause, `${target.p.name} had already left`, a);
               return next(tb);
             }
             n.busyUntil = target.busyUntil = tb + TALK;
-            const ev = emit("talk", tb, `${n.p.name}對${target.p.name}說：「${a.message}」`, [cause], {
+            const ev = emit("talk", tb, `${n.p.name} ${a.type === "ask" ? "asked" : "said to"} ${target.p.name}: “${a.message}”`, [cause], {
               actor: n.p.id, target: target.p.id, place: n.place, data: { text: a.message, intent: a.intent ?? (a.type === "ask" ? "ask" : "inform"), claims: claimIds },
             });
             markTold(n, target, claimIds, true);
@@ -655,19 +669,19 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       }
       case "phone": {
         if (!target || !n.p.relations[target.p.id]?.phone) {
-          reject(n, t, cause, "沒有對方的電話", a);
+          reject(n, t, cause, "doesn't have their number", a);
           return next(t);
         }
         if (isRepeat(n, target, claimIds, false)) {
-          sinkIn(n, target, t, reject(n, t, cause, "已經跟對方說過同一件事了", a));
+          sinkIn(n, target, t, reject(n, t, cause, "already told them the same thing", a));
           return next(t);
         }
         if (target.busyUntil > t) {
-          emit("phone", t, `${n.p.name}打給${target.p.name}，但對方沒接`, [cause], { actor: n.p.id, target: target.p.id, data: { missed: true } });
+          emit("phone", t, `${n.p.name} called ${target.p.name}, but nobody picked up`, [cause], { actor: n.p.id, target: target.p.id, data: { missed: true } });
           return next(t + 0.5);
         }
         n.busyUntil = target.busyUntil = t + PHONE;
-        const ev = emit("phone", t, `${n.p.name}打電話給${target.p.name}：「${a.message}」`, [cause], {
+        const ev = emit("phone", t, `${n.p.name} called ${target.p.name}: “${a.message}”`, [cause], {
           actor: n.p.id, target: target.p.id, place: n.place, data: { text: a.message, intent: a.intent ?? "inform", claims: claimIds },
         });
         markTold(n, target, claimIds, false);
@@ -688,11 +702,11 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           const dur = expert ? INSPECT : LOOK;
           n.busyUntil = ta + dur;
           for (const c of along) if (c.place === place || c.dest === place) c.busyUntil = Math.max(c.busyUntil, ta + dur);
-          const ev = emit(expert ? "inspect" : "look", ta, `${n.p.name}在${placeZh(place)}${expert ? "仔細檢查" : "到處看看"}`, [cause], { actor: n.p.id, place, data: { with: along.map((c) => c.p.id) } });
+          const ev = emit(expert ? "inspect" : "look", ta, `${n.p.name} ${expert ? "carefully inspected" : "looked around"} ${placeZh(place)}`, [cause], { actor: n.p.id, place, data: { with: along.map((c) => c.p.id) } });
           at(ta + dur, () => {
             const seenBy = (who: Npc, careful: boolean, cause2: string, prefix = "") => {
               const r = lookAround(who, place, careful, ta + dur);
-              const done = emit(careful ? "inspect" : "look", ta + dur, `${who.p.name}${prefix}看到：${r.text}`, [cause2], {
+              const done = emit(careful ? "inspect" : "look", ta + dur, `${who.p.name}${prefix} saw: ${r.text}`, [cause2], {
                 actor: who.p.id, place, data: { found: r.text, highlight: r.highlight, learned: [...who.mind.learned.keys()], with: prefix ? n.p.id : undefined },
               });
               deliver(who, "self", "inspection", "inform", r.text, [], ta + dur, done);
@@ -703,7 +717,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
             // the companion saw it too, with their own eyes (a careful inspection is still the expert's)
             for (const c of along) {
               if (c.place !== place || c.dest) continue;
-              seenBy(c, false, done, `跟著${n.p.name}一起`);
+              seenBy(c, false, done, ` (together with ${n.p.name})`);
               startConv(n, c, ta + dur + CONV_LINGER);
             }
             next(ta + dur);
@@ -721,15 +735,15 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       case "open_shop": {
         const shop = n.p.home;
         if (!(shop in world.shops)) {
-          reject(n, t, cause, "你沒有店可以關", a);
+          reject(n, t, cause, "has no shop to close", a);
           return next(t);
         }
         return walk(n, shop, t, cause, (ta) => {
           const to = a.type === "close_shop" ? "closed" : "open";
           if (world.shops[shop] === to) return next(ta);
           world.shops[shop] = to;
-          const ev = emit("state", ta, `${placeZh(shop)}${to === "closed" ? "拉下鐵門，暫停營業" : "重新開門營業"}`, [cause], { actor: n.p.id, place: shop, data: { key: `shops.${shop}`, to } });
-          spread(ev, ta, shop, `${placeZh(shop)}${to === "closed" ? "突然關店了" : "又開門了"}`, "crowd", "crowd", { except: [n.p.id], delay: [10, 40], p: 0.5 });
+          const ev = emit("state", ta, `${cap(placeZh(shop))} ${to === "closed" ? "pulled down its shutters and closed for now" : "opened its doors again"}`, [cause], { actor: n.p.id, place: shop, data: { key: `shops.${shop}`, to } });
+          spread(ev, ta, shop, `${cap(placeZh(shop))} ${to === "closed" ? "suddenly closed" : "is open again"}`, "crowd", "crowd", { except: [n.p.id], delay: [10, 40], p: 0.5 });
           next(ta + 1);
         });
       }
@@ -739,7 +753,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           at(ta + NOTICE, () => {
             const id = `n${world.notices.length + 1}`;
             world.notices.push({ id, text: a.message ?? "", by: n.p.id, at: ta + NOTICE });
-            const ev = emit("notice", ta + NOTICE, `${n.p.name}在布告欄貼了公告：「${a.message}」`, [cause], { actor: n.p.id, place: "plaza", data: { text: a.message, claims: claimIds } });
+            const ev = emit("notice", ta + NOTICE, `${n.p.name} put up a notice on the notice board: “${a.message}”`, [cause], { actor: n.p.id, place: "plaza", data: { text: a.message, claims: claimIds } });
             spread(ev, ta + NOTICE, "plaza", a.message ?? "", "notice", "notice", { except: [n.p.id], delay: [15, 50], p: 0.6, claims: claimIds });
             next(ta + NOTICE);
           });
@@ -747,18 +761,22 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       case "publish_article": {
         const written = new Set(events.filter((e) => e.type === "article" && e.actor === n.p.id).flatMap((e) => e.data.claims as string[]));
         if (claimIds.length && claimIds.every((c) => written.has(c))) {
-          reject(n, t, cause, "已經寫過這件事了", a);
+          reject(n, t, cause, "already wrote about this", a);
           return next(t);
         }
         return walk(n, "news", t, cause, (ta) => {
           n.busyUntil = ta + WRITE;
-          emit("state", ta, `${n.p.name}開始寫文章`, [cause], { actor: n.p.id, place: "news", data: { key: "writing" } });
+          emit("state", ta, `${n.p.name} started writing an article`, [cause], { actor: n.p.id, place: "news", data: { key: "writing" } });
           at(ta + WRITE, () => {
-            const [headline, ...rest] = (a.message ?? "").split(/[\n：:]/);
-            const art = { id: `a${world.articles.length + 1}`, headline: headline.slice(0, 40), body: rest.join("：").slice(0, 300) || headline, by: n.p.id, at: ta + WRITE };
+            // the headline is what comes before the first line break or colon (English ":" or Chinese "：")
+            const msg = a.message ?? "";
+            const cut = msg.search(/[\n：:]/);
+            const headline = (cut < 0 ? msg : msg.slice(0, cut)).trim();
+            const rest = cut < 0 ? "" : msg.slice(cut + 1).trim();
+            const art = { id: `a${world.articles.length + 1}`, headline: headline.slice(0, 68), body: rest.slice(0, 510) || headline, by: n.p.id, at: ta + WRITE };
             world.articles.push(art);
-            const ev = emit("article", ta + WRITE, `${n.p.name}發文〈${art.headline}〉`, [cause], { actor: n.p.id, place: "news", data: { headline: art.headline, body: art.body, claims: claimIds } });
-            spread(ev, ta + WRITE, null, `〈${art.headline}〉${art.body}`.slice(0, 160), "article", n.p.id, { except: [n.p.id], delay: [5, 40], p: 0.85, claims: claimIds });
+            const ev = emit("article", ta + WRITE, `${n.p.name} published “${art.headline}”`, [cause], { actor: n.p.id, place: "news", data: { headline: art.headline, body: art.body, claims: claimIds } });
+            spread(ev, ta + WRITE, null, `“${art.headline}” ${art.body}`.slice(0, 272), "article", n.p.id, { except: [n.p.id], delay: [5, 40], p: 0.85, claims: claimIds });
             next(ta + WRITE);
           });
         });
@@ -768,16 +786,16 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           n.busyUntil = ta + STATEMENT;
           at(ta + STATEMENT, () => {
             world.statements.push({ by: n.p.id, text: a.message ?? "", at: ta + STATEMENT });
-            const ev = emit("statement", ta + STATEMENT, `${n.p.name}發表公開聲明：「${a.message}」`, [cause], { actor: n.p.id, place: "townhall", data: { text: a.message, claims: claimIds } });
-            spread(ev, ta + STATEMENT, "townhall", `${n.p.name}的公開聲明：${a.message}`, "crowd", n.p.id, { except: [n.p.id], delay: [5, 25], p: 0.9, claims: claimIds });
+            const ev = emit("statement", ta + STATEMENT, `${n.p.name} made a public statement: “${a.message}”`, [cause], { actor: n.p.id, place: "townhall", data: { text: a.message, claims: claimIds } });
+            spread(ev, ta + STATEMENT, "townhall", `${n.p.name}'s public statement: ${a.message}`, "crowd", n.p.id, { except: [n.p.id], delay: [5, 25], p: 0.9, claims: claimIds });
             next(ta + STATEMENT);
           });
         });
       case "cancel_festival": {
         if (world.festival !== "scheduled") return next(t);
         world.festival = "cancelled";
-        const ev = emit("state", t, `${n.p.name}宣布取消今晚的燈籠節：「${a.message}」`, [cause], { actor: n.p.id, place: n.place, data: { key: "festival", to: "cancelled", text: a.message } });
-        spread(ev, t, null, `燈籠節取消了。${n.p.name}說：${a.message}`, "crowd", n.p.id, { except: [n.p.id], delay: [2, 12], p: 1, onDeliver: (o) => o.mind.knows.delete("festival") });
+        const ev = emit("state", t, `${n.p.name} called off tonight's Lantern Festival: “${a.message}”`, [cause], { actor: n.p.id, place: n.place, data: { key: "festival", to: "cancelled", text: a.message } });
+        spread(ev, t, null, `The Lantern Festival is cancelled. ${n.p.name} said: ${a.message}`, "crowd", n.p.id, { except: [n.p.id], delay: [2, 12], p: 1, onDeliver: (o) => o.mind.knows.delete("festival") });
         n.mind.knows.delete("festival");
         return next(t + 2);
       }
@@ -785,10 +803,10 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
         const place = a.place!;
         const arrive = t + 2 + travelMinutes("police", place);
         world.police = { deployed: true, place, arriveAt: arrive };
-        const ev = emit("state", t, `${n.p.name}派警員前往${placeZh(place)}`, [cause], { actor: n.p.id, place: "police", data: { key: "police", to: place, arrive, reason: a.message } });
+        const ev = emit("state", t, `${n.p.name} sent officers to ${placeZh(place)}`, [cause], { actor: n.p.id, place: "police", data: { key: "police", to: place, arrive, reason: a.message } });
         at(arrive, () => {
-          const ev2 = emit("arrive", arrive, `警員抵達${placeZh(place)}`, [ev], { place, data: { who: "officers" } });
-          spread(ev2, arrive, place, `警察出動到${placeZh(place)}了`, "crowd", "crowd", { except: [n.p.id], delay: [5, 25], p: 0.7 });
+          const ev2 = emit("arrive", arrive, `Officers arrived at ${placeZh(place)}`, [ev], { place, data: { who: "officers" } });
+          spread(ev2, arrive, place, `The police have been sent to ${placeZh(place)}`, "crowd", "crowd", { except: [n.p.id], delay: [5, 25], p: 0.7 });
         });
         return next(t + 1);
       }
@@ -796,8 +814,8 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
         return walk(n, "stage", t, cause, (ta) => {
           if (world.stage === "closed") return next(ta);
           world.stage = "closed";
-          const ev = emit("state", ta, `${n.p.name}封鎖了慶典舞台`, [cause], { actor: n.p.id, place: "stage", data: { key: "stage", to: "closed", reason: a.message } });
-          spread(ev, ta, "stage", "慶典舞台被拉起封鎖線了", "crowd", "crowd", { except: [n.p.id], delay: [5, 25], p: 0.8 });
+          const ev = emit("state", ta, `${n.p.name} closed off the festival stage`, [cause], { actor: n.p.id, place: "stage", data: { key: "stage", to: "closed", reason: a.message } });
+          spread(ev, ta, "stage", "The festival stage has been taped off", "crowd", "crowd", { except: [n.p.id], delay: [5, 25], p: 0.8 });
           next(ta + 1);
         });
       case "rally": {
@@ -807,14 +825,14 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           at(ta + RALLY, () => {
             const extras = 2 + Math.floor(rand() * 3); // other stall owners who come along
             world.gatherings[place] = { cause: a.message ?? "", people: [n.p.id], extras };
-            const ev = emit("gather", ta + RALLY, `${n.p.name}帶著 ${extras} 位攤商聚到${placeZh(place)}：「${a.message}」`, [cause], { actor: n.p.id, place, data: { extras, text: a.message, claims: claimIds } });
-            spread(ev, ta + RALLY, place, `${n.p.name}帶著一群攤商聚在${placeZh(place)}：${a.message}`, "crowd", "crowd", { except: [n.p.id], delay: [5, 25], p: 0.8 });
+            const ev = emit("gather", ta + RALLY, `${n.p.name} brought ${extras} stall owners to ${placeZh(place)}: “${a.message}”`, [cause], { actor: n.p.id, place, data: { extras, text: a.message, claims: claimIds } });
+            spread(ev, ta + RALLY, place, `${n.p.name} has a group of stall owners gathered at ${placeZh(place)}: ${a.message}`, "crowd", "crowd", { except: [n.p.id], delay: [5, 25], p: 0.8 });
             next(ta + RALLY);
           });
         });
       }
       default:
-        reject(n, t, cause, "這個行動在世界裡無法執行", a);
+        reject(n, t, cause, "that can't be done in this world", a);
         return next(t);
     }
   }
@@ -849,7 +867,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           at(free, () => {
             a.busyUntil = b.busyUntil = free + 2;
             startConv(a, b, free + 2 + CONV_LINGER);
-            const meet = emit("meet", free, `${a.p.name}和${b.p.name}在${placeZh(r.place)}碰面（${r.zh}）`, [go], { actor: a.p.id, target: b.p.id, place: r.place, data: { text: r.zh } });
+            const meet = emit("meet", free, `${a.p.name} and ${b.p.name} met at ${placeZh(r.place)} (${r.zh})`, [go], { actor: a.p.id, target: b.p.id, place: r.place, data: { text: r.zh } });
             at(free + 2, () => {
               for (const [x, y] of [[a, b], [b, a]] as const) if (carrying(x)) deliver(x, y.p.id, "meet", "inform", r.zh, [], free + 2, meet);
               // the visitor heads home once the conversation is over, unless a decision gives them something else to do
@@ -877,7 +895,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       if (m.at <= seedAt || m.at > endAt) continue;
       at(m.at, () => {
         const r = milestoneOf(m.id, events, infoNow());
-        emit("milestone", m.at, `${m.zh}：${r.text}`, r.causes, { place: m.id === "vendors" || m.id === "police" ? "plaza" : "stage", data: { ...r } });
+        emit("milestone", m.at, `${m.zh}: ${r.text}`, r.causes, { place: m.id === "vendors" || m.id === "police" ? "plaza" : "stage", data: { ...r } });
       }, IDLE);
     }
     if (endAt >= FESTIVAL_AT)
@@ -890,7 +908,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
 
   // ---- seed and main loop --------------------------------------------------------------------
   const seedNpc = npcs.get(cfg.seedNpc)!;
-  const seedEv = emit("seed", seedAt, `一個念頭被植入${seedNpc.p.name}耳中：「${cfg.seedText}」`, [], { target: seedNpc.p.id, place: seedNpc.place, data: { text: cfg.seedText } });
+  const seedEv = emit("seed", seedAt, `A thought was planted in ${seedNpc.p.name}'s ear: “${cfg.seedText}”`, [], { target: seedNpc.p.id, place: seedNpc.place, data: { text: cfg.seedText } });
   at(seedAt, () =>
     cfg.seedVia === "hunch"
       ? deliver(seedNpc, "hunch", "hunch", "inform", cfg.seedText, [], seedAt, seedEv)
@@ -930,7 +948,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       whispers.push({ npc: "", text: "", t, event: "" }); // offered once; declined
       return;
     }
-    const ev = emit("seed", t, `又一個念頭被植入${n.p.name}耳中：「${w.text}」`, [], { target: n.p.id, place: n.place, data: { text: w.text, second: true } });
+    const ev = emit("seed", t, `Another thought was planted in ${n.p.name}'s ear: “${w.text}”`, [], { target: n.p.id, place: n.place, data: { text: w.text, second: true } });
     whispers.push({ npc: n.p.id, text: w.text, t, event: ev });
     at(t, () => deliver(n, "unknown", "seed", "inform", w.text, [], t, ev));
   }
@@ -970,7 +988,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
   // (an unneeded routine meeting at 18:30) was checked: the clock and sky would jump hours ahead
   const lastT = Math.max(seedAt, ...events.map((e) => e.t));
   const endT = endReason === "time" ? endAt : Math.min(endAt, lastT + 1);
-  emit("end", endT, endReason === "quiet" ? "沒有人再採取行動，這個念頭停了下來。" : endReason === "time" ? "時間到了。" : "故事先告一段落（達到這次模擬的判斷上限）。", [], {
+  emit("end", endT, endReason === "quiet" ? "Nobody acted on it any further, and the thought faded away." : endReason === "time" ? "Time's up." : "The story pauses here (this simulation reached its decision limit).", [], {
     data: { reason: endReason, festival: world.festival },
   });
   cfg.onFrontier?.(Infinity);

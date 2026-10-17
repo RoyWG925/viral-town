@@ -2,7 +2,8 @@
 // the log. Pure: no model, no world, and nothing a resident can see, so the goals never steer the story.
 // Detection is one pass in the order given, and each event is judged only by what came before it, so the
 // played prefix (show.order.slice(0, show.i)) stamps a goal on the beat it plays, never earlier.
-import { FACTS, PERSONAS, PLACES } from "./scenario.ts";
+import { checkTexts } from "./festival.ts";
+import { FACTS, PERSONAS } from "./scenario.ts";
 import { clockOf, topicFact } from "./view.ts";
 import type { Claim, SimEvent } from "./types.ts";
 
@@ -14,25 +15,26 @@ export interface Challenge {
   hidden?: boolean;
 }
 
-// Copy invites and never promises: hints say who has which public power (能/有機會), never what is hidden.
+// Copy invites and never promises: hints say who has which public power ("can", "might"), never what is hidden
+// and never what "will" happen.
 export const CHALLENGES: Challenge[] = [
-  { id: "town", icon: "🗣️", zh: "讓一句話傳遍全鎮", hint: "要有 6 個人聽說；話多的阿德、熟客最多的美咲都有機會幫你傳開" },
-  { id: "truth", icon: "🔍", zh: "讓假消息碰巧挖出真問題", hint: "編的也無妨，只要讓能親自檢查的人跑一趟；老周、小雯、志明都能查" },
-  { id: "stage", icon: "🚧", zh: "讓舞台被封鎖", hint: "老周和志明都能封鎖舞台，但得先讓他們覺得真的有危險" },
-  { id: "article", icon: "📰", zh: "讓小雯登上霧港小報", hint: "小雯能發文讓全鎮看到；她嗅覺靈敏，最愛追獨家" },
-  { id: "police", icon: "🚓", zh: "讓警察出動", hint: "老周能派警力，但很難被陌生人說服" },
-  { id: "strangers", icon: "🤝", zh: "讓兩個不相識的人當面說上話", hint: "有些人平常沒往來，也沒有對方的電話；得有件事讓其中一人親自登門" },
-  { id: "shop", icon: "🔒", zh: "讓一家店暫停營業", hint: "阿德、美玲、美咲、阿珠都能關店，但得有比做生意更要緊的事", hidden: true },
-  { id: "gather", icon: "✊", zh: "讓攤商聚集起來", hint: "阿珠能一聲號召攤商聚集；她對攤位費漲價很不滿", hidden: true },
-  { id: "statement", icon: "📣", zh: "讓市長公開發表聲明", hint: "林市長能對全鎮發表聲明；他最在意自己的形象", hidden: true },
-  { id: "cancel", icon: "🏮", zh: "讓燈籠節取消", hint: "只有林市長能取消燈籠節，偏偏他最在意燈籠節順利", hidden: true },
+  { id: "town", icon: "🗣️", zh: "Get one sentence all over town", hint: "Six people need to hear it; chatty Ade and Misaki, who has the most regulars, can both help it spread" },
+  { id: "truth", icon: "🔍", zh: "Let a made-up rumor dig up a real problem", hint: "It can be invented, as long as someone who can check things in person goes and looks; Chief Zhou, Xiaowen and Zhiming can all check" },
+  { id: "stage", icon: "🚧", zh: "Get the stage closed off", hint: "Chief Zhou and Zhiming can both close off the stage, but first they have to feel it's truly dangerous" },
+  { id: "article", icon: "📰", zh: "Get Xiaowen into The Mistport Gazette", hint: "Xiaowen can publish a story the whole town sees; she has a sharp nose and loves a scoop" },
+  { id: "police", icon: "🚓", zh: "Get the police called out", hint: "Chief Zhou can send officers, but a stranger has a hard time convincing him" },
+  { id: "strangers", icon: "🤝", zh: "Get two people who don't know each other talking face to face", hint: "Some people never cross paths and don't have each other's number; something has to bring one of them to the other's door" },
+  { id: "shop", icon: "🔒", zh: "Get a shop to close for the day", hint: "Ade, Meiling, Misaki and Azhu can all close up shop, but only for something more pressing than business", hidden: true },
+  { id: "gather", icon: "✊", zh: "Get the stall owners to gather", hint: "Azhu can rally the stall owners with one shout; she's fed up with the higher stall fee", hidden: true },
+  { id: "statement", icon: "📣", zh: "Get the mayor to make a public statement", hint: "Mayor Lin can address the whole town; he cares most about his image", hidden: true },
+  { id: "cancel", icon: "🏮", zh: "Get the Lantern Festival cancelled", hint: "Only Mayor Lin can cancel the Lantern Festival, and he cares most about it going smoothly", hidden: true },
 ];
 
 export interface ChallengeHit {
   id: string;
   eventId: string;
   t: number;
-  /** one short line quoting the log, e.g. "17:10 老周封鎖了慶典舞台" */
+  /** one short line quoting the log, e.g. "17:10 Chief Zhou closed off the festival stage" */
   evidence: string;
 }
 
@@ -49,7 +51,6 @@ export interface ChallengeConfig {
 const TOWN_N = 6;
 
 const nameOf = (id: string) => PERSONAS.find((p) => p.id === id)?.name ?? id;
-const placeZh = (id: string) => PLACES.find((p) => p.id === id)?.zh ?? id;
 const strangers = (a: string, b: string) => {
   const pa = PERSONAS.find((p) => p.id === a);
   const pb = PERSONAS.find((p) => p.id === b);
@@ -66,7 +67,7 @@ function clip(text: string, n: number) {
   if (text.length <= n) return text;
   const cut = `${text.slice(0, n)}…`;
   const open = (a: string, b: string) => cut.split(a).length > cut.split(b).length;
-  return cut + (open("「", "」") ? "」" : "") + (open("〈", "〉") ? "〉" : "");
+  return cut + (open("「", "」") ? "」" : "") + (open("〈", "〉") ? "〉" : "") + (open("“", "”") ? "”" : "");
 }
 const line = (e: SimEvent, text: string) => `${clockOf(e.t)} ${text}`;
 
@@ -109,24 +110,26 @@ function observe(e: SimEvent, s: Scan) {
 type Detect = (e: SimEvent, s: Scan) => string | null;
 
 const DETECT: Record<string, Detect> = {
-  town: (e, s) => (e.type === "deliver" && s.heard.size >= s.need ? line(e, `傳到第 ${s.heard.size} 人：${clip(e.zh, 22)}`) : null),
+  town: (e, s) => (e.type === "deliver" && s.heard.size >= s.need ? line(e, `Word reached ${s.heard.size} people: ${clip(e.zh, 38)}`) : null),
   truth: (e, s) => {
     const found = String(e.data.found ?? "");
     if ((e.type !== "inspect" && e.type !== "look") || !found || !s.planted.some(madeUp)) return null;
     const plantedFacts = new Set(s.planted.map(topicFact));
-    const fact = FACTS.find((f) => f.value && f.check?.by === "expert" && !plantedFacts.has(f.id) && found.includes(f.check.zh));
-    return fact && e.actor ? line(e, `${nameOf(e.actor)}在${placeZh(String(e.place))}查出：${clip(fact.check!.zh, 20)}`) : null;
+    // the check as it reads now, or as an older Chinese log wrote it
+    const seen = (f: (typeof FACTS)[number]) => checkTexts(f).find((x) => found.includes(x));
+    const fact = FACTS.find((f) => f.value && f.check?.by === "expert" && !plantedFacts.has(f.id) && seen(f));
+    return fact && e.actor ? line(e, `${nameOf(e.actor)} found: ${clip(seen(fact)!, 36)}`) : null;
   },
-  stage: (e) => (e.type === "state" && e.data.key === "stage" && e.data.to === "closed" ? line(e, e.zh) : null),
-  article: (e) => (e.type === "article" ? line(e, clip(e.zh, 26)) : null),
-  police: (e) => (e.type === "state" && e.data.key === "police" ? line(e, e.zh) : null),
+  stage: (e) => (e.type === "state" && e.data.key === "stage" && e.data.to === "closed" ? line(e, clip(e.zh, 64)) : null),
+  article: (e) => (e.type === "article" ? line(e, clip(e.zh, 44)) : null),
+  police: (e) => (e.type === "state" && e.data.key === "police" ? line(e, clip(e.zh, 64)) : null),
   // face to face only (strangers have no phone), and not the resident the player whispered to doing as told
   strangers: (e, s) =>
-    e.type === "talk" && !e.data.missed && e.actor && e.target && !s.whispered.has(e.actor) && strangers(e.actor, e.target) ? line(e, clip(e.zh, 24)) : null,
-  shop: (e) => (e.type === "state" && String(e.data.key ?? "").startsWith("shops.") && e.data.to === "closed" ? line(e, e.zh) : null),
-  gather: (e) => (e.type === "gather" ? line(e, clip(e.zh, 26)) : null),
-  statement: (e) => (e.type === "statement" && e.actor === "mayor" ? line(e, clip(e.zh, 26)) : null),
-  cancel: (e) => (e.type === "state" && e.data.key === "festival" && e.data.to === "cancelled" ? line(e, clip(e.zh, 26)) : null),
+    e.type === "talk" && !e.data.missed && e.actor && e.target && !s.whispered.has(e.actor) && strangers(e.actor, e.target) ? line(e, clip(e.zh, 40)) : null,
+  shop: (e) => (e.type === "state" && String(e.data.key ?? "").startsWith("shops.") && e.data.to === "closed" ? line(e, clip(e.zh, 64)) : null),
+  gather: (e) => (e.type === "gather" ? line(e, clip(e.zh, 44)) : null),
+  statement: (e) => (e.type === "statement" && e.actor === "mayor" ? line(e, clip(e.zh, 44)) : null),
+  cancel: (e) => (e.type === "state" && e.data.key === "festival" && e.data.to === "cancelled" ? line(e, clip(e.zh, 44)) : null),
 };
 
 /** The goals these events achieve, each with the first event that did it. Pass events in play order. */

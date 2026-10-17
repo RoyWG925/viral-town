@@ -5,6 +5,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import type { RunResult } from "../src/sim/engine.ts";
 import { FACTS, PERSONAS } from "../src/sim/scenario.ts";
 import { CHALLENGES, GOALS_STORAGE_KEY, challengesHit, mergeProgress, type ChallengeHit } from "../src/sim/challenges.ts";
+import { checkTexts } from "../src/sim/festival.ts";
 import type { SimEvent } from "../src/sim/types.ts";
 
 const load = (dirs: string[]) => {
@@ -39,7 +40,7 @@ function recount(run: RunResult): string[] {
     ev.some(
       (e) =>
         (e.type === "inspect" || e.type === "look") &&
-        FACTS.some((f) => f.value && f.check?.by === "expert" && !planted.some((c) => c.fact === f.id) && String(e.data.found ?? "").includes(f.check.zh)),
+        FACTS.some((f) => f.value && f.check?.by === "expert" && !planted.some((c) => c.fact === f.id) && checkTexts(f).some((x) => String(e.data.found ?? "").includes(x))),
     );
   const heard = new Set(ev.filter((e) => e.type === "deliver" && e.data.via !== "inspection" && e.data.via !== "meet").map((e) => e.target));
   const knows = (a: string, b: string) => !!PERSONAS.find((p) => p.id === a)?.relations[b];
@@ -62,7 +63,8 @@ function recount(run: RunResult): string[] {
   return Object.keys(got).filter((k) => got[k]).sort();
 }
 
-const STAGE_CHECK = FACTS.find((f) => f.id === "stage_uninspected")!.check!.zh;
+const STAGE_FACT = FACTS.find((f) => f.id === "stage_uninspected")!;
+const STAGE_CHECK = STAGE_FACT.check!.zh;
 const BUDGET_CHECK = FACTS.find((f) => f.id === "budget_overrun")!.check!.zh;
 
 // the kind of event each goal's stamp must point at
@@ -80,11 +82,12 @@ test("the goal list keeps the shared contract: 6 visible, then 4 hidden", () => 
 
 test("goal copy invites without promising and gives nothing hidden away", () => {
   const secrets = FACTS.filter((f) => PERSONAS.some((p) => p.secrets.includes(f.id)) || f.check?.by === "expert");
-  const banned = ["烤箱", "預算", "超支", "支架", "鬆動", "安全檢查", "部落格", "流量", "一半", "收了", ...PERSONAS.map((p) => p.wants)];
+  const banned = ["oven", "budget", "overrun", "over budget", "strut", "support", "loose", "safety check", "inspection", "blog", "traffic", "half", "paid", "took money", ...PERSONAS.map((p) => p.wants)];
   for (const c of CHALLENGES) {
     const text = `${c.zh} ${c.hint}`;
-    assert.ok(!text.replace(/機會/g, "").includes("會"), `${c.id}: says 會 (promise); use 能/有機會`);
-    for (const w of banned) assert.ok(!text.includes(w), `${c.id}: mentions ${w}`);
+    assert.ok(!/\b(will|won't|would)\b/i.test(text), `${c.id}: promises (will/won't/would); use "can" or "might"`);
+    assert.ok(!text.replace(/機會/g, "").includes("會"), `${c.id}: says 會 (promise)`);
+    for (const w of banned) assert.ok(!text.toLowerCase().includes(w.toLowerCase()), `${c.id}: mentions ${w}`);
     for (const f of secrets) for (const k of [f.zh, f.check?.zh, ...f.keywords].filter(Boolean)) assert.ok(!text.includes(k!), `${c.id}: leaks ${f.id}`);
   }
 });
@@ -94,7 +97,7 @@ test("per-goal counts over real runs equal an independent recount; stamps point 
     const n = (set: typeof ALL) => set.filter(({ run }) => challengesHit(run.events, cfgOf(run)).some((h) => h.id === c.id)).length;
     return { goal: `${c.icon} ${c.id}${c.hidden ? " (???)" : ""}`, zh: c.zh, [`P5-P9 /${LAB.length}`]: n(LAB), [`recorded /${RECORDED.length}`]: n(RECORDED) };
   });
-  console.log("\n今晚的小目標: runs that achieve each goal");
+  console.log("\nTonight's goals: runs that achieve each goal");
   console.table(rows);
   for (const { name, run } of ALL) {
     const hits = challengesHit(run.events, cfgOf(run));
@@ -105,7 +108,7 @@ test("per-goal counts over real runs equal an independent recount; stamps point 
       assert.ok(e && STAMPED_BY[h.id].includes(e.type), `${name}: ${h.id} stamped by ${e?.type ?? "a missing event"}`);
       assert.equal(h.t, e!.t, name);
       assert.match(h.evidence, /^\d\d:\d\d \S/, `${name}: evidence starts with the clock`);
-      assert.ok(h.evidence.length <= 48, `${name}: evidence too long: ${h.evidence}`);
+      assert.ok(h.evidence.length <= 82, `${name}: evidence too long: ${h.evidence}`);
     }
   }
 });
@@ -147,40 +150,40 @@ test("without claim topics the made-up-rumour goal never fires; a topic on the b
   }
 });
 
-test("recorded P5-lantern-baker: the made-up lantern rumour is stamped on 老周's inspection that finds the strut", () => {
+test("recorded P5-lantern-baker: the made-up lantern rumour is stamped on Chief Zhou's inspection that finds the strut", () => {
   const rec = RECORDED.find((r) => r.name.endsWith("P5-lantern-baker.json"));
   if (!rec) return;
   const h = challengesHit(rec.run.events, cfgOf(rec.run)).find((x) => x.id === "truth");
   const e = rec.run.events.find((x) => x.id === h?.eventId);
-  assert.ok(e && e.type === "inspect" && e.actor === "police" && String(e.data.found).includes(STAGE_CHECK), h?.evidence);
+  assert.ok(e && e.type === "inspect" && e.actor === "police" && checkTexts(STAGE_FACT).some((x) => String(e.data.found).includes(x)), h?.evidence);
 });
 
-// A hand-built evening with a second whisper (補一句): a true rumour first, then a made-up one to someone else.
+// A hand-built evening with a second whisper (one more line): a true rumour first, then a made-up one to someone else.
 const ev = (id: number, t: number, type: SimEvent["type"], x: Partial<SimEvent> = {}): SimEvent => ({ id: `e${id}`, t, type, causes: [], data: {}, zh: `${type}${id}`, ...x });
 const TWO_WHISPERS: SimEvent[] = [
-  ev(1, 20, "seed", { target: "baker", data: { text: "舞台好像在晃" } }),
+  ev(1, 20, "seed", { target: "baker", data: { text: "The stage seems to be wobbling" } }),
   ev(2, 20, "deliver", { target: "baker", causes: ["e1"], data: { via: "seed" } }),
   ev(3, 20.2, "decide", { actor: "baker", causes: ["e2"] }),
   ev(4, 20.2, "belief", { actor: "baker", causes: ["e3"], data: { claim: "c1", topic: "stage_unsafe" } }),
-  ev(5, 60, "inspect", { actor: "police", place: "stage", data: { found: `${STAGE_CHECK} 志明在這裡。` } }),
-  ev(6, 70, "talk", { actor: "vendor", target: "police", data: { text: "老周！" } }),
-  ev(7, 100, "seed", { target: "vendor", data: { text: "市長拿慶典的錢買新車", second: true } }),
+  ev(5, 60, "inspect", { actor: "police", place: "stage", data: { found: `${STAGE_CHECK} Zhiming (festival organizer) is here.` } }),
+  ev(6, 70, "talk", { actor: "vendor", target: "police", data: { text: "Chief Zhou!" } }),
+  ev(7, 100, "seed", { target: "vendor", data: { text: "The mayor bought a new car with the festival money", second: true } }),
   ev(8, 100, "deliver", { target: "vendor", causes: ["e7"], data: { via: "seed" } }),
   ev(9, 100.2, "decide", { actor: "vendor", causes: ["e8"] }),
   ev(10, 100.2, "belief", { actor: "vendor", causes: ["e9"], data: { claim: "c2", topic: "mayor_embezzled" } }),
   ev(11, 130, "inspect", { actor: "police", place: "stage", data: { found: STAGE_CHECK } }),
   ev(12, 150, "inspect", { actor: "journalist", place: "townhall", data: { found: BUDGET_CHECK } }),
-  ev(13, 160, "talk", { actor: "vendor", target: "police", data: { text: "老周！" } }),
-  ev(14, 170, "talk", { actor: "police", target: "vendor", data: { text: "阿珠。" } }),
+  ev(13, 160, "talk", { actor: "vendor", target: "police", data: { text: "Chief Zhou!" } }),
+  ev(14, 170, "talk", { actor: "police", target: "vendor", data: { text: "Azhu." } }),
 ];
 
 test("a second whisper plants claims too, judged as of each event", () => {
-  const cfg = { seedNpc: "baker", seedText: "舞台好像在晃" };
+  const cfg = { seedNpc: "baker", seedText: "The stage seems to be wobbling" };
   const hit = (evs: SimEvent[], id: string) => challengesHit(evs, cfg).find((h) => h.id === id)?.eventId;
   // the stage was the player's own (true) rumour, so finding it is no accident; the overrun under a made-up car story is
   assert.equal(hit(TWO_WHISPERS, "truth"), "e12");
   assert.equal(hit(TWO_WHISPERS.slice(0, 11), "truth"), undefined);
-  // 阿珠 walking up to 老周 counts before anyone whispered to her, not after
+  // Azhu walking up to Chief Zhou counts before anyone whispered to her, not after
   assert.equal(hit(TWO_WHISPERS, "strangers"), "e6");
   assert.equal(hit(TWO_WHISPERS.filter((e) => e.id !== "e6"), "strangers"), "e14");
   // the first whisper alone was true: no made-up rumour, no stamp
@@ -189,13 +192,13 @@ test("a second whisper plants claims too, judged as of each event", () => {
 
 test("the notebook keeps the first stamp and marks replays", () => {
   const h = (id: string): ChallengeHit => ({ id, eventId: "e1", t: 10, evidence: "15:10 x" });
-  const a = mergeProgress({}, [h("police")], { at: "2026-10-17T10:00:00.000Z", headline: "🚓 警察出動", recorded: true });
-  assert.deepEqual(a, { police: { at: "2026-10-17T10:00:00.000Z", headline: "🚓 警察出動", recorded: true } });
+  const a = mergeProgress({}, [h("police")], { at: "2026-10-17T10:00:00.000Z", headline: "🚓 Police called out", recorded: true });
+  assert.deepEqual(a, { police: { at: "2026-10-17T10:00:00.000Z", headline: "🚓 Police called out", recorded: true } });
   // a later replay changes nothing (and hands back the same object, so nothing needs saving)
   assert.equal(mergeProgress(a, [h("police")], { at: "2026-10-17T11:00:00.000Z", recorded: true }), a);
   // the player's own story replaces a replay-only stamp
-  const b = mergeProgress(a, [h("police"), h("stage")], { at: "2026-10-17T12:00:00.000Z", headline: "🚧 舞台封鎖" });
-  assert.deepEqual(b.police, { at: "2026-10-17T12:00:00.000Z", headline: "🚧 舞台封鎖" });
+  const b = mergeProgress(a, [h("police"), h("stage")], { at: "2026-10-17T12:00:00.000Z", headline: "🚧 Stage closed off" });
+  assert.deepEqual(b.police, { at: "2026-10-17T12:00:00.000Z", headline: "🚧 Stage closed off" });
   assert.equal(a.police.recorded, true, "prev is not mutated");
   // their own later story keeps the earlier stamp; an older one merged late takes its place
   assert.equal(mergeProgress(b, [h("stage")], { at: "2026-10-17T13:00:00.000Z" }), b);

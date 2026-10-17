@@ -107,14 +107,14 @@ test("補一句: the second seed is a root of the story, printed on the card", a
   let asked = 0;
   // small talk fizzles at once under the rule policy, so the engine offers the lull
   const run = await simulate({
-    active: ALL8, seedNpc: "florist", seedText: "港口今天的魚特別便宜。", seed: 1, policy: "rules", maxDecisions: 22, maxPerNpc: 6,
-    onLull: async () => (asked++, { npc: "police", text: "聽說今晚有人要在慶典上搞破壞。" }),
+    active: ALL8, seedNpc: "florist", seedText: "Fish at the harbor is extra cheap today.", seed: 1, policy: "rules", maxDecisions: 22, maxPerNpc: 6,
+    onLull: async () => (asked++, { npc: "police", text: "I heard someone is planning to sabotage the festival tonight." }),
   });
   const seeds = run.events.filter((e) => e.type === "seed");
   assert.equal(asked, 1);
   assert.equal(seeds.length, 2);
   const card = storyOf(run);
-  assert.deepEqual(card.whispers, [{ npc: "police", text: "聽說今晚有人要在慶典上搞破壞。" }]);
+  assert.deepEqual(card.whispers, [{ npc: "police", text: "I heard someone is planning to sabotage the festival tonight." }]);
   assert.ok(seeds[1].data.second, "the second seed is marked");
   // the story's suggestions never name the first listener
   assert.ok(suggestNext(run, card).every((s) => s.npc !== "florist"));

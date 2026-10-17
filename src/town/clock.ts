@@ -6,6 +6,9 @@ export const clock = {
   speed: 1, // game hours per real minute
 };
 
+// dev only: lab screenshots set the hour (`__clock.hour = 19.5; __clock.speed = 0`)
+if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") (window as unknown as { __clock: typeof clock }).__clock = clock;
+
 export const START_HOUR = 15;
 export const END_HOUR = 20.5;
 
@@ -36,8 +39,9 @@ const KEYS: Key[] = [
   { h: 15, sun: "#fff1d6", sunI: 4.2, sky: "#cfe7ff", ground: "#d8b48f", hemiI: 0.7, bg: "#bfe1ff", elev: 48, azim: 40 },
   { h: 17, sun: "#ffc98a", sunI: 4.0, sky: "#ffe2bf", ground: "#c99a74", hemiI: 0.62, bg: "#ffd6a6", elev: 28, azim: 55 },
   { h: 18.3, sun: "#ff8f4a", sunI: 3.0, sky: "#ffb48a", ground: "#9a7a74", hemiI: 0.55, bg: "#f6a37f", elev: 12, azim: 68 },
-  { h: 19.3, sun: "#d9667a", sunI: 1.1, sky: "#9a8ad6", ground: "#6a5e80", hemiI: 0.8, bg: "#7d6fb8", elev: 3, azim: 76 },
-  { h: 20.5, sun: "#5560a8", sunI: 0.35, sky: "#4a52a0", ground: "#353056", hemiI: 0.65, bg: "#2a3060", elev: -6, azim: 82 },
+  // dusk and night stay readable: brighter sky/ground bounce so faces and silhouettes don't sink into purple
+  { h: 19.3, sun: "#e07a84", sunI: 1.2, sky: "#a898dc", ground: "#7a6e96", hemiI: 0.95, bg: "#7d6fb8", elev: 3, azim: 76 },
+  { h: 20.5, sun: "#5a64a8", sunI: 0.42, sky: "#5c62ae", ground: "#46427a", hemiI: 0.85, bg: "#2a3060", elev: -6, azim: 82 },
 ];
 
 const tmpA = new THREE.Color();
@@ -114,12 +118,14 @@ export function interiorMaterial(map: THREE.Texture) {
   return m;
 }
 
+// Night glow is atmosphere, not the subject: lanterns and lamps glow warmly but stay under the bloom threshold
+// mostly, so people, faces and gestures remain the brightest readable things on screen.
 export function updateGlow(lightsOn: number, t: number) {
-  glow.window.emissiveIntensity = 0.05 + lightsOn * 1.6;
-  glow.interiors.forEach((m) => (m.emissiveIntensity = 0.38 + lightsOn * 1.1));
-  glow.lamp.emissiveIntensity = 0.2 + lightsOn * 6;
-  glow.lanterns.forEach((m, i) => (m.emissiveIntensity = 0.25 + lightsOn * (3.5 + Math.sin(t * 2 + i) * 0.4)));
+  glow.window.emissiveIntensity = 0.05 + lightsOn * 1.25;
+  glow.interiors.forEach((m) => (m.emissiveIntensity = 0.38 + lightsOn * 0.9));
+  glow.lamp.emissiveIntensity = 0.2 + lightsOn * 2.6;
+  glow.lanterns.forEach((m, i) => (m.emissiveIntensity = 0.25 + lightsOn * (1.5 + Math.sin(t * 2 + i) * 0.2)));
   const blink = Math.sin(t * 6) > 0;
-  glow.neonRed.emissiveIntensity = blink ? 4 : 0.3;
-  glow.neonBlue.emissiveIntensity = blink ? 0.3 : 4;
+  glow.neonRed.emissiveIntensity = blink ? 2.2 : 0.3;
+  glow.neonBlue.emissiveIntensity = blink ? 0.3 : 2.2;
 }

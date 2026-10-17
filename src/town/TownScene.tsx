@@ -147,11 +147,14 @@ function CameraRig() {
 function SunAndSky() {
   const sun = useRef<THREE.DirectionalLight>(null);
   const hemi = useRef<THREE.HemisphereLight>(null);
+  // a soft, shadowless cool fill from the viewer's side that fades in with the street lights: keeps faces readable
+  const fill = useRef<THREE.DirectionalLight>(null);
   const { scene } = useThree();
   useEffect(() => {
     scene.background = new THREE.Color();
     scene.fog = new THREE.Fog("#ffffff", 130, 320);
     if (sun.current) scene.add(sun.current.target);
+    if (fill.current) scene.add(fill.current.target);
   }, [scene]);
   useFrame((state, delta) => {
     if (show.status === "playing" || show.status === "paused" || show.status === "done") {
@@ -173,10 +176,16 @@ function SunAndSky() {
       hemi.current.groundColor.copy(s.ground);
       hemi.current.intensity = s.hemiIntensity;
     }
+    if (fill.current) {
+      fill.current.position.copy(state.camera.position).add(new THREE.Vector3(0, 30, 0));
+      fill.current.target.position.copy(SUN_TARGET);
+      fill.current.intensity = s.lightsOn * 0.75;
+    }
   });
   return (
     <>
       <hemisphereLight ref={hemi} />
+      <directionalLight ref={fill} color="#c9d4ff" intensity={0} />
       <directionalLight
         ref={sun}
         castShadow
@@ -319,10 +328,11 @@ export default function TownScene() {
         />
         {!LITE && (
         <EffectComposer multisampling={0}>
-          <N8AO aoRadius={2} intensity={2.2} distanceFalloff={1.2} halfRes quality="performance" />
-          <Bloom mipmapBlur luminanceThreshold={1} luminanceSmoothing={0.2} intensity={0.9} />
+          <N8AO aoRadius={2} intensity={1.6} distanceFalloff={1.2} halfRes quality="performance" />
+          {/* glow is atmosphere: only the brightest highlights bloom, softly */}
+          <Bloom mipmapBlur luminanceThreshold={1.25} luminanceSmoothing={0.25} intensity={0.5} />
           <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-          <Vignette offset={0.3} darkness={0.45} />
+          <Vignette offset={0.35} darkness={0.3} />
           <SMAA />
         </EffectComposer>
         )}

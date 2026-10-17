@@ -2,8 +2,9 @@
 // to the validator; they test our guardrails, not Gemma. Run: node --test lab/test-validators.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { FACTS, PERSONAS, PLACES, PUBLIC_INFO } from "../src/sim/scenario.ts";
-import { checkDecision, normalize } from "../src/sim/validate.ts";
+import { checkDecision, coerce, normalize } from "../src/sim/validate.ts";
 import type { DecisionOutput } from "../src/sim/types.ts";
 import type { View } from "../src/sim/view.ts";
 
@@ -212,4 +213,114 @@ test("a new claim the model named itself (\"c2\") keeps its stance and can be ci
   assert.equal(n.out.stances.find((s) => s.claim === 0)?.confidence, 0.95);
   assert.ok(n.out.actions[0].cites?.includes("#0"), JSON.stringify(n.out.actions[0].cites));
   assert.deepEqual(checkDecision(v, n.out).errors, []);
+});
+
+// F04 (independent review, 2026-10-17): a claim reference is read by its shape before anything is looked up:
+// "c<N>" is a claim id, "#<k>" or a bare number a position in this answer's claims, anything else is sent back.
+// Stripping the "c" first read belief c1 as position 1 and quietly updated whatever claim sat there.
+const belief = (id: string, statement: string): View["beliefs"][number] => ({ id, statement, topic: "other", says: "yes", category: "other", confidence: 0.2, sources: ["unknown"], sourcesZh: "一位陌生客人" });
+const listed = (ref: string, statement: string): DecisionOutput["claims"][number] => ({ ref, statement, topic: "other", says: "yes", category: "other" });
+const stanceOn = (claim: unknown): DecisionOutput["stances"][number] => ({ claim: claim as number, verdict: "doubt", confidence: 0.4, why: "再想想", cites: ["m1"] });
+/** where each stance lands once normalized, i.e. what the engine would write: an old claim by id, a new one by statement */
+function landing(v: View, raw: DecisionOutput) {
+  const n = normalize(v, raw);
+  const r = checkDecision(v, n.out);
+  const at = n.out.stances.map((s) => {
+    const c = n.out.claims[s.claim];
+    return !c ? "nowhere" : c.ref === "new" ? c.statement : c.ref;
+  });
+  return { n, r, at };
+}
+
+test("review C1: a stance on \"c1\" updates belief c1, not the new claim at position 1", () => {
+  const v = viewFor("baker", { beliefs: [belief("c1", "舊說法 A")] });
+  const { n, r, at } = landing(v, base({ claims: [listed("c1", "舊說法 A"), listed("new", "不相干的新說法 B")], stances: [stanceOn("c1")] }));
+  assert.deepEqual(at, ["c1"], n.notes.join("|"));
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.confidence[n.out.stances[0].claim], 0.4);
+});
+
+test("review C2: a stance on \"c2\" listed first updates c2, not the claim at position 2", () => {
+  const v = viewFor("baker", { beliefs: [belief("c2", "舊說法 A")] });
+  const { n, r, at } = landing(v, base({ claims: [listed("c2", "舊說法 A"), listed("new", "新說法 B"), listed("new", "新說法 C")], stances: [stanceOn("c2")] }));
+  assert.deepEqual(at, ["c2"], n.notes.join("|"));
+  assert.deepEqual(r.errors, []);
+});
+
+test("claim ids, positions and the list length never stand in for each other", () => {
+  const cases: { name: string; beliefs: string[]; claims: [string, string][]; stances: unknown[]; at: string[] }[] = [
+    // the P20 shape: an old belief judged by id but not re-listed, its number inside the list
+    { name: "id inside the list length, not listed", beliefs: ["c1"], claims: [["new", "新說法 A"], ["new", "新說法 B"]], stances: [0, 1, "c1"], at: ["新說法 A", "新說法 B", "c1"] },
+    { name: "id beyond the list length, not listed", beliefs: ["c3"], claims: [["new", "新說法 A"]], stances: [0, "c3"], at: ["新說法 A", "c3"] },
+    { name: "ids listed out of numeric order", beliefs: ["c1", "c2"], claims: [["c2", "舊說法 c2"], ["c1", "舊說法 c1"]], stances: ["c1", "c2"], at: ["c1", "c2"] },
+    // the model's own name for a new claim, equal to the other claim's position
+    { name: "self-named new claim c1 at position 0", beliefs: [], claims: [["c1", "自己取名的 A"], ["new", "新說法 B"]], stances: ["c1", 1], at: ["自己取名的 A", "新說法 B"] },
+    { name: "#k and a number written as text are positions", beliefs: ["c1"], claims: [["new", "新說法 A"], ["new", "新說法 B"]], stances: ["#1", "0"], at: ["新說法 B", "新說法 A"] },
+    { name: "a bare number is a position even when a belief has that number", beliefs: ["c1"], claims: [["new", "新說法 A"], ["new", "新說法 B"]], stances: [1, 0], at: ["新說法 B", "新說法 A"] },
+  ];
+  for (const k of cases) {
+    const v = viewFor("baker", { beliefs: k.beliefs.map((id) => belief(id, `舊說法 ${id}`)) });
+    const { n, r, at } = landing(v, base({ claims: k.claims.map(([ref, s]) => listed(ref, s)), stances: k.stances.map(stanceOn) }));
+    assert.deepEqual(at, k.at, `${k.name}: ${n.notes.join("|")}`);
+    assert.deepEqual(r.errors, [], k.name);
+    assert.ok(!n.notes.some((x) => x.includes("duplicate")), `${k.name}: ${n.notes.join("|")}`);
+  }
+});
+
+test("a claim reference that names no claim is sent back, not guessed or dropped", () => {
+  // "c0" used to become position 0; "c5" (no such claim) and "claim1" used to vanish with the judgement in them
+  const v = viewFor("baker", { beliefs: [belief("c1", "舊說法 c1")] });
+  for (const ref of ["c0", "c5", "claim1", "#3", "new", "mayor_fears_pigeons", null]) {
+    const { r, at } = landing(v, base({ claims: [listed("new", "新說法 A")], stances: [stanceOn(ref)] }));
+    assert.deepEqual(at, ["nowhere"], String(ref));
+    // the message back says which positions and which of their own claim ids exist
+    assert.ok(r.errors.some((e) => e.includes("claims 陣列裡的位置（0 到 0）") && e.includes("c1")), `${String(ref)}: ${r.errors.join("|")}`);
+  }
+});
+
+test("action cites read claim references the same way", () => {
+  const v = viewFor("baker", { beliefs: [belief("c1", "舊說法 c1")] });
+  const raw = (cites: string[]) => base({
+    claims: [listed("c1", "舊說法 c1"), listed("c7", "自己取名的新說法")],
+    stances: [stanceOn("c1"), stanceOn("c7")],
+    actions: [{ type: "tell", target: "florist", intent: "inform", message: "你聽說了嗎", cites }],
+  });
+  // an old claim keeps its id; the model's own name and a bare number inside the list become positions
+  const ok = landing(v, raw(["c1", "c7", "1", "m1"]));
+  assert.deepEqual(ok.n.out.actions[0].cites, ["c1", "#1", "#1", "m1"]);
+  assert.deepEqual(ok.r.errors, []);
+  // a claim reference that resolves to nothing is sent back instead of silently leaving the action's grounds
+  for (const bad of ["c9", "5", "#4"]) {
+    const { r } = landing(v, raw([bad]));
+    assert.ok(r.errors.some((e) => e.includes(`cites 引用了不存在的編號 ${bad}`)), `${bad}: ${r.errors.join("|")}`);
+  }
+});
+
+test("P20/wobble-organizer d5 replayed: the doubt about the old stage rumour (c1) is kept, not dropped as a duplicate", () => {
+  // the recorded answer named its two new findings c2 and c3 and judged its old stage rumour as "c1"; the old reading
+  // made "c1" position 1 (the lantern finding) and then dropped it as a second stance on that claim
+  const run = JSON.parse(readFileSync("lab/runs/P20/wobble-organizer.json", "utf8")).run;
+  const d = run.decisions.find((x: { id: string }) => x.id === "d5");
+  const raw: string = d.llm.find((l: { raw?: string | null }) => l.raw).raw;
+  const rumour = run.claims.find((c: { id: string }) => c.id === "c1");
+  const seen = run.events.find((e: { type: string; data: { message?: string } }) => e.type === "deliver" && e.data.message === "m5").data;
+  const org = PERSONAS.find((p) => p.id === "organizer")!;
+  const v = viewFor("organizer", {
+    beliefs: [{ id: "c1", statement: rumour.statement, topic: rumour.topic, says: rumour.says, category: rumour.category, confidence: 0.8, sources: ["unknown"], sourcesZh: "一位陌生客人" }],
+    inbox: [{ id: "m5", from: "self", fromZh: "你自己", via: "inspection", intent: "inform", text: seen.text, trust: 0.7 }],
+    heardText: `舞台好像在晃。 ${seen.text}`,
+    people: [{ id: "police", name: "老周", roleZh: "警長", place: "police", placeZh: "police", relation: org.relations.police!, busy: false }],
+  });
+  const n = normalize(v, coerce(JSON.parse(raw)).out!);
+  const stances = n.out.stances.map((s) => {
+    const c = n.out.claims[s.claim];
+    return [c.ref === "new" ? c.statement : c.ref, s.verdict, s.confidence];
+  });
+  assert.deepEqual(stances, [["慶典的鴿子很健康", "believe", 1], ["燈籠是合格的防火材質", "believe", 1], ["c1", "doubt", 0.3]], n.notes.join("|"));
+  assert.ok(!n.notes.some((x) => x.includes("duplicate")), n.notes.join("|"));
+  assert.deepEqual(n.out.actions[0].cites, ["#0", "#1"]);
+  const r = checkDecision(v, n.out);
+  assert.deepEqual(r.errors, []);
+  // the review's caveat holds: the organizer knows the stage was never inspected, so the engine keeps c1 at 0.8 or more
+  assert.ok(r.confidence[2] >= 0.8, `c1 ${r.confidence[2]}`);
 });

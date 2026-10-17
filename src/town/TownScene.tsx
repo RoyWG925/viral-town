@@ -25,12 +25,12 @@ import { LITE } from "./quality";
 // Camera presets: the HUD asks for one and CameraRig glides there.
 // The default frames the main road and the green in front, the plaza in the middle and the town hall behind.
 const VIEWS = {
-  plaza: { label: "廣場", target: [1, 0, -11], pos: [23, 39, 41] },
-  shops: { label: "商店街", target: [-15, 0, -2], pos: [1, 31, 30] },
-  homes: { label: "住宅", target: [-30, 0, -22], pos: [-38, 33, 10] },
-  park: { label: "公園", target: [-50, 0, -3], pos: [-28, 30, 29] },
-  harbour: { label: "港口", target: [42, 0, -12], pos: [62, 32, 24] },
-  overview: { label: "全景", target: [6, 0, -8], pos: [52, 82, 92] },
+  plaza: { label: "Plaza", target: [1, 0, -11], pos: [23, 39, 41] },
+  shops: { label: "Shops", target: [-15, 0, -2], pos: [1, 31, 30] },
+  homes: { label: "Homes", target: [-30, 0, -22], pos: [-38, 33, 10] },
+  park: { label: "Park", target: [-50, 0, -3], pos: [-28, 30, 29] },
+  harbour: { label: "Harbor", target: [42, 0, -12], pos: [62, 32, 24] },
+  overview: { label: "Overview", target: [6, 0, -8], pos: [52, 82, 92] },
 } as const;
 const TARGET = new THREE.Vector3(...VIEWS.plaza.target);
 const SUN_TARGET = new THREE.Vector3(-4, 0, -6);
@@ -218,7 +218,7 @@ function Hud({ onHide }: { onHide: () => void }) {
   }, []);
   // no 12×: everyday scenes are unreadable that fast
   const speeds = [
-    { v: 0, label: "⏸ 暫停" },
+    { v: 0, label: "⏸ Pause" },
     { v: 1, label: "1×" },
     { v: 4, label: "4×" },
   ];
@@ -226,7 +226,7 @@ function Hud({ onHide }: { onHide: () => void }) {
     <div className="pointer-events-none absolute left-3 top-3">
       <ClockPill hour={hour}>
         <input
-          aria-label="時間"
+          aria-label="Time"
           type="range"
           min={START_HOUR}
           max={END_HOUR}
@@ -260,7 +260,7 @@ function Hud({ onHide }: { onHide: () => void }) {
           ))}
         </div>
         <button onClick={onHide} className="mt-2 w-full rounded-full bg-slate-100 px-3 py-0.5 text-xs text-slate-500 hover:bg-slate-200">
-          隱藏全部介面（H）
+          Hide the interface (H)
         </button>
       </ClockPill>
     </div>
@@ -330,7 +330,7 @@ export default function TownScene() {
           onClick={() => setHudVisible(true)}
           className="absolute bottom-3 left-3 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-slate-700 opacity-0 transition-opacity hover:opacity-100 focus:opacity-100"
         >
-          顯示介面（H）
+          Show the interface (H)
         </button>
       )}
     </div>

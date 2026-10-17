@@ -6,12 +6,12 @@ export const JOURNAL_KEY = "viral.journal.v1";
 
 /** the hidden lines of a card, in the order the journal lists them */
 export const HIDDEN_FIELDS: { key: Exclude<Motive, "none">; field: keyof Omit<PersonaCard, "lines">; label: string }[] = [
-  { key: "want", field: "wants", label: "今晚想要" },
-  { key: "fear", field: "fears", label: "怕" },
-  { key: "bias", field: "bias", label: "偏誤" },
-  { key: "gossip", field: "gossip", label: "傳話習慣" },
-  { key: "bottom", field: "bottom", label: "底線" },
-  { key: "price", field: "price", label: "價碼" },
+  { key: "want", field: "wants", label: "Wants tonight" },
+  { key: "fear", field: "fears", label: "Fears" },
+  { key: "bias", field: "bias", label: "Bias" },
+  { key: "gossip", field: "gossip", label: "Gossip habit" },
+  { key: "bottom", field: "bottom", label: "Line they won't cross" },
+  { key: "price", field: "price", label: "Price" },
 ];
 
 export type Journal = Record<string, Partial<Record<Exclude<Motive, "none">, { at: string; recorded?: boolean }>>>;

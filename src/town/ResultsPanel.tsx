@@ -7,15 +7,14 @@ import { useEffect, useMemo, useState } from "react";
 import { addDiscovery, knownLines, loadJournal } from "./journal";
 import type { RunResult } from "../sim/engine.ts";
 import { measure, type Metrics } from "../sim/metrics.ts";
-import { PLACES } from "../sim/scenario.ts";
 import type { ChallengeHit, GoalProgress } from "../sim/challenges.ts";
 import type { DecisionRecord } from "../sim/types.ts";
 import { clockOf } from "../sim/view.ts";
-import { nameOf } from "./director";
+import { nameOf, placeName } from "./director";
 import { revealOf, storyOf, suggestNext, type StoryCard } from "./story";
 import StoryCardView from "./StoryCardView";
 import { downloadShareCard, drawShareCard } from "./shareCard";
-import { ROLES, toolsOf } from "./roles";
+import { canDo, ROLES, toolsOf } from "./roles";
 import { GOAL_BY_TOOL, goalOf, VISIBLE } from "./GoalsNote";
 
 export interface SavedRun {
@@ -29,8 +28,8 @@ export interface SavedRun {
   parent?: string;
 }
 
-const placeZh = (id: string) => PLACES.find((p) => p.id === id)?.zh ?? id;
 const pct = (c?: number) => (c === undefined ? "" : `${Math.round(c * 100)}%`);
+const VERDICT: Record<string, string> = { believe: "believes", doubt: "not sure", disbelieve: "doesn't believe" };
 
 interface ChainStep { t: number; icon: string; text: string; sub?: string }
 
@@ -42,24 +41,24 @@ function chainOf(run: RunResult): ChainStep[] {
     const d = e.data as Record<string, unknown>;
     switch (e.type) {
       case "seed":
-        steps.push({ t: e.t, icon: "💭", text: d.second ? `你又對${nameOf(e.target!)}補了一句：「${String(d.text)}」` : `你對${nameOf(e.target!)}說：「${String(d.text)}」` });
+        steps.push({ t: e.t, icon: "💭", text: d.second ? `You whispered one more line to ${nameOf(e.target!)}: “${String(d.text)}”` : `You told ${nameOf(e.target!)}: “${String(d.text)}”` });
         break;
       case "decide": {
         const o = dec.get(String(d.decision))?.output;
         if (!o || d.budget) break;
-        const st = o.stances.map((s) => `${s.verdict === "believe" ? "相信" : s.verdict === "doubt" ? "半信半疑" : "不相信"}`).join("、");
-        steps.push({ t: e.t, icon: [...o.feeling][0] ?? "🤔", text: `${nameOf(e.actor!)}：${o.thought}`, sub: `${o.understanding}${st ? `（${st}）` : ""}` });
+        const st = o.stances.map((s) => VERDICT[s.verdict] ?? s.verdict).join(", ");
+        steps.push({ t: e.t, icon: [...o.feeling][0] ?? "🤔", text: `${nameOf(e.actor!)}: ${o.thought}`, sub: `${o.understanding}${st ? ` (${st})` : ""}` });
         break;
       }
       case "talk":
-        steps.push({ t: e.t, icon: "💬", text: `${nameOf(e.actor!)} → ${nameOf(e.target!)}：「${String(d.text)}」` });
+        steps.push({ t: e.t, icon: "💬", text: `${nameOf(e.actor!)} → ${nameOf(e.target!)}: “${String(d.text)}”` });
         break;
       case "phone":
-        if (!d.missed) steps.push({ t: e.t, icon: "📞", text: `${nameOf(e.actor!)} 打給 ${nameOf(e.target!)}：「${String(d.text)}」` });
+        if (!d.missed) steps.push({ t: e.t, icon: "📞", text: `${nameOf(e.actor!)} calls ${nameOf(e.target!)}: “${String(d.text)}”` });
         break;
       case "look":
       case "inspect":
-        if (d.found) steps.push({ t: e.t, icon: "🔍", text: `${nameOf(e.actor!)}在${placeZh(e.place!)}看到：${String(d.found)}` });
+        if (d.found) steps.push({ t: e.t, icon: "🔍", text: `At ${placeName(e.place!)}, ${nameOf(e.actor!)} sees: ${String(d.found)}` });
         break;
       case "state":
         if (d.key !== "writing") steps.push({ t: e.t, icon: "✨", text: e.zh });
@@ -78,34 +77,44 @@ function chainOf(run: RunResult): ChainStep[] {
   return steps;
 }
 
+/**
+ * What someone found, minus the routine parts (the dove cages, the lanterns' labels, who else was standing there).
+ * The engine joins its sentences with a space: old Chinese logs split on the space, English ones after a full stop.
+ */
+function foundWithoutClutter(found: string) {
+  const zh = /[\u4E00-\u9FFF]/.test(found);
+  const parts = zh ? found.split(" ") : found.split(/(?<=[.!?])\s+/);
+  const clutter = zh ? /鴿籠|燈籠上|在這裡/ : /\bcages?\b|\blabels?\b|\b(?:is|are) (?:already )?here\b/i;
+  return parts.filter((x) => !clutter.test(x)).join(" ") || found;
+}
+
 function highlights(run: RunResult, m: Metrics): string[] {
   const out: string[] = [];
   const first = run.claims[0];
   const drifted = run.claims.filter((c) => first && c.topic !== first.topic);
-  if (first && drifted.length) out.push(`原本的說法是「${first.statement}」，傳著傳著變成了「${drifted[drifted.length - 1].statement}」。`);
+  if (first && drifted.length) out.push(`It started out as “${first.statement}”, and as it got passed around it turned into “${drifted[drifted.length - 1].statement}”.`);
   // retellings by people who had not checked anything themselves: how far the words drifted
   const checked = new Set(run.events.filter((e) => (e.type === "look" || e.type === "inspect") && e.data.found).map((e) => e.actor));
   const far = m.retellings.filter((r) => !checked.has(r.from)).reduce((acc, r) => (r.similarity < (acc?.similarity ?? 1) ? r : acc), undefined as Metrics["retellings"][number] | undefined);
-  if (far && far.similarity < 0.35) out.push(`${nameOf(far.from)}轉述給${nameOf(far.to)}時，話已經變成：「${far.text}」`);
+  if (far && far.similarity < 0.35) out.push(`By the time ${nameOf(far.from)} passed it on to ${nameOf(far.to)}, it had become: “${far.text}”`);
   // what people found when they went to see: once per person, expert checks first
   const seenBy = new Set<string>();
   for (const e of [...run.events].sort((a, b) => (a.type === "inspect" ? -1 : 0) - (b.type === "inspect" ? -1 : 0))) {
     if ((e.type !== "look" && e.type !== "inspect") || !e.data.found || seenBy.has(e.actor!)) continue;
     seenBy.add(e.actor!);
-    const found = String(e.data.found).split(" ").filter((x) => !/鴿籠|燈籠上|在這裡/.test(x)).join(" ") || String(e.data.found);
-    out.push(`${nameOf(e.actor!)}${e.type === "inspect" ? "仔細檢查後發現" : "跑去親眼看"}：${found}`);
+    out.push(`${nameOf(e.actor!)} ${e.type === "inspect" ? "inspected closely and found" : "went to see firsthand"}: ${foundWithoutClutter(String(e.data.found))}`);
   }
   for (const d of run.decisions) {
     const o = d.output;
     const no = o?.stances.find((s) => s.verdict === "disbelieve");
-    if (o && no) out.push(`${nameOf(d.npc)}不相信：「${no.why}」`);
+    if (o && no) out.push(`${nameOf(d.npc)} doesn't buy it: “${no.why}”`);
   }
-  if (run.world.festival === "cancelled") out.push("最後，燈籠節真的被取消了。");
+  if (run.world.festival === "cancelled") out.push("In the end, the Lantern Festival really was cancelled.");
   if (m.idle) {
     // say who stopped it and in their own (recorded) words why, instead of a generic line
     const last = [...run.decisions].reverse().find((d) => d.output);
     const why = last && !last.fallback ? last.output?.actions.find((a) => a.type === "none")?.why : undefined;
-    out.push(last && why && why !== "fallback" && !why.startsWith("free-form:") ? `念頭停在${nameOf(last.npc)}這裡：「${why}」想讓它傳開，試試告訴一位會在乎這件事的人。` : "這個念頭沒有走得很遠——有時候，小鎮就是不買單。");
+    out.push(last && why && why !== "fallback" && !why.startsWith("free-form:") ? `The thought stopped with ${nameOf(last.npc)}: “${why}” To spread it, try telling someone who would care about it.` : "The thought didn't get very far. Sometimes the town just doesn't buy it.");
   }
   return out.slice(0, 6);
 }
@@ -116,8 +125,8 @@ function TechDecisions({ decisions }: { decisions: DecisionRecord[] }) {
       {decisions.map((d) => (
         <li key={d.id}>
           {d.id} {nameOf(d.npc)} @{clockOf(d.t)} — {d.llm.map((l) => `${(l.latencyMs / 1000).toFixed(1)}s/${l.promptTokens + l.completionTokens}tok`).join(", ") || "rules"}
-          {d.validation.length > 1 ? `，重寫：${d.validation.slice(0, -1).map((v) => v.errors.join("；")).join(" | ").slice(0, 160)}` : ""}
-          {d.fallback ? "（安全預設）" : ""}
+          {d.validation.length > 1 ? `; rewrites: ${d.validation.slice(0, -1).map((v) => v.errors.join("; ")).join(" | ").slice(0, 270)}` : ""}
+          {d.fallback ? " (safe default)" : ""}
         </li>
       ))}
     </ul>
@@ -127,14 +136,14 @@ function TechDecisions({ decisions }: { decisions: DecisionRecord[] }) {
 /** At most one amber nudge: a logged near miss, a logged refusal, or (failing both) a tool for an unfinished goal. */
 function nudgeOf(run: RunResult, story: StoryCard, seedNpc: string, progress: GoalProgress): { npc: string; text: string; tryIt?: boolean } | null {
   const c = story.closest;
-  if (c && c.npc !== seedNpc) return { npc: c.npc, text: `差一點：${nameOf(c.npc)}聽到了${c.conf !== undefined ? `（信 ${pct(c.conf)}）` : ""}，明明可以${c.could}` };
+  if (c && c.npc !== seedNpc) return { npc: c.npc, text: `So close: ${nameOf(c.npc)} heard it${c.conf !== undefined ? ` (${pct(c.conf)} sure)` : ""} and could ${c.could}` };
   const refusal = run.events.filter((e) => e.type === "rejected" && e.data.wanted && e.actor && e.actor !== seedNpc).at(-1);
-  if (refusal?.actor) return { npc: refusal.actor, text: `差一點：${refusal.zh}` };
+  if (refusal?.actor) return { npc: refusal.actor, text: `So close: ${refusal.zh}` };
   for (const g of VISIBLE) {
     if (progress[g.id]) continue;
     const tool = Object.keys(GOAL_BY_TOOL).find((k) => GOAL_BY_TOOL[k] === g.id);
     const who = run.config.active.find((n) => n !== seedNpc && toolsOf(n).some((t) => t.kind === tool));
-    if (tool && who) return { npc: who, text: `試試看：${nameOf(who)}${toolsOf(who).find((t) => t.kind === tool)!.label.replace(/^\S+\s/, "能")}（${g.icon} ${g.zh}）`, tryIt: true };
+    if (tool && who) return { npc: who, text: `Try: ${nameOf(who)} ${canDo(toolsOf(who).find((t) => t.kind === tool)!.label)} (${g.icon} ${g.zh})`, tryIt: true };
   }
   return null;
 }
@@ -212,13 +221,14 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
     (window as unknown as { __shareCard?: () => string }).__shareCard = () => drawShareCard(story, saved.npc, saved.text, stats, stampWords).toDataURL("image/png");
   });
   const shareText = useMemo(() => {
-    const lines = [`I whispered one sentence to ${nameOf(saved.npc)} in Mistport (VIRAL): "${saved.text}"`];
-    for (const w of story.whispers) lines.push(`Then I added to ${nameOf(w.npc)}: "${w.text}"`);
-    lines.push(`Result: ${story.icon} ${story.headline}`);
-    lines.push(`${story.festival.text}`);
-    lines.push(`It reached ${m.reach} residents, ${m.depth} retellings deep, ${m.worldChanges} changes to the town.`);
-    if (stampWords.length) lines.push(`Stamps: ${stampWords.join(", ")}`);
-    lines.push("(Every resident is played by Gemma on AMD from what they know; the game engine checks every move.)");
+    const lines = [`In VIRAL, I whispered one line to ${nameOf(saved.npc)} in Mistport: “${saved.text}”`];
+    for (const w of story.whispers) lines.push(`Then one more line to ${nameOf(w.npc)}: “${w.text}”`);
+    lines.push(`What happened: ${story.icon} ${story.headline}`);
+    lines.push(story.festival.text);
+    lines.push(`It reached ${m.reach} ${m.reach === 1 ? "resident" : "residents"}, ${m.depth} ${m.depth === 1 ? "hop" : "hops"} deep, with ${m.worldChanges} ${m.worldChanges === 1 ? "change" : "changes"} to the town. ${story.festival.text}`);
+    if (stampWords.length) lines.push(`Goals stamped: ${stampWords.join(", ")}`);
+    if (hl[0]) lines.push(hl[0]);
+    lines.push("(Every resident is played by Gemma, judging only from what they know; the game engine checks every change to the town.)");
     return lines.join(String.fromCharCode(10));
   }, [saved, m, story, stampWords]);
   const nudge = nudgeOf(run, story, saved.npc, progress);

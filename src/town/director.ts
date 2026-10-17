@@ -20,7 +20,28 @@ export { NPC_POST };
 export const POST_NPC = Object.fromEntries(Object.entries(NPC_POST).map(([k, v]) => [v, k]));
 export const agentFor = (npc: string): Agent | null => (NPC_POST[npc] ? agentAt(NPC_POST[npc]) : null);
 export const nameOf = (npc: string) => PERSONAS.find((p) => p.id === npc)?.name ?? npc;
-const placeZh = (id: string) => PLACES.find((p) => p.id === id)?.zh ?? id;
+// places as they read in the middle of an English sentence ("heads to the plaza"); others fall back to the scenario
+const PLACE_EN: Record<string, string> = {
+  bakery: "Ade's Bakery", flower: "Meiling's Flowers", news: "Mistport News", cafe: "the café", police: "the police station",
+  townhall: "the town hall", plaza: "the plaza", stage: "the festival stage", stall: "the takoyaki stall", harbour: "the harbor",
+};
+export const placeName = (id: string) => PLACE_EN[id] ?? PLACES.find((p) => p.id === id)?.zh ?? id;
+/** "Ade", "Ade and Meiling", "Ade, Meiling and Misaki" */
+export const listOf = (words: string[]) => (words.length < 3 ? words.join(" and ") : `${words.slice(0, -1).join(", ")} and ${words.at(-1)}`);
+/** Reading weight of a line: a Chinese character (old recorded runs) reads as slowly as ~1.7 Latin letters. */
+const WIDE = /[\u2E80-\u9FFF\uF900-\uFAFF\uFF00-\uFFEF]/;
+const readWeight = (text: string) => [...text].reduce((n, ch) => n + (WIDE.test(ch) ? 1 : 1 / 1.7), 0);
+/** Shorten a line to about `n` English characters (a Chinese character counts 1.7), with an ellipsis. */
+export function clip(text: string, n: number) {
+  let used = 0;
+  let out = "";
+  for (const ch of text) {
+    used += WIDE.test(ch) ? 1.7 : 1;
+    if (used > n) return `${out.trimEnd()}…`;
+    out += ch;
+  }
+  return text;
+}
 
 export type Tone = "seed" | "thought" | "speech" | "world" | "system";
 export interface Caption {
@@ -252,7 +273,7 @@ function heardBefore(e: SimEvent) {
   return texts.at(-1);
 }
 
-const VERDICT_ZH: Record<string, string> = { believe: "相信", doubt: "半信半疑", disbelieve: "不信" };
+const VERDICT_ZH: Record<string, string> = { believe: "believes", doubt: "not sure", disbelieve: "doesn't believe" };
 
 /** How sure the speaker was of what THIS line carries — only when they pass it on (inform/warn), not when correcting it. */
 function passOnConf(e: SimEvent): number | undefined {
@@ -288,7 +309,7 @@ function bubble(npc: string | undefined, icon: string, seconds = 2.5) {
 
 const emoji = (feeling: string) => [...(feeling || "🤔")].find((ch) => /\p{Extended_Pictographic}/u.test(ch)) ?? "🤔";
 const INTENT_ICON: Record<string, string> = { warn: "⚠️", ask: "❓", joke: "😂", deny: "✋", complain: "😤", request: "🙏", answer: "💬", inform: "💬" };
-const readTime = (text: string, base = 2.2, perChar = 1 / 14, max = 6) => Math.min(max, base + text.length * perChar);
+const readTime = (text: string, base = 2.2, perChar = 1 / 14, max = 6) => Math.min(max, base + readWeight(text) * perChar);
 
 /** Point just in front of someone, on the side the visitor comes from. */
 function approach(visitor: Agent, host: Agent) {
@@ -308,9 +329,9 @@ function meanwhileSpot(): { at: { x: number; z: number }; label: string } | null
   const sc = fx.hooks.meanwhileScene?.();
   if (sc) return sc;
   const options: { at: { x: number; z: number }; label: string }[] = [];
-  for (const p of pets.list) options.push({ at: { x: p.x, z: p.z }, label: `${p.name}（${p.title}）${p.mode === "sleep" ? "在打盹" : p.mode === "walk" ? "在閒晃" : "在發呆"}` });
+  for (const p of pets.list) options.push({ at: { x: p.x, z: p.z }, label: `${p.name} (${p.title}) ${p.mode === "sleep" ? "is napping" : p.mode === "walk" ? "is wandering about" : "is staring into space"}` });
   const chatting = crowd.agents.find((a) => a.mode === "chat" && !a.script && a.visible > 0.5);
-  if (chatting) options.push({ at: { x: chatting.x, z: chatting.z }, label: "鎮民在閒聊別的事" });
+  if (chatting) options.push({ at: { x: chatting.x, z: chatting.z }, label: "some townsfolk are chatting about something else" });
   if (!options.length) return null;
   return options[meanwhileTurn++ % options.length];
 }
@@ -355,15 +376,15 @@ function actTitle(e: SimEvent) {
   const d = e.data as Record<string, unknown>;
   const pick =
     (e.type === "talk" || e.type === "phone") && !d.missed && e.actor !== show.run?.config.seedNpc && !show.titlesShown.has("retold")
-      ? ["retold", "第一幕 · 傳出去了"]
+      ? ["retold", "Act I · It's out"]
       : e.type === "phone" && !d.missed && !show.titlesShown.has("phone")
-        ? ["phone", "消息上了電話線"]
+        ? ["phone", "Now it's on the phone lines"]
         : e.type === "inspect" && !show.titlesShown.has("check")
-          ? ["check", "有人親自去查了"]
+          ? ["check", "Someone went to check in person"]
           : (e.type === "notice" || e.type === "article" || e.type === "statement") && !show.titlesShown.has("public")
-            ? ["public", "第二幕 · 全鎮都會知道"]
+            ? ["public", "Act II · The whole town will know"]
             : (e.type === "state" && ["police", "stage", "festival"].includes(String(d.key)) || e.type === "gather") && !show.titlesShown.has("big")
-              ? ["big", "第三幕 · 事情鬧大了"]
+              ? ["big", "Act III · Things get serious"]
               : null;
   if (!pick) return;
   show.titlesShown.add(pick[0]);
@@ -383,7 +404,7 @@ function apply(e: SimEvent) {
       show.infected.add(target!);
       show.focus = target!;
       bubble(target, "💭", 3.5);
-      caption({ who: target!, icon: "💭", tone: "seed", text: `一個念頭鑽進了${nameOf(target!)}的腦袋`, sub: `「${String(d.text)}」` });
+      caption({ who: target!, icon: "💭", tone: "seed", text: `A thought slips into ${nameOf(target!)}'s head`, sub: `“${String(d.text)}”` });
       say(target!, "seed", String(d.text), 4);
       sting.whisper();
       show.captions[show.captions.length - 1].bubbled = true;
@@ -416,7 +437,7 @@ function apply(e: SimEvent) {
       if (dec?.fallback) {
         // no valid answer from the model (busy or unreachable): say so, never dress it up as the resident's choice
         bubble(actor, "😶", 2);
-        caption({ who: actor!, icon: "⚠️", tone: "system", text: `Gemma 這次沒有給出有效回答（模型服務可能太忙），${PERSONAS.find((p) => p.id === actor)?.name ?? ""}先愣在原地。` });
+        caption({ who: actor!, icon: "⚠️", tone: "system", text: `Gemma gave no valid answer this time (the model service may be too busy), so ${nameOf(actor!)} just stands there for now.` });
         delete show.thinkingSince[actor!];
         delete show.early[actor!];
         hold = 2;
@@ -428,7 +449,7 @@ function apply(e: SimEvent) {
       // think on the spot, unless they are still walking somewhere (then think while walking)
       if (a && !(a.script?.kind === "goto" && !a.script.arrived)) scriptHold(a, a.script?.face ?? a.home?.face ?? null);
       bubble(actor, emoji(out.feeling), 3.5);
-      const doing = out.actions.every((x) => x.type === "none") ? "（決定先不理會）" : "";
+      const doing = out.actions.every((x) => x.type === "none") ? " (decides to let it go for now)" : "";
       caption({ who: actor!, icon: emoji(out.feeling), tone: "thought", text: out.thought, sub: `${out.understanding}${doing}` });
       hold = readTime(out.thought + out.understanding, 2.4, 1 / 20, 5.5);
       // the reaction Gemma chose, acted out; how much they now believe it, from the engine's record
@@ -468,7 +489,7 @@ function apply(e: SimEvent) {
           const g = lead.script;
           scriptGoto(a, g.x + 1.1, g.z + 0.8, null, g.speed ?? 3.2);
         } else scriptGoto(a, spot.x + 1.1, spot.z + 0.8, null, 3.2);
-        caption({ who: actor!, icon: "👫", tone: "world", text: `${nameOf(actor!)}跟著${nameOf(String(d.follow))}一起往${placeZh(String(d.to))}走去` });
+        caption({ who: actor!, icon: "👫", tone: "world", text: `${nameOf(actor!)} walks with ${nameOf(String(d.follow))} to ${placeName(String(d.to))}` });
         hold = 0.4;
         break;
       }
@@ -481,7 +502,7 @@ function apply(e: SimEvent) {
       scriptGoto(a, p.x, p.z, null, last && HURRY.includes(last) ? 4.4 : last && DAWDLE.includes(last) ? 2.6 : 3.2);
       show.focus = actor!;
       setShot("medium", { a: actor, at: { x: p.x, z: p.z }, prio: 1 });
-      caption({ who: actor!, icon: "🚶", tone: "world", text: `${nameOf(actor!)}往${placeZh(String(d.to))}走去` });
+      caption({ who: actor!, icon: "🚶", tone: "world", text: `${nameOf(actor!)} heads to ${placeName(String(d.to))}` });
       show.waitFor = () => !!a.script?.arrived;
       hold = 0.8;
       break;
@@ -521,7 +542,7 @@ function apply(e: SimEvent) {
         }
       }
       show.focus = actor!;
-      caption({ who: actor!, icon: INTENT_ICON[String(d.intent)] ?? "💬", tone: "speech", text: `「${String(d.text)}」`, sub: `${nameOf(actor!)} 對 ${nameOf(target!)} 說` });
+      caption({ who: actor!, icon: INTENT_ICON[String(d.intent)] ?? "💬", tone: "speech", text: `“${String(d.text)}”`, sub: `${nameOf(actor!)} to ${nameOf(target!)}` });
       hold = readTime(String(d.text), 2.6, 1 / 13, 6.5);
       break;
     }
@@ -549,7 +570,7 @@ function apply(e: SimEvent) {
         voice(actor!, String(d.text), true);
       }
       setShot("close", { a: actor, prio: 2 });
-      caption({ who: actor!, icon: "📞", tone: d.missed ? "system" : "speech", text: d.missed ? `${nameOf(actor!)}打給${nameOf(target!)}，沒人接` : `「${String(d.text)}」`, sub: d.missed ? undefined : `${nameOf(actor!)} 打電話給 ${nameOf(target!)}` });
+      caption({ who: actor!, icon: "📞", tone: d.missed ? "system" : "speech", text: d.missed ? `${nameOf(actor!)} calls ${nameOf(target!)}. No answer.` : `“${String(d.text)}”`, sub: d.missed ? undefined : `${nameOf(actor!)} on the phone to ${nameOf(target!)}` });
       hold = d.missed ? 1.5 : readTime(String(d.text), 2.4, 1 / 13, 6);
       break;
     }
@@ -557,10 +578,10 @@ function apply(e: SimEvent) {
     case "inspect": {
       bubble(actor, "🔍", 3);
       if (d.found) {
-        caption({ who: actor!, icon: "🔍", tone: "world", text: String(d.found), sub: `${nameOf(actor!)}${e.type === "inspect" ? "檢查後發現" : "親眼看到"}` });
+        caption({ who: actor!, icon: "🔍", tone: "world", text: String(d.found), sub: `${nameOf(actor!)} ${e.type === "inspect" ? "inspects and finds" : "sees firsthand"}` });
         hold = readTime(String(d.found), 2.4, 1 / 16, 6);
         say(actor!, "found", String(d.highlight ?? d.found), hold + 1);
-        if (String(d.highlight ?? d.found) === String(d.found) && String(d.found).length <= 60) show.captions[show.captions.length - 1].bubbled = true;
+        if (String(d.highlight ?? d.found) === String(d.found) && readWeight(String(d.found)) <= 60) show.captions[show.captions.length - 1].bubbled = true;
         const fa = agentFor(actor!);
         if (fa) perform(fa, e.type === "inspect" ? "ponder" : "nervous", hold);
       } else hold = 1.2;
@@ -592,10 +613,10 @@ function apply(e: SimEvent) {
           scriptGoto(o, spot.x + (k ? 1.4 : -1.4), spot.z + 1.2, null, 3.6);
         });
         bubble(actor, "🚓", 3);
-        caption({ who: actor ?? "", icon: "🚓", tone: "world", text: e.zh, sub: d.reason ? `「${String(d.reason)}」` : undefined });
+        caption({ who: actor ?? "", icon: "🚓", tone: "world", text: e.zh, sub: d.reason ? `“${String(d.reason)}”` : undefined });
       } else if (key === "festival") {
         show.world.festival = d.to as StageWorld["festival"];
-        caption({ who: actor ?? "", icon: "🏮", tone: "world", text: "燈籠節取消了", sub: d.text ? `「${String(d.text)}」` : undefined });
+        caption({ who: actor ?? "", icon: "🏮", tone: "world", text: "The Lantern Festival is cancelled", sub: d.text ? `“${String(d.text)}”` : undefined });
       } else caption({ who: actor ?? "", icon: "✨", tone: "world", text: e.zh });
       show.focus = actor ?? show.focus;
       setShot("wide", { a: actor, at: e.place ? SPOTS[e.place] : undefined, prio: 3 });
@@ -611,7 +632,7 @@ function apply(e: SimEvent) {
     case "notice":
       show.world.notices.push(String(d.text));
       bubble(actor, "📋", 3);
-      caption({ who: actor!, icon: "📋", tone: "world", text: `「${String(d.text)}」`, sub: `${nameOf(actor!)}在廣場布告欄貼了公告` });
+      caption({ who: actor!, icon: "📋", tone: "world", text: `“${String(d.text)}”`, sub: `${nameOf(actor!)} puts up a notice on the plaza notice board` });
       setShot("wide", { a: actor, at: SPOTS.plaza, prio: 3 });
       crowdLooks(SPOTS.plaza, 12, ["👀", "❓", "📋"]);
       hold = readTime(String(d.text), 2.6, 1 / 14, 6);
@@ -624,7 +645,7 @@ function apply(e: SimEvent) {
         a.bubble = "📱";
         a.bubbleTimer = 3;
       });
-      caption({ who: actor!, icon: "📰", tone: "world", text: `〈${String(d.headline)}〉`, sub: `${nameOf(actor!)}在新聞部落格發文` });
+      caption({ who: actor!, icon: "📰", tone: "world", text: `“${String(d.headline)}”`, sub: `${nameOf(actor!)} posts on the news blog` });
       setShot("wide", { a: actor, prio: 3 });
       hold = 3.6;
       break;
@@ -633,7 +654,7 @@ function apply(e: SimEvent) {
       bubble(actor, "📣", 4);
       const spot = SPOTS.townhall;
       borrowCrowd(spot, 6, "👀");
-      caption({ who: actor!, icon: "📣", tone: "speech", text: `「${String(d.text)}」`, sub: `${nameOf(actor!)}發表公開聲明` });
+      caption({ who: actor!, icon: "📣", tone: "speech", text: `“${String(d.text)}”`, sub: `${nameOf(actor!)} makes a public statement` });
       say(actor!, "speech", String(d.text), readTime(String(d.text), 3, 1 / 14, 6.5) + 1);
       // on the town-hall steps, flags and banners behind: close enough to read the face of whoever is denying it
       setShot("medium", { a: actor, prio: 3 });
@@ -654,7 +675,8 @@ function apply(e: SimEvent) {
       });
       borrowCrowd(spot, 5, "👀");
       bubble(actor, "✊", 5);
-      caption({ who: actor!, icon: "✊", tone: "world", text: `「${String(d.text)}」`, sub: e.zh.split("：")[0] });
+      // the log line up to its colon names who gathered where (Chinese logs use "：", English ones ": ")
+      caption({ who: actor!, icon: "✊", tone: "world", text: `“${String(d.text)}”`, sub: e.zh.split(/：|:\s/)[0] });
       setShot("wide", { at: spot, prio: 3 });
       hold = readTime(String(d.text), 3, 1 / 14, 6.5);
       break;
@@ -669,7 +691,7 @@ function apply(e: SimEvent) {
       bubble(actor, "👋", 2.5);
       bubble(target, "👋", 2.5);
       show.focus = actor!;
-      caption({ who: actor!, icon: "🕔", tone: "world", text: String(d.text), sub: `${clockOf(e.t)} 的例行碰面` });
+      caption({ who: actor!, icon: "🕔", tone: "world", text: String(d.text), sub: `The ${clockOf(e.t)} routine meeting` });
       setShot("two", { a: actor, b: target, prio: 2 });
       hold = 2.5;
       break;
@@ -717,8 +739,8 @@ function apply(e: SimEvent) {
       const hasFestival = show.run?.events.some((x) => x.type === "festival");
       const fest = show.run && !hasFestival ? readinessOf(show.run.events, show.run.claims ?? []).outcome.text : "";
       const reason = String(d.reason);
-      const text = reason === "budget" ? "這個晚上的故事，先看到這裡。" : reason === "time" ? "20:00，燈籠節的時間到了。" : String(e.zh);
-      caption({ who: "", icon: "🏁", tone: "system", text: `${text}${fest}` }); // one sentence, then the outcome (a sub would read as a "label：" prefix)
+      const text = reason === "budget" ? "Everyone has had their say; the evening ran its course." : reason === "time" ? "20:00. Time for the Lantern Festival." : String(e.zh);
+      caption({ who: "", icon: "🏁", tone: "system", text: [text, fest].filter(Boolean).join(" ") }); // one sentence, then the outcome (a sub would read as a "label:" prefix)
       setShot(hasFestival ? "wide" : "overview", { prio: 4 });
       if (!hasFestival) sting.end();
       hold = 2.5;
@@ -790,12 +812,12 @@ export function tick(dt: number) {
         if (!show.says.some((x) => x.npc === npc && x.kind === "thinking")) say(npc, "thinking", "", 9999, { since: show.thinkingSince[npc] });
       }
       show.says = show.says.filter((x) => x.kind !== "thinking" || show.thinking.has(x.npc));
-      const who = [...show.thinking].map(nameOf).join("、");
+      const who = listOf([...show.thinking].map(nameOf));
       if (who && who !== show.thinkingShown) {
         show.thinkingShown = who;
         show.focus = [...show.thinking][0];
         setShot("close", { a: show.focus, prio: 1 });
-        caption({ who: [...show.thinking][0], icon: "🤔", tone: "system", text: `${who}正在想……`, sub: `Gemma 正在依照${who}知道的事推理` });
+        caption({ who: [...show.thinking][0], icon: "🤔", tone: "system", text: `${who} ${show.thinking.size > 1 ? "are" : "is"} thinking…`, sub: `Gemma is reasoning from what ${who} ${show.thinking.size > 1 ? "know" : "knows"}` });
         show.captions[show.captions.length - 1].bubbled = true;
       }
       return;

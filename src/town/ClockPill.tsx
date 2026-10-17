@@ -12,15 +12,17 @@ const FESTIVAL_HOUR = 20;
 export default function ClockPill({ hour, story = false, trouble, children }: { hour: number; story?: boolean; trouble?: string | null; children?: ReactNode }) {
   const [open, setOpen] = useState(false);
   const left = FESTIVAL_HOUR - hour;
-  const countdown = left <= 0 ? "燈籠節開始了" : `燈籠節還有 ${Math.floor(left)}:${String(Math.floor((left % 1) * 60)).padStart(2, "0")}`;
+  const time = `${Math.floor(left)}:${String(Math.floor((left % 1) * 60)).padStart(2, "0")}`;
+  const countdown = left <= 0 ? "The Lantern Festival has begun" : `Lantern Festival in ${time}`;
+  const troubled = left <= 0 ? "Festival in trouble · it has begun" : `Festival in trouble · ${time} to go`;
   // the last half hour before 20:00 pulses: the evening is running out
   const urgent = story && left > 0 && left < 0.5;
   const body = (
     <>
-      <span className="text-[11px] font-bold tracking-wide text-slate-400 max-sm:hidden">霧港鎮</span>
+      <span className="text-[11px] font-bold tracking-wide text-slate-400 max-sm:hidden">Mistport</span>
       <b className="text-sm font-extrabold tabular-nums text-slate-800">{formatHour(hour)}</b>
       <span className={`text-xs font-semibold ${trouble ? "text-rose-600" : left < 1 ? "text-amber-600" : "text-orange-600"}`} title={trouble ?? undefined}>
-        🏮 {trouble ? `燈籠節不妙 · ${countdown.replace("燈籠節", "")}` : countdown}
+        🏮 {trouble ? troubled : countdown}
       </span>
       {children && <span className="text-[10px] text-slate-400">{open ? "▴" : "▾"}</span>}
     </>
@@ -29,7 +31,7 @@ export default function ClockPill({ hour, story = false, trouble, children }: { 
   if (!children) return <div className={cls}>{body}</div>;
   return (
     <div className="flex flex-col items-start gap-1.5">
-      <button onClick={() => setOpen((v) => !v)} className={`${cls} hover:bg-white`} aria-expanded={open} title="時間、視角與速度">
+      <button onClick={() => setOpen((v) => !v)} className={`${cls} hover:bg-white`} aria-expanded={open} title="Time, views and speed">
         {body}
       </button>
       {open && <div className="pointer-events-auto w-[min(92vw,280px)] rounded-2xl bg-white/92 px-3 py-2.5 shadow-lg backdrop-blur">{children}</div>}

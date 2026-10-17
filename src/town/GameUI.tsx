@@ -96,20 +96,20 @@ function RecordsPopover({ recorded, history, onRecorded, onHistory }: { recorded
     <div className="pointer-events-auto max-h-[50vh] w-[min(94vw,460px)] overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-xl">
       {history.length > 0 && (
         <>
-          <p className="mb-1 text-xs font-semibold text-slate-500">你的實驗</p>
+          <p className="mb-1 text-xs font-semibold text-slate-500">Your runs</p>
           {history.slice(0, 4).map((h) => (
             <button key={h.id} onClick={() => onHistory(h)} className="block w-full truncate rounded-lg px-2 py-1 text-left text-sm text-slate-700 hover:bg-orange-50">
-              ⟲ 對{nameOf(h.npc)}說「{h.text}」
+              ⟲ To {nameOf(h.npc)}: “{h.text}”
             </button>
           ))}
         </>
       )}
       {recorded.length > 0 && (
         <>
-          <p className={`mb-1 text-xs font-semibold text-slate-500 ${history.length ? "mt-2" : ""}`}>錄製的真實 Gemma 推演（重播紀錄，不重新呼叫模型）</p>
+          <p className={`mb-1 text-xs font-semibold text-slate-500 ${history.length ? "mt-2" : ""}`}>Recorded real Gemma runs (replays of the log, no new model calls)</p>
           {recorded.map((r) => (
             <button key={r.id} onClick={() => onRecorded(r.id)} className="block w-full truncate rounded-lg px-2 py-1 text-left text-sm text-slate-700 hover:bg-orange-50">
-              📼 對{nameOf(r.npc)}說「{r.text}」
+              📼 To {nameOf(r.npc)}: “{r.text}”
             </button>
           ))}
         </>
@@ -181,7 +181,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
     ui.setActive(ACTIVE);
     ui.select(null);
     setShowRecords(false);
-    setReplayOf(entry ? `由 Gemma 實際推演於 ${new Date(entry.at).toLocaleString("zh-TW")}；這次不會重新呼叫模型` : "這次不會重新呼叫模型");
+    setReplayOf(entry ? `Played out by Gemma for real on ${new Date(entry.at).toLocaleString("en-US")}; this replay makes no new model calls` : "This replay makes no new model calls");
     setSource("recorded");
     setCurrent({ id: `rec-${id}`, npc: run.config.seedNpc, text: run.config.seedText, at: entry?.at ?? "", seed: run.config.seed ?? 1, run: { ...run, whispers: run.whispers ?? [] } });
     load(run, false);
@@ -244,7 +244,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
     setReplayOf(null);
     setShowRecords(false);
     if (!ui.active.has(npc)) {
-      setProgress((p) => ({ ...p, error: "這位居民不在這次的實驗裡" }));
+      setProgress((p) => ({ ...p, error: "This resident isn't part of this run" }));
       return;
     }
     lastStart.current = { npc, text: sentence, policy, from };
@@ -345,7 +345,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
       if (playing) {
         // stop waiting for events that will never come, and say so on screen
         update(partial(), true);
-        show.captions.push({ key: Date.now(), who: "", icon: "⚠️", tone: "system", text: "模擬中斷了：模型服務沒有回應。已發生的部分照實播放。", at: show.clock });
+        show.captions.push({ key: Date.now(), who: "", icon: "⚠️", tone: "system", text: "The simulation stopped: the model service isn't answering. What already happened plays as it was.", at: show.clock });
         show.version++;
       }
     }
@@ -370,7 +370,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
   const trouble = useMemo(() => {
     if (phase !== "playing" || !show.run) return null;
     const o = readinessOf(show.order.slice(0, played), show.run.claims ?? [], show.gameT).outcome; // only milestones already reached
-    return o.kind === "on" ? null : o.missing.join("、");
+    return o.kind === "on" ? null : o.missing.join(", ");
   }, [phase, played]);
 
   return (
@@ -381,7 +381,7 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
           <ClockPill hour={storyHour} story trouble={trouble} />
           {replayOf && (
             <span title={replayOf} className="pointer-events-auto rounded-full bg-slate-800/75 px-2.5 py-0.5 text-[11px] text-white shadow">
-              📼 真實 Gemma 推演紀錄（不重新呼叫模型）
+              📼 A real Gemma run, recorded (no new model calls)
             </span>
           )}
         </div>
@@ -405,13 +405,13 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
         <div className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-center gap-2 px-3">
           {showRecords && <RecordsPopover recorded={recorded} history={history} onRecorded={(id) => { unlockAudio(); playRecorded(id); }} onHistory={playHistory} />}
           <div className="flex items-center gap-2">
-            {whispered ? <DailyLine /> : <div className="rounded-full bg-white/90 px-4 py-1.5 text-sm font-semibold text-slate-700 shadow">👆 點一位有名牌的居民，偷偷說一句話，然後看小鎮怎麼回應</div>}
+            {whispered ? <DailyLine /> : <div className="rounded-full bg-white/90 px-4 py-1.5 text-sm font-semibold text-slate-700 shadow">👆 Tap a resident with a name tag, whisper one sentence, and watch how the town reacts</div>}
             <button onClick={() => setPhase("intro")} title="Watch the opening again" className="pointer-events-auto rounded-full bg-slate-800/80 px-3 py-1.5 text-sm font-semibold text-white shadow">
               🎬
             </button>
             {(recorded.length > 0 || history.length > 0) && (
               <button onClick={() => setShowRecords((v) => !v)} aria-expanded={showRecords} className="pointer-events-auto rounded-full bg-slate-800/80 px-3 py-1.5 text-sm font-semibold text-white shadow">
-                📼 錄製的實驗
+                📼 Recorded runs
               </button>
             )}
           </div>

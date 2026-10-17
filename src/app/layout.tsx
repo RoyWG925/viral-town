@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VIRAL · 霧港鎮",
-  description: "A living toy town where one rumour can change everything.",
+  title: "VIRAL · Mistport",
+  description: "A living toy town where one whispered rumor can change everything.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

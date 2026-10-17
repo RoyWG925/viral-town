@@ -20,10 +20,10 @@ export function PlayPill({ onLeave }: { onLeave?: () => void }) {
   const playing = show.status === "playing";
   return (
     <div className="pointer-events-auto absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-white/80 p-1 opacity-75 shadow-md backdrop-blur transition-opacity focus-within:opacity-100 hover:opacity-100">
-      <button onClick={() => (playing ? pause() : resume())} aria-label={playing ? "暫停" : "播放"} className={`${iconBtn} bg-slate-800 text-white`}>
+      <button onClick={() => (playing ? pause() : resume())} aria-label={playing ? "Pause" : "Play"} className={`${iconBtn} bg-slate-800 text-white`}>
         {playing ? "⏸" : "▶"}
       </button>
-      <button onClick={() => setSpeed((show.speed % 3) + 1)} aria-label="播放速度" title="點一下切換速度" className={`${iconBtn} bg-slate-100 text-slate-700`}>
+      <button onClick={() => setSpeed((show.speed % 3) + 1)} aria-label="Playback speed" title="Tap to change the speed" className={`${iconBtn} bg-slate-100 text-slate-700`}>
         {show.speed}×
       </button>
       <button
@@ -31,19 +31,19 @@ export function PlayPill({ onLeave }: { onLeave?: () => void }) {
           ui.follow = !ui.follow;
           ui.version++;
         }}
-        aria-label="自動導演"
-        title={ui.follow ? "自動導演：鏡頭跟著故事走（拖動畫面就換成自由鏡頭）" : "自由鏡頭：點一下讓鏡頭重新跟著故事"}
+        aria-label="Auto camera"
+        title={ui.follow ? "Auto camera: the camera follows the story (drag the view to switch to free camera)" : "Free camera: tap to let the camera follow the story again"}
         className={`${iconBtn} ${ui.follow ? "bg-sky-500 text-white" : "bg-slate-100 text-slate-700"}`}
       >
         {ui.follow ? "🎬" : "🎥"}
       </button>
       <div className="relative">
-        <button onClick={() => setMore((v) => !v)} aria-label="更多" aria-expanded={more} className={`${iconBtn} bg-slate-100 text-slate-700`}>
+        <button onClick={() => setMore((v) => !v)} aria-label="More" aria-expanded={more} className={`${iconBtn} bg-slate-100 text-slate-700`}>
           ⋯
         </button>
         {more && (
-          <div className="absolute bottom-10 right-0 w-40 rounded-xl bg-white/95 p-1 text-sm shadow-lg">
-            <button onClick={() => { restart(); setMore(false); }} className="block w-full rounded-lg px-3 py-1.5 text-left hover:bg-slate-100">⟲ 從頭重播</button>
+          <div className="absolute bottom-10 right-0 w-48 rounded-xl bg-white/95 p-1 text-sm shadow-lg">
+            <button onClick={() => { restart(); setMore(false); }} className="block w-full rounded-lg px-3 py-1.5 text-left hover:bg-slate-100">⟲ Replay from the start</button>
             <button
               onClick={() => {
                 unlockAudio();
@@ -52,16 +52,16 @@ export function PlayPill({ onLeave }: { onLeave?: () => void }) {
               }}
               className="block w-full rounded-lg px-3 py-1.5 text-left hover:bg-slate-100"
             >
-              {isMuted() ? "🔇 音效：關" : "🔊 音效：開"}
+              {isMuted() ? "🔇 Sound: off" : "🔊 Sound: on"}
             </button>
             {onLeave && (
               <button onClick={() => { setMore(false); onLeave(); }} className="block w-full rounded-lg px-3 py-1.5 text-left hover:bg-slate-100">
-                🏠 回到小鎮
+                🏠 Back to town
               </button>
             )}
             {/* the scene owns the H toggle; this is the same key */}
             <button onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "h" }))} className="block w-full rounded-lg px-3 py-1.5 text-left hover:bg-slate-100">
-              🙈 隱藏介面（H）
+              🙈 Hide the interface (H)
             </button>
           </div>
         )}
@@ -75,12 +75,12 @@ export function Timeline() {
   const played = show.order.slice(0, show.i);
   const ticks = meetingTicks(show.run, played, show.gameT, show.status === "done");
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] bg-black/15" title="今晚：15:00 → 20:00 燈籠節">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] bg-black/15" title="Tonight: 15:00 → the Lantern Festival at 20:00">
       <div className="h-full bg-orange-400 transition-[width] duration-500" style={{ width: pct(show.gameT) }} />
       {ticks.map((m) => (
         <span
           key={m.at}
-          title={`${m.zh}${m.state === "met" ? "（碰面了）" : m.state === "passed" ? "（沒有發生什麼）" : ""}`}
+          title={`${m.zh}${m.state === "met" ? " (they met)" : m.state === "passed" ? " (nothing came of it)" : ""}`}
           className={`pointer-events-auto absolute bottom-0 h-2 w-[3px] -translate-x-1/2 rounded-full ${m.state === "met" ? "bg-sky-500" : m.state === "passed" ? "bg-slate-400/70" : "bg-white"}`}
           style={{ left: pct(m.at) }}
         />

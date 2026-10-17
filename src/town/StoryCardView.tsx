@@ -3,7 +3,7 @@
 // The top of the results panel: the headline of what really happened, the chain of retellings
 // that led there, and — when the rumour died — who stopped it and who almost acted on it.
 import { nameOf } from "./director";
-import type { StoryCard } from "./story";
+import { stepLine, type StoryCard } from "./story";
 
 const pct = (c?: number) => (c === undefined ? "" : `${Math.round(c * 100)}%`);
 const VERDICT: Record<string, string> = { believe: "相信", doubt: "半信半疑", disbelieve: "不信" };
@@ -56,14 +56,16 @@ export default function StoryCardView({ card, seedNpc, seedText, hideHeadline = 
         {card.spine.map((h, i) => (
           <div key={i} className="flex items-start gap-2 text-xs">
             <span className="mt-0.5 shrink-0 rounded-full bg-amber-100 px-2 py-0.5 font-bold text-amber-800">
-              {h.via === "phone" ? "📞" : "💬"} {nameOf(h.from)}→{nameOf(h.to)}
+              {stepLine(h).who}
             </span>
             <div>
-              <p className="text-slate-700">「{clip(h.text, 52)}」</p>
-              <Pill verdict={h.verdict} conf={h.conf} />
+              <p className="text-slate-700">{stepLine(h, 52).words}</p>
+              {/* a sight is no message: it gets a pill only once they made something of it */}
+              {(h.verdict !== undefined || (h.via !== "look" && h.via !== "inspect")) && <Pill verdict={h.verdict} conf={h.conf} />}
             </div>
           </div>
         ))}
+        {card.chainGap && <p className="text-xs leading-snug text-slate-500">{card.chainGap}</p>}
         {second && card.spineRoot !== 1 && <You npc={second.npc} text={second.text} again />}
       </div>
 

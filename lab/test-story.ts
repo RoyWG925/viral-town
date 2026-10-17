@@ -22,6 +22,14 @@ test("every hop on the card is a real conversation in the log", () => {
   for (const { name, run } of runs) {
     const card = storyOf(run);
     for (const h of card.spine) {
+      // the chain also carries public words, town talk and first-hand sights on the way: each is its own logged event
+      if (h.via !== "talk" && h.via !== "phone") {
+        const x = run.events.find((y) => y.id === h.event);
+        const said = x && (h.via === "crowd" ? x.type === "deliver" && x.target === h.to : x.type === h.via && x.actor === h.from);
+        const words = x && (h.via === "look" || h.via === "inspect" ? String(x.data.found).includes(h.text) : String(h.via === "article" ? x.data.headline : x.data.text) === h.text);
+        assert.ok(said && words, `${name}: ${h.via} step ${h.event} not in log`);
+        continue;
+      }
       const e = run.events.find((x) => (x.type === "talk" || x.type === "phone") && x.actor === h.from && x.target === h.to && String(x.data.text) === h.text);
       assert.ok(e, `${name}: hop ${h.from}→${h.to} not in log`);
     }

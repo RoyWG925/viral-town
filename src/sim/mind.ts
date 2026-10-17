@@ -2,7 +2,7 @@
 // The model only proposes; validate.ts checks the proposal and the engine applies it.
 import { ACT_LIST } from "./acts.ts";
 import { PLACES, TOPICS } from "./scenario.ts";
-import { parseJSON, type Chat, type ChatMessage } from "./llm.ts";
+import { DECISION_BUDGET_MS, parseJSON, pause, type Chat, type ChatMessage } from "./llm.ts";
 import type { ActionKind, DecisionOutput, LlmRecord, Persona, ValidationEntry } from "./types.ts";
 import { checkDecision, coerce, normalize, type Checked } from "./validate.ts";
 import { describeTrust, type InboxItem, type View } from "./view.ts";
@@ -17,6 +17,8 @@ export interface MindResult {
   fallback: boolean;
   /** actions the resident wanted but the rules did not allow (their thinking was valid and is kept) */
   refused?: { action: DecisionOutput["actions"][number]; why: string }[];
+  /** the player left the story mid-decision: the output is the safe fallback and no further call was made */
+  stopped?: boolean;
 }
 
 /** The gist of why the rules stopped an action, for a one-line beat on screen. */
@@ -98,6 +100,17 @@ ${TOPIC_LIST}
 只用繁體中文，只回覆一個 JSON 物件：
 ${shape}${actionNote}`;
 }
+
+/** Every system prompt decideWithGemma sends, for every variant: the server route forwards only these. */
+export const SYSTEM_PROMPTS: readonly string[] = [
+  ...(["single", "free-actions", "eager"] as const).map((v) => systemPrompt(v, "single")),
+  systemPrompt("two-stage", "read"),
+  systemPrompt("two-stage", "act"),
+];
+
+/** The validator's correction turn, sent after the model's answer: RETRY_HEAD + the errors + RETRY_TAIL. */
+export const RETRY_HEAD = "你的回覆沒有通過檢查：";
+export const RETRY_TAIL = "。請修正後重新回覆完整的 JSON。";
 
 function inboxLine(m: InboxItem, view: View): string {
   const q = `「${m.text}」`;
@@ -184,9 +197,27 @@ export function earlyReaction(text: string): { feeling: string; act: string } | 
   return f && a ? { feeling: f[1], act: a[1] } : null;
 }
 
+/**
+ * The signal every model call of one decision carries. It aborts when the player leaves the story (shouldStop,
+ * checked every 250 ms) or when the decision's time budget is spent, which ends the call in flight, every retry
+ * inside the chat client, and any wait between attempts here.
+ */
+function watchDecision(shouldStop: (() => boolean) | undefined, budgetMs: number) {
+  const ac = new AbortController();
+  const stopped = () => !!shouldStop?.();
+  const check = () => {
+    if (stopped()) ac.abort();
+  };
+  const poll = shouldStop ? setInterval(check, 250) : undefined;
+  const timer = setTimeout(() => ac.abort(), budgetMs);
+  check();
+  return { signal: ac.signal, stopped, budgetMs, done: () => (clearInterval(poll), clearTimeout(timer)) };
+}
+type Watch = ReturnType<typeof watchDecision>;
+
 async function ask(
   chat: Chat, messages: ChatMessage[], view: View, stage: "single" | "read" | "act", npcId: string, clock0: number, temperature: number,
-  check: (o: DecisionOutput) => Checked, llm: LlmRecord[], validation: ValidationEntry[],
+  check: (o: DecisionOutput) => Checked, llm: LlmRecord[], validation: ValidationEntry[], watch: Watch,
   onEarly?: (x: { feeling: string; act: string }) => void,
 ): Promise<{ out: DecisionOutput; checked: Checked; refused?: MindResult["refused"] } | null> {
   let msgs = messages;
@@ -194,11 +225,17 @@ async function ask(
   // two chances for the model to give a valid answer; provider outages get extra tries on top
   let modelFailures = 0;
   for (let attempt = 1; attempt <= 2 + Math.min(modelFailures, 3); attempt++) {
+    // the player left the story, or this decision's time is spent: no more calls
+    if (watch.signal.aborted) {
+      validation.push({ attempt, stage, kind: "model", errors: [watch.stopped() ? "stopped: the player left the story" : `decision time budget spent (${watch.budgetMs / 1000} s)`] });
+      break;
+    }
     const start = Date.now() - clock0;
     let told = false;
     const r = await chat(msgs, {
       temperature,
       maxTokens: stage === "read" ? 700 : 1000,
+      signal: watch.signal,
       // stream only when someone wants the early reaction; it is shown as a gesture, never as a decision
       onDelta: onEarly
         ? (text) => {
@@ -219,7 +256,7 @@ async function ask(
     if (r.status !== 200 || !r.content) {
       validation.push({ attempt, stage, kind: "model", errors: [`model error: ${r.error ?? r.status}`] });
       modelFailures++;
-      await new Promise((res) => setTimeout(res, 8000));
+      await pause(8000, watch.signal);
       continue;
     }
     const parsed = parseJSON(r.content);
@@ -235,8 +272,10 @@ async function ask(
     validation.push({ attempt, stage, kind: errors.length ? "validator" : "ok", errors, notes: norm?.notes.length ? norm.notes : undefined });
     if (out && checked && errors.length === 0) return { out, checked };
     if (out && !parsed.error) last = out;
-    msgs = [...msgs, { role: "assistant", content: r.content }, { role: "user", content: `你的回覆沒有通過檢查：${errors.join("；")}。請修正後重新回覆完整的 JSON。` }];
+    msgs = [...msgs, { role: "assistant", content: r.content }, { role: "user", content: `${RETRY_HEAD}${errors.join("；")}${RETRY_TAIL}` }];
   }
+  // a story nobody is watching keeps nothing, not even a salvaged reading
+  if (watch.stopped()) return null;
   // Out of tries. If the resident's reading of the situation was valid and only what they wanted to *do* broke a
   // rule (e.g. sending the police on one stranger's word), keep their real thinking, keep the actions that are
   // allowed, and record the refused ones as a visible beat — instead of replacing everything with "😶 愣住".
@@ -260,7 +299,28 @@ async function ask(
   return null;
 }
 
-export async function decideWithGemma(view: View, chat: Chat, opts: { variant: Variant; temperature: number; clock0: number; onEarly?: (x: { feeling: string; act: string }) => void }): Promise<MindResult> {
+export interface DecideOptions {
+  variant: Variant;
+  temperature: number;
+  clock0: number;
+  onEarly?: (x: { feeling: string; act: string }) => void;
+  /** true once the player has left the story: the call in flight is aborted and no further call is made */
+  shouldStop?: () => boolean;
+  /** this decision's whole time budget, both retry layers included (default DECISION_BUDGET_MS) */
+  budgetMs?: number;
+}
+
+export async function decideWithGemma(view: View, chat: Chat, opts: DecideOptions): Promise<MindResult> {
+  const watch = watchDecision(opts.shouldStop, opts.budgetMs ?? DECISION_BUDGET_MS);
+  try {
+    const res = await decideOnce(view, chat, opts, watch);
+    return res.fallback && watch.stopped() ? { ...res, stopped: true } : res;
+  } finally {
+    watch.done();
+  }
+}
+
+async function decideOnce(view: View, chat: Chat, opts: DecideOptions, watch: Watch): Promise<MindResult> {
   const llm: LlmRecord[] = [];
   const validation: ValidationEntry[] = [];
   const npcId = view.npc.id;
@@ -270,7 +330,7 @@ export async function decideWithGemma(view: View, chat: Chat, opts: { variant: V
       { role: "system", content: systemPrompt(opts.variant, "single") },
       { role: "user", content: userPrompt(view, "single", undefined, { free }) },
     ];
-    const res = await ask(chat, msgs, view, "single", npcId, opts.clock0, opts.temperature, (o) => checkDecision(view, free ? { ...o, actions: [] } : o, { requireActions: !free }), llm, validation, opts.onEarly);
+    const res = await ask(chat, msgs, view, "single", npcId, opts.clock0, opts.temperature, (o) => checkDecision(view, free ? { ...o, actions: [] } : o, { requireActions: !free }), llm, validation, watch, opts.onEarly);
     if (!res) return { output: FALLBACK, checked: checkDecision(view, FALLBACK, { requireReading: false }), llm, validation, fallback: true };
     if (res.refused?.length) return { output: res.out, checked: res.checked, llm, validation, fallback: false, refused: res.refused };
     if (free) {
@@ -286,13 +346,14 @@ export async function decideWithGemma(view: View, chat: Chat, opts: { variant: V
     { role: "system", content: systemPrompt(opts.variant, "read") },
     { role: "user", content: userPrompt(view, "read") },
   ];
-  const read = await ask(chat, readMsgs, view, "read", npcId, opts.clock0, opts.temperature, (o) => checkDecision(view, { ...o, actions: [] }, { requireActions: false }), llm, validation);
+  const read = await ask(chat, readMsgs, view, "read", npcId, opts.clock0, opts.temperature, (o) => checkDecision(view, { ...o, actions: [] }, { requireActions: false }), llm, validation, watch);
   if (!read) return { output: FALLBACK, checked: checkDecision(view, FALLBACK, { requireReading: false }), llm, validation, fallback: true };
   const actMsgs: ChatMessage[] = [
     { role: "system", content: systemPrompt(opts.variant, "act") },
     { role: "user", content: userPrompt(view, "act", { output: read.out, confidence: read.checked.confidence }) },
   ];
-  const act = await ask(chat, actMsgs, view, "act", npcId, opts.clock0, opts.temperature, (o) => checkDecision(view, { ...read.out, actions: o.actions }, { requireReading: true }), llm, validation);
+  const act = await ask(chat, actMsgs, view, "act", npcId, opts.clock0, opts.temperature, (o) => checkDecision(view, { ...read.out, actions: o.actions }, { requireReading: true }), llm, validation, watch);
+  if (!act && watch.stopped()) return { output: FALLBACK, checked: checkDecision(view, FALLBACK, { requireReading: false }), llm, validation, fallback: true };
   const actions = act ? act.out.actions : [{ type: "none" as const, why: "fallback" }];
   const output = { ...read.out, actions };
   return { output, checked: checkDecision(view, output), llm, validation, fallback: !act };

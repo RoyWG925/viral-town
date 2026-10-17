@@ -8,6 +8,14 @@ export const DEFAULT_MODEL = "Gemma-4-31B-IT";
 const RATE_IN = 0.5;
 const RATE_OUT = 3.0;
 
+/**
+ * One resident decision's whole time budget: every attempt in mind.ts and every retry inside the chat client,
+ * waits included. Half the server route's 300 s maxDuration, so one route call (which never gets more than this)
+ * always finishes inside it. Two 60 s timeouts and a normal answer still fit; in P20 (lab, three stories at once)
+ * 9 of 144 decisions took longer, each after repeated 60 s stalled streams.
+ */
+export const DECISION_BUDGET_MS = 150_000;
+
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
   content: string;
@@ -22,6 +30,8 @@ export interface LlmConfig {
   timeoutMs?: number;
   /** network attempts per call (provider errors and timeouts are retried) */
   maxAttempts?: number;
+  /** total ms for one call, every attempt and back-off included (default: only maxAttempts limits it) */
+  budgetMs?: number;
 }
 
 export interface LlmCall {
@@ -45,8 +55,23 @@ export interface LlmCall {
   provider?: string;
 }
 
-/** Callers that need a model: the lab passes a real client, tests pass a recorded one. */
-export type Chat = (messages: ChatMessage[], opts?: { temperature?: number; maxTokens?: number; onDelta?: (textSoFar: string) => void }) => Promise<LlmCall>;
+/** Callers that need a model: the lab passes a real client, tests pass a recorded one. An aborted `signal` (the
+ *  player left the story, or the decision's time is spent) ends the call in flight and every retry after it. */
+export type Chat = (messages: ChatMessage[], opts?: { temperature?: number; maxTokens?: number; onDelta?: (textSoFar: string) => void; signal?: AbortSignal }) => Promise<LlmCall>;
+
+/** Sleep for ms, waking early when the signal aborts. */
+export function pause(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    if (ms <= 0 || signal?.aborted) return resolve();
+    const done = () => {
+      clearTimeout(timer);
+      signal?.removeEventListener("abort", done);
+      resolve();
+    };
+    const timer = setTimeout(done, ms);
+    signal?.addEventListener("abort", done);
+  });
+}
 
 const KEY_RE = /rc-[0-9A-Za-z]{8,}|AIza[0-9A-Za-z_-]{20,}/g;
 export const redact = (s: string) => s.replace(KEY_RE, "[REDACTED_KEY]");
@@ -55,21 +80,40 @@ export function estimateCost(promptTokens: number, completionTokens: number) {
   return (promptTokens * RATE_IN + completionTokens * RATE_OUT) / 1_000_000;
 }
 
-/** Spaces requests so a single process stays under the account's requests-per-minute limit. */
+/**
+ * Spaces requests so a single process stays under the account's requests-per-minute limit. A slot is held until
+ * `fn` settles, so `fn` must cover the whole request, body included: a stream holds its slot until it is fully read
+ * or aborted. A caller whose signal aborts while still waiting leaves the line and never runs `fn`.
+ */
 export function rateLimiter(perMinute: number, maxConcurrent: number) {
   const starts: number[] = [];
   let active = 0;
   const waiters: (() => void)[] = [];
-  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-  return async function run<T>(fn: () => Promise<T>): Promise<T> {
-    while (active >= maxConcurrent) await new Promise<void>((r) => waiters.push(r));
+  const slot = (signal?: AbortSignal) =>
+    new Promise<void>((resolve) => {
+      const done = () => {
+        signal?.removeEventListener("abort", done);
+        const i = waiters.indexOf(done);
+        if (i >= 0) waiters.splice(i, 1);
+        resolve();
+      };
+      waiters.push(done);
+      signal?.addEventListener("abort", done);
+    });
+  return async function run<T>(fn: () => Promise<T>, signal?: AbortSignal): Promise<T> {
+    while (active >= maxConcurrent && !signal?.aborted) await slot(signal);
+    if (signal?.aborted) {
+      if (active < maxConcurrent) waiters.shift()?.(); // pass on a wake-up this caller may have been given
+      throw signal.reason;
+    }
     active++;
     try {
       for (;;) {
         const now = Date.now();
         while (starts.length && now - starts[0] > 60_000) starts.shift();
         if (starts.length < perMinute) break;
-        await sleep(60_000 - (now - starts[0]) + 50);
+        await pause(60_000 - (now - starts[0]) + 50, signal);
+        if (signal?.aborted) throw signal.reason;
       }
       starts.push(Date.now());
       return await fn();
@@ -80,7 +124,7 @@ export function rateLimiter(perMinute: number, maxConcurrent: number) {
   };
 }
 
-export function makeChat(cfg: LlmConfig, limit?: <T>(fn: () => Promise<T>) => Promise<T>): Chat {
+export function makeChat(cfg: LlmConfig, limit?: <T>(fn: () => Promise<T>, signal?: AbortSignal) => Promise<T>): Chat {
   const baseUrl = cfg.baseUrl ?? DEFAULT_BASE_URL;
   const model = cfg.model ?? DEFAULT_MODEL;
   const run = limit ?? (<T,>(fn: () => Promise<T>) => fn());
@@ -94,6 +138,9 @@ export function makeChat(cfg: LlmConfig, limit?: <T>(fn: () => Promise<T>) => Pr
       response_format: { type: "json_object" },
       ...(stream ? { stream: true, stream_options: { include_usage: true } } : {}),
     });
+    // one budget for the whole call, retries and back-offs included; the caller's signal ends it at once
+    const until = cfg.budgetMs ? Date.now() + cfg.budgetMs : Infinity;
+    const over = () => !!opts.signal?.aborted || Date.now() >= until;
     let attempts = 0;
     let totalLatency = 0;
     let queueMs = 0;
@@ -108,61 +155,63 @@ export function makeChat(cfg: LlmConfig, limit?: <T>(fn: () => Promise<T>) => Pr
       let rateHeaders: Record<string, string> = {};
       let error: string | undefined;
       try {
-        const res = await run(() => {
+        // the body is read inside the limiter too: a streamed answer keeps its slot until it is complete
+        await run(async () => {
           t0 = Date.now();
           queueMs += t0 - queued;
-          return fetch(`${baseUrl}/chat/completions`, {
+          const timeout = AbortSignal.timeout(Math.max(1, Math.min(cfg.timeoutMs ?? 60_000, until - t0)));
+          const res = await fetch(`${baseUrl}/chat/completions`, {
             method: "POST",
             headers: { Authorization: `Bearer ${cfg.key}`, "Content-Type": "application/json" },
             body,
-            signal: AbortSignal.timeout(cfg.timeoutMs ?? 60_000),
+            signal: opts.signal ? AbortSignal.any([timeout, opts.signal]) : timeout,
           });
-        });
-        status = res.status;
-        res.headers.forEach((v, k) => {
-          if (k.toLowerCase().startsWith("x-ratelimit")) rateHeaders[k] = v;
-        });
-        if (stream && status === 200 && res.body) {
-          // server-sent events: collect the text, report it as it grows, keep the final usage
-          opts.onDelta!("");
-          let text = "";
-          let usage: Record<string, number> | undefined;
-          let buf = "";
-          const dec = new TextDecoder();
-          for await (const part of res.body as unknown as AsyncIterable<Uint8Array>) {
-            buf += dec.decode(part, { stream: true });
-            let nl;
-            while ((nl = buf.indexOf("\n")) >= 0) {
-              const line = buf.slice(0, nl).trim();
-              buf = buf.slice(nl + 1);
-              if (!line.startsWith("data:")) continue;
-              const data = line.slice(5).trim();
-              if (data === "[DONE]") continue;
-              try {
-                const j = JSON.parse(data) as { choices?: { delta?: { content?: string } }[]; usage?: Record<string, number> };
-                const d = j.choices?.[0]?.delta?.content;
-                if (d) {
-                  if (ttftMs === undefined) ttftMs = Date.now() - t0;
-                  text += d;
-                  opts.onDelta!(text);
+          status = res.status;
+          res.headers.forEach((v, k) => {
+            if (k.toLowerCase().startsWith("x-ratelimit")) rateHeaders[k] = v;
+          });
+          if (stream && status === 200 && res.body) {
+            // server-sent events: collect the text, report it as it grows, keep the final usage
+            opts.onDelta!("");
+            let text = "";
+            let usage: Record<string, number> | undefined;
+            let buf = "";
+            const dec = new TextDecoder();
+            for await (const part of res.body as unknown as AsyncIterable<Uint8Array>) {
+              buf += dec.decode(part, { stream: true });
+              let nl;
+              while ((nl = buf.indexOf("\n")) >= 0) {
+                const line = buf.slice(0, nl).trim();
+                buf = buf.slice(nl + 1);
+                if (!line.startsWith("data:")) continue;
+                const data = line.slice(5).trim();
+                if (data === "[DONE]") continue;
+                try {
+                  const j = JSON.parse(data) as { choices?: { delta?: { content?: string } }[]; usage?: Record<string, number> };
+                  const d = j.choices?.[0]?.delta?.content;
+                  if (d) {
+                    if (ttftMs === undefined) ttftMs = Date.now() - t0;
+                    text += d;
+                    opts.onDelta!(text);
+                  }
+                  if (j.usage) usage = j.usage;
+                } catch {
+                  /* a partial line; the rest arrives with the next chunk */
                 }
-                if (j.usage) usage = j.usage;
-              } catch {
-                /* a partial line; the rest arrives with the next chunk */
               }
             }
-          }
-          json = { choices: [{ message: { content: text } }], usage: usage ?? {} };
-          if (!text) status = 0; // an empty stream is a failed call
-        } else json = await res.json().catch(() => null);
+            json = { choices: [{ message: { content: text } }], usage: usage ?? {} };
+            if (!text) status = 0; // an empty stream is a failed call
+          } else json = await res.json().catch(() => null);
+        }, opts.signal);
       } catch (e) {
         error = redact(String(e));
       }
       totalLatency += Date.now() - t0;
       // 500 here is usually the provider reporting "no available workers": transient, worth retrying.
-      if ((status === 429 || status === 500 || status === 502 || status === 503 || status === 0) && attempts < (cfg.maxAttempts ?? 8)) {
-        await new Promise((r) => setTimeout(r, Math.min(2 ** attempts, 10) * 1000 + Math.random() * 500));
-        continue;
+      if ((status === 429 || status === 500 || status === 502 || status === 503 || status === 0) && attempts < (cfg.maxAttempts ?? 8) && !over()) {
+        await pause(Math.min(Math.min(2 ** attempts, 10) * 1000 + Math.random() * 500, until - Date.now()), opts.signal);
+        if (!over()) continue;
       }
       const j = json as { choices?: { message?: { content?: string } }[]; usage?: Record<string, number>; error?: { message?: string } } | null;
       const usage = j?.usage ?? {};

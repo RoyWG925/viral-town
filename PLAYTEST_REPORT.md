@@ -363,3 +363,38 @@ real player would most likely write a new sentence.
   taken; the lull test guarantees it never interrupts a running chain). Its copy invites a NEW sentence and points
   at who has not heard anything yet, instead of suggesting the same sentence again. Not proven fun without human
   players — flagged as the one experiment that needs a person.
+
+## Batches P12–P13 — v2 settings live: noun character cards, secrets about each other, typed relationships, motives, festival meters
+
+| Case | P12 ending | P13 ending |
+|---|---|---|
+| stage-cafe | 🚧 慶典舞台被封鎖 (20:00 縮水) | 🚧 慶典舞台被封鎖 (縮水) |
+| oven-police | 🚧 慶典舞台被封鎖 (縮水) | 🚧 慶典舞台被封鎖 (縮水) |
+| car-vendor | 🔍 小雯本來在查別的事，卻查出：燈籠節的預算超支了三成 | the same discovery |
+| budget-journalist | 🔍 小雯親自查證：公開的慶典收支表上，實際支出比原本的預算多了三成 | ✊ 攤商聚集討公道 (4 world changes; 縮水) |
+| lantern-baker | 🔍 小雯親自去查：查無實據 | 🔍 小雯親自去查：查無實據 |
+| wobble-organizer | 🔍 老周親自查證：…支架明顯鬆動 (card bug fixed, see below) | the same finding |
+| pigeon-baker | 🤐 美咲聽進去了，但沒有說出去 | 🤐 阿德聽進去了，但沒有說出去 |
+| pigeon-cafe | 🔁 話在美咲和阿德之間打轉 | the same |
+| command-mayor / meme-organizer (P12 only) | ❓ stops at once | – |
+
+- **The cards show in the characters' own words.**
+  - The mayor's habit 「壞消息從不親口說，都叫志明去說」: 小雯 confronts him with the accounts, and he phones 志明 at once.
+  - 志明 walks in with his line 「沒事沒事，小問題對吧？」.
+  - 小雯's bias: 「越否認越可疑」.
+  - 老周 inspects the stage because 「這傢伙越是說沒事，我就越覺得有問題」 — he remembers 志明 cutting corners last year (the secret he holds).
+- **Motives**: 110 of 118 P12 decisions named a line of their own card. Fear 64, want 37, bias 5, gossip 4, bottom 0,
+  price 0. Rare lines appear rarely, so the journal fills common traits first. Reveals now prefer lines a player has
+  not discovered yet.
+- **Face to face**: phone calls fell to 11–16% of actions (P10 30%, P5–P9 45%); people walk over and talk.
+- **Fewer big endings: about 5 in 16 dramatic stories changed the world (P10: 7 of 8).** Two causes:
+  1. **Intended.** The baker now *wants the mayor to thank him at the opening*, so the pigeon gossip about the mayor
+     stays with him (twice). He is no longer the shortcut to the whole town — tell 阿珠 or 美咲 instead.
+  2. **Too cautious.** 小雯 *feared being proven wrong* and did not publish even after reading the overrun in the
+     accounts (twice).
+  - → Her fear became being scooped (a blogger who needs traffic), and two wants got a deadline (「八點前…」,
+    「燈籠節開始前…」). Measured in P14.
+- **Card bug found and fixed**: 老周 saw the loose strut, but the card said 「查無實據」, because his doubt in 志明's
+  "the stage is fine" had dropped. A true fact seen first hand is now always a finding (regression test from this log).
+- **20:00 outcomes**: P12 on 8, reduced 2; P13 on 5, reduced 3. Every reduced festival was 「舞台不能用，改在廣場空地舉行」
+  or, for the vendors' protest, money and mood.

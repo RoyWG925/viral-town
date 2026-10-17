@@ -51,6 +51,14 @@ export function coerce(raw: unknown): { out: DecisionOutput | null; errors: stri
  * unknown claim refs become "new", stray citations are dropped, numbers given as strings are read.
  * Anything that touches the world (actions, targets, places, thresholds, secrets) stays strict.
  */
+/** "0.5（不確定）" → 0.5, "60%" → 0.6, "七成" stays NaN (then it is sent back) */
+function readNumber(x: string): number {
+  const m = /-?\d+(?:\.\d+)?/.exec(x);
+  if (!m) return NaN;
+  const v = Number(m[0]);
+  return x.includes("%") || v > 1 ? v / 100 : v;
+}
+
 export function normalize(view: View, out: DecisionOutput): { out: DecisionOutput; notes: string[] } {
   const notes: string[] = [];
   const beliefs = new Set(view.beliefs.map((b) => b.id));
@@ -71,7 +79,7 @@ export function normalize(view: View, out: DecisionOutput): { out: DecisionOutpu
   });
   const VERDICT: Record<string, "believe" | "doubt" | "disbelieve"> = { believe: "believe", doubt: "doubt", disbelieve: "disbelieve", unsure: "doubt", uncertain: "doubt", reject: "disbelieve", "not believe": "disbelieve" };
   const stances = out.stances.map((s) => {
-    const conf = typeof s.confidence === "string" ? Number(s.confidence) : s.confidence;
+    const conf = typeof s.confidence === "string" ? readNumber(s.confidence) : s.confidence;
     const cites = (Array.isArray(s.cites) ? s.cites : []).filter((c) => {
       const ok = ids.has(c);
       if (!ok && !invented.has(c)) notes.push(`stance cite ${c} dropped`);

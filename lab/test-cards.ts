@@ -103,3 +103,15 @@ test("the decide event carries the motive, and the story reveals the most tellin
   // an old log without motives reveals nothing
   assert.equal(revealOf(run.events.map((e) => (e.type === "decide" ? { ...e, data: { ...e.data, motive: undefined } } : e))), undefined);
 });
+
+test("a confidence written with words or a percent is read, not sent back", () => {
+  const raw = (c: unknown) => ({ feeling: "🤔 想", act: "ponder", understanding: "x", thought: "y", claims: [{ ref: "new", source: "m1", statement: "s", topic: "other", says: "yes", category: "other" }], stances: [{ claim: 0, verdict: "doubt", confidence: c, why: "w", cites: ["m1"] }], actions: [{ type: "none", why: "x" }] });
+  assert.equal(normalize(viewFor("baker"), coerce(raw("0.5（不確定）")).out!).out.stances[0].confidence, 0.5);
+  assert.equal(normalize(viewFor("baker"), coerce(raw("60%")).out!).out.stances[0].confidence, 0.6);
+});
+
+test("the prompt says how often you have already talked with someone tonight", () => {
+  const v = viewFor("journalist");
+  v.people = v.people.map((x) => (x.id === "baker" ? { ...x, talks: 3 } : x));
+  assert.ok(userPrompt(v, "single").includes("你們今晚已經說過 3 次話了"));
+});

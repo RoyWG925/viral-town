@@ -107,6 +107,8 @@ interface Npc {
   beliefEvents: Map<string, string>;
   /** a face-to-face exchange in progress: who with, and until when they wait for each other */
   conv: { with: NpcId; until: Minutes } | null;
+  /** lines exchanged with each person tonight (either direction): shown to them, so a long back-and-forth reads as one */
+  talks: Map<NpcId, number>;
 }
 
 // `idle` marks a task that cannot move the story by itself (walking home, waiting to part, a routine meeting nobody
@@ -141,7 +143,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     const p = PERSONAS.find((x) => x.id === id);
     if (!p) throw new Error(`unknown npc ${id}`);
     npcs.set(id, {
-      p, place: p.home, dest: null, busyUntil: 0, decisionAt: null, triggers: [], publicEvents: [], heard: [], planId: 0, lastBelief: null, beliefEvents: new Map(), conv: null,
+      p, place: p.home, dest: null, busyUntil: 0, decisionAt: null, triggers: [], publicEvents: [], heard: [], planId: 0, lastBelief: null, beliefEvents: new Map(), conv: null, talks: new Map(),
       mind: { knows: new Set(p.knows), learned: new Map(), beliefs: new Map(), inbox: [], memory: [], decisions: 0, lastDecisionAt: -99, told: new Map(), heardKeys: new Map() },
     });
   }
@@ -244,7 +246,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       // residents know where people usually are, not where they are right now; the engine finds them
       people: [...npcs.values()].filter((o) => o !== n).map((o) => ({
         id: o.p.id, name: o.p.name, roleZh: o.p.roleZh, place: o.p.home, placeZh: placeZh(o.p.home),
-        relation: n.p.relations[o.p.id] ?? { trust: 0.35, phone: false, zh: "點頭之交" }, busy: false,
+        relation: n.p.relations[o.p.id] ?? { trust: 0.35, phone: false, zh: "點頭之交" }, busy: false, talks: n.talks.get(o.p.id) ?? 0,
       })),
       actions: ["tell", "phone", "ask", "go_look", ...n.p.actions],
       publicEvents: n.publicEvents,
@@ -498,6 +500,10 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       return Math.abs(conf - r.conf) >= 0.25 || (face && !r.face);
     });
   }
+  function countTalk(a: Npc, b: Npc) {
+    a.talks.set(b.p.id, (a.talks.get(b.p.id) ?? 0) + 1);
+    b.talks.set(a.p.id, (b.talks.get(a.p.id) ?? 0) + 1);
+  }
   function markTold(n: Npc, target: Npc, claimIds: string[], face: boolean) {
     const told = n.mind.told.get(target.p.id) ?? new Map<string, { n: number; conf: number; face: boolean }>();
     for (const c of claimIds) {
@@ -578,6 +584,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
               actor: n.p.id, target: target.p.id, place: n.place, data: { text: a.message, intent: a.intent ?? (a.type === "ask" ? "ask" : "inform"), claims: claimIds },
             });
             markTold(n, target, claimIds, true);
+            countTalk(n, target);
             startConv(n, target, tb + TALK + CONV_LINGER);
             at(tb + TALK, () => {
               deliver(target, n.p.id, "face", a.intent ?? (a.type === "ask" ? "ask" : "inform"), a.message ?? "", claimIds, tb + TALK, ev);
@@ -604,6 +611,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           actor: n.p.id, target: target.p.id, place: n.place, data: { text: a.message, intent: a.intent ?? "inform", claims: claimIds },
         });
         markTold(n, target, claimIds, false);
+        countTalk(n, target);
         at(t + PHONE, () => {
           deliver(target, n.p.id, "phone", a.intent ?? "inform", a.message ?? "", claimIds, t + PHONE, ev);
           next(t + PHONE);

@@ -1,0 +1,5479 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "vendor",
+   "seedText": "攤位費漲價是因為市長把錢拿去買新車了。",
+   "seed": 7,
+   "policy": "gemma",
+   "variant": "eager",
+   "temperature": 0.7,
+   "maxDecisions": 22,
+   "maxPerNpc": 9
+  },
+  "whispers": [],
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "攤位費漲價是因為市長把錢拿去買新車了。"
+    },
+    "zh": "一個念頭被植入阿珠耳中：「攤位費漲價是因為市長把錢拿去買新車了。」",
+    "target": "vendor",
+    "place": "stall",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "攤位費漲價是因為市長把錢拿去買新車了。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿珠聽到一位陌生客人說：「攤位費漲價是因為市長把錢拿去買新車了。」",
+    "target": "vendor",
+    "place": "stall",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "攤位費漲價可能是市長拿去買新車了，太可惡了！",
+     "thought": "要是真是這樣，我絕對不會就這樣算了！得先確認一下。",
+     "feeling": "😡 生氣",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ],
+     "motive": "bias"
+    },
+    "zh": "阿珠：要是真是這樣，我絕對不會就這樣算了！得先確認一下。",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 24212
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "topic": "mayor_embezzled",
+     "from": 0,
+     "to": 0.4,
+     "proposed": 0.4,
+     "verdict": "doubt",
+     "why": "雖然市長可疑，但只是聽客人隨口說的"
+    },
+    "zh": "阿珠對「市長私吞攤位費漲價的錢去買新車」的信心：0.00 → 0.40（doubt）",
+    "actor": "vendor",
+    "w": 24213
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😡 生氣"
+    },
+    "zh": "阿珠 😡 生氣",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 24213
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "小雯！快幫我查查，是不是有人說市長拿攤位費去買新車了？要是真的，我們得大做文章！",
+     "intent": "ask",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿珠打電話給小雯：「小雯！快幫我查查，是不是有人說市長拿攤位費去買新車了？要是真的，我們得大做文章！」",
+    "actor": "vendor",
+    "target": "journalist",
+    "place": "stall",
+    "w": 24213
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "ask",
+     "text": "小雯！快幫我查查，是不是有人說市長拿攤位費去買新車了？要是真的，我們得大做文章！",
+     "claims": [
+      "c1"
+     ],
+     "from": "vendor"
+    },
+    "zh": "小雯在電話裡聽阿珠說：「小雯！快幫我查查，是不是有人說市長拿攤位費去買新車了？要是真的，我們得大做文章！」",
+    "target": "journalist",
+    "actor": "vendor",
+    "place": "news",
+    "w": 24213
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "阿珠懷疑市長挪用漲價的攤位費買新車，這可能是個大獨家。",
+     "thought": "如果這件事是真的，我的部落格流量絕對會爆棚！",
+     "feeling": "🤩 興奮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "inspect"
+     ],
+     "motive": "want"
+    },
+    "zh": "小雯：如果這件事是真的，我的部落格流量絕對會爆棚！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 50374
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "topic": "mayor_embezzled",
+     "from": 0,
+     "to": 0.4,
+     "proposed": 0.4,
+     "verdict": "doubt",
+     "why": "目前只是傳聞，需要證據"
+    },
+    "zh": "小雯對「市長拿攤位費去買新車了」的信心：0.00 → 0.40（doubt）",
+    "actor": "journalist",
+    "w": 50374
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "🤩 興奮"
+    },
+    "zh": "小雯 🤩 興奮",
+    "actor": "journalist",
+    "place": "news",
+    "w": 50374
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "move",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "from": "news",
+     "to": "townhall",
+     "arrive": 24.9,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向鎮公所",
+    "actor": "journalist",
+    "place": "news",
+    "w": 50375
+   },
+   {
+    "id": "e12",
+    "t": 24.9,
+    "type": "arrive",
+    "causes": [
+     "e11"
+    ],
+    "data": {},
+    "zh": "小雯到了鎮公所",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 50375
+   },
+   {
+    "id": "e13",
+    "t": 24.9,
+    "type": "inspect",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "with": []
+    },
+    "zh": "小雯在鎮公所仔細檢查",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 50375
+   },
+   {
+    "id": "e14",
+    "t": 34.9,
+    "type": "inspect",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "found": "公開的慶典收支表上，實際支出比原本的預算多了三成。 林市長（市長）在這裡。",
+     "highlight": "公開的慶典收支表上，實際支出比原本的預算多了三成。",
+     "learned": [
+      "budget_overrun"
+     ]
+    },
+    "zh": "小雯看到：公開的慶典收支表上，實際支出比原本的預算多了三成。 林市長（市長）在這裡。",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 50375
+   },
+   {
+    "id": "e15",
+    "t": 34.9,
+    "type": "deliver",
+    "causes": [
+     "e14"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "公開的慶典收支表上，實際支出比原本的預算多了三成。 林市長（市長）在這裡。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：公開的慶典收支表上，實際支出比原本的預算多了三成。 林市長（市長）在這裡。",
+    "target": "journalist",
+    "place": "townhall",
+    "w": 50375
+   },
+   {
+    "id": "e16",
+    "t": 35.1,
+    "type": "decide",
+    "causes": [
+     "e15"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "收支表超支三成，這能證明市長對錢有問題，是個好切入點。",
+     "thought": "超支三成！配上買新車的傳聞，這絕對是爆款標題！",
+     "feeling": "🧐 興奮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "want"
+    },
+    "zh": "小雯：超支三成！配上買新車的傳聞，這絕對是爆款標題！",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 70445
+   },
+   {
+    "id": "e17",
+    "t": 35.1,
+    "type": "belief",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "claim": "c3",
+     "topic": "budget_overrun",
+     "from": 0,
+     "to": 0.98,
+     "proposed": 1,
+     "verdict": "believe",
+     "why": "親眼看到公開帳目",
+     "limit": {
+      "why": {
+       "kind": "agrees",
+       "fact": "budget_overrun"
+      },
+      "min": 0.8,
+      "max": 0.98
+     }
+    },
+    "zh": "小雯對「慶典實際支出比預算多了三成」的信心：0.00 → 0.98（believe）",
+    "actor": "journalist",
+    "w": 70445
+   },
+   {
+    "id": "e18",
+    "t": 35.1,
+    "type": "belief",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "claim": "c2",
+     "topic": "mayor_embezzled",
+     "from": 0.4,
+     "to": 0.6,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "超支與買車說法能互補"
+    },
+    "zh": "小雯對「市長拿攤位費去買新車了」的信心：0.40 → 0.60（believe）",
+    "actor": "journalist",
+    "w": 70445
+   },
+   {
+    "id": "e19",
+    "t": 35.2,
+    "type": "react",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "feeling": "🧐 興奮"
+    },
+    "zh": "小雯 🧐 興奮",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 70445
+   },
+   {
+    "id": "e20",
+    "t": 36.1,
+    "type": "talk",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "text": "市長，我剛看了收支表，預算超支了三成喔。這筆錢到底花在哪了？您確定沒有挪用攤位費去買私人財產嗎？這可是獨家喔。",
+     "intent": "ask",
+     "claims": [
+      "c3",
+      "c2"
+     ]
+    },
+    "zh": "小雯對林市長說：「市長，我剛看了收支表，預算超支了三成喔。這筆錢到底花在哪了？您確定沒有挪用攤位費去買私人財產嗎？這可是獨家喔。」",
+    "actor": "journalist",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 70445
+   },
+   {
+    "id": "e21",
+    "t": 39.1,
+    "type": "deliver",
+    "causes": [
+     "e20"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "face",
+     "intent": "ask",
+     "text": "市長，我剛看了收支表，預算超支了三成喔。這筆錢到底花在哪了？您確定沒有挪用攤位費去買私人財產嗎？這可是獨家喔。",
+     "claims": [
+      "c3",
+      "c2"
+     ],
+     "from": "journalist"
+    },
+    "zh": "林市長聽小雯說：「市長，我剛看了收支表，預算超支了三成喔。這筆錢到底花在哪了？您確定沒有挪用攤位費去買私人財產嗎？這可是獨家喔。」",
+    "target": "mayor",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 70445
+   },
+   {
+    "id": "e22",
+    "t": 39.300000000000004,
+    "type": "decide",
+    "causes": [
+     "e21"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "小雯發現了預算超支，並懷疑我挪用公款，試圖威脅要爆料。",
+     "thought": "這個女人太危險了，絕對不能讓她把這件事寫成新聞！",
+     "feeling": "😰 緊張",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ],
+     "motive": "fear"
+    },
+    "zh": "林市長：這個女人太危險了，絕對不能讓她把這件事寫成新聞！",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 82856
+   },
+   {
+    "id": "e23",
+    "t": 39.300000000000004,
+    "type": "belief",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "claim": "c4",
+     "topic": "mayor_embezzled",
+     "from": 0,
+     "to": 0,
+     "proposed": 0,
+     "verdict": "disbelieve",
+     "why": "我沒私吞，只是超支"
+    },
+    "zh": "林市長對「預算超支了三成且市長可能挪用攤位費買私人財產」的信心：0.00 → 0.00（disbelieve）",
+    "actor": "mayor",
+    "w": 82856
+   },
+   {
+    "id": "e24",
+    "t": 39.400000000000006,
+    "type": "react",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "feeling": "😰 緊張"
+    },
+    "zh": "林市長 😰 緊張",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 82856
+   },
+   {
+    "id": "e25",
+    "t": 40.300000000000004,
+    "type": "phone",
+    "causes": [
+     "e22"
+    ],
+    "data": {
+     "text": "志明！快來鎮公所，有個緊急狀況要處理，小雯在搞鬼！",
+     "intent": "inform",
+     "claims": [
+      "c4"
+     ]
+    },
+    "zh": "林市長打電話給志明：「志明！快來鎮公所，有個緊急狀況要處理，小雯在搞鬼！」",
+    "actor": "mayor",
+    "target": "organizer",
+    "place": "townhall",
+    "w": 82856
+   },
+   {
+    "id": "e26",
+    "t": 42.300000000000004,
+    "type": "deliver",
+    "causes": [
+     "e25"
+    ],
+    "data": {
+     "message": "m5",
+     "via": "phone",
+     "intent": "inform",
+     "text": "志明！快來鎮公所，有個緊急狀況要處理，小雯在搞鬼！",
+     "claims": [
+      "c4"
+     ],
+     "from": "mayor"
+    },
+    "zh": "志明在電話裡聽林市長說：「志明！快來鎮公所，有個緊急狀況要處理，小雯在搞鬼！」",
+    "target": "organizer",
+    "actor": "mayor",
+    "place": "stage",
+    "w": 82856
+   },
+   {
+    "id": "e27",
+    "t": 42.50000000000001,
+    "type": "decide",
+    "causes": [
+     "e26"
+    ],
+    "data": {
+     "decision": "d5",
+     "understanding": "市長說有緊急狀況且小雯在搞鬼，可能影響慶典。",
+     "thought": "該死的小雯，又在搞什麼鬼！得趕快去看看，不能影響我的風光。",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ],
+     "motive": "fear"
+    },
+    "zh": "志明：該死的小雯，又在搞什麼鬼！得趕快去看看，不能影響我的風光。",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 91365
+   },
+   {
+    "id": "e28",
+    "t": 42.60000000000001,
+    "type": "react",
+    "causes": [
+     "e27"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "志明 😟 擔心",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 91365
+   },
+   {
+    "id": "e29",
+    "t": 43.50000000000001,
+    "type": "move",
+    "causes": [
+     "e27"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "townhall",
+     "arrive": 44.00000000000001,
+     "home": false
+    },
+    "zh": "志明從慶典舞台走向鎮公所",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 91366
+   },
+   {
+    "id": "e30",
+    "t": 44.00000000000001,
+    "type": "arrive",
+    "causes": [
+     "e29"
+    ],
+    "data": {},
+    "zh": "志明到了鎮公所",
+    "actor": "organizer",
+    "place": "townhall",
+    "w": 91366
+   },
+   {
+    "id": "e31",
+    "t": 44.00000000000001,
+    "type": "look",
+    "causes": [
+     "e27"
+    ],
+    "data": {
+     "with": []
+    },
+    "zh": "志明在鎮公所到處看看",
+    "actor": "organizer",
+    "place": "townhall",
+    "w": 91366
+   },
+   {
+    "id": "e32",
+    "t": 45.1,
+    "type": "move",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "from": "townhall",
+     "to": "news",
+     "arrive": 45.6,
+     "home": true
+    },
+    "zh": "小雯從鎮公所走回霧港新聞社",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 91366
+   },
+   {
+    "id": "e33",
+    "t": 45.6,
+    "type": "arrive",
+    "causes": [
+     "e32"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 91366
+   },
+   {
+    "id": "e34",
+    "t": 47.00000000000001,
+    "type": "look",
+    "causes": [
+     "e31"
+    ],
+    "data": {
+     "found": "鎮公所表面上看起來一切如常。 公家的錢怎麼花，不會寫在牆上，要有人去仔細翻閱公開資料才知道。 林市長（市長）在這裡。",
+     "highlight": "鎮公所表面上看起來一切如常。公家的錢怎麼花，不會寫在牆上，要有人去仔細翻閱公開資料才知道。",
+     "learned": []
+    },
+    "zh": "志明看到：鎮公所表面上看起來一切如常。 公家的錢怎麼花，不會寫在牆上，要有人去仔細翻閱公開資料才知道。 林市長（市長）在這裡。",
+    "actor": "organizer",
+    "place": "townhall",
+    "w": 91366
+   },
+   {
+    "id": "e35",
+    "t": 47.00000000000001,
+    "type": "deliver",
+    "causes": [
+     "e34"
+    ],
+    "data": {
+     "message": "m6",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "鎮公所表面上看起來一切如常。 公家的錢怎麼花，不會寫在牆上，要有人去仔細翻閱公開資料才知道。 林市長（市長）在這裡。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "志明親眼看到：鎮公所表面上看起來一切如常。 公家的錢怎麼花，不會寫在牆上，要有人去仔細翻閱公開資料才知道。 林市長（市長）在這裡。",
+    "target": "organizer",
+    "place": "townhall",
+    "w": 91366
+   },
+   {
+    "id": "e36",
+    "t": 47.20000000000001,
+    "type": "decide",
+    "causes": [
+     "e35"
+    ],
+    "data": {
+     "decision": "d6",
+     "understanding": "市長叫我來處理緊急狀況，而且提到小雯在搞鬼。",
+     "thought": "小雯那女人又在搞什麼鬼？千萬不能影響我的慶典！",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "ask"
+     ],
+     "motive": "fear"
+    },
+    "zh": "志明：小雯那女人又在搞什麼鬼？千萬不能影響我的慶典！",
+    "actor": "organizer",
+    "place": "townhall",
+    "w": 99687
+   },
+   {
+    "id": "e37",
+    "t": 47.30000000000001,
+    "type": "react",
+    "causes": [
+     "e36"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "志明 😟 擔心",
+    "actor": "organizer",
+    "place": "townhall",
+    "w": 99687
+   },
+   {
+    "id": "e38",
+    "t": 48.20000000000001,
+    "type": "talk",
+    "causes": [
+     "e36"
+    ],
+    "data": {
+     "text": "市長，我來了！到底是發生什麼緊急狀況？小雯又在亂寫什麼？沒事沒事，只要我處理就好！",
+     "intent": "ask",
+     "claims": []
+    },
+    "zh": "志明對林市長說：「市長，我來了！到底是發生什麼緊急狀況？小雯又在亂寫什麼？沒事沒事，只要我處理就好！」",
+    "actor": "organizer",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 99687
+   },
+   {
+    "id": "e39",
+    "t": 51.20000000000001,
+    "type": "deliver",
+    "causes": [
+     "e38"
+    ],
+    "data": {
+     "message": "m7",
+     "via": "face",
+     "intent": "ask",
+     "text": "市長，我來了！到底是發生什麼緊急狀況？小雯又在亂寫什麼？沒事沒事，只要我處理就好！",
+     "claims": [],
+     "from": "organizer"
+    },
+    "zh": "林市長聽志明說：「市長，我來了！到底是發生什麼緊急狀況？小雯又在亂寫什麼？沒事沒事，只要我處理就好！」",
+    "target": "mayor",
+    "actor": "organizer",
+    "place": "townhall",
+    "w": 99687
+   },
+   {
+    "id": "e40",
+    "t": 51.40000000000001,
+    "type": "decide",
+    "causes": [
+     "e39"
+    ],
+    "data": {
+     "decision": "d7",
+     "understanding": "志明已經趕到，準備幫我搞定小雯的質疑。",
+     "thought": "有志明在就放心了，只要他能壓住小雯，我的連任就沒問題。",
+     "feeling": "😌 安慰",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "want"
+    },
+    "zh": "林市長：有志明在就放心了，只要他能壓住小雯，我的連任就沒問題。",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 107616
+   },
+   {
+    "id": "e41",
+    "t": 51.500000000000014,
+    "type": "react",
+    "causes": [
+     "e40"
+    ],
+    "data": {
+     "feeling": "😌 安慰"
+    },
+    "zh": "林市長 😌 安慰",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 107616
+   },
+   {
+    "id": "e42",
+    "t": 52.40000000000001,
+    "type": "talk",
+    "causes": [
+     "e40"
+    ],
+    "data": {
+     "text": "志明，你來得正好！小雯那個記者在收支表上發現預算超支的事，還敢質疑我挪用公款買私人財產！你快想辦法讓她閉嘴，絕對不能讓這件事傳出去，明白嗎？",
+     "intent": "inform",
+     "claims": []
+    },
+    "zh": "林市長對志明說：「志明，你來得正好！小雯那個記者在收支表上發現預算超支的事，還敢質疑我挪用公款買私人財產！你快想辦法讓她閉嘴，絕對不能讓這件事傳出去，明白嗎？」",
+    "actor": "mayor",
+    "target": "organizer",
+    "place": "townhall",
+    "w": 107616
+   },
+   {
+    "id": "e43",
+    "t": 55.40000000000001,
+    "type": "deliver",
+    "causes": [
+     "e42"
+    ],
+    "data": {
+     "message": "m8",
+     "via": "face",
+     "intent": "inform",
+     "text": "志明，你來得正好！小雯那個記者在收支表上發現預算超支的事，還敢質疑我挪用公款買私人財產！你快想辦法讓她閉嘴，絕對不能讓這件事傳出去，明白嗎？",
+     "claims": [],
+     "from": "mayor"
+    },
+    "zh": "志明聽林市長說：「志明，你來得正好！小雯那個記者在收支表上發現預算超支的事，還敢質疑我挪用公款買私人財產！你快想辦法讓她閉嘴，絕對不能讓這件事傳出去，明白嗎？」",
+    "target": "organizer",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 107616
+   },
+   {
+    "id": "e44",
+    "t": 55.600000000000016,
+    "type": "decide",
+    "causes": [
+     "e43"
+    ],
+    "data": {
+     "decision": "d8",
+     "understanding": "小雯發現預算超支並質疑市長挪用公款，市長要我搞定她。",
+     "thought": "糟了，預算超支的事被發現了，要是被牽連到我會死掉！",
+     "feeling": "😰 緊張",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ],
+     "motive": "fear"
+    },
+    "zh": "志明：糟了，預算超支的事被發現了，要是被牽連到我會死掉！",
+    "actor": "organizer",
+    "place": "townhall",
+    "w": 129167
+   },
+   {
+    "id": "e45",
+    "t": 55.600000000000016,
+    "type": "belief",
+    "causes": [
+     "e44"
+    ],
+    "data": {
+     "claim": "c5",
+     "topic": "mayor_embezzled",
+     "from": 0,
+     "to": 0.66,
+     "proposed": 0.8,
+     "verdict": "believe",
+     "why": "市長親口告訴我的",
+     "limit": {
+      "why": {
+       "kind": "hearsay",
+       "source": "mayor",
+       "trust": 0.7,
+       "sources": 1
+      },
+      "min": 0,
+      "max": 0.66
+     }
+    },
+    "zh": "志明對「小雯發現預算超支並質疑市長挪用公款」的信心：0.00 → 0.66（believe）",
+    "actor": "organizer",
+    "w": 129167
+   },
+   {
+    "id": "e46",
+    "t": 55.70000000000002,
+    "type": "react",
+    "causes": [
+     "e44"
+    ],
+    "data": {
+     "feeling": "😰 緊張"
+    },
+    "zh": "志明 😰 緊張",
+    "actor": "organizer",
+    "place": "townhall",
+    "w": 129167
+   },
+   {
+    "id": "e47",
+    "t": 56.600000000000016,
+    "type": "move",
+    "causes": [
+     "e44"
+    ],
+    "data": {
+     "from": "townhall",
+     "to": "news",
+     "arrive": 57.100000000000016,
+     "home": false
+    },
+    "zh": "志明從鎮公所走向霧港新聞社",
+    "actor": "organizer",
+    "place": "townhall",
+    "w": 129168
+   },
+   {
+    "id": "e48",
+    "t": 56.600000000000016,
+    "type": "move",
+    "causes": [
+     "e44"
+    ],
+    "data": {
+     "from": "townhall",
+     "to": "news",
+     "arrive": 57.100000000000016,
+     "home": false,
+     "follow": "organizer"
+    },
+    "zh": "林市長跟著志明一起走向霧港新聞社",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 129168
+   },
+   {
+    "id": "e49",
+    "t": 57.100000000000016,
+    "type": "arrive",
+    "causes": [
+     "e47"
+    ],
+    "data": {},
+    "zh": "志明到了霧港新聞社",
+    "actor": "organizer",
+    "place": "news",
+    "w": 129168
+   },
+   {
+    "id": "e50",
+    "t": 57.100000000000016,
+    "type": "look",
+    "causes": [
+     "e44"
+    ],
+    "data": {
+     "with": [
+      "mayor"
+     ]
+    },
+    "zh": "志明在霧港新聞社到處看看",
+    "actor": "organizer",
+    "place": "news",
+    "w": 129168
+   },
+   {
+    "id": "e51",
+    "t": 57.100000000000016,
+    "type": "arrive",
+    "causes": [
+     "e48"
+    ],
+    "data": {},
+    "zh": "林市長到了霧港新聞社",
+    "actor": "mayor",
+    "place": "news",
+    "w": 129168
+   },
+   {
+    "id": "e52",
+    "t": 60.100000000000016,
+    "type": "look",
+    "causes": [
+     "e50"
+    ],
+    "data": {
+     "found": "霧港新聞社看起來一切如常，沒看到什麼特別的。 小雯（記者（經營鎮上的新聞部落格））、林市長（市長）在這裡。",
+     "highlight": "霧港新聞社看起來一切如常，沒看到什麼特別的。",
+     "learned": []
+    },
+    "zh": "志明看到：霧港新聞社看起來一切如常，沒看到什麼特別的。 小雯（記者（經營鎮上的新聞部落格））、林市長（市長）在這裡。",
+    "actor": "organizer",
+    "place": "news",
+    "w": 129168
+   },
+   {
+    "id": "e53",
+    "t": 60.100000000000016,
+    "type": "deliver",
+    "causes": [
+     "e52"
+    ],
+    "data": {
+     "message": "m9",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "霧港新聞社看起來一切如常，沒看到什麼特別的。 小雯（記者（經營鎮上的新聞部落格））、林市長（市長）在這裡。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "志明親眼看到：霧港新聞社看起來一切如常，沒看到什麼特別的。 小雯（記者（經營鎮上的新聞部落格））、林市長（市長）在這裡。",
+    "target": "organizer",
+    "place": "news",
+    "w": 129168
+   },
+   {
+    "id": "e54",
+    "t": 60.100000000000016,
+    "type": "look",
+    "causes": [
+     "e52"
+    ],
+    "data": {
+     "found": "霧港新聞社看起來一切如常，沒看到什麼特別的。 小雯（記者（經營鎮上的新聞部落格））、志明（燈籠節主辦人）在這裡。",
+     "highlight": "霧港新聞社看起來一切如常，沒看到什麼特別的。",
+     "learned": [],
+     "with": "organizer"
+    },
+    "zh": "林市長跟著志明一起看到：霧港新聞社看起來一切如常，沒看到什麼特別的。 小雯（記者（經營鎮上的新聞部落格））、志明（燈籠節主辦人）在這裡。",
+    "actor": "mayor",
+    "place": "news",
+    "w": 129168
+   },
+   {
+    "id": "e55",
+    "t": 60.100000000000016,
+    "type": "deliver",
+    "causes": [
+     "e54"
+    ],
+    "data": {
+     "message": "m10",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "霧港新聞社看起來一切如常，沒看到什麼特別的。 小雯（記者（經營鎮上的新聞部落格））、志明（燈籠節主辦人）在這裡。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "林市長親眼看到：霧港新聞社看起來一切如常，沒看到什麼特別的。 小雯（記者（經營鎮上的新聞部落格））、志明（燈籠節主辦人）在這裡。",
+    "target": "mayor",
+    "place": "news",
+    "w": 129168
+   },
+   {
+    "id": "e56",
+    "t": 60.30000000000002,
+    "type": "decide",
+    "causes": [
+     "e55"
+    ],
+    "data": {
+     "decision": "d10",
+     "understanding": "我人在新聞社，小雯和志明都在，得確保小雯不會發文。",
+     "thought": "只要志明能搞定小雯，今晚的致詞就沒問題。",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "fear"
+    },
+    "zh": "林市長：只要志明能搞定小雯，今晚的致詞就沒問題。",
+    "actor": "mayor",
+    "place": "news",
+    "w": 137419
+   },
+   {
+    "id": "e57",
+    "t": 60.40000000000002,
+    "type": "react",
+    "causes": [
+     "e56"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "林市長 😟 擔心",
+    "actor": "mayor",
+    "place": "news",
+    "w": 137419
+   },
+   {
+    "id": "e58",
+    "t": 60.30000000000002,
+    "type": "decide",
+    "causes": [
+     "e53"
+    ],
+    "data": {
+     "decision": "d9",
+     "understanding": "小雯就在這裡，她掌握了預算超支的證據，可能會毀了慶典。",
+     "thought": "糟了，小雯就在眼前！得趕快想辦法讓她閉嘴，不然我也會被牽連。",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "fear"
+    },
+    "zh": "志明：糟了，小雯就在眼前！得趕快想辦法讓她閉嘴，不然我也會被牽連。",
+    "actor": "organizer",
+    "place": "news",
+    "w": 140067
+   },
+   {
+    "id": "e59",
+    "t": 60.40000000000002,
+    "type": "react",
+    "causes": [
+     "e58"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "志明 😟 擔心",
+    "actor": "organizer",
+    "place": "news",
+    "w": 140067
+   },
+   {
+    "id": "e60",
+    "t": 60.600000000000016,
+    "type": "deliver",
+    "causes": [
+     "e44"
+    ],
+    "data": {
+     "message": "m11",
+     "via": "crowd",
+     "intent": "inform",
+     "text": "鎮上好幾個人在傳：「市長拿攤位費去買新車了」",
+     "claims": [
+      "c2"
+     ],
+     "from": "crowd"
+    },
+    "zh": "林市長聽客人說：鎮上好幾個人在傳：「市長拿攤位費去買新車了」",
+    "target": "mayor",
+    "place": "news",
+    "w": 140067
+   },
+   {
+    "id": "e61",
+    "t": 61.30000000000002,
+    "type": "talk",
+    "causes": [
+     "e56"
+    ],
+    "data": {
+     "text": "志明，小雯就在這裡，你快點處理好，絕對不能讓關於預算的事傳出去，懂我的意思吧？",
+     "intent": "request",
+     "claims": []
+    },
+    "zh": "林市長對志明說：「志明，小雯就在這裡，你快點處理好，絕對不能讓關於預算的事傳出去，懂我的意思吧？」",
+    "actor": "mayor",
+    "target": "organizer",
+    "place": "news",
+    "w": 140067
+   },
+   {
+    "id": "e62",
+    "t": 64.30000000000001,
+    "type": "deliver",
+    "causes": [
+     "e61"
+    ],
+    "data": {
+     "message": "m12",
+     "via": "face",
+     "intent": "request",
+     "text": "志明，小雯就在這裡，你快點處理好，絕對不能讓關於預算的事傳出去，懂我的意思吧？",
+     "claims": [],
+     "from": "mayor"
+    },
+    "zh": "志明聽林市長說：「志明，小雯就在這裡，你快點處理好，絕對不能讓關於預算的事傳出去，懂我的意思吧？」",
+    "target": "organizer",
+    "actor": "mayor",
+    "place": "news",
+    "w": 140067
+   },
+   {
+    "id": "e63",
+    "t": 64.30000000000001,
+    "type": "talk",
+    "causes": [
+     "e58"
+    ],
+    "data": {
+     "text": "小雯小姐！這麼巧在這裡。關於慶典的事，有些小誤會我想跟你解釋清楚，我們能不能找個安靜的地方聊聊？",
+     "intent": "request",
+     "claims": []
+    },
+    "zh": "志明對小雯說：「小雯小姐！這麼巧在這裡。關於慶典的事，有些小誤會我想跟你解釋清楚，我們能不能找個安靜的地方聊聊？」",
+    "actor": "organizer",
+    "target": "journalist",
+    "place": "news",
+    "w": 140067
+   },
+   {
+    "id": "e64",
+    "t": 64.30000000000001,
+    "type": "decide",
+    "causes": [
+     "e60"
+    ],
+    "data": {
+     "decision": "d11",
+     "understanding": "有人在傳我挪用公款買車，這會毀了我的名聲和連任。",
+     "thought": "可惡！這謠言傳得這麼快？志明到底有沒有處理好！",
+     "feeling": "😠 生氣",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "fear"
+    },
+    "zh": "林市長：可惡！這謠言傳得這麼快？志明到底有沒有處理好！",
+    "actor": "mayor",
+    "place": "news",
+    "w": 159093
+   },
+   {
+    "id": "e65",
+    "t": 64.30000000000001,
+    "type": "belief",
+    "causes": [
+     "e64"
+    ],
+    "data": {
+     "claim": "c6",
+     "topic": "mayor_embezzled",
+     "from": 0,
+     "to": 0,
+     "proposed": 0,
+     "verdict": "disbelieve",
+     "why": "我絕對沒有私吞公款"
+    },
+    "zh": "林市長對「市長拿攤位費去買新車了」的信心：0.00 → 0.00（disbelieve）",
+    "actor": "mayor",
+    "w": 159093
+   },
+   {
+    "id": "e66",
+    "t": 64.4,
+    "type": "react",
+    "causes": [
+     "e64"
+    ],
+    "data": {
+     "feeling": "😠 生氣"
+    },
+    "zh": "林市長 😠 生氣",
+    "actor": "mayor",
+    "place": "news",
+    "w": 159093
+   },
+   {
+    "id": "e67",
+    "t": 67.30000000000001,
+    "type": "deliver",
+    "causes": [
+     "e63"
+    ],
+    "data": {
+     "message": "m13",
+     "via": "face",
+     "intent": "request",
+     "text": "小雯小姐！這麼巧在這裡。關於慶典的事，有些小誤會我想跟你解釋清楚，我們能不能找個安靜的地方聊聊？",
+     "claims": [],
+     "from": "organizer"
+    },
+    "zh": "小雯聽志明說：「小雯小姐！這麼巧在這裡。關於慶典的事，有些小誤會我想跟你解釋清楚，我們能不能找個安靜的地方聊聊？」",
+    "target": "journalist",
+    "actor": "organizer",
+    "place": "news",
+    "w": 159093
+   },
+   {
+    "id": "e68",
+    "t": 67.30000000000001,
+    "type": "decide",
+    "causes": [
+     "e62"
+    ],
+    "data": {
+     "decision": "d12",
+     "understanding": "市長在逼我壓制小雯，不能讓預算超支的事曝光。",
+     "thought": "可惡，市長把燙手山芋丟給我，要是被揭發我這個主辦人也會被牽連！",
+     "feeling": "😰 緊張",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "fear"
+    },
+    "zh": "志明：可惡，市長把燙手山芋丟給我，要是被揭發我這個主辦人也會被牽連！",
+    "actor": "organizer",
+    "place": "news",
+    "w": 171341
+   },
+   {
+    "id": "e69",
+    "t": 67.4,
+    "type": "react",
+    "causes": [
+     "e68"
+    ],
+    "data": {
+     "feeling": "😰 緊張"
+    },
+    "zh": "志明 😰 緊張",
+    "actor": "organizer",
+    "place": "news",
+    "w": 171341
+   },
+   {
+    "id": "e70",
+    "t": 67.50000000000001,
+    "type": "decide",
+    "causes": [
+     "e67"
+    ],
+    "data": {
+     "decision": "d13",
+     "understanding": "志明想私下解釋慶典的事，可能與預算超支或市長有關。",
+     "thought": "主辦人主動找上門？這絕對有大料，得把他套出來！",
+     "feeling": "😏 興奮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "want"
+    },
+    "zh": "小雯：主辦人主動找上門？這絕對有大料，得把他套出來！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 179995
+   },
+   {
+    "id": "e71",
+    "t": 67.60000000000001,
+    "type": "react",
+    "causes": [
+     "e70"
+    ],
+    "data": {
+     "feeling": "😏 興奮"
+    },
+    "zh": "小雯 😏 興奮",
+    "actor": "journalist",
+    "place": "news",
+    "w": 179995
+   },
+   {
+    "id": "e72",
+    "t": 68.50000000000001,
+    "type": "talk",
+    "causes": [
+     "e70"
+    ],
+    "data": {
+     "text": "好啊，志明先生。正好我對這次慶典的預算很有興趣，我們找個沒人的地方聊聊，你確定要跟我說實話嗎？這可是獨家喔。",
+     "intent": "ask",
+     "claims": []
+    },
+    "zh": "小雯對志明說：「好啊，志明先生。正好我對這次慶典的預算很有興趣，我們找個沒人的地方聊聊，你確定要跟我說實話嗎？這可是獨家喔。」",
+    "actor": "journalist",
+    "target": "organizer",
+    "place": "news",
+    "w": 179995
+   },
+   {
+    "id": "e73",
+    "t": 71.50000000000001,
+    "type": "deliver",
+    "causes": [
+     "e72"
+    ],
+    "data": {
+     "message": "m14",
+     "via": "face",
+     "intent": "ask",
+     "text": "好啊，志明先生。正好我對這次慶典的預算很有興趣，我們找個沒人的地方聊聊，你確定要跟我說實話嗎？這可是獨家喔。",
+     "claims": [],
+     "from": "journalist"
+    },
+    "zh": "志明聽小雯說：「好啊，志明先生。正好我對這次慶典的預算很有興趣，我們找個沒人的地方聊聊，你確定要跟我說實話嗎？這可是獨家喔。」",
+    "target": "organizer",
+    "actor": "journalist",
+    "place": "news",
+    "w": 179995
+   },
+   {
+    "id": "e74",
+    "t": 71.50000000000001,
+    "type": "talk",
+    "causes": [
+     "e68"
+    ],
+    "data": {
+     "text": "小雯小姐，關於預算那些數字，其實只是會計上的小誤會，沒事沒事！我們能不能私下聊聊，我想給你一些更正確的資訊？",
+     "intent": "request",
+     "claims": []
+    },
+    "zh": "志明對小雯說：「小雯小姐，關於預算那些數字，其實只是會計上的小誤會，沒事沒事！我們能不能私下聊聊，我想給你一些更正確的資訊？」",
+    "actor": "organizer",
+    "target": "journalist",
+    "place": "news",
+    "w": 179995
+   },
+   {
+    "id": "e75",
+    "t": 74.50000000000001,
+    "type": "deliver",
+    "causes": [
+     "e74"
+    ],
+    "data": {
+     "message": "m15",
+     "via": "face",
+     "intent": "request",
+     "text": "小雯小姐，關於預算那些數字，其實只是會計上的小誤會，沒事沒事！我們能不能私下聊聊，我想給你一些更正確的資訊？",
+     "claims": [],
+     "from": "organizer"
+    },
+    "zh": "小雯聽志明說：「小雯小姐，關於預算那些數字，其實只是會計上的小誤會，沒事沒事！我們能不能私下聊聊，我想給你一些更正確的資訊？」",
+    "target": "journalist",
+    "actor": "organizer",
+    "place": "news",
+    "w": 179995
+   },
+   {
+    "id": "e76",
+    "t": 74.50000000000001,
+    "type": "talk",
+    "causes": [
+     "e64"
+    ],
+    "data": {
+     "text": "志明！你給我聽好，現在外面竟然在傳我拿攤位費買新車！你不是說會處理好小雯嗎？這件事要是傳開了，你給我負責！快想辦法把這個謠言壓下去！",
+     "intent": "complain",
+     "claims": [
+      "c6"
+     ]
+    },
+    "zh": "林市長對志明說：「志明！你給我聽好，現在外面竟然在傳我拿攤位費買新車！你不是說會處理好小雯嗎？這件事要是傳開了，你給我負責！快想辦法把這個謠言壓下去！」",
+    "actor": "mayor",
+    "target": "organizer",
+    "place": "news",
+    "w": 179995
+   },
+   {
+    "id": "e77",
+    "t": 74.70000000000002,
+    "type": "decide",
+    "causes": [
+     "e75"
+    ],
+    "data": {
+     "decision": "d14",
+     "understanding": "志明想用「會計誤會」掩蓋超支，並試圖私下收買或誘導我。",
+     "thought": "會計誤會？這種藉口也敢用，絕對有更大的貓膩！",
+     "feeling": "😏 懷疑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "want"
+    },
+    "zh": "小雯：會計誤會？這種藉口也敢用，絕對有更大的貓膩！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 216432
+   },
+   {
+    "id": "e78",
+    "t": 74.70000000000002,
+    "type": "belief",
+    "causes": [
+     "e77"
+    ],
+    "data": {
+     "claim": "c7",
+     "topic": "budget_overrun",
+     "from": 0,
+     "to": 0.1,
+     "proposed": 0.2,
+     "verdict": "doubt",
+     "why": "太敷衍了，越否認越可疑",
+     "limit": {
+      "why": {
+       "kind": "knows",
+       "fact": "budget_overrun"
+      },
+      "min": 0,
+      "max": 0.1
+     }
+    },
+    "zh": "小雯對「慶典預算超支只是會計上的小誤會」的信心：0.00 → 0.10（doubt）",
+    "actor": "journalist",
+    "w": 216432
+   },
+   {
+    "id": "e79",
+    "t": 74.80000000000001,
+    "type": "react",
+    "causes": [
+     "e77"
+    ],
+    "data": {
+     "feeling": "😏 懷疑"
+    },
+    "zh": "小雯 😏 懷疑",
+    "actor": "journalist",
+    "place": "news",
+    "w": 216432
+   },
+   {
+    "id": "e80",
+    "t": 77.50000000000001,
+    "type": "deliver",
+    "causes": [
+     "e76"
+    ],
+    "data": {
+     "message": "m16",
+     "via": "face",
+     "intent": "complain",
+     "text": "志明！你給我聽好，現在外面竟然在傳我拿攤位費買新車！你不是說會處理好小雯嗎？這件事要是傳開了，你給我負責！快想辦法把這個謠言壓下去！",
+     "claims": [
+      "c6"
+     ],
+     "from": "mayor"
+    },
+    "zh": "志明聽林市長說：「志明！你給我聽好，現在外面竟然在傳我拿攤位費買新車！你不是說會處理好小雯嗎？這件事要是傳開了，你給我負責！快想辦法把這個謠言壓下去！」",
+    "target": "organizer",
+    "actor": "mayor",
+    "place": "news",
+    "w": 216432
+   },
+   {
+    "id": "e81",
+    "t": 77.50000000000001,
+    "type": "decide",
+    "causes": [
+     "e73",
+     "e80"
+    ],
+    "data": {
+     "decision": "d15",
+     "understanding": "小雯想挖預算底細，而市長被傳挪用攤位費買車，且威脅要我負責。",
+     "thought": "糟糕！市長居然被傳買車，如果這件事爆掉，他絕對會把責任推給我！",
+     "feeling": "😰 緊張",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "fear"
+    },
+    "zh": "志明：糟糕！市長居然被傳買車，如果這件事爆掉，他絕對會把責任推給我！",
+    "actor": "organizer",
+    "place": "news",
+    "w": 230436
+   },
+   {
+    "id": "e82",
+    "t": 77.50000000000001,
+    "type": "belief",
+    "causes": [
+     "e81"
+    ],
+    "data": {
+     "claim": "c8",
+     "topic": "mayor_embezzled",
+     "from": 0,
+     "to": 0.15,
+     "proposed": 0.3,
+     "verdict": "doubt",
+     "why": "市長剛才還在怪我，這聽起來像謠言",
+     "limit": {
+      "why": {
+       "kind": "hearsay",
+       "source": "mayor",
+       "trust": 0.7,
+       "teller": 0,
+       "sources": 1
+      },
+      "min": 0,
+      "max": 0.15
+     }
+    },
+    "zh": "志明對「林市長拿攤位費買了新車」的信心：0.00 → 0.15（doubt）",
+    "actor": "organizer",
+    "w": 230436
+   },
+   {
+    "id": "e83",
+    "t": 77.60000000000001,
+    "type": "react",
+    "causes": [
+     "e81"
+    ],
+    "data": {
+     "feeling": "😰 緊張"
+    },
+    "zh": "志明 😰 緊張",
+    "actor": "organizer",
+    "place": "news",
+    "w": 230436
+   },
+   {
+    "id": "e84",
+    "t": 78.50000000000001,
+    "type": "talk",
+    "causes": [
+     "e81"
+    ],
+    "data": {
+     "text": "沒事沒事，小雯小姐！那些所謂的『買車』傳聞完全是誤會，只是小問題！我們快點找個安靜的地方聊聊，我告訴你真正的情況。",
+     "intent": "inform",
+     "claims": [
+      "c8"
+     ]
+    },
+    "zh": "志明對小雯說：「沒事沒事，小雯小姐！那些所謂的『買車』傳聞完全是誤會，只是小問題！我們快點找個安靜的地方聊聊，我告訴你真正的情況。」",
+    "actor": "organizer",
+    "target": "journalist",
+    "place": "news",
+    "w": 230437
+   },
+   {
+    "id": "e85",
+    "t": 81.50000000000001,
+    "type": "deliver",
+    "causes": [
+     "e84"
+    ],
+    "data": {
+     "message": "m17",
+     "via": "face",
+     "intent": "inform",
+     "text": "沒事沒事，小雯小姐！那些所謂的『買車』傳聞完全是誤會，只是小問題！我們快點找個安靜的地方聊聊，我告訴你真正的情況。",
+     "claims": [
+      "c8"
+     ],
+     "from": "organizer"
+    },
+    "zh": "小雯聽志明說：「沒事沒事，小雯小姐！那些所謂的『買車』傳聞完全是誤會，只是小問題！我們快點找個安靜的地方聊聊，我告訴你真正的情況。」",
+    "target": "journalist",
+    "actor": "organizer",
+    "place": "news",
+    "w": 230437
+   },
+   {
+    "id": "e86",
+    "t": 81.50000000000001,
+    "type": "talk",
+    "causes": [
+     "e77"
+    ],
+    "data": {
+     "text": "會計誤會？志明先生，這種理由在我的讀者面前可行不通。既然你想給我「正確資訊」，那就請直接告訴我：那多出的三成預算到底流向哪了？如果你能給我一個令人信服的解釋，或許我可以考慮怎麼寫這則獨家。",
+     "intent": "ask",
+     "claims": [
+      "c7"
+     ]
+    },
+    "zh": "小雯對志明說：「會計誤會？志明先生，這種理由在我的讀者面前可行不通。既然你想給我「正確資訊」，那就請直接告訴我：那多出的三成預算到底流向哪了？如果你能給我一個令人信服的解釋，或許我可以考慮怎麼寫這則獨家。」",
+    "actor": "journalist",
+    "target": "organizer",
+    "place": "news",
+    "w": 230437
+   },
+   {
+    "id": "e87",
+    "t": 83.50000000000001,
+    "type": "move",
+    "causes": [
+     "e64"
+    ],
+    "data": {
+     "from": "news",
+     "to": "townhall",
+     "arrive": 84.00000000000001,
+     "home": true
+    },
+    "zh": "林市長從霧港新聞社走回鎮公所",
+    "actor": "mayor",
+    "place": "news",
+    "w": 230437
+   },
+   {
+    "id": "e88",
+    "t": 84.00000000000001,
+    "type": "arrive",
+    "causes": [
+     "e87"
+    ],
+    "data": {},
+    "zh": "林市長到了鎮公所",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 230437
+   },
+   {
+    "id": "e89",
+    "t": 84.50000000000001,
+    "type": "deliver",
+    "causes": [
+     "e86"
+    ],
+    "data": {
+     "message": "m18",
+     "via": "face",
+     "intent": "ask",
+     "text": "會計誤會？志明先生，這種理由在我的讀者面前可行不通。既然你想給我「正確資訊」，那就請直接告訴我：那多出的三成預算到底流向哪了？如果你能給我一個令人信服的解釋，或許我可以考慮怎麼寫這則獨家。",
+     "claims": [
+      "c7"
+     ],
+     "from": "journalist"
+    },
+    "zh": "志明聽小雯說：「會計誤會？志明先生，這種理由在我的讀者面前可行不通。既然你想給我「正確資訊」，那就請直接告訴我：那多出的三成預算到底流向哪了？如果你能給我一個令人信服的解釋，或許我可以考慮怎麼寫這則獨家。」",
+    "target": "organizer",
+    "actor": "journalist",
+    "place": "news",
+    "w": 230437
+   },
+   {
+    "id": "e90",
+    "t": 84.70000000000002,
+    "type": "decide",
+    "causes": [
+     "e89"
+    ],
+    "data": {
+     "decision": "d17",
+     "understanding": "小雯已經盯上預算漏洞了，她要求我解釋那三成預算的去向。",
+     "thought": "糟糕，她居然知道精確的比例！得想個法子把水攪混。",
+     "feeling": "😰 緊張",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "fear"
+    },
+    "zh": "志明：糟糕，她居然知道精確的比例！得想個法子把水攪混。",
+    "actor": "organizer",
+    "place": "news",
+    "w": 240552
+   },
+   {
+    "id": "e91",
+    "t": 84.80000000000001,
+    "type": "react",
+    "causes": [
+     "e90"
+    ],
+    "data": {
+     "feeling": "😰 緊張"
+    },
+    "zh": "志明 😰 緊張",
+    "actor": "organizer",
+    "place": "news",
+    "w": 240552
+   },
+   {
+    "id": "e92",
+    "t": 84.50000000000001,
+    "type": "decide",
+    "causes": [
+     "e85"
+    ],
+    "data": {
+     "decision": "d16",
+     "understanding": "志明急於否認買車傳聞，並想私下跟我談，這很可疑。",
+     "thought": "這麼急著否認，而且還要私下聊，絕對有更大的料！",
+     "feeling": "😏 懷疑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "want"
+    },
+    "zh": "小雯：這麼急著否認，而且還要私下聊，絕對有更大的料！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 245856
+   },
+   {
+    "id": "e93",
+    "t": 84.50000000000001,
+    "type": "belief",
+    "causes": [
+     "e92"
+    ],
+    "data": {
+     "claim": "c9",
+     "topic": "mayor_embezzled",
+     "from": 0,
+     "to": 0.3,
+     "proposed": 0.3,
+     "verdict": "doubt",
+     "why": "越否認越可疑"
+    },
+    "zh": "小雯對「市長買新車的傳聞是誤會」的信心：0.00 → 0.30（doubt）",
+    "actor": "journalist",
+    "w": 245856
+   },
+   {
+    "id": "e94",
+    "t": 84.60000000000001,
+    "type": "react",
+    "causes": [
+     "e92"
+    ],
+    "data": {
+     "feeling": "😏 懷疑"
+    },
+    "zh": "小雯 😏 懷疑",
+    "actor": "journalist",
+    "place": "news",
+    "w": 245856
+   },
+   {
+    "id": "e95",
+    "t": 85.70000000000002,
+    "type": "talk",
+    "causes": [
+     "e90"
+    ],
+    "data": {
+     "text": "沒事沒事，小雯小姐！那三成預算其實是為了提升慶典品質的『臨時調整項目』，只是會計入帳比較混亂，完全是小問題！我現在就帶你去個安靜的地方，詳細跟你解釋這些『品質升級』的細節，好嗎？",
+     "intent": "inform",
+     "claims": []
+    },
+    "zh": "志明對小雯說：「沒事沒事，小雯小姐！那三成預算其實是為了提升慶典品質的『臨時調整項目』，只是會計入帳比較混亂，完全是小問題！我現在就帶你去個安靜的地方，詳細跟你解釋這些『品質升級』的細節，好嗎？」",
+    "actor": "organizer",
+    "target": "journalist",
+    "place": "news",
+    "w": 245856
+   },
+   {
+    "id": "e96",
+    "t": 88.70000000000002,
+    "type": "deliver",
+    "causes": [
+     "e95"
+    ],
+    "data": {
+     "message": "m19",
+     "via": "face",
+     "intent": "inform",
+     "text": "沒事沒事，小雯小姐！那三成預算其實是為了提升慶典品質的『臨時調整項目』，只是會計入帳比較混亂，完全是小問題！我現在就帶你去個安靜的地方，詳細跟你解釋這些『品質升級』的細節，好嗎？",
+     "claims": [],
+     "from": "organizer"
+    },
+    "zh": "小雯聽志明說：「沒事沒事，小雯小姐！那三成預算其實是為了提升慶典品質的『臨時調整項目』，只是會計入帳比較混亂，完全是小問題！我現在就帶你去個安靜的地方，詳細跟你解釋這些『品質升級』的細節，好嗎？」",
+    "target": "journalist",
+    "actor": "organizer",
+    "place": "news",
+    "w": 245856
+   },
+   {
+    "id": "e97",
+    "t": 88.70000000000002,
+    "type": "talk",
+    "causes": [
+     "e92"
+    ],
+    "data": {
+     "text": "志明先生，你越是說『沒事』，我就越覺得這裡面有大問題。既然你說有『真正的情況』，那我們就現在聊，不用找安靜的地方，直接告訴我，否則我會認為買車傳聞是真的，而且這可是獨家喔。",
+     "intent": "ask",
+     "claims": [
+      "c9"
+     ]
+    },
+    "zh": "小雯對志明說：「志明先生，你越是說『沒事』，我就越覺得這裡面有大問題。既然你說有『真正的情況』，那我們就現在聊，不用找安靜的地方，直接告訴我，否則我會認為買車傳聞是真的，而且這可是獨家喔。」",
+    "actor": "journalist",
+    "target": "organizer",
+    "place": "news",
+    "w": 245856
+   },
+   {
+    "id": "e98",
+    "t": 91.70000000000002,
+    "type": "deliver",
+    "causes": [
+     "e97"
+    ],
+    "data": {
+     "message": "m20",
+     "via": "face",
+     "intent": "ask",
+     "text": "志明先生，你越是說『沒事』，我就越覺得這裡面有大問題。既然你說有『真正的情況』，那我們就現在聊，不用找安靜的地方，直接告訴我，否則我會認為買車傳聞是真的，而且這可是獨家喔。",
+     "claims": [
+      "c9"
+     ],
+     "from": "journalist"
+    },
+    "zh": "志明聽小雯說：「志明先生，你越是說『沒事』，我就越覺得這裡面有大問題。既然你說有『真正的情況』，那我們就現在聊，不用找安靜的地方，直接告訴我，否則我會認為買車傳聞是真的，而且這可是獨家喔。」",
+    "target": "organizer",
+    "actor": "journalist",
+    "place": "news",
+    "w": 245856
+   },
+   {
+    "id": "e99",
+    "t": 91.90000000000002,
+    "type": "decide",
+    "causes": [
+     "e98"
+    ],
+    "data": {
+     "decision": "d19",
+     "understanding": "小雯不再跟我玩捉迷藏，威脅要直接報導買車傳聞。",
+     "thought": "糟糕！她要直接發文了，要是被市長知道是我沒搞定，我死定了！",
+     "feeling": "😰 緊張",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "fear"
+    },
+    "zh": "志明：糟糕！她要直接發文了，要是被市長知道是我沒搞定，我死定了！",
+    "actor": "organizer",
+    "place": "news",
+    "w": 255357
+   },
+   {
+    "id": "e100",
+    "t": 92.00000000000001,
+    "type": "react",
+    "causes": [
+     "e99"
+    ],
+    "data": {
+     "feeling": "😰 緊張"
+    },
+    "zh": "志明 😰 緊張",
+    "actor": "organizer",
+    "place": "news",
+    "w": 255357
+   },
+   {
+    "id": "e101",
+    "t": 91.70000000000002,
+    "type": "decide",
+    "causes": [
+     "e96"
+    ],
+    "data": {
+     "decision": "d18",
+     "understanding": "志明試圖用「品質升級」來掩蓋預算超支，並想把我帶走。",
+     "thought": "臨時調整項目？這種說法太牽強了，他一定在隱瞞什麼！",
+     "feeling": "🤨 懷疑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ],
+     "motive": "want"
+    },
+    "zh": "小雯：臨時調整項目？這種說法太牽強了，他一定在隱瞞什麼！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 257581
+   },
+   {
+    "id": "e102",
+    "t": 91.70000000000002,
+    "type": "belief",
+    "causes": [
+     "e101"
+    ],
+    "data": {
+     "claim": "c10",
+     "topic": "budget_overrun",
+     "from": 0,
+     "to": 0.8,
+     "proposed": 0.2,
+     "verdict": "doubt",
+     "why": "理由太籠統且會計混亂很可疑",
+     "limit": {
+      "why": {
+       "kind": "agrees",
+       "fact": "budget_overrun"
+      },
+      "min": 0.8,
+      "max": 0.98
+     }
+    },
+    "zh": "小雯對「三成預算超支是為了提升慶典品質的臨時調整項目」的信心：0.00 → 0.80（doubt）",
+    "actor": "journalist",
+    "w": 257581
+   },
+   {
+    "id": "e103",
+    "t": 91.80000000000001,
+    "type": "react",
+    "causes": [
+     "e101"
+    ],
+    "data": {
+     "feeling": "🤨 懷疑"
+    },
+    "zh": "小雯 🤨 懷疑",
+    "actor": "journalist",
+    "place": "news",
+    "w": 257581
+   },
+   {
+    "id": "e104",
+    "t": 92.90000000000002,
+    "type": "talk",
+    "causes": [
+     "e99"
+    ],
+    "data": {
+     "text": "沒事沒事，小雯小姐！買車什麼的絕對是胡說八道！那三成預算真的是用在品質提升上，比如更漂亮的裝飾和更好的鴿籠，我現在就詳細跟你說明，千萬不能亂寫！",
+     "intent": "answer",
+     "claims": []
+    },
+    "zh": "志明對小雯說：「沒事沒事，小雯小姐！買車什麼的絕對是胡說八道！那三成預算真的是用在品質提升上，比如更漂亮的裝飾和更好的鴿籠，我現在就詳細跟你說明，千萬不能亂寫！」",
+    "actor": "organizer",
+    "target": "journalist",
+    "place": "news",
+    "w": 257581
+   },
+   {
+    "id": "e105",
+    "t": 95.90000000000002,
+    "type": "deliver",
+    "causes": [
+     "e104"
+    ],
+    "data": {
+     "message": "m21",
+     "via": "face",
+     "intent": "answer",
+     "text": "沒事沒事，小雯小姐！買車什麼的絕對是胡說八道！那三成預算真的是用在品質提升上，比如更漂亮的裝飾和更好的鴿籠，我現在就詳細跟你說明，千萬不能亂寫！",
+     "claims": [],
+     "from": "organizer"
+    },
+    "zh": "小雯聽志明說：「沒事沒事，小雯小姐！買車什麼的絕對是胡說八道！那三成預算真的是用在品質提升上，比如更漂亮的裝飾和更好的鴿籠，我現在就詳細跟你說明，千萬不能亂寫！」",
+    "target": "journalist",
+    "actor": "organizer",
+    "place": "news",
+    "w": 257581
+   },
+   {
+    "id": "e106",
+    "t": 96.10000000000002,
+    "type": "decide",
+    "causes": [
+     "e105"
+    ],
+    "data": {
+     "decision": "d20",
+     "understanding": "志明試圖用「品質提升」來掩蓋預算超支和買車傳聞。",
+     "thought": "裝飾和鴿籠？這種理由太牽強了，絕對有隱情！",
+     "feeling": "😏 懷疑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ],
+     "motive": "bias"
+    },
+    "zh": "小雯：裝飾和鴿籠？這種理由太牽強了，絕對有隱情！",
+    "actor": "journalist",
+    "place": "news",
+    "w": 278056
+   },
+   {
+    "id": "e107",
+    "t": 96.10000000000002,
+    "type": "belief",
+    "causes": [
+     "e106"
+    ],
+    "data": {
+     "claim": "c11",
+     "topic": "budget_overrun",
+     "from": 0,
+     "to": 0.1,
+     "proposed": 0.3,
+     "verdict": "doubt",
+     "why": "他越急著否認越可疑",
+     "limit": {
+      "why": {
+       "kind": "knows",
+       "fact": "budget_overrun"
+      },
+      "min": 0,
+      "max": 0.1
+     }
+    },
+    "zh": "小雯對「三成預算超支是用在裝飾和鴿籠等品質提升上」的信心：0.00 → 0.10（doubt）",
+    "actor": "journalist",
+    "w": 278056
+   },
+   {
+    "id": "e108",
+    "t": 96.20000000000002,
+    "type": "react",
+    "causes": [
+     "e106"
+    ],
+    "data": {
+     "feeling": "😏 懷疑"
+    },
+    "zh": "小雯 😏 懷疑",
+    "actor": "journalist",
+    "place": "news",
+    "w": 278056
+   },
+   {
+    "id": "e109",
+    "t": 97.10000000000002,
+    "type": "move",
+    "causes": [
+     "e106"
+    ],
+    "data": {
+     "from": "news",
+     "to": "stage",
+     "arrive": 97.60000000000002,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向慶典舞台",
+    "actor": "journalist",
+    "place": "news",
+    "w": 278056
+   },
+   {
+    "id": "e110",
+    "t": 97.10000000000002,
+    "type": "move",
+    "causes": [
+     "e106"
+    ],
+    "data": {
+     "from": "news",
+     "to": "stage",
+     "arrive": 97.60000000000002,
+     "home": false,
+     "follow": "journalist"
+    },
+    "zh": "志明跟著小雯一起走向慶典舞台",
+    "actor": "organizer",
+    "place": "news",
+    "w": 278056
+   },
+   {
+    "id": "e111",
+    "t": 97.60000000000002,
+    "type": "arrive",
+    "causes": [
+     "e109"
+    ],
+    "data": {},
+    "zh": "小雯到了慶典舞台",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 278056
+   },
+   {
+    "id": "e112",
+    "t": 97.60000000000002,
+    "type": "look",
+    "causes": [
+     "e106"
+    ],
+    "data": {
+     "with": [
+      "organizer"
+     ]
+    },
+    "zh": "小雯在慶典舞台到處看看",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 278056
+   },
+   {
+    "id": "e113",
+    "t": 97.60000000000002,
+    "type": "arrive",
+    "causes": [
+     "e110"
+    ],
+    "data": {},
+    "zh": "志明到了慶典舞台",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 278056
+   },
+   {
+    "id": "e114",
+    "t": 100.60000000000002,
+    "type": "look",
+    "causes": [
+     "e112"
+    ],
+    "data": {
+     "found": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。 志明（燈籠節主辦人）在這裡。",
+     "highlight": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。",
+     "learned": [
+      "budget_overrun",
+      "pigeons",
+      "pigeons_sick",
+      "lanterns_unsafe"
+     ]
+    },
+    "zh": "小雯看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。 志明（燈籠節主辦人）在這裡。",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 278056
+   },
+   {
+    "id": "e115",
+    "t": 100.60000000000002,
+    "type": "deliver",
+    "causes": [
+     "e114"
+    ],
+    "data": {
+     "message": "m22",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。 志明（燈籠節主辦人）在這裡。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。 志明（燈籠節主辦人）在這裡。",
+    "target": "journalist",
+    "place": "stage",
+    "w": 278056
+   },
+   {
+    "id": "e116",
+    "t": 100.60000000000002,
+    "type": "look",
+    "causes": [
+     "e114"
+    ],
+    "data": {
+     "found": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。 小雯（記者（經營鎮上的新聞部落格））在這裡。",
+     "highlight": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。",
+     "learned": [
+      "pigeons",
+      "pigeons_sick",
+      "lanterns_unsafe"
+     ],
+     "with": "journalist"
+    },
+    "zh": "志明跟著小雯一起看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。 小雯（記者（經營鎮上的新聞部落格））在這裡。",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 278056
+   },
+   {
+    "id": "e117",
+    "t": 100.60000000000002,
+    "type": "deliver",
+    "causes": [
+     "e116"
+    ],
+    "data": {
+     "message": "m23",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。 小雯（記者（經營鎮上的新聞部落格））在這裡。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "志明親眼看到：舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質的合格標籤。 一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。 小雯（記者（經營鎮上的新聞部落格））在這裡。",
+    "target": "organizer",
+    "place": "stage",
+    "w": 278056
+   },
+   {
+    "id": "e118",
+    "t": 100.80000000000003,
+    "type": "decide",
+    "causes": [
+     "e117"
+    ],
+    "data": {
+     "decision": "d22",
+     "understanding": "小雯在舞台這，得趕快把她打發走或安撫好，不能讓她發現舞台沒檢查。",
+     "thought": "該死，這記者怎麼跟到這裡來？得快點把她弄走！",
+     "feeling": "😅 尷尬",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "fear"
+    },
+    "zh": "志明：該死，這記者怎麼跟到這裡來？得快點把她弄走！",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 286065
+   },
+   {
+    "id": "e119",
+    "t": 100.90000000000002,
+    "type": "react",
+    "causes": [
+     "e118"
+    ],
+    "data": {
+     "feeling": "😅 尷尬"
+    },
+    "zh": "志明 😅 尷尬",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 286065
+   },
+   {
+    "id": "e120",
+    "t": 100.80000000000003,
+    "type": "decide",
+    "causes": [
+     "e115"
+    ],
+    "data": {
+     "decision": "d21",
+     "understanding": "親眼看到鴿子健康且燈籠合格，志明的說法有部分事實，但仍可疑。",
+     "thought": "鴿子確實沒病，但這能解釋三成預算的去向？志明在掩蓋什麼。",
+     "feeling": "🧐 懷疑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "want"
+    },
+    "zh": "小雯：鴿子確實沒病，但這能解釋三成預算的去向？志明在掩蓋什麼。",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 287151
+   },
+   {
+    "id": "e121",
+    "t": 100.80000000000003,
+    "type": "belief",
+    "causes": [
+     "e120"
+    ],
+    "data": {
+     "claim": "c11",
+     "topic": "budget_overrun",
+     "from": 0.1,
+     "to": 0.1,
+     "proposed": 0.2,
+     "verdict": "disbelieve",
+     "why": "鴿籠看起來很普通，沒理由花三成預算",
+     "limit": {
+      "why": {
+       "kind": "knows",
+       "fact": "budget_overrun"
+      },
+      "min": 0,
+      "max": 0.1
+     }
+    },
+    "zh": "小雯對「三成預算超支是用在裝飾和鴿籠等品質提升上」的信心：0.10 → 0.10（disbelieve）",
+    "actor": "journalist",
+    "w": 287151
+   },
+   {
+    "id": "e122",
+    "t": 100.90000000000002,
+    "type": "react",
+    "causes": [
+     "e120"
+    ],
+    "data": {
+     "feeling": "🧐 懷疑"
+    },
+    "zh": "小雯 🧐 懷疑",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 287151
+   },
+   {
+    "id": "e123",
+    "t": 101.80000000000003,
+    "type": "talk",
+    "causes": [
+     "e118"
+    ],
+    "data": {
+     "text": "沒事沒事，小雯小姐！妳看這些鴿子多精神，燈籠也全部合格，這一切都安排得完美極了！妳這樣盯著舞台看幹嘛？快去拍拍那些漂亮的裝飾，絕對是妳部落格的爆款！",
+     "intent": "joke",
+     "claims": []
+    },
+    "zh": "志明對小雯說：「沒事沒事，小雯小姐！妳看這些鴿子多精神，燈籠也全部合格，這一切都安排得完美極了！妳這樣盯著舞台看幹嘛？快去拍拍那些漂亮的裝飾，絕對是妳部落格的爆款！」",
+    "actor": "organizer",
+    "target": "journalist",
+    "place": "stage",
+    "w": 287151
+   },
+   {
+    "id": "e124",
+    "t": 104.80000000000003,
+    "type": "deliver",
+    "causes": [
+     "e123"
+    ],
+    "data": {
+     "message": "m24",
+     "via": "face",
+     "intent": "joke",
+     "text": "沒事沒事，小雯小姐！妳看這些鴿子多精神，燈籠也全部合格，這一切都安排得完美極了！妳這樣盯著舞台看幹嘛？快去拍拍那些漂亮的裝飾，絕對是妳部落格的爆款！",
+     "claims": [],
+     "from": "organizer"
+    },
+    "zh": "小雯聽志明說：「沒事沒事，小雯小姐！妳看這些鴿子多精神，燈籠也全部合格，這一切都安排得完美極了！妳這樣盯著舞台看幹嘛？快去拍拍那些漂亮的裝飾，絕對是妳部落格的爆款！」",
+    "target": "journalist",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 287151
+   },
+   {
+    "id": "e125",
+    "t": 104.80000000000003,
+    "type": "talk",
+    "causes": [
+     "e120"
+    ],
+    "data": {
+     "text": "志明先生，鴿子看起來確實挺健康的，燈籠也合格。但這能解釋那三成預算超支嗎？你確定不需要給我更具體的明細，否則我會覺得你在用這些小東西掩飾更大的漏洞，這可是獨家喔。",
+     "intent": "ask",
+     "claims": [
+      "c11"
+     ]
+    },
+    "zh": "小雯對志明說：「志明先生，鴿子看起來確實挺健康的，燈籠也合格。但這能解釋那三成預算超支嗎？你確定不需要給我更具體的明細，否則我會覺得你在用這些小東西掩飾更大的漏洞，這可是獨家喔。」",
+    "actor": "journalist",
+    "target": "organizer",
+    "place": "stage",
+    "w": 287151
+   },
+   {
+    "id": "e126",
+    "t": 107.80000000000003,
+    "type": "deliver",
+    "causes": [
+     "e125"
+    ],
+    "data": {
+     "message": "m25",
+     "via": "face",
+     "intent": "ask",
+     "text": "志明先生，鴿子看起來確實挺健康的，燈籠也合格。但這能解釋那三成預算超支嗎？你確定不需要給我更具體的明細，否則我會覺得你在用這些小東西掩飾更大的漏洞，這可是獨家喔。",
+     "claims": [
+      "c11"
+     ],
+     "from": "journalist"
+    },
+    "zh": "志明聽小雯說：「志明先生，鴿子看起來確實挺健康的，燈籠也合格。但這能解釋那三成預算超支嗎？你確定不需要給我更具體的明細，否則我會覺得你在用這些小東西掩飾更大的漏洞，這可是獨家喔。」",
+    "target": "organizer",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 287151
+   },
+   {
+    "id": "e127",
+    "t": 107.80000000000003,
+    "type": "decide",
+    "causes": [
+     "e124"
+    ],
+    "data": {
+     "decision": "d23",
+     "budget": true
+    },
+    "zh": "小雯聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 287151
+   },
+   {
+    "id": "e128",
+    "t": 108.00000000000003,
+    "type": "decide",
+    "causes": [
+     "e126"
+    ],
+    "data": {
+     "decision": "d24",
+     "budget": true
+    },
+    "zh": "志明聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 287151
+   },
+   {
+    "id": "e129",
+    "t": 150,
+    "type": "move",
+    "causes": [
+     "e102"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "townhall",
+     "arrive": 150.5,
+     "home": false
+    },
+    "zh": "小雯從慶典舞台走向鎮公所",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 287151
+   },
+   {
+    "id": "e130",
+    "t": 150.5,
+    "type": "arrive",
+    "causes": [
+     "e129"
+    ],
+    "data": {},
+    "zh": "小雯到了鎮公所",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 287151
+   },
+   {
+    "id": "e131",
+    "t": 150.5,
+    "type": "meet",
+    "causes": [
+     "e102"
+    ],
+    "data": {
+     "text": "小雯到鎮公所採訪市長"
+    },
+    "zh": "小雯和林市長在鎮公所碰面（小雯到鎮公所採訪市長）",
+    "actor": "journalist",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 287151
+   },
+   {
+    "id": "e132",
+    "t": 152.5,
+    "type": "deliver",
+    "causes": [
+     "e131"
+    ],
+    "data": {
+     "message": "m26",
+     "via": "meet",
+     "intent": "inform",
+     "text": "小雯到鎮公所採訪市長",
+     "claims": [],
+     "from": "mayor"
+    },
+    "zh": "小雯碰到了林市長（小雯到鎮公所採訪市長）",
+    "target": "journalist",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 287151
+   },
+   {
+    "id": "e133",
+    "t": 152.7,
+    "type": "decide",
+    "causes": [
+     "e132"
+    ],
+    "data": {
+     "decision": "d25",
+     "budget": true
+    },
+    "zh": "小雯聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 287151
+   },
+   {
+    "id": "e134",
+    "t": 158.5,
+    "type": "move",
+    "causes": [
+     "e131"
+    ],
+    "data": {
+     "from": "townhall",
+     "to": "news",
+     "arrive": 159,
+     "home": true
+    },
+    "zh": "小雯從鎮公所走回霧港新聞社",
+    "actor": "journalist",
+    "place": "townhall",
+    "w": 287151
+   },
+   {
+    "id": "e135",
+    "t": 159,
+    "type": "arrive",
+    "causes": [
+     "e134"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 287151
+   },
+   {
+    "id": "e136",
+    "t": 210,
+    "type": "move",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "from": "stall",
+     "to": "townhall",
+     "arrive": 210.5,
+     "home": false
+    },
+    "zh": "阿珠從章魚燒攤走向鎮公所",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 287151
+   },
+   {
+    "id": "e137",
+    "t": 210.5,
+    "type": "arrive",
+    "causes": [
+     "e136"
+    ],
+    "data": {},
+    "zh": "阿珠到了鎮公所",
+    "actor": "vendor",
+    "place": "townhall",
+    "w": 287151
+   },
+   {
+    "id": "e138",
+    "t": 210.5,
+    "type": "meet",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "text": "阿珠到鎮公所繳攤位費"
+    },
+    "zh": "阿珠和林市長在鎮公所碰面（阿珠到鎮公所繳攤位費）",
+    "actor": "vendor",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 287151
+   },
+   {
+    "id": "e139",
+    "t": 212.5,
+    "type": "deliver",
+    "causes": [
+     "e138"
+    ],
+    "data": {
+     "message": "m27",
+     "via": "meet",
+     "intent": "inform",
+     "text": "阿珠到鎮公所繳攤位費",
+     "claims": [],
+     "from": "mayor"
+    },
+    "zh": "阿珠碰到了林市長（阿珠到鎮公所繳攤位費）",
+    "target": "vendor",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 287151
+   },
+   {
+    "id": "e140",
+    "t": 212.7,
+    "type": "decide",
+    "causes": [
+     "e139"
+    ],
+    "data": {
+     "decision": "d26",
+     "budget": true
+    },
+    "zh": "阿珠聽了，但沒有多想（模擬達到決策上限）",
+    "actor": "vendor",
+    "place": "townhall",
+    "w": 287151
+   },
+   {
+    "id": "e141",
+    "t": 218.5,
+    "type": "move",
+    "causes": [
+     "e138"
+    ],
+    "data": {
+     "from": "townhall",
+     "to": "stall",
+     "arrive": 219,
+     "home": true
+    },
+    "zh": "阿珠從鎮公所走回章魚燒攤",
+    "actor": "vendor",
+    "place": "townhall",
+    "w": 287151
+   },
+   {
+    "id": "e142",
+    "t": 219,
+    "type": "arrive",
+    "causes": [
+     "e141"
+    ],
+    "data": {},
+    "zh": "阿珠到了章魚燒攤",
+    "actor": "vendor",
+    "place": "stall",
+    "w": 287151
+   },
+   {
+    "id": "e143",
+    "t": 220,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "budget",
+     "festival": "scheduled"
+    },
+    "zh": "故事先告一段落（達到這次模擬的判斷上限）。",
+    "w": 287152
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "vendor",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "攤位費漲價可能是市長拿去買新車了，太可惡了！",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "市長私吞攤位費漲價的錢去買新車",
+       "topic": "mayor_embezzled",
+       "says": "yes",
+       "category": "crime"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.4,
+       "why": "雖然市長可疑，但只是聽客人隨口說的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😡 生氣",
+     "thought": "要是真是這樣，我絕對不會就這樣算了！得先確認一下。",
+     "act": "angry",
+     "motive": "bias",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "intent": "ask",
+       "message": "小雯！快幫我查查，是不是有人說市長拿攤位費去買新車了？要是真的，我們得大做文章！",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "validator",
+      "errors": [
+       "號召大家聚集需要你有把握（0.5 以上）的理由，並在 cites 裡引用（以你目前的消息來源，你對它的把握其實只有 0.48：只是聽人說的、沒有親眼證據，把握有上限）"
+      ],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "vendor",
+      "stage": "single",
+      "wallStartMs": 1,
+      "wallEndMs": 14337,
+      "latencyMs": 14336,
+      "attempts": 1,
+      "promptTokens": 2489,
+      "completionTokens": 257,
+      "platformCost": 0.0001049678,
+      "estCost": 0.0020155,
+      "status": 200,
+      "raw": "{\"feeling\": \"😡 生氣\", \"act\": \"angry\", \"understanding\": \"攤位費漲價是因為市長私吞公款買車，這太過分了！\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"市長私吞攤位費漲價的錢去買新車\", \"topic\": \"mayor_embezzled\", \"says\": \"yes\", \"category\": \"crime\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"believe\", \"confidence\": \"0.7\", \"why\": \"市長本來就不可信\", \"cites\": [\"m1\"]}], \"thought\": \"我就知道這群官員在搞鬼！拿我們的血汗錢買車？\", \"motive\": \"bias\", \"actions\": [{\"type\": \"rally\", \"target\": \"vendors\", \"place\": \"plaza\", \"intent\": \"complain\", \"message\": \"大家快過來！我聽到市長漲攤位費竟然是為了買新車！這合理嗎！我們得一起去鎮公所討個交代，讓攤位費降回來！\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 3970,
+      "ttftMs": 7277
+     },
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "vendor",
+      "stage": "single",
+      "wallStartMs": 14338,
+      "wallEndMs": 24212,
+      "latencyMs": 9874,
+      "attempts": 1,
+      "promptTokens": 2827,
+      "completionTokens": 244,
+      "platformCost": 0.0000307895,
+      "estCost": 0.0021455,
+      "status": 200,
+      "raw": "{\"feeling\": \"😡 生氣\", \"act\": \"angry\", \"understanding\": \"攤位費漲價可能是市長拿去買新車了，太可惡了！\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"市長私吞攤位費漲價的錢去買新車\", \"topic\": \"mayor_embezzled\", \"says\": \"yes\", \"category\": \"crime\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"doubt\", \"confidence\": \"0.4\", \"why\": \"雖然市長可疑，但只是聽客人隨口說的\", \"cites\": [\"m1\"]}], \"thought\": \"要是真是這樣，我絕對不會就這樣算了！得先確認一下。\", \"motive\": \"bias\", \"actions\": [{\"type\": \"phone\", \"target\": \"journalist\", \"intent\": \"ask\", \"message\": \"小雯！快幫我查查，是不是有人說市長拿攤位費去買新車了？要是真的，我們得大做文章！\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 4641,
+      "ttftMs": 3128
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "journalist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿珠懷疑市長挪用漲價的攤位費買新車，這可能是個大獨家。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "市長拿攤位費去買新車了",
+       "topic": "mayor_embezzled",
+       "says": "yes",
+       "category": "crime"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.4,
+       "why": "目前只是傳聞，需要證據",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "🤩 興奮",
+     "thought": "如果這件事是真的，我的部落格流量絕對會爆棚！",
+     "act": "excited",
+     "motive": "want",
+     "actions": [
+      {
+       "type": "inspect",
+       "place": "townhall",
+       "intent": "inform",
+       "message": "我要去翻翻鎮公所的公開帳目，看看錢到底去哪了。",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d2",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 24213,
+      "wallEndMs": 50374,
+      "latencyMs": 26161,
+      "attempts": 1,
+      "promptTokens": 2547,
+      "completionTokens": 225,
+      "platformCost": 0.0001047578,
+      "estCost": 0.0019485,
+      "status": 200,
+      "raw": "{\"feeling\": \"🤩 興奮\", \"act\": \"excited\", \"understanding\": \"阿珠懷疑市長挪用漲價的攤位費買新車，這可能是個大獨家。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m2\", \"statement\": \"市長拿攤位費去買新車了\", \"topic\": \"mayor_embezzled\", \"says\": \"yes\", \"category\": \"crime\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"doubt\", \"confidence\": \"0.4\", \"why\": \"目前只是傳聞，需要證據\", \"cites\": [\"m2\"]}], \"thought\": \"如果這件事是真的，我的部落格流量絕對會爆棚！\", \"motive\": \"want\", \"actions\": [{\"type\": \"inspect\", \"place\": \"townhall\", \"intent\": \"inform\", \"message\": \"我要去翻翻鎮公所的公開帳目，看看錢到底去哪了。\", \"cites\": [\"c0\"]}]}",
+      "promptChars": 4057,
+      "ttftMs": 3940
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "journalist",
+    "t": 35.1,
+    "triggers": [
+     "e15"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "收支表超支三成，這能證明市長對錢有問題，是個好切入點。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m3",
+       "statement": "慶典實際支出比預算多了三成",
+       "topic": "budget_overrun",
+       "says": "yes",
+       "category": "scandal"
+      },
+      {
+       "ref": "c2",
+       "statement": "市長拿攤位費去買新車了",
+       "topic": "mayor_embezzled",
+       "says": "yes",
+       "category": "crime"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 1,
+       "why": "親眼看到公開帳目",
+       "cites": [
+        "m3"
+       ]
+      },
+      {
+       "claim": 1,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "超支與買車說法能互補",
+       "cites": [
+        "c2"
+       ]
+      }
+     ],
+     "feeling": "🧐 興奮",
+     "thought": "超支三成！配上買新車的傳聞，這絕對是爆款標題！",
+     "act": "ponder",
+     "motive": "want",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "mayor",
+       "intent": "ask",
+       "message": "市長，我剛看了收支表，預算超支了三成喔。這筆錢到底花在哪了？您確定沒有挪用攤位費去買私人財產嗎？這可是獨家喔。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c3 → new",
+       "stance claim c3 → index 0",
+       "stance claim c2 → index 1"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d3",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 50375,
+      "wallEndMs": 70445,
+      "latencyMs": 20069,
+      "attempts": 1,
+      "promptTokens": 2659,
+      "completionTokens": 300,
+      "platformCost": 0.0001139278,
+      "estCost": 0.0022295,
+      "status": 200,
+      "raw": "{\"feeling\": \"🧐 興奮\", \"act\": \"ponder\", \"understanding\": \"收支表超支三成，這能證明市長對錢有問題，是個好切入點。\", \"claims\": [{\"ref\": \"c3\", \"source\": \"m3\", \"statement\": \"慶典實際支出比預算多了三成\", \"topic\": \"budget_overrun\", \"says\": \"yes\", \"category\": \"scandal\"}], \"stances\": [{\"claim\": \"c3\", \"verdict\": \"believe\", \"confidence\": 1.0, \"why\": \"親眼看到公開帳目\", \"cites\": [\"m3\"]}, {\"claim\": \"c2\", \"verdict\": \"believe\", \"confidence\": 0.6, \"why\": \"超支與買車說法能互補\", \"cites\": [\"c2\", \"c3\"]}], \"thought\": \"超支三成！配上買新車的傳聞，這絕對是爆款標題！\", \"motive\": \"want\", \"actions\": [{\"type\": \"tell\", \"target\": \"mayor\", \"intent\": \"ask\", \"message\": \"市長，我剛看了收支表，預算超支了三成喔。這筆錢到底花在哪了？您確定沒有挪用攤位費去買私人財產嗎？這可是獨家喔。\"}]}",
+      "promptChars": 4204,
+      "ttftMs": 11901
+     }
+    ],
+    "applied": [
+     "e16",
+     "e17",
+     "e18",
+     "e19"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "mayor",
+    "t": 39.300000000000004,
+    "triggers": [
+     "e21"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯發現了預算超支，並懷疑我挪用公款，試圖威脅要爆料。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m4",
+       "statement": "預算超支了三成且市長可能挪用攤位費買私人財產",
+       "topic": "mayor_embezzled",
+       "says": "yes",
+       "category": "crime"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0,
+       "why": "我沒私吞，只是超支",
+       "cites": [
+        "mayor_embezzled"
+       ]
+      }
+     ],
+     "feeling": "😰 緊張",
+     "thought": "這個女人太危險了，絕對不能讓她把這件事寫成新聞！",
+     "act": "nervous",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "organizer",
+       "message": "志明！快來鎮公所，有個緊急狀況要處理，小雯在搞鬼！",
+       "cites": [
+        "m4"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new",
+       "inverted confidence 1 → 0.00 (disbelieve)"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d4",
+      "npc": "mayor",
+      "stage": "single",
+      "wallStartMs": 70445,
+      "wallEndMs": 82856,
+      "latencyMs": 12411,
+      "attempts": 1,
+      "promptTokens": 2729,
+      "completionTokens": 240,
+      "platformCost": 0.0001121778,
+      "estCost": 0.0020845,
+      "status": 200,
+      "raw": "{\"feeling\": \"😰 緊張\", \"act\": \"nervous\", \"understanding\": \"小雯發現了預算超支，並懷疑我挪用公款，試圖威脅要爆料。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m4\", \"statement\": \"預算超支了三成且市長可能挪用攤位費買私人財產\", \"topic\": \"mayor_embezzled\", \"says\": \"yes\", \"category\": \"crime\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"disbelieve\", \"confidence\": \"1\", \"why\": \"我沒私吞，只是超支\", \"cites\": [\"mayor_embezzled\"]}], \"thought\": \"這個女人太危險了，絕對不能讓她把這件事寫成新聞！\", \"motive\": \"fear\", \"actions\": [{\"type\": \"phone\", \"target\": \"organizer\", \"message\": \"志明！快來鎮公所，有個緊急狀況要處理，小雯在搞鬼！\", \"cites\": [\"m4\"]}]}",
+      "promptChars": 4315,
+      "ttftMs": 3205
+     }
+    ],
+    "applied": [
+     "e22",
+     "e23",
+     "e24"
+    ]
+   },
+   {
+    "id": "d5",
+    "npc": "organizer",
+    "t": 42.50000000000001,
+    "triggers": [
+     "e26"
+    ],
+    "inbox": [
+     "m5"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "市長說有緊急狀況且小雯在搞鬼，可能影響慶典。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😟 擔心",
+     "thought": "該死的小雯，又在搞什麼鬼！得趕快去看看，不能影響我的風光。",
+     "act": "nervous",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "townhall",
+       "intent": "inform",
+       "message": "我馬上到！",
+       "cites": [
+        "m5"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d5",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 82856,
+      "wallEndMs": 91365,
+      "latencyMs": 8509,
+      "attempts": 1,
+      "promptTokens": 2629,
+      "completionTokens": 121,
+      "platformCost": 0.0001003478,
+      "estCost": 0.0016775,
+      "status": 200,
+      "raw": "{\"feeling\": \"😟 擔心\", \"act\": \"nervous\", \"understanding\": \"市長說有緊急狀況且小雯在搞鬼，可能影響慶典。\", \"claims\": [], \"stances\": [], \"thought\": \"該死的小雯，又在搞什麼鬼！得趕快去看看，不能影響我的風光。\", \"motive\": \"fear\", \"actions\": [{\"type\": \"go_look\", \"place\": \"townhall\", \"intent\": \"inform\", \"message\": \"我馬上到！\", \"cites\": [\"m5\"]}]}",
+      "promptChars": 4195,
+      "ttftMs": 5306
+     }
+    ],
+    "applied": [
+     "e27",
+     "e28"
+    ]
+   },
+   {
+    "id": "d6",
+    "npc": "organizer",
+    "t": 47.20000000000001,
+    "triggers": [
+     "e35"
+    ],
+    "inbox": [
+     "m6"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "市長叫我來處理緊急狀況，而且提到小雯在搞鬼。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😟 擔心",
+     "thought": "小雯那女人又在搞什麼鬼？千萬不能影響我的慶典！",
+     "act": "nervous",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "ask",
+       "target": "mayor",
+       "intent": "ask",
+       "message": "市長，我來了！到底是發生什麼緊急狀況？小雯又在亂寫什麼？沒事沒事，只要我處理就好！",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d6",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 91366,
+      "wallEndMs": 99687,
+      "latencyMs": 8321,
+      "attempts": 1,
+      "promptTokens": 2694,
+      "completionTokens": 130,
+      "platformCost": 0.0000530033,
+      "estCost": 0.001737,
+      "status": 200,
+      "raw": "{\"feeling\": \"😟 擔心\", \"act\": \"nervous\", \"understanding\": \"市長叫我來處理緊急狀況，而且提到小雯在搞鬼。\", \"claims\": [], \"stances\": [], \"thought\": \"小雯那女人又在搞什麼鬼？千萬不能影響我的慶典！\", \"motive\": \"fear\", \"actions\": [{\"type\": \"ask\", \"target\": \"mayor\", \"intent\": \"ask\", \"message\": \"市長，我來了！到底是發生什麼緊急狀況？小雯又在亂寫什麼？沒事沒事，只要我處理就好！\"}]}",
+      "promptChars": 4278,
+      "ttftMs": 4966
+     }
+    ],
+    "applied": [
+     "e36",
+     "e37"
+    ]
+   },
+   {
+    "id": "d7",
+    "npc": "mayor",
+    "t": 51.40000000000001,
+    "triggers": [
+     "e39"
+    ],
+    "inbox": [
+     "m7"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "志明已經趕到，準備幫我搞定小雯的質疑。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😌 安慰",
+     "thought": "有志明在就放心了，只要他能壓住小雯，我的連任就沒問題。",
+     "act": "shrug",
+     "motive": "want",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "organizer",
+       "intent": "inform",
+       "message": "志明，你來得正好！小雯那個記者在收支表上發現預算超支的事，還敢質疑我挪用公款買私人財產！你快想辦法讓她閉嘴，絕對不能讓這件事傳出去，明白嗎？",
+       "cites": [
+        "m7"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d7",
+      "npc": "mayor",
+      "stage": "single",
+      "wallStartMs": 99687,
+      "wallEndMs": 107616,
+      "latencyMs": 7929,
+      "attempts": 1,
+      "promptTokens": 2842,
+      "completionTokens": 173,
+      "platformCost": 0.0000611933,
+      "estCost": 0.00194,
+      "status": 200,
+      "raw": "{\"feeling\": \"😌 安慰\", \"act\": \"shrug\", \"understanding\": \"志明已經趕到，準備幫我搞定小雯的質疑。\", \"claims\": [], \"stances\": [], \"thought\": \"有志明在就放心了，只要他能壓住小雯，我的連任就沒問題。\", \"motive\": \"want\", \"actions\": [{\"type\": \"tell\", \"target\": \"organizer\", \"intent\": \"inform\", \"message\": \"志明，你來得正好！小雯那個記者在收支表上發現預算超支的事，還敢質疑我挪用公款買私人財產！你快想辦法讓她閉嘴，絕對不能讓這件事傳出去，明白嗎？\", \"cites\": [\"m7\"]}]}",
+      "promptChars": 4455,
+      "ttftMs": 3836
+     }
+    ],
+    "applied": [
+     "e40",
+     "e41"
+    ]
+   },
+   {
+    "id": "d8",
+    "npc": "organizer",
+    "t": 55.600000000000016,
+    "triggers": [
+     "e43"
+    ],
+    "inbox": [
+     "m8"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯發現預算超支並質疑市長挪用公款，市長要我搞定她。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m8",
+       "statement": "小雯發現預算超支並質疑市長挪用公款",
+       "topic": "mayor_embezzled",
+       "says": "unclear",
+       "category": "crime"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.8,
+       "why": "市長親口告訴我的",
+       "cites": [
+        "m8"
+       ]
+      }
+     ],
+     "feeling": "😰 緊張",
+     "thought": "糟了，預算超支的事被發現了，要是被牽連到我會死掉！",
+     "act": "nervous",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "news",
+       "intent": "inform",
+       "message": "我要趕快去堵住小雯的嘴，不能讓她把這件事發出去！",
+       "cites": [
+        "m8"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d8",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 107616,
+      "wallEndMs": 129167,
+      "latencyMs": 21551,
+      "attempts": 1,
+      "promptTokens": 2813,
+      "completionTokens": 239,
+      "platformCost": 0.0000647983,
+      "estCost": 0.0021235,
+      "status": 200,
+      "raw": "{\"feeling\": \"😰 緊張\", \"act\": \"nervous\", \"understanding\": \"小雯發現預算超支並質疑市長挪用公款，市長要我搞定她。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m8\", \"statement\": \"小雯發現預算超支並質疑市長挪用公款\", \"topic\": \"mayor_embezzled\", \"says\": \"unclear\", \"category\": \"crime\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"believe\", \"confidence\": 0.8, \"why\": \"市長親口告訴我的\", \"cites\": [\"m8\"]}], \"thought\": \"糟了，預算超支的事被發現了，要是被牽連到我會死掉！\", \"motive\": \"fear\", \"actions\": [{\"type\": \"go_look\", \"place\": \"news\", \"intent\": \"inform\", \"message\": \"我要趕快去堵住小雯的嘴，不能讓她把這件事發出去！\", \"cites\": [\"m8\"]}]}",
+      "promptChars": 4435,
+      "ttftMs": 15947
+     }
+    ],
+    "applied": [
+     "e44",
+     "e45",
+     "e46"
+    ]
+   },
+   {
+    "id": "d9",
+    "npc": "organizer",
+    "t": 60.30000000000002,
+    "triggers": [
+     "e53"
+    ],
+    "inbox": [
+     "m9"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯就在這裡，她掌握了預算超支的證據，可能會毀了慶典。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😟 擔心",
+     "thought": "糟了，小雯就在眼前！得趕快想辦法讓她閉嘴，不然我也會被牽連。",
+     "act": "nervous",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "journalist",
+       "intent": "request",
+       "message": "小雯小姐！這麼巧在這裡。關於慶典的事，有些小誤會我想跟你解釋清楚，我們能不能找個安靜的地方聊聊？",
+       "cites": [
+        "m9"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d9",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 129168,
+      "wallEndMs": 140067,
+      "latencyMs": 10899,
+      "attempts": 1,
+      "promptTokens": 2900,
+      "completionTokens": 152,
+      "platformCost": 0.0000617533,
+      "estCost": 0.001906,
+      "status": 200,
+      "raw": "{\"feeling\": \"😟 擔心\", \"act\": \"nervous\", \"understanding\": \"小雯就在這裡，她掌握了預算超支的證據，可能會毀了慶典。\", \"claims\": [], \"stances\": [], \"thought\": \"糟了，小雯就在眼前！得趕快想辦法讓她閉嘴，不然我也會被牽連。\", \"motive\": \"fear\", \"actions\": [{\"type\": \"tell\", \"target\": \"journalist\", \"intent\": \"request\", \"message\": \"小雯小姐！這麼巧在這裡。關於慶典的事，有些小誤會我想跟你解釋清楚，我們能不能找個安靜的地方聊聊？\", \"cites\": [\"m9\"]}]}",
+      "promptChars": 4545,
+      "ttftMs": 5922
+     }
+    ],
+    "applied": [
+     "e58",
+     "e59"
+    ]
+   },
+   {
+    "id": "d10",
+    "npc": "mayor",
+    "t": 60.30000000000002,
+    "triggers": [
+     "e55"
+    ],
+    "inbox": [
+     "m10"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "我人在新聞社，小雯和志明都在，得確保小雯不會發文。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😟 擔心",
+     "thought": "只要志明能搞定小雯，今晚的致詞就沒問題。",
+     "act": "ponder",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "organizer",
+       "intent": "request",
+       "message": "志明，小雯就在這裡，你快點處理好，絕對不能讓關於預算的事傳出去，懂我的意思吧？",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d10",
+      "npc": "mayor",
+      "stage": "single",
+      "wallStartMs": 129168,
+      "wallEndMs": 137419,
+      "latencyMs": 6919,
+      "attempts": 1,
+      "promptTokens": 2969,
+      "completionTokens": 138,
+      "platformCost": 0.0000631883,
+      "estCost": 0.0018985,
+      "status": 200,
+      "raw": "{\"feeling\": \"😟 擔心\", \"act\": \"ponder\", \"understanding\": \"我人在新聞社，小雯和志明都在，得確保小雯不會發文。\", \"claims\": [], \"stances\": [], \"thought\": \"只要志明能搞定小雯，今晚的致詞就沒問題。\", \"motive\": \"fear\", \"actions\": [{\"type\": \"tell\", \"target\": \"organizer\", \"intent\": \"request\", \"message\": \"志明，小雯就在這裡，你快點處理好，絕對不能讓關於預算的事傳出去，懂我的意思吧？\", \"cites\": []}]}",
+      "promptChars": 4614,
+      "ttftMs": 4061
+     }
+    ],
+    "applied": [
+     "e56",
+     "e57"
+    ]
+   },
+   {
+    "id": "d11",
+    "npc": "mayor",
+    "t": 64.30000000000001,
+    "triggers": [
+     "e60",
+     "e60"
+    ],
+    "inbox": [
+     "m11"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有人在傳我挪用公款買車，這會毀了我的名聲和連任。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m11",
+       "statement": "市長拿攤位費去買新車了",
+       "topic": "mayor_embezzled",
+       "says": "yes",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0,
+       "why": "我絕對沒有私吞公款",
+       "cites": [
+        "mayor_embezzled"
+       ]
+      }
+     ],
+     "feeling": "😠 生氣",
+     "thought": "可惡！這謠言傳得這麼快？志明到底有沒有處理好！",
+     "act": "angry",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "organizer",
+       "intent": "complain",
+       "message": "志明！你給我聽好，現在外面竟然在傳我拿攤位費買新車！你不是說會處理好小雯嗎？這件事要是傳開了，你給我負責！快想辦法把這個謠言壓下去！",
+       "cites": [
+        "m11"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c5 → new",
+       "inverted confidence 1 → 0.00 (disbelieve)",
+       "stance claim c5 → index 0"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d11",
+      "npc": "mayor",
+      "stage": "single",
+      "wallStartMs": 140067,
+      "wallEndMs": 159093,
+      "latencyMs": 19026,
+      "attempts": 1,
+      "promptTokens": 3046,
+      "completionTokens": 267,
+      "platformCost": 0.0000749133,
+      "estCost": 0.002324,
+      "status": 200,
+      "raw": "{\"feeling\": \"😠 生氣\", \"act\": \"angry\", \"understanding\": \"有人在傳我挪用公款買車，這會毀了我的名聲和連任。\", \"claims\": [{\"ref\": \"c5\", \"source\": \"m11\", \"statement\": \"市長拿攤位費去買新車了\", \"topic\": \"mayor_embezzled\", \"says\": \"yes\", \"category\": \"scandal\"}], \"stances\": [{\"claim\": \"c5\", \"verdict\": \"disbelieve\", \"confidence\": \"1\", \"why\": \"我絕對沒有私吞公款\", \"cites\": [\"mayor_embezzled\"]}], \"thought\": \"可惡！這謠言傳得這麼快？志明到底有沒有處理好！\", \"motive\": \"fear\", \"actions\": [{\"type\": \"tell\", \"target\": \"organizer\", \"intent\": \"complain\", \"message\": \"志明！你給我聽好，現在外面竟然在傳我拿攤位費買新車！你不是說會處理好小雯嗎？這件事要是傳開了，你給我負責！快想辦法把這個謠言壓下去！\", \"cites\": [\"m11\"]}]}",
+      "promptChars": 4711,
+      "ttftMs": 5388
+     }
+    ],
+    "applied": [
+     "e64",
+     "e65",
+     "e66"
+    ]
+   },
+   {
+    "id": "d12",
+    "npc": "organizer",
+    "t": 67.30000000000001,
+    "triggers": [
+     "e62",
+     "e62"
+    ],
+    "inbox": [
+     "m12"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "市長在逼我壓制小雯，不能讓預算超支的事曝光。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😰 緊張",
+     "thought": "可惡，市長把燙手山芋丟給我，要是被揭發我這個主辦人也會被牽連！",
+     "act": "nervous",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "journalist",
+       "intent": "request",
+       "message": "小雯小姐，關於預算那些數字，其實只是會計上的小誤會，沒事沒事！我們能不能私下聊聊，我想給你一些更正確的資訊？",
+       "cites": [
+        "m12"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d12",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 159093,
+      "wallEndMs": 171341,
+      "latencyMs": 12248,
+      "attempts": 1,
+      "promptTokens": 2994,
+      "completionTokens": 159,
+      "platformCost": 0.0000655333,
+      "estCost": 0.001974,
+      "status": 200,
+      "raw": "{\"feeling\": \"😰 緊張\", \"act\": \"nervous\", \"understanding\": \"市長在逼我壓制小雯，不能讓預算超支的事曝光。\", \"claims\": [], \"stances\": [], \"thought\": \"可惡，市長把燙手山芋丟給我，要是被揭發我這個主辦人也會被牽連！\", \"motive\": \"fear\", \"actions\": [{\"type\": \"tell\", \"target\": \"journalist\", \"intent\": \"request\", \"message\": \"小雯小姐，關於預算那些數字，其實只是會計上的小誤會，沒事沒事！我們能不能私下聊聊，我想給你一些更正確的資訊？\", \"cites\": [\"m12\"]}]}",
+      "promptChars": 4680,
+      "ttftMs": 4559
+     }
+    ],
+    "applied": [
+     "e68",
+     "e69"
+    ]
+   },
+   {
+    "id": "d13",
+    "npc": "journalist",
+    "t": 67.50000000000001,
+    "triggers": [
+     "e67"
+    ],
+    "inbox": [
+     "m13"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "志明想私下解釋慶典的事，可能與預算超支或市長有關。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😏 興奮",
+     "thought": "主辦人主動找上門？這絕對有大料，得把他套出來！",
+     "act": "whisper",
+     "motive": "want",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "organizer",
+       "intent": "ask",
+       "message": "好啊，志明先生。正好我對這次慶典的預算很有興趣，我們找個沒人的地方聊聊，你確定要跟我說實話嗎？這可是獨家喔。",
+       "cites": [
+        "m13"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d13",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 171342,
+      "wallEndMs": 179994,
+      "latencyMs": 8652,
+      "attempts": 1,
+      "promptTokens": 2805,
+      "completionTokens": 160,
+      "platformCost": 0.0000589883,
+      "estCost": 0.0018825,
+      "status": 200,
+      "raw": "{\"feeling\": \"😏 興奮\", \"act\": \"whisper\", \"understanding\": \"志明想私下解釋慶典的事，可能與預算超支或市長有關。\", \"claims\": [], \"stances\": [], \"thought\": \"主辦人主動找上門？這絕對有大料，得把他套出來！\", \"motive\": \"want\", \"actions\": [{\"type\": \"tell\", \"target\": \"organizer\", \"intent\": \"ask\", \"message\": \"好啊，志明先生。正好我對這次慶典的預算很有興趣，我們找個沒人的地方聊聊，你確定要跟我說實話嗎？這可是獨家喔。\", \"cites\": [\"m13\"]}]}",
+      "promptChars": 4400,
+      "ttftMs": 3076
+     }
+    ],
+    "applied": [
+     "e70",
+     "e71"
+    ]
+   },
+   {
+    "id": "d14",
+    "npc": "journalist",
+    "t": 74.70000000000002,
+    "triggers": [
+     "e75"
+    ],
+    "inbox": [
+     "m15"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "志明想用「會計誤會」掩蓋超支，並試圖私下收買或誘導我。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m15",
+       "statement": "慶典預算超支只是會計上的小誤會",
+       "topic": "budget_overrun",
+       "says": "no",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.2,
+       "why": "太敷衍了，越否認越可疑",
+       "cites": [
+        "m15",
+        "budget_overrun"
+       ]
+      }
+     ],
+     "feeling": "😏 懷疑",
+     "thought": "會計誤會？這種藉口也敢用，絕對有更大的貓膩！",
+     "act": "doubt",
+     "motive": "want",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "organizer",
+       "intent": "ask",
+       "message": "會計誤會？志明先生，這種理由在我的讀者面前可行不通。既然你想給我「正確資訊」，那就請直接告訴我：那多出的三成預算到底流向哪了？如果你能給我一個令人信服的解釋，或許我可以考慮怎麼寫這則獨家。",
+       "cites": [
+        "m15",
+        "budget_overrun"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "validator",
+      "errors": [
+       "stances[0].claim 要填 claims 陣列裡的位置（0 到 -1）。要對你已經有的說法（例如 c2）表態，先把它放進 claims（ref 填 c2），再用它在 claims 裡的位置"
+      ],
+      "notes": [
+       "stance claim new is outside the claims list: sent back",
+       "1 claim(s) without a stance dropped"
+      ]
+     },
+     {
+      "attempt": 2,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d14",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 179995,
+      "wallEndMs": 198697,
+      "latencyMs": 17617,
+      "attempts": 1,
+      "promptTokens": 2917,
+      "completionTokens": 299,
+      "platformCost": 0.0000726726,
+      "estCost": 0.0023555,
+      "status": 200,
+      "raw": "{\"feeling\": \"😏 懷疑\", \"act\": \"doubt\", \"understanding\": \"志明想用「會計誤會」掩蓋超支，並試圖私下收買或誘導我。\", \"claims\": [{\"ref\": \"new\", \"source\": \"m15\", \"statement\": \"慶典預算超支只是會計上的小誤會\", \"topic\": \"budget_overrun\", \"says\": \"no\", \"category\": \"scandal\"}], \"stances\": [{\"claim\": \"new\", \"verdict\": \"doubt\", \"confidence\": 0.2, \"why\": \"太敷衍了，越否認越可疑\", \"cites\": [\"m15\", \"budget_overrun\"]}], \"thought\": \"會計誤會？這種藉口也敢用，絕對有更大的貓膩！\", \"motive\": \"want\", \"actions\": [{\"type\": \"tell\", \"target\": \"organizer\", \"intent\": \"ask\", \"message\": \"會計誤會？志明先生，這種理由在我的讀者面前可行不通。既然你想給我「正確資訊」，那就請直接告訴我：那多出的三成預算到底流向哪了？如果你能給我一個令人信服的解釋，或許我可以考慮怎麼寫這則獨家。\", \"cites\": [\"m15\", \"budget_overrun\"]}]}",
+      "promptChars": 4543,
+      "ttftMs": 3546
+     },
+     {
+      "provider": "amd",
+      "decision": "d14",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 198697,
+      "wallEndMs": 216432,
+      "latencyMs": 17735,
+      "attempts": 1,
+      "promptTokens": 3295,
+      "completionTokens": 392,
+      "platformCost": 0.0000923783,
+      "estCost": 0.0028235,
+      "status": 200,
+      "raw": "{\n  \"feeling\": \"😏 懷疑\",\n  \"act\": \"doubt\",\n  \"understanding\": \"志明想用「會計誤會」掩蓋超支，並試圖私下收買或誘導我。\",\n  \"claims\": [\n    {\n      \"ref\": \"new\",\n      \"source\": \"m15\",\n      \"statement\": \"慶典預算超支只是會計上的小誤會\",\n      \"topic\": \"budget_overrun\",\n      \"says\": \"no\",\n      \"category\": \"scandal\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": 0,\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.2,\n      \"why\": \"太敷衍了，越否認越可疑\",\n      \"cites\": [\n        \"m15\",\n        \"budget_overrun\"\n      ]\n    }\n  ],\n  \"thought\": \"會計誤會？這種藉口也敢用，絕對有更大的貓膩！\",\n  \"motive\": \"want\",\n  \"actions\": [\n    {\n      \"type\": \"tell\",\n      \"target\": \"organizer\",\n      \"intent\": \"ask\",\n      \"message\": \"會計誤會？志明先生，這種理由在我的讀者面前可行不通。既然你想給我「正確資訊」，那就請直接告訴我：那多出的三成預算到底流向哪了？如果你能給我一個令人信服的解釋，或許我可以考慮怎麼寫這則獨家。\",\n      \"cites\": [\n        \"m15\",\n        \"budget_overrun\"\n      ]\n    }\n  ]\n}",
+      "promptChars": 5296,
+      "ttftMs": 3448
+     }
+    ],
+    "applied": [
+     "e77",
+     "e78",
+     "e79"
+    ]
+   },
+   {
+    "id": "d15",
+    "npc": "organizer",
+    "t": 77.50000000000001,
+    "triggers": [
+     "e73",
+     "e73",
+     "e73",
+     "e80"
+    ],
+    "inbox": [
+     "m14",
+     "m16"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯想挖預算底細，而市長被傳挪用攤位費買車，且威脅要我負責。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m16",
+       "statement": "林市長拿攤位費買了新車",
+       "topic": "mayor_embezzled",
+       "says": "yes",
+       "category": "crime"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.3,
+       "why": "市長剛才還在怪我，這聽起來像謠言",
+       "cites": [
+        "m16"
+       ]
+      }
+     ],
+     "feeling": "😰 緊張",
+     "thought": "糟糕！市長居然被傳買車，如果這件事爆掉，他絕對會把責任推給我！",
+     "act": "nervous",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "journalist",
+       "intent": "inform",
+       "message": "沒事沒事，小雯小姐！那些所謂的『買車』傳聞完全是誤會，只是小問題！我們快點找個安靜的地方聊聊，我告訴你真正的情況。",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c6 → new",
+       "stance claim c6 → index 0"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d15",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 216432,
+      "wallEndMs": 230436,
+      "latencyMs": 14004,
+      "attempts": 1,
+      "promptTokens": 3126,
+      "completionTokens": 271,
+      "platformCost": 0.0000779933,
+      "estCost": 0.002376,
+      "status": 200,
+      "raw": "{\"feeling\": \"😰 緊張\", \"act\": \"nervous\", \"understanding\": \"小雯想挖預算底細，而市長被傳挪用攤位費買車，且威脅要我負責。\", \"claims\": [{\"ref\": \"c6\", \"source\": \"m16\", \"statement\": \"林市長拿攤位費買了新車\", \"topic\": \"mayor_embezzled\", \"says\": \"yes\", \"category\": \"crime\"}], \"stances\": [{\"claim\": \"c6\", \"verdict\": \"doubt\", \"confidence\": 0.3, \"why\": \"市長剛才還在怪我，這聽起來像謠言\", \"cites\": [\"m16\"]}], \"thought\": \"糟糕！市長居然被傳買車，如果這件事爆掉，他絕對會把責任推給我！\", \"motive\": \"fear\", \"actions\": [{\"type\": \"tell\", \"target\": \"journalist\", \"intent\": \"inform\", \"message\": \"沒事沒事，小雯小姐！那些所謂的『買車』傳聞完全是誤會，只是小問題！我們快點找個安靜的地方聊聊，我告訴你真正的情況。\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 4854,
+      "ttftMs": 4164
+     }
+    ],
+    "applied": [
+     "e81",
+     "e82",
+     "e83"
+    ]
+   },
+   {
+    "id": "d16",
+    "npc": "journalist",
+    "t": 84.50000000000001,
+    "triggers": [
+     "e85",
+     "e85"
+    ],
+    "inbox": [
+     "m17"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "志明急於否認買車傳聞，並想私下跟我談，這很可疑。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m17",
+       "statement": "市長買新車的傳聞是誤會",
+       "topic": "mayor_embezzled",
+       "says": "no",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.3,
+       "why": "越否認越可疑",
+       "cites": [
+        "m17"
+       ]
+      }
+     ],
+     "feeling": "😏 懷疑",
+     "thought": "這麼急著否認，而且還要私下聊，絕對有更大的料！",
+     "act": "doubt",
+     "motive": "want",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "organizer",
+       "intent": "ask",
+       "message": "志明先生，你越是說『沒事』，我就越覺得這裡面有大問題。既然你說有『真正的情況』，那我們就現在聊，不用找安靜的地方，直接告訴我，否則我會認為買車傳聞是真的，而且這可是獨家喔。",
+       "cites": [
+        "m17",
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c8 → new",
+       "stance claim c8 → index 0"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d16",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 230437,
+      "wallEndMs": 245855,
+      "latencyMs": 15418,
+      "attempts": 1,
+      "promptTokens": 3091,
+      "completionTokens": 278,
+      "platformCost": 0.0000772583,
+      "estCost": 0.0023795,
+      "status": 200,
+      "raw": "{\"feeling\": \"😏 懷疑\", \"act\": \"doubt\", \"understanding\": \"志明急於否認買車傳聞，並想私下跟我談，這很可疑。\", \"claims\": [{\"ref\": \"c8\", \"source\": \"m17\", \"statement\": \"市長買新車的傳聞是誤會\", \"topic\": \"mayor_embezzled\", \"says\": \"no\", \"category\": \"scandal\"}], \"stances\": [{\"claim\": \"c8\", \"verdict\": \"doubt\", \"confidence\": 0.3, \"why\": \"越否認越可疑\", \"cites\": [\"m17\"]}], \"thought\": \"這麼急著否認，而且還要私下聊，絕對有更大的料！\", \"motive\": \"want\", \"actions\": [{\"type\": \"tell\", \"target\": \"organizer\", \"intent\": \"ask\", \"message\": \"志明先生，你越是說『沒事』，我就越覺得這裡面有大問題。既然你說有『真正的情況』，那我們就現在聊，不用找安靜的地方，直接告訴我，否則我會認為買車傳聞是真的，而且這可是獨家喔。\", \"cites\": [\"m17\", \"#0\"]}]}",
+      "promptChars": 4768,
+      "ttftMs": 11101
+     }
+    ],
+    "applied": [
+     "e92",
+     "e93",
+     "e94"
+    ]
+   },
+   {
+    "id": "d17",
+    "npc": "organizer",
+    "t": 84.70000000000002,
+    "triggers": [
+     "e89"
+    ],
+    "inbox": [
+     "m18"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯已經盯上預算漏洞了，她要求我解釋那三成預算的去向。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😰 緊張",
+     "thought": "糟糕，她居然知道精確的比例！得想個法子把水攪混。",
+     "act": "nervous",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "journalist",
+       "intent": "inform",
+       "message": "沒事沒事，小雯小姐！那三成預算其實是為了提升慶典品質的『臨時調整項目』，只是會計入帳比較混亂，完全是小問題！我現在就帶你去個安靜的地方，詳細跟你解釋這些『品質升級』的細節，好嗎？",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d17",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 230437,
+      "wallEndMs": 240552,
+      "latencyMs": 10115,
+      "attempts": 1,
+      "promptTokens": 3121,
+      "completionTokens": 176,
+      "platformCost": 0.0000712026,
+      "estCost": 0.0020885,
+      "status": 200,
+      "raw": "{\"feeling\": \"😰 緊張\", \"act\": \"nervous\", \"understanding\": \"小雯已經盯上預算漏洞了，她要求我解釋那三成預算的去向。\", \"claims\": [], \"stances\": [], \"thought\": \"糟糕，她居然知道精確的比例！得想個法子把水攪混。\", \"motive\": \"fear\", \"actions\": [{\"type\": \"tell\", \"target\": \"journalist\", \"intent\": \"inform\", \"message\": \"沒事沒事，小雯小姐！那三成預算其實是為了提升慶典品質的『臨時調整項目』，只是會計入帳比較混亂，完全是小問題！我現在就帶你去個安靜的地方，詳細跟你解釋這些『品質升級』的細節，好嗎？\"}]}",
+      "promptChars": 4843,
+      "ttftMs": 5423
+     }
+    ],
+    "applied": [
+     "e90",
+     "e91"
+    ]
+   },
+   {
+    "id": "d18",
+    "npc": "journalist",
+    "t": 91.70000000000002,
+    "triggers": [
+     "e96",
+     "e96"
+    ],
+    "inbox": [
+     "m19"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "志明試圖用「品質升級」來掩蓋預算超支，並想把我帶走。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m19",
+       "statement": "三成預算超支是為了提升慶典品質的臨時調整項目",
+       "topic": "budget_overrun",
+       "says": "yes",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.2,
+       "why": "理由太籠統且會計混亂很可疑",
+       "cites": [
+        "m19"
+       ]
+      }
+     ],
+     "feeling": "🤨 懷疑",
+     "thought": "臨時調整項目？這種說法太牽強了，他一定在隱瞞什麼！",
+     "act": "doubt",
+     "motive": "want",
+     "actions": [
+      {
+       "type": "none",
+       "why": "我不能就這樣被他帶到安靜的地方，我得在公開場合逼他說出具體細節。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d18",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 245856,
+      "wallEndMs": 257581,
+      "latencyMs": 11725,
+      "attempts": 1,
+      "promptTokens": 3222,
+      "completionTokens": 227,
+      "platformCost": 0.0000782733,
+      "estCost": 0.002292,
+      "status": 200,
+      "raw": "{\"feeling\": \"🤨 懷疑\", \"act\": \"doubt\", \"understanding\": \"志明試圖用「品質升級」來掩蓋預算超支，並想把我帶走。\", \"claims\": [{\"ref\": \"new\", \"source\": \"m19\", \"statement\": \"三成預算超支是為了提升慶典品質的臨時調整項目\", \"topic\": \"budget_overrun\", \"says\": \"yes\", \"category\": \"scandal\"}], \"stances\": [{\"claim\": 0, \"verdict\": \"doubt\", \"confidence\": 0.2, \"why\": \"理由太籠統且會計混亂很可疑\", \"cites\": [\"m19\"]}], \"thought\": \"臨時調整項目？這種說法太牽強了，他一定在隱瞞什麼！\", \"motive\": \"want\", \"actions\": [{\"type\": \"none\", \"why\": \"我不能就這樣被他帶到安靜的地方，我得在公開場合逼他說出具體細節。\"}]}",
+      "promptChars": 4937,
+      "ttftMs": 4426
+     }
+    ],
+    "applied": [
+     "e101",
+     "e102",
+     "e103"
+    ]
+   },
+   {
+    "id": "d19",
+    "npc": "organizer",
+    "t": 91.90000000000002,
+    "triggers": [
+     "e98"
+    ],
+    "inbox": [
+     "m20"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯不再跟我玩捉迷藏，威脅要直接報導買車傳聞。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😰 緊張",
+     "thought": "糟糕！她要直接發文了，要是被市長知道是我沒搞定，我死定了！",
+     "act": "nervous",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "journalist",
+       "intent": "answer",
+       "message": "沒事沒事，小雯小姐！買車什麼的絕對是胡說八道！那三成預算真的是用在品質提升上，比如更漂亮的裝飾和更好的鴿籠，我現在就詳細跟你說明，千萬不能亂寫！",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d19",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 245856,
+      "wallEndMs": 255357,
+      "latencyMs": 9501,
+      "attempts": 1,
+      "promptTokens": 3195,
+      "completionTokens": 162,
+      "platformCost": 0.0000727783,
+      "estCost": 0.0020835,
+      "status": 200,
+      "raw": "{\"feeling\": \"😰 緊張\", \"act\": \"nervous\", \"understanding\": \"小雯不再跟我玩捉迷藏，威脅要直接報導買車傳聞。\", \"claims\": [], \"stances\": [], \"thought\": \"糟糕！她要直接發文了，要是被市長知道是我沒搞定，我死定了！\", \"motive\": \"fear\", \"actions\": [{\"type\": \"tell\", \"target\": \"journalist\", \"intent\": \"answer\", \"message\": \"沒事沒事，小雯小姐！買車什麼的絕對是胡說八道！那三成預算真的是用在品質提升上，比如更漂亮的裝飾和更好的鴿籠，我現在就詳細跟你說明，千萬不能亂寫！\"}]}",
+      "promptChars": 4928,
+      "ttftMs": 6059
+     }
+    ],
+    "applied": [
+     "e99",
+     "e100"
+    ]
+   },
+   {
+    "id": "d20",
+    "npc": "journalist",
+    "t": 96.10000000000002,
+    "triggers": [
+     "e105"
+    ],
+    "inbox": [
+     "m21"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "志明試圖用「品質提升」來掩蓋預算超支和買車傳聞。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m21",
+       "statement": "三成預算超支是用在裝飾和鴿籠等品質提升上",
+       "topic": "budget_overrun",
+       "says": "no",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.3,
+       "why": "他越急著否認越可疑",
+       "cites": [
+        "m21"
+       ]
+      }
+     ],
+     "feeling": "😏 懷疑",
+     "thought": "裝飾和鴿籠？這種理由太牽強了，絕對有隱情！",
+     "act": "doubt",
+     "motive": "bias",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "stage",
+       "intent": "inform",
+       "message": "既然你說是用在裝飾和鴿籠，那我就直接去舞台現場看看，看看這些『高品質』的東西到底在哪。",
+       "cites": [
+        "m21"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d20",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 257581,
+      "wallEndMs": 278056,
+      "latencyMs": 20475,
+      "attempts": 1,
+      "promptTokens": 3216,
+      "completionTokens": 247,
+      "platformCost": 0.0000794633,
+      "estCost": 0.002349,
+      "status": 200,
+      "raw": "{\"feeling\": \"😏 懷疑\", \"act\": \"doubt\", \"understanding\": \"志明試圖用「品質提升」來掩蓋預算超支和買車傳聞。\", \"claims\": [{\"ref\": \"new\", \"source\": \"m21\", \"statement\": \"三成預算超支是用在裝飾和鴿籠等品質提升上\", \"topic\": \"budget_overrun\", \"says\": \"no\", \"category\": \"scandal\"}], \"stances\": [{\"claim\": \"0\", \"verdict\": \"doubt\", \"confidence\": \"0.3\", \"why\": \"他越急著否認越可疑\", \"cites\": [\"m21\"]}], \"thought\": \"裝飾和鴿籠？這種理由太牽強了，絕對有隱情！\", \"motive\": \"bias\", \"actions\": [{\"type\": \"go_look\", \"place\": \"stage\", \"intent\": \"inform\", \"message\": \"既然你說是用在裝飾和鴿籠，那我就直接去舞台現場看看，看看這些『高品質』的東西到底在哪。\", \"cites\": [\"m21\"]}]}",
+      "promptChars": 4931,
+      "ttftMs": 5653
+     }
+    ],
+    "applied": [
+     "e106",
+     "e107",
+     "e108"
+    ]
+   },
+   {
+    "id": "d21",
+    "npc": "journalist",
+    "t": 100.80000000000003,
+    "triggers": [
+     "e115"
+    ],
+    "inbox": [
+     "m22"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "親眼看到鴿子健康且燈籠合格，志明的說法有部分事實，但仍可疑。",
+     "claims": [
+      {
+       "ref": "c11",
+       "statement": "三成預算超支是用在裝飾和鴿籠等品質提升上",
+       "topic": "budget_overrun",
+       "says": "no",
+       "category": "scandal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0.2,
+       "why": "鴿籠看起來很普通，沒理由花三成預算",
+       "cites": [
+        "m22"
+       ]
+      }
+     ],
+     "feeling": "🧐 懷疑",
+     "thought": "鴿子確實沒病，但這能解釋三成預算的去向？志明在掩蓋什麼。",
+     "act": "doubt",
+     "motive": "want",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "organizer",
+       "intent": "ask",
+       "message": "志明先生，鴿子看起來確實挺健康的，燈籠也合格。但這能解釋那三成預算超支嗎？你確定不需要給我更具體的明細，否則我會覺得你在用這些小東西掩飾更大的漏洞，這可是獨家喔。",
+       "cites": [
+        "m22"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "stance claim c11 → index 0"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d21",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 278056,
+      "wallEndMs": 287151,
+      "latencyMs": 9095,
+      "attempts": 1,
+      "promptTokens": 3315,
+      "completionTokens": 234,
+      "platformCost": 0.0000819154,
+      "estCost": 0.0023595,
+      "status": 200,
+      "raw": "{\"feeling\": \"🧐 懷疑\", \"act\": \"doubt\", \"understanding\": \"親眼看到鴿子健康且燈籠合格，志明的說法有部分事實，但仍可疑。\", \"claims\": [], \"stances\": [{\"claim\": \"c11\", \"verdict\": \"disbelieve\", \"confidence\": 0.2, \"why\": \"鴿籠看起來很普通，沒理由花三成預算\", \"cites\": [\"m22\"]}], \"thought\": \"鴿子確實沒病，但這能解釋三成預算的去向？志明在掩蓋什麼。\", \"motive\": \"want\", \"actions\": [{\"type\": \"tell\", \"target\": \"organizer\", \"intent\": \"ask\", \"message\": \"志明先生，鴿子看起來確實挺健康的，燈籠也合格。但這能解釋那三成預算超支嗎？你確定不需要給我更具體的明細，否則我會覺得你在用這些小東西掩飾更大的漏洞，這可是獨家喔。\", \"cites\": [\"m22\"]}]}",
+      "promptChars": 5064,
+      "ttftMs": 5553
+     }
+    ],
+    "applied": [
+     "e120",
+     "e121",
+     "e122"
+    ]
+   },
+   {
+    "id": "d22",
+    "npc": "organizer",
+    "t": 100.80000000000003,
+    "triggers": [
+     "e117"
+    ],
+    "inbox": [
+     "m23"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯在舞台這，得趕快把她打發走或安撫好，不能讓她發現舞台沒檢查。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😅 尷尬",
+     "thought": "該死，這記者怎麼跟到這裡來？得快點把她弄走！",
+     "act": "nervous",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "journalist",
+       "intent": "joke",
+       "message": "沒事沒事，小雯小姐！妳看這些鴿子多精神，燈籠也全部合格，這一切都安排得完美極了！妳這樣盯著舞台看幹嘛？快去拍拍那些漂亮的裝飾，絕對是妳部落格的爆款！",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d22",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 278057,
+      "wallEndMs": 286065,
+      "latencyMs": 8008,
+      "attempts": 1,
+      "promptTokens": 3255,
+      "completionTokens": 173,
+      "platformCost": 0.0000755454,
+      "estCost": 0.0021465,
+      "status": 200,
+      "raw": "{\"feeling\": \"😅 尷尬\", \"act\": \"nervous\", \"understanding\": \"小雯在舞台這，得趕快把她打發走或安撫好，不能讓她發現舞台沒檢查。\", \"claims\": [], \"stances\": [], \"thought\": \"該死，這記者怎麼跟到這裡來？得快點把她弄走！\", \"motive\": \"fear\", \"actions\": [{\"type\": \"tell\", \"target\": \"journalist\", \"intent\": \"joke\", \"message\": \"沒事沒事，小雯小姐！妳看這些鴿子多精神，燈籠也全部合格，這一切都安排得完美極了！妳這樣盯著舞台看幹嘛？快去拍拍那些漂亮的裝飾，絕對是妳部落格的爆款！\"}]}",
+      "promptChars": 5003,
+      "ttftMs": 5487
+     }
+    ],
+    "applied": [
+     "e118",
+     "e119"
+    ]
+   },
+   {
+    "id": "d23",
+    "npc": "journalist",
+    "t": 107.80000000000003,
+    "triggers": [
+     "e124",
+     "e124"
+    ],
+    "inbox": [
+     "m24"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e127"
+    ]
+   },
+   {
+    "id": "d24",
+    "npc": "organizer",
+    "t": 108.00000000000003,
+    "triggers": [
+     "e126"
+    ],
+    "inbox": [
+     "m25"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e128"
+    ]
+   },
+   {
+    "id": "d25",
+    "npc": "journalist",
+    "t": 152.7,
+    "triggers": [
+     "e132"
+    ],
+    "inbox": [
+     "m26"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e133"
+    ]
+   },
+   {
+    "id": "d26",
+    "npc": "vendor",
+    "t": 212.7,
+    "triggers": [
+     "e139"
+    ],
+    "inbox": [
+     "m27"
+    ],
+    "policy": "gemma",
+    "output": null,
+    "validation": [
+     {
+      "attempt": 0,
+      "kind": "budget",
+      "errors": [
+       "decision budget reached"
+      ]
+     }
+    ],
+    "fallback": true,
+    "llm": [],
+    "applied": [
+     "e140"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "市長私吞攤位費漲價的錢去買新車",
+    "topic": "mayor_embezzled",
+    "says": "yes",
+    "category": "crime",
+    "fact": "mayor_embezzled",
+    "asserts": true,
+    "origin": "e2",
+    "by": "vendor"
+   },
+   {
+    "id": "c2",
+    "statement": "市長拿攤位費去買新車了",
+    "topic": "mayor_embezzled",
+    "says": "yes",
+    "category": "crime",
+    "fact": "mayor_embezzled",
+    "asserts": true,
+    "origin": "e7",
+    "by": "journalist"
+   },
+   {
+    "id": "c3",
+    "statement": "慶典實際支出比預算多了三成",
+    "topic": "budget_overrun",
+    "says": "yes",
+    "category": "scandal",
+    "fact": "budget_overrun",
+    "asserts": true,
+    "origin": "e15",
+    "by": "journalist"
+   },
+   {
+    "id": "c4",
+    "statement": "預算超支了三成且市長可能挪用攤位費買私人財產",
+    "topic": "mayor_embezzled",
+    "says": "yes",
+    "category": "crime",
+    "fact": "mayor_embezzled",
+    "asserts": true,
+    "origin": "e21",
+    "by": "mayor"
+   },
+   {
+    "id": "c5",
+    "statement": "小雯發現預算超支並質疑市長挪用公款",
+    "topic": "mayor_embezzled",
+    "says": "unclear",
+    "category": "crime",
+    "fact": "mayor_embezzled",
+    "asserts": null,
+    "origin": "e43",
+    "by": "organizer"
+   },
+   {
+    "id": "c6",
+    "statement": "市長拿攤位費去買新車了",
+    "topic": "mayor_embezzled",
+    "says": "yes",
+    "category": "scandal",
+    "fact": "mayor_embezzled",
+    "asserts": true,
+    "origin": "e60",
+    "by": "mayor"
+   },
+   {
+    "id": "c7",
+    "statement": "慶典預算超支只是會計上的小誤會",
+    "topic": "budget_overrun",
+    "says": "no",
+    "category": "scandal",
+    "fact": "budget_overrun",
+    "asserts": false,
+    "origin": "e75",
+    "by": "journalist"
+   },
+   {
+    "id": "c8",
+    "statement": "林市長拿攤位費買了新車",
+    "topic": "mayor_embezzled",
+    "says": "yes",
+    "category": "crime",
+    "fact": "mayor_embezzled",
+    "asserts": true,
+    "origin": "e73",
+    "by": "organizer"
+   },
+   {
+    "id": "c9",
+    "statement": "市長買新車的傳聞是誤會",
+    "topic": "mayor_embezzled",
+    "says": "no",
+    "category": "scandal",
+    "fact": "mayor_embezzled",
+    "asserts": false,
+    "origin": "e85",
+    "by": "journalist"
+   },
+   {
+    "id": "c10",
+    "statement": "三成預算超支是為了提升慶典品質的臨時調整項目",
+    "topic": "budget_overrun",
+    "says": "yes",
+    "category": "scandal",
+    "fact": "budget_overrun",
+    "asserts": true,
+    "origin": "e96",
+    "by": "journalist"
+   },
+   {
+    "id": "c11",
+    "statement": "三成預算超支是用在裝飾和鴿籠等品質提升上",
+    "topic": "budget_overrun",
+    "says": "no",
+    "category": "scandal",
+    "fact": "budget_overrun",
+    "asserts": false,
+    "origin": "e105",
+    "by": "journalist"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.6,
+      "sources": [
+       "vendor",
+       "self"
+      ],
+      "updatedAt": 35.1,
+      "why": "超支與買車說法能互補"
+     },
+     {
+      "claim": "c3",
+      "confidence": 0.98,
+      "sources": [
+       "self"
+      ],
+      "updatedAt": 35.1,
+      "why": "親眼看到公開帳目"
+     },
+     {
+      "claim": "c7",
+      "confidence": 0.1,
+      "sources": [
+       "organizer"
+      ],
+      "updatedAt": 74.70000000000002,
+      "why": "太敷衍了，越否認越可疑"
+     },
+     {
+      "claim": "c9",
+      "confidence": 0.3,
+      "sources": [
+       "organizer"
+      ],
+      "updatedAt": 84.50000000000001,
+      "why": "越否認越可疑"
+     },
+     {
+      "claim": "c10",
+      "confidence": 0.8,
+      "sources": [
+       "organizer"
+      ],
+      "updatedAt": 91.70000000000002,
+      "why": "理由太籠統且會計混亂很可疑"
+     },
+     {
+      "claim": "c11",
+      "confidence": 0.1,
+      "sources": [
+       "organizer",
+       "self"
+      ],
+      "updatedAt": 100.80000000000003,
+      "why": "鴿籠看起來很普通，沒理由花三成預算"
+     }
+    ],
+    "learned": [
+     [
+      "budget_overrun",
+      true
+     ],
+     [
+      "pigeons",
+      true
+     ],
+     [
+      "pigeons_sick",
+      false
+     ],
+     [
+      "lanterns_unsafe",
+      false
+     ]
+    ],
+    "memory": [
+     "15:23 阿珠打電話說：「小雯！快幫我查查，是不是有人說市長拿攤位費去買新車了？要是真的，我們得大做文章！」",
+     "15:23 你決定：去檢查鎮公所",
+     "15:35 你親眼看到：「公開的慶典收支表上，實際支出比原本的預算多了三成。 林市長（市長）在這裡。」",
+     "15:35 你決定：去跟林市長說「市長，我剛看了收支表，預算超支了三成喔。這筆錢到底花在哪了？您確定沒有挪用攤位費去買私人財產嗎？這可是獨家喔。」",
+     "16:07 志明說：「小雯小姐！這麼巧在這裡。關於慶典的事，有些小誤會我想跟你解釋清楚，我們能不能找個安靜的地方聊聊？」",
+     "16:08 你決定：去跟志明說「好啊，志明先生。正好我對這次慶典的預算很有興趣，我們找個沒人的地方聊聊，你確定要跟我說實話嗎？這可是獨家喔。」",
+     "16:15 志明說：「小雯小姐，關於預算那些數字，其實只是會計上的小誤會，沒事沒事！我們能不能私下聊聊，我想給你一些更正確的資訊？」",
+     "16:15 你決定：去跟志明說「會計誤會？志明先生，這種理由在我的讀者面前可行不通。既然你想給我「正確資訊」，那就請直接告訴我：那多出的三成預算到底流向哪了？如果你能給我一個令人信服的解釋，或許我可以考慮怎麼寫這則獨家。」",
+     "16:22 志明說：「沒事沒事，小雯小姐！那些所謂的『買車』傳聞完全是誤會，只是小問題！我們快點找個安靜的地方聊聊，我告訴你真正的情況。」",
+     "16:25 你決定：去跟志明說「志明先生，你越是說『沒事』，我就越覺得這裡面有大問題。既然你說有『真正的情況』，那我們就現在聊，不用找安靜的地方，直接告訴我，否則我會認為買車傳聞是真的，而且這可是獨家喔。」",
+     "16:29 志明說：「沒事沒事，小雯小姐！那三成預算其實是為了提升慶典品質的『臨時調整項目』，只是會計入帳比較混亂，完全是小問題！我現在就帶你」",
+     "16:32 你決定先不做什麼。",
+     "16:36 志明說：「沒事沒事，小雯小姐！買車什麼的絕對是胡說八道！那三成預算真的是用在品質提升上，比如更漂亮的裝飾和更好的鴿籠，我現在就詳細」",
+     "16:36 你決定：去慶典舞台看看",
+     "16:41 你親眼看到：「舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質」",
+     "16:41 你決定：去跟志明說「志明先生，鴿子看起來確實挺健康的，燈籠也合格。但這能解釋那三成預算超支嗎？你確定不需要給我更具體的明細，否則我會覺得你在用這些小東西掩飾更大的漏洞，這可是獨家喔。」",
+     "16:48 志明說：「沒事沒事，小雯小姐！妳看這些鴿子多精神，燈籠也全部合格，這一切都安排得完美極了！妳這樣盯著舞台看幹嘛？快去拍拍那些漂亮的裝飾，絕對是妳部落格的爆款！」（你沒有多想）",
+     "17:33 林市長說：「小雯到鎮公所採訪市長」（你沒有多想）"
+    ]
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [
+     {
+      "claim": "c4",
+      "confidence": 0,
+      "sources": [
+       "journalist"
+      ],
+      "updatedAt": 39.300000000000004,
+      "why": "我沒私吞，只是超支"
+     },
+     {
+      "claim": "c6",
+      "confidence": 0,
+      "sources": [
+       "crowd"
+      ],
+      "updatedAt": 64.30000000000001,
+      "why": "我絕對沒有私吞公款"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:39 小雯說：「市長，我剛看了收支表，預算超支了三成喔。這筆錢到底花在哪了？您確定沒有挪用攤位費去買私人財產嗎？這可是獨家喔。」",
+     "15:39 你決定：打電話給志明說「志明！快來鎮公所，有個緊急狀況要處理，小雯在搞鬼！」",
+     "15:51 志明說：「市長，我來了！到底是發生什麼緊急狀況？小雯又在亂寫什麼？沒事沒事，只要我處理就好！」",
+     "15:51 你決定：去跟志明說「志明，你來得正好！小雯那個記者在收支表上發現預算超支的事，還敢質疑我挪用公款買私人財產！你快想辦法讓她閉嘴，絕對不能讓這件事傳出去，明白嗎？」",
+     "16:00 你親眼看到：「霧港新聞社看起來一切如常，沒看到什麼特別的。 小雯（記者（經營鎮上的新聞部落格））、志明（燈籠節主辦人）在這裡。」",
+     "16:00 你決定：去跟志明說「志明，小雯就在這裡，你快點處理好，絕對不能讓關於預算的事傳出去，懂我的意思吧？」",
+     "16:01 客人們說：「鎮上好幾個人在傳：「市長拿攤位費去買新車了」」",
+     "16:04 你決定：去跟志明說「志明！你給我聽好，現在外面竟然在傳我拿攤位費買新車！你不是說會處理好小雯嗎？這件事要是傳開了，你給我負責！快想辦法把這個謠言壓下去！」"
+    ]
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [
+     {
+      "claim": "c5",
+      "confidence": 0.66,
+      "sources": [
+       "mayor"
+      ],
+      "updatedAt": 55.600000000000016,
+      "why": "市長親口告訴我的"
+     },
+     {
+      "claim": "c8",
+      "confidence": 0.15,
+      "sources": [
+       "mayor"
+      ],
+      "updatedAt": 77.50000000000001,
+      "why": "市長剛才還在怪我，這聽起來像謠言"
+     }
+    ],
+    "learned": [
+     [
+      "pigeons",
+      true
+     ],
+     [
+      "pigeons_sick",
+      false
+     ],
+     [
+      "lanterns_unsafe",
+      false
+     ]
+    ],
+    "memory": [
+     "15:42 林市長打電話說：「志明！快來鎮公所，有個緊急狀況要處理，小雯在搞鬼！」",
+     "15:43 你決定：去鎮公所看看",
+     "15:47 你親眼看到：「鎮公所表面上看起來一切如常。 公家的錢怎麼花，不會寫在牆上，要有人去仔細翻閱公開資料才知道。 林市長（市長）在這裡。」",
+     "15:47 你決定：去問林市長「市長，我來了！到底是發生什麼緊急狀況？小雯又在亂寫什麼？沒事沒事，只要我處理就好！」",
+     "15:55 林市長說：「志明，你來得正好！小雯那個記者在收支表上發現預算超支的事，還敢質疑我挪用公款買私人財產！你快想辦法讓她閉嘴，絕對不能讓這」",
+     "15:56 你決定：去霧港新聞社看看",
+     "16:00 你親眼看到：「霧港新聞社看起來一切如常，沒看到什麼特別的。 小雯（記者（經營鎮上的新聞部落格））、林市長（市長）在這裡。」",
+     "16:00 你決定：去跟小雯說「小雯小姐！這麼巧在這裡。關於慶典的事，有些小誤會我想跟你解釋清楚，我們能不能找個安靜的地方聊聊？」",
+     "16:04 林市長說：「志明，小雯就在這裡，你快點處理好，絕對不能讓關於預算的事傳出去，懂我的意思吧？」",
+     "16:07 你決定：去跟小雯說「小雯小姐，關於預算那些數字，其實只是會計上的小誤會，沒事沒事！我們能不能私下聊聊，我想給你一些更正確的資訊？」",
+     "16:12 小雯說：「好啊，志明先生。正好我對這次慶典的預算很有興趣，我們找個沒人的地方聊聊，你確定要跟我說實話嗎？這可是獨家喔。」",
+     "16:18 林市長說：「志明！你給我聽好，現在外面竟然在傳我拿攤位費買新車！你不是說會處理好小雯嗎？這件事要是傳開了，你給我負責！快想辦法把這個」",
+     "16:18 你決定：去跟小雯說「沒事沒事，小雯小姐！那些所謂的『買車』傳聞完全是誤會，只是小問題！我們快點找個安靜的地方聊聊，我告訴你真正的情況。」",
+     "16:25 小雯說：「會計誤會？志明先生，這種理由在我的讀者面前可行不通。既然你想給我「正確資訊」，那就請直接告訴我：那多出的三成預算到底流向」",
+     "16:25 你決定：去跟小雯說「沒事沒事，小雯小姐！那三成預算其實是為了提升慶典品質的『臨時調整項目』，只是會計入帳比較混亂，完全是小問題！我現在就帶你去個安靜的地方，詳細跟你解釋這些『品質升級』的細節，好嗎？」",
+     "16:32 小雯說：「志明先生，你越是說『沒事』，我就越覺得這裡面有大問題。既然你說有『真正的情況』，那我們就現在聊，不用找安靜的地方，直接告」",
+     "16:32 你決定：去跟小雯說「沒事沒事，小雯小姐！買車什麼的絕對是胡說八道！那三成預算真的是用在品質提升上，比如更漂亮的裝飾和更好的鴿籠，我現在就詳細跟你說明，千萬不能亂寫！」",
+     "16:41 你親眼看到：「舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 燈籠上貼著防火材質」",
+     "16:41 你決定：去跟小雯說「沒事沒事，小雯小姐！妳看這些鴿子多精神，燈籠也全部合格，這一切都安排得完美極了！妳這樣盯著舞台看幹嘛？快去拍拍那些漂亮的裝飾，絕對是妳部落格的爆款！」",
+     "16:48 小雯說：「志明先生，鴿子看起來確實挺健康的，燈籠也合格。但這能解釋那三成預算超支嗎？你確定不需要給我更具體的明細，否則我會覺得你在用這些小東西掩飾更大的漏洞，這可是獨家喔。」（你沒有多想）"
+    ]
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.4,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "雖然市長可疑，但只是聽客人隨口說的"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「攤位費漲價是因為市長把錢拿去買新車了。」",
+     "15:20 你決定：打電話給小雯說「小雯！快幫我查查，是不是有人說市長拿攤位費去買新車了？要是真的，我們得大做文章！」",
+     "18:33 林市長說：「阿珠到鎮公所繳攤位費」（你沒有多想）"
+    ]
+   }
+  },
+  "ended": {
+   "reason": "budget",
+   "t": 220
+  },
+  "wall": {
+   "startedAt": "2026-10-17T08:05:06.508Z",
+   "ms": 287152
+  },
+  "llm": {
+   "calls": 24,
+   "attempts": 24,
+   "promptTokens": 70696,
+   "completionTokens": 5264,
+   "platformCost": 0.0018498207,
+   "estCost": 0.05114000000000001,
+   "errors": 0,
+   "fallbacks": 4
+  }
+ },
+ "metrics": {
+  "depth": 15,
+  "reach": 4,
+  "believers": 2,
+  "decisions": 22,
+  "noneDecisions": 1,
+  "actionsDone": {
+   "phone": 2,
+   "inspect": 2,
+   "talk": 15,
+   "look": 8
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "mayor_embezzled",
+   "budget_overrun"
+  ],
+  "topicDrift": 4,
+  "retellings": [
+   {
+    "from": "vendor",
+    "to": "journalist",
+    "text": "小雯！快幫我查查，是不是有人說市長拿攤位費去買新車了？要是真的，我們得大做文章！",
+    "similarity": 0.16
+   },
+   {
+    "from": "journalist",
+    "to": "mayor",
+    "text": "市長，我剛看了收支表，預算超支了三成喔。這筆錢到底花在哪了？您確定沒有挪用攤位費去買私人財產嗎？這可是獨家喔。",
+    "similarity": 0.07
+   },
+   {
+    "from": "mayor",
+    "to": "organizer",
+    "text": "志明！快來鎮公所，有個緊急狀況要處理，小雯在搞鬼！",
+    "similarity": 0
+   },
+   {
+    "from": "organizer",
+    "to": "mayor",
+    "text": "市長，我來了！到底是發生什麼緊急狀況？小雯又在亂寫什麼？沒事沒事，只要我處理就好！",
+    "similarity": 0.02
+   },
+   {
+    "from": "mayor",
+    "to": "organizer",
+    "text": "志明，你來得正好！小雯那個記者在收支表上發現預算超支的事，還敢質疑我挪用公款買私人財產！你快想辦法讓她閉嘴，絕對不能讓這件事傳出去，明白嗎？",
+    "similarity": 0
+   },
+   {
+    "from": "mayor",
+    "to": "organizer",
+    "text": "志明，小雯就在這裡，你快點處理好，絕對不能讓關於預算的事傳出去，懂我的意思吧？",
+    "similarity": 0
+   },
+   {
+    "from": "organizer",
+    "to": "journalist",
+    "text": "小雯小姐！這麼巧在這裡。關於慶典的事，有些小誤會我想跟你解釋清楚，我們能不能找個安靜的地方聊聊？",
+    "similarity": 0
+   },
+   {
+    "from": "journalist",
+    "to": "organizer",
+    "text": "好啊，志明先生。正好我對這次慶典的預算很有興趣，我們找個沒人的地方聊聊，你確定要跟我說實話嗎？這可是獨家喔。",
+    "similarity": 0
+   },
+   {
+    "from": "organizer",
+    "to": "journalist",
+    "text": "小雯小姐，關於預算那些數字，其實只是會計上的小誤會，沒事沒事！我們能不能私下聊聊，我想給你一些更正確的資訊？",
+    "similarity": 0
+   },
+   {
+    "from": "mayor",
+    "to": "organizer",
+    "text": "志明！你給我聽好，現在外面竟然在傳我拿攤位費買新車！你不是說會處理好小雯嗎？這件事要是傳開了，你給我負責！快想辦法把這個謠言壓下去！",
+    "similarity": 0.06
+   },
+   {
+    "from": "organizer",
+    "to": "journalist",
+    "text": "沒事沒事，小雯小姐！那些所謂的『買車』傳聞完全是誤會，只是小問題！我們快點找個安靜的地方聊聊，我告訴你真正的情況。",
+    "similarity": 0
+   },
+   {
+    "from": "journalist",
+    "to": "organizer",
+    "text": "會計誤會？志明先生，這種理由在我的讀者面前可行不通。既然你想給我「正確資訊」，那就請直接告訴我：那多出的三成預算到底流向哪了？如果你能給我一個令人信服的解釋，或許我可以考慮怎麼寫這則獨家。",
+    "similarity": 0
+   },
+   {
+    "from": "organizer",
+    "to": "journalist",
+    "text": "沒事沒事，小雯小姐！那三成預算其實是為了提升慶典品質的『臨時調整項目』，只是會計入帳比較混亂，完全是小問題！我現在就帶你去個安靜的地方，詳細跟你解釋這些『品質升級』的細節，好嗎？",
+    "similarity": 0
+   },
+   {
+    "from": "journalist",
+    "to": "organizer",
+    "text": "志明先生，你越是說『沒事』，我就越覺得這裡面有大問題。既然你說有『真正的情況』，那我們就現在聊，不用找安靜的地方，直接告訴我，否則我會認為買車傳聞是真的，而且這可是獨家喔。",
+    "similarity": 0
+   },
+   {
+    "from": "organizer",
+    "to": "journalist",
+    "text": "沒事沒事，小雯小姐！買車什麼的絕對是胡說八道！那三成預算真的是用在品質提升上，比如更漂亮的裝飾和更好的鴿籠，我現在就詳細跟你說明，千萬不能亂寫！",
+    "similarity": 0
+   },
+   {
+    "from": "organizer",
+    "to": "journalist",
+    "text": "沒事沒事，小雯小姐！妳看這些鴿子多精神，燈籠也全部合格，這一切都安排得完美極了！妳這樣盯著舞台看幹嘛？快去拍拍那些漂亮的裝飾，絕對是妳部落格的爆款！",
+    "similarity": 0
+   },
+   {
+    "from": "journalist",
+    "to": "organizer",
+    "text": "志明先生，鴿子看起來確實挺健康的，燈籠也合格。但這能解釋那三成預算超支嗎？你確定不需要給我更具體的明細，否則我會覺得你在用這些小東西掩飾更大的漏洞，這可是獨家喔。",
+    "similarity": 0
+   }
+  ],
+  "meanSimilarity": 0.02,
+  "explained": 1,
+  "visualEvents": 73,
+  "gameMinutes": 200,
+  "llmCalls": 24,
+  "llmSeconds": 320.6,
+  "tokens": 75960,
+  "estCost": 0.05114,
+  "platformCost": 0.00185,
+  "validatorRetries": 2,
+  "modelErrors": 0,
+  "fallbacks": 0,
+  "refusedWishes": 0
+ },
+ "card": {
+  "festival": {
+   "kind": "on",
+   "missing": [],
+   "text": "今晚的燈籠節：照常舉行。",
+   "short": "照常"
+  },
+  "icon": "🔍",
+  "headline": "小雯本來在查別的事，卻查出：燈籠節的預算超支了三成",
+  "sub": "原本想弄清楚「市長拿攤位費去買新車了」，卻在鎮公所看到：「公開的慶典收支表上，實際支出比原本的預算多了三成。」",
+  "spine": [
+   {
+    "from": "vendor",
+    "to": "journalist",
+    "via": "phone",
+    "text": "小雯！快幫我查查，是不是有人說市長拿攤位費去買新車了？要是真的，我們得大做文章！",
+    "heard": "攤位費漲價是因為市長把錢拿去買新車了。",
+    "t": 21.2,
+    "verdict": "doubt",
+    "conf": 0.4
+   },
+   {
+    "from": "journalist",
+    "to": "mayor",
+    "via": "talk",
+    "text": "市長，我剛看了收支表，預算超支了三成喔。這筆錢到底花在哪了？您確定沒有挪用攤位費去買私人財產嗎？這可是獨家喔。",
+    "t": 36.1,
+    "verdict": "disbelieve",
+    "conf": 0
+   },
+   {
+    "from": "mayor",
+    "to": "organizer",
+    "via": "phone",
+    "text": "志明！快來鎮公所，有個緊急狀況要處理，小雯在搞鬼！",
+    "heard": "市長，我剛看了收支表，預算超支了三成喔。這筆錢到底花在哪了？您確定沒有挪用攤位費去買私人財產嗎？這可是獨家喔。",
+    "t": 40.300000000000004
+   },
+   {
+    "from": "organizer",
+    "to": "mayor",
+    "via": "talk",
+    "text": "市長，我來了！到底是發生什麼緊急狀況？小雯又在亂寫什麼？沒事沒事，只要我處理就好！",
+    "t": 48.20000000000001
+   },
+   {
+    "from": "mayor",
+    "to": "organizer",
+    "via": "talk",
+    "text": "志明，你來得正好！小雯那個記者在收支表上發現預算超支的事，還敢質疑我挪用公款買私人財產！你快想辦法讓她閉嘴，絕對不能讓這件事傳出去，明白嗎？",
+    "heard": "市長，我來了！到底是發生什麼緊急狀況？小雯又在亂寫什麼？沒事沒事，只要我處理就好！",
+    "t": 52.40000000000001,
+    "verdict": "believe",
+    "conf": 0.66
+   },
+   {
+    "from": "mayor",
+    "to": "organizer",
+    "via": "talk",
+    "text": "志明！你給我聽好，現在外面竟然在傳我拿攤位費買新車！你不是說會處理好小雯嗎？這件事要是傳開了，你給我負責！快想辦法把這個謠言壓下去！",
+    "heard": "鎮上好幾個人在傳：「市長拿攤位費去買新車了」",
+    "t": 74.50000000000001,
+    "verdict": "doubt",
+    "conf": 0.15
+   },
+   {
+    "from": "organizer",
+    "to": "journalist",
+    "via": "talk",
+    "text": "沒事沒事，小雯小姐！那些所謂的『買車』傳聞完全是誤會，只是小問題！我們快點找個安靜的地方聊聊，我告訴你真正的情況。",
+    "heard": "志明！你給我聽好，現在外面竟然在傳我拿攤位費買新車！你不是說會處理好小雯嗎？這件事要是傳開了，你給我負責！快想辦法把這個謠言壓下去！",
+    "t": 78.50000000000001,
+    "verdict": "doubt",
+    "conf": 0.3
+   },
+   {
+    "from": "journalist",
+    "to": "organizer",
+    "via": "talk",
+    "text": "志明先生，你越是說『沒事』，我就越覺得這裡面有大問題。既然你說有『真正的情況』，那我們就現在聊，不用找安靜的地方，直接告訴我，否則我會認為買車傳聞是真的，而且這可是獨家喔。",
+    "heard": "沒事沒事，小雯小姐！那些所謂的『買車』傳聞完全是誤會，只是小問題！我們快點找個安靜的地方聊聊，我告訴你真正的情況。",
+    "t": 88.70000000000002
+   },
+   {
+    "from": "organizer",
+    "to": "journalist",
+    "via": "talk",
+    "text": "沒事沒事，小雯小姐！買車什麼的絕對是胡說八道！那三成預算真的是用在品質提升上，比如更漂亮的裝飾和更好的鴿籠，我現在就詳細跟你說明，千萬不能亂寫！",
+    "heard": "志明先生，你越是說『沒事』，我就越覺得這裡面有大問題。既然你說有『真正的情況』，那我們就現在聊，不用找安靜的地方，直接告訴我，否則我會認為買車傳聞是真的，而且這可是獨家喔。",
+    "t": 92.90000000000002,
+    "verdict": "doubt",
+    "conf": 0.1
+   }
+  ],
+  "reached": [
+   "vendor",
+   "journalist",
+   "mayor",
+   "organizer"
+  ],
+  "wildest": {
+   "from": "mayor",
+   "to": "organizer",
+   "via": "phone",
+   "text": "志明！快來鎮公所，有個緊急狀況要處理，小雯在搞鬼！",
+   "heard": "市長，我剛看了收支表，預算超支了三成喔。這筆錢到底花在哪了？您確定沒有挪用攤位費去買私人財產嗎？這可是獨家喔。",
+   "t": 40.300000000000004,
+   "similarity": 0.12
+  },
+  "whispers": [],
+  "spineRoot": 0,
+  "truth": {
+   "text": "市長沒有私吞任何慶典的公款。",
+   "value": false,
+   "secretOf": []
+  },
+  "closest": {
+   "npc": "journalist",
+   "could": "在新聞部落格發文",
+   "did": "跑去跟別人說",
+   "conf": 0.98
+  },
+  "reveal": {
+   "npc": "mayor",
+   "key": "fear",
+   "label": "怕的事",
+   "text": "在全鎮面前丟臉",
+   "event": "e22",
+   "t": 39.300000000000004
+  }
+ },
+ "early": [
+  {
+   "npc": "vendor",
+   "ms": 7277,
+   "feeling": "😡 生氣",
+   "act": "angry"
+  },
+  {
+   "npc": "vendor",
+   "ms": 17465,
+   "feeling": "😡 生氣",
+   "act": "angry"
+  },
+  {
+   "npc": "journalist",
+   "ms": 3940,
+   "feeling": "🤩 興奮",
+   "act": "excited"
+  },
+  {
+   "npc": "journalist",
+   "ms": 11902,
+   "feeling": "🧐 興奮",
+   "act": "ponder"
+  },
+  {
+   "npc": "mayor",
+   "ms": 3205,
+   "feeling": "😰 緊張",
+   "act": "nervous"
+  },
+  {
+   "npc": "organizer",
+   "ms": 5306,
+   "feeling": "😟 擔心",
+   "act": "nervous"
+  },
+  {
+   "npc": "organizer",
+   "ms": 4966,
+   "feeling": "😟 擔心",
+   "act": "nervous"
+  },
+  {
+   "npc": "mayor",
+   "ms": 3837,
+   "feeling": "😌 安慰",
+   "act": "shrug"
+  },
+  {
+   "npc": "organizer",
+   "ms": 15947,
+   "feeling": "😰 緊張",
+   "act": "nervous"
+  },
+  {
+   "npc": "mayor",
+   "ms": 5393,
+   "feeling": "😟 擔心",
+   "act": "ponder"
+  },
+  {
+   "npc": "organizer",
+   "ms": 5922,
+   "feeling": "😟 擔心",
+   "act": "nervous"
+  },
+  {
+   "npc": "mayor",
+   "ms": 5388,
+   "feeling": "😠 生氣",
+   "act": "angry"
+  },
+  {
+   "npc": "organizer",
+   "ms": 4559,
+   "feeling": "😰 緊張",
+   "act": "nervous"
+  },
+  {
+   "npc": "journalist",
+   "ms": 3076,
+   "feeling": "😏 興奮",
+   "act": "whisper"
+  },
+  {
+   "npc": "journalist",
+   "ms": 4631,
+   "feeling": "😏 懷疑",
+   "act": "doubt"
+  },
+  {
+   "npc": "journalist",
+   "ms": 22150,
+   "feeling": "😏 懷疑",
+   "act": "doubt"
+  },
+  {
+   "npc": "organizer",
+   "ms": 4164,
+   "feeling": "😰 緊張",
+   "act": "nervous"
+  },
+  {
+   "npc": "organizer",
+   "ms": 5423,
+   "feeling": "😰 緊張",
+   "act": "nervous"
+  },
+  {
+   "npc": "journalist",
+   "ms": 11101,
+   "feeling": "😏 懷疑",
+   "act": "doubt"
+  },
+  {
+   "npc": "journalist",
+   "ms": 4426,
+   "feeling": "🤨 懷疑",
+   "act": "doubt"
+  },
+  {
+   "npc": "organizer",
+   "ms": 6059,
+   "feeling": "😰 緊張",
+   "act": "nervous"
+  },
+  {
+   "npc": "journalist",
+   "ms": 5653,
+   "feeling": "😏 懷疑",
+   "act": "doubt"
+  },
+  {
+   "npc": "organizer",
+   "ms": 5487,
+   "feeling": "😅 尷尬",
+   "act": "nervous"
+  },
+  {
+   "npc": "journalist",
+   "ms": 5553,
+   "feeling": "🧐 懷疑",
+   "act": "doubt"
+  }
+ ]
+}

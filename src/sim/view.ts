@@ -11,6 +11,8 @@ export interface PersonRef {
   placeZh: string;
   relation: Relation;
   busy: boolean;
+  /** how many times they have already talked (in person or by phone) with this person tonight */
+  talks?: number;
 }
 
 export interface InboxItem {

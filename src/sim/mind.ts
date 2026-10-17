@@ -57,9 +57,10 @@ const RULES = `你在一個小鎮模擬裡扮演一位居民。你只能根據�
 5. 什麼都不做是完全正常的選擇。
 6. 轉述時用你自己的話和口吻，說出你理解的版本，可能帶著你的推測或擔心。
 7. 你的秘密通常不會說出口，除非你有很強的理由。
-8. 如果聽到的話和「你知道的事」相反，你知道它是錯的：你可以澄清、隱瞞、不理或利用它，但你自己不會相信它。`;
+8. 如果聽到的話和「你知道的事」相反，你知道它是錯的：你可以澄清、隱瞞、不理或利用它，但你自己不會相信它。
+9. 同一件事跟同一個人來回講了兩三次之後，真人通常就會決定接下來要怎麼做（去做你能做的事，或放下它），而不是一直爭論下去。`;
 
-const EAGER = `\n9.你是有血有肉的人：當一件事碰到你的利益、價值觀或你在乎的人，而且你相信它，你通常會真的去做點什麼，而不是只是聊天觀望。`;
+const EAGER = `\n10.你是有血有肉的人：當一件事碰到你的利益、價值觀或你在乎的人，而且你相信它，你通常會真的去做點什麼，而不是只是聊天觀望。`;
 
 const TOPIC_LIST = TOPICS.map((t) => `- ${t.id}：${t.q}`).join("\n");
 const PLACE_LIST = PLACES.map((p) => `${p.id}=${p.zh}`).join("、");
@@ -143,7 +144,7 @@ export function userPrompt(view: View, stage: "single" | "read" | "act", reading
     ? view.beliefs.map((b) => `- [${b.id}] ${b.statement}（你的信心 ${b.confidence.toFixed(2)}；來源：${b.sourcesZh}）`).join("\n")
     : "（還沒有）";
   const people = view.people
-    .map((x) => `- ${x.id}：${x.name}（${x.roleZh}），通常在${x.placeZh}。${x.relation.type ? `${x.relation.type}——` : ""}${x.relation.zh}${x.relation.past ? `（${x.relation.past}）` : ""}；${describeTrust(x.relation.trust)}她/他說的話；${x.relation.phone ? "有電話" : "沒有電話，只能當面說"}。`)
+    .map((x) => `- ${x.id}：${x.name}（${x.roleZh}），通常在${x.placeZh}。${x.relation.type ? `${x.relation.type}——` : ""}${x.relation.zh}${x.relation.past ? `（${x.relation.past}）` : ""}；${describeTrust(x.relation.trust)}她/他說的話；${x.relation.phone ? "有電話" : "沒有電話，只能當面說"}${x.talks && x.talks >= 2 ? `；你們今晚已經說過 ${x.talks} 次話了` : ""}。`)
     .join("\n") || "（目前聯絡不到任何人）";
   const actions = ["none" as ActionKind, ...view.actions].map((a) => `- ${a}：${ACTION_ZH[a]}`).join("\n");
   const inbox = view.inbox.map((m) => `- [${m.id}] ${inboxLine(m, view)}`).join("\n");

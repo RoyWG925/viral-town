@@ -1,0 +1,865 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "baker",
+   "seedText": "聽說市長很害怕鴿子。",
+   "seed": 7,
+   "policy": "gemma",
+   "variant": "eager",
+   "temperature": 0.7,
+   "maxDecisions": 22,
+   "maxPerNpc": 9
+  },
+  "whispers": [],
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "聽說市長很害怕鴿子。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「聽說市長很害怕鴿子。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "聽說市長很害怕鴿子。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「聽說市長很害怕鴿子。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "市長怕鴿子，但今晚開場要放飛一百隻鴿子。",
+     "thought": "如果市長怕鴿子，那開場會發生什麼慘劇？",
+     "feeling": "😲 驚訝",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ],
+     "motive": "gossip"
+    },
+    "zh": "阿德：如果市長怕鴿子，那開場會發生什麼慘劇？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 14680
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "topic": "mayor_fears_pigeons",
+     "from": 0,
+     "to": 0.49,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "客人隨口說的，但感覺像真的",
+     "limit": {
+      "why": {
+       "kind": "hearsay",
+       "source": "unknown",
+       "trust": 0.3,
+       "sources": 1
+      },
+      "min": 0,
+      "max": 0.49
+     }
+    },
+    "zh": "阿德對「市長很害怕鴿子」的信心：0.00 → 0.49（believe）",
+    "actor": "baker",
+    "w": 14680
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😲 驚訝"
+    },
+    "zh": "阿德 😲 驚訝",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 14680
+   },
+   {
+    "id": "e6",
+    "t": 90,
+    "type": "move",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "cafe",
+     "arrive": 90.58685915281558,
+     "home": false
+    },
+    "zh": "阿德從阿德麵包店走向咖啡廳",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 14688
+   },
+   {
+    "id": "e7",
+    "t": 90.58685915281558,
+    "type": "arrive",
+    "causes": [
+     "e6"
+    ],
+    "data": {},
+    "zh": "阿德到了咖啡廳",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 14689
+   },
+   {
+    "id": "e8",
+    "t": 90.58685915281558,
+    "type": "meet",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "text": "阿德送麵包到咖啡廳"
+    },
+    "zh": "阿德和美咲在咖啡廳碰面（阿德送麵包到咖啡廳）",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 14689
+   },
+   {
+    "id": "e9",
+    "t": 92.58685915281558,
+    "type": "deliver",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "meet",
+     "intent": "inform",
+     "text": "阿德送麵包到咖啡廳",
+     "claims": [],
+     "from": "cafe"
+    },
+    "zh": "阿德碰到了美咲（阿德送麵包到咖啡廳）",
+    "target": "baker",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 14689
+   },
+   {
+    "id": "e10",
+    "t": 92.78685915281558,
+    "type": "decide",
+    "causes": [
+     "e9"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "剛好遇到美咲，只是平常的送貨打招呼。",
+     "thought": "快到慶典了，希望市長今晚能大方一點感謝我。",
+     "feeling": "😊 愉快",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "none"
+    },
+    "zh": "阿德：快到慶典了，希望市長今晚能大方一點感謝我。",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 25675
+   },
+   {
+    "id": "e11",
+    "t": 92.88685915281557,
+    "type": "react",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "feeling": "😊 愉快"
+    },
+    "zh": "阿德 😊 愉快",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 25675
+   },
+   {
+    "id": "e12",
+    "t": 93.78685915281558,
+    "type": "talk",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "text": "美咲，今晚的燈籠節你一定會去的吧？我跟你說，這事我只跟你講，我準備的燈籠酥這次量超級大，絕對是全鎮最頂級的！",
+     "intent": "joke",
+     "claims": []
+    },
+    "zh": "阿德對美咲說：「美咲，今晚的燈籠節你一定會去的吧？我跟你說，這事我只跟你講，我準備的燈籠酥這次量超級大，絕對是全鎮最頂級的！」",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 25675
+   },
+   {
+    "id": "e13",
+    "t": 96.78685915281558,
+    "type": "deliver",
+    "causes": [
+     "e12"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "face",
+     "intent": "joke",
+     "text": "美咲，今晚的燈籠節你一定會去的吧？我跟你說，這事我只跟你講，我準備的燈籠酥這次量超級大，絕對是全鎮最頂級的！",
+     "claims": [],
+     "from": "baker"
+    },
+    "zh": "美咲聽阿德說：「美咲，今晚的燈籠節你一定會去的吧？我跟你說，這事我只跟你講，我準備的燈籠酥這次量超級大，絕對是全鎮最頂級的！」",
+    "target": "cafe",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 25675
+   },
+   {
+    "id": "e14",
+    "t": 96.98685915281558,
+    "type": "decide",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "阿德在跟我炫耀他準備了超多頂級的燈籠酥。",
+     "thought": "阿德這傢伙總是這麼有活力，希望我女兒演出時大家也能這麼開心。",
+     "feeling": "😊 開心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ],
+     "motive": "none"
+    },
+    "zh": "美咲：阿德這傢伙總是這麼有活力，希望我女兒演出時大家也能這麼開心。",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 36980
+   },
+   {
+    "id": "e15",
+    "t": 96.98685915281558,
+    "type": "belief",
+    "causes": [
+     "e14"
+    ],
+    "data": {
+     "claim": "c2",
+     "topic": "other",
+     "from": 0,
+     "to": 0.685,
+     "proposed": 0.9,
+     "verdict": "believe",
+     "why": "阿德對烘焙很有自信",
+     "limit": {
+      "why": {
+       "kind": "hearsay",
+       "source": "baker",
+       "trust": 0.7,
+       "sources": 1
+      },
+      "min": 0,
+      "max": 0.685
+     }
+    },
+    "zh": "美咲對「阿德準備了大量頂級的燈籠酥」的信心：0.00 → 0.69（believe）",
+    "actor": "cafe",
+    "w": 36980
+   },
+   {
+    "id": "e16",
+    "t": 97.08685915281558,
+    "type": "react",
+    "causes": [
+     "e14"
+    ],
+    "data": {
+     "feeling": "😊 開心"
+    },
+    "zh": "美咲 😊 開心",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 36980
+   },
+   {
+    "id": "e17",
+    "t": 102.78685915281558,
+    "type": "move",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "from": "cafe",
+     "to": "bakery",
+     "arrive": 103.37371830563116,
+     "home": true
+    },
+    "zh": "阿德從咖啡廳走回阿德麵包店",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 36980
+   },
+   {
+    "id": "e18",
+    "t": 103.37371830563116,
+    "type": "arrive",
+    "causes": [
+     "e17"
+    ],
+    "data": {},
+    "zh": "阿德到了阿德麵包店",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 36980
+   },
+   {
+    "id": "e19",
+    "t": 104.37371830563116,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 36980
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "市長怕鴿子，但今晚開場要放飛一百隻鴿子。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "市長很害怕鴿子",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "客人隨口說的，但感覺像真的",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😲 驚訝",
+     "thought": "如果市長怕鴿子，那開場會發生什麼慘劇？",
+     "act": "ponder",
+     "motive": "gossip",
+     "actions": [
+      {
+       "type": "none",
+       "why": "雖然很想找人聊，但現在還在店裡忙著準備燈籠酥，先觀察看看。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 2,
+      "wallEndMs": 14678,
+      "latencyMs": 14675,
+      "attempts": 1,
+      "promptTokens": 2539,
+      "completionTokens": 205,
+      "platformCost": 0.0000527254,
+      "estCost": 0.0018845,
+      "status": 200,
+      "raw": "{\"feeling\": \"😲 驚訝\", \"act\": \"ponder\", \"understanding\": \"市長怕鴿子，但今晚開場要放飛一百隻鴿子。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"市長很害怕鴿子\", \"topic\": \"mayor_fears_pigeons\", \"says\": \"yes\", \"category\": \"personal\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"believe\", \"confidence\": 0.6, \"why\": \"客人隨口說的，但感覺像真的\", \"cites\": [\"m1\"]}], \"thought\": \"如果市長怕鴿子，那開場會發生什麼慘劇？\", \"motive\": \"gossip\", \"actions\": [{\"type\": \"none\", \"why\": \"雖然很想找人聊，但現在還在店裡忙著準備燈籠酥，先觀察看看。\"}]}",
+      "promptChars": 4018,
+      "ttftMs": 4622
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "baker",
+    "t": 92.78685915281558,
+    "triggers": [
+     "e9"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "剛好遇到美咲，只是平常的送貨打招呼。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😊 愉快",
+     "thought": "快到慶典了，希望市長今晚能大方一點感謝我。",
+     "act": "shrug",
+     "motive": "none",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "cafe",
+       "intent": "joke",
+       "message": "美咲，今晚的燈籠節你一定會去的吧？我跟你說，這事我只跟你講，我準備的燈籠酥這次量超級大，絕對是全鎮最頂級的！",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d2",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 14689,
+      "wallEndMs": 25675,
+      "latencyMs": 10986,
+      "attempts": 1,
+      "promptTokens": 2598,
+      "completionTokens": 179,
+      "platformCost": 0.0000355117,
+      "estCost": 0.001836,
+      "status": 200,
+      "raw": "{\n  \"feeling\": \"😊 愉快\",\n  \"act\": \"shrug\",\n  \"understanding\": \"剛好遇到美咲，只是平常的送貨打招呼。\",\n  \"claims\": [],\n  \"stances\": [],\n  \"thought\": \"快到慶典了，希望市長今晚能大方一點感謝我。\",\n  \"motive\": \"none\",\n  \"actions\": [\n    {\n      \"type\": \"tell\",\n      \"target\": \"cafe\",\n      \"intent\": \"joke\",\n      \"message\": \"美咲，今晚的燈籠節你一定會去的吧？我跟你說，這事我只跟你講，我準備的燈籠酥這次量超級大，絕對是全鎮最頂級的！\"\n    }\n  ]\n}",
+      "promptChars": 4101,
+      "ttftMs": 7802
+     }
+    ],
+    "applied": [
+     "e10",
+     "e11"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "cafe",
+    "t": 96.98685915281558,
+    "triggers": [
+     "e13"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德在跟我炫耀他準備了超多頂級的燈籠酥。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m3",
+       "statement": "阿德準備了大量頂級的燈籠酥",
+       "topic": "other",
+       "says": "unclear",
+       "category": "other"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.9,
+       "why": "阿德對烘焙很有自信",
+       "cites": [
+        "m3"
+       ]
+      }
+     ],
+     "feeling": "😊 開心",
+     "thought": "阿德這傢伙總是這麼有活力，希望我女兒演出時大家也能這麼開心。",
+     "act": "giggle",
+     "motive": "none",
+     "actions": [
+      {
+       "type": "none",
+       "why": "只是平常的閒聊，不需要採取特別行動",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d3",
+      "npc": "cafe",
+      "stage": "single",
+      "wallStartMs": 25676,
+      "wallEndMs": 36979,
+      "latencyMs": 11303,
+      "attempts": 1,
+      "promptTokens": 2497,
+      "completionTokens": 193,
+      "platformCost": 0.0000504154,
+      "estCost": 0.0018275,
+      "status": 200,
+      "raw": "{\"feeling\": \"😊 開心\", \"act\": \"giggle\", \"understanding\": \"阿德在跟我炫耀他準備了超多頂級的燈籠酥。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m3\", \"statement\": \"阿德準備了大量頂級的燈籠酥\", \"topic\": \"other\", \"says\": \"unclear\", \"category\": \"other\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"believe\", \"confidence\": 0.9, \"why\": \"阿德對烘焙很有自信\", \"cites\": [\"m3\"]}], \"thought\": \"阿德這傢伙總是這麼有活力，希望我女兒演出時大家也能這麼開心。\", \"motive\": \"none\", \"actions\": [{\"type\": \"none\", \"why\": \"只是平常的閒聊，不需要採取特別行動\"}]}",
+      "promptChars": 3986,
+      "ttftMs": 3841
+     }
+    ],
+    "applied": [
+     "e14",
+     "e15",
+     "e16"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "市長很害怕鴿子",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   },
+   {
+    "id": "c2",
+    "statement": "阿德準備了大量頂級的燈籠酥",
+    "topic": "other",
+    "says": "unclear",
+    "category": "other",
+    "fact": null,
+    "asserts": null,
+    "origin": "e13",
+    "by": "cafe"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.49,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "客人隨口說的，但感覺像真的"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「聽說市長很害怕鴿子。」",
+     "15:20 你決定先不做什麼。",
+     "16:33 美咲說：「阿德送麵包到咖啡廳」",
+     "16:33 你決定：去跟美咲說「美咲，今晚的燈籠節你一定會去的吧？我跟你說，這事我只跟你講，我準備的燈籠酥這次量超級大，絕對是全鎮最頂級的！」"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.685,
+      "sources": [
+       "baker"
+      ],
+      "updatedAt": 96.98685915281558,
+      "why": "阿德對烘焙很有自信"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "16:37 阿德說：「美咲，今晚的燈籠節你一定會去的吧？我跟你說，這事我只跟你講，我準備的燈籠酥這次量超級大，絕對是全鎮最頂級的！」",
+     "16:37 你決定先不做什麼。"
+    ]
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 104.37371830563116
+  },
+  "wall": {
+   "startedAt": "2026-10-17T08:15:00.258Z",
+   "ms": 36980
+  },
+  "llm": {
+   "calls": 3,
+   "attempts": 3,
+   "promptTokens": 7634,
+   "completionTokens": 577,
+   "platformCost": 0.0001386525,
+   "estCost": 0.005548,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 3,
+  "reach": 2,
+  "believers": 1,
+  "decisions": 3,
+  "noneDecisions": 2,
+  "actionsDone": {
+   "talk": 1
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "mayor_fears_pigeons",
+   "other"
+  ],
+  "topicDrift": 1,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "cafe",
+    "text": "美咲，今晚的燈籠節你一定會去的吧？我跟你說，這事我只跟你講，我準備的燈籠酥這次量超級大，絕對是全鎮最頂級的！",
+    "similarity": 0
+   }
+  ],
+  "meanSimilarity": 0,
+  "explained": 1,
+  "visualEvents": 8,
+  "gameMinutes": 84.4,
+  "llmCalls": 3,
+  "llmSeconds": 37,
+  "tokens": 8211,
+  "estCost": 0.005548,
+  "platformCost": 0.000139,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0,
+  "refusedWishes": 0
+ },
+ "card": {
+  "festival": {
+   "kind": "on",
+   "missing": [],
+   "text": "今晚的燈籠節：照常舉行。",
+   "short": "照常"
+  },
+  "icon": "🤐",
+  "headline": "美咲聽進去了，但沒有說出去",
+  "sub": "「阿德這傢伙總是這麼有活力，希望我女兒演出時大家也能這麼開心。」",
+  "spine": [
+   {
+    "from": "baker",
+    "to": "cafe",
+    "via": "talk",
+    "text": "美咲，今晚的燈籠節你一定會去的吧？我跟你說，這事我只跟你講，我準備的燈籠酥這次量超級大，絕對是全鎮最頂級的！",
+    "t": 93.78685915281558,
+    "verdict": "believe",
+    "conf": 0.685
+   }
+  ],
+  "reached": [
+   "baker",
+   "cafe"
+  ],
+  "whispers": [],
+  "spineRoot": 0,
+  "stopper": {
+   "npc": "cafe",
+   "thought": "阿德這傢伙總是這麼有活力，希望我女兒演出時大家也能這麼開心。",
+   "verdict": "believe",
+   "conf": 0.685
+  },
+  "truth": {
+   "text": "市長其實一點都不怕鴿子。",
+   "value": false,
+   "secretOf": []
+  },
+  "reveal": {
+   "npc": "baker",
+   "key": "gossip",
+   "label": "傳話的習慣",
+   "text": "講到數字一定加倍；心事從不直接跟美玲說",
+   "event": "e3",
+   "t": 20.2
+  }
+ },
+ "early": [
+  {
+   "npc": "baker",
+   "ms": 4623,
+   "feeling": "😲 驚訝",
+   "act": "ponder"
+  },
+  {
+   "npc": "baker",
+   "ms": 7802,
+   "feeling": "😊 愉快",
+   "act": "shrug"
+  },
+  {
+   "npc": "cafe",
+   "ms": 3841,
+   "feeling": "😊 開心",
+   "act": "giggle"
+  }
+ ]
+}

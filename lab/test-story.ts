@@ -62,3 +62,11 @@ test("digging up a different hidden truth is the headline, not 'nothing found' (
   assert.ok(card.headline.includes("預算超支"), card.headline);
   assert.ok(run.events.some((e) => e.type === "inspect" && String(e.data.found).includes("多了三成")), "the finding is in the log");
 });
+
+test("a true fact seen first-hand is a finding even if it lowered a belief (P12 wobble-organizer)", () => {
+  const f = "lab/runs/P12/wobble-organizer.json";
+  if (!existsSync(f)) return;
+  const card = storyOf(JSON.parse(readFileSync(f, "utf8")).run as RunResult);
+  assert.ok(!card.headline.includes("查無實據"), card.headline);
+  assert.ok(card.headline.includes("支架"), card.headline);
+});

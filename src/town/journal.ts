@@ -25,6 +25,11 @@ export function loadJournal(): Journal {
   }
 }
 
+/** "npc.key" for every line already discovered (what revealOf should not repeat when it has a choice) */
+export function knownLines(j: Journal): Set<string> {
+  return new Set(Object.entries(j).flatMap(([npc, keys]) => Object.keys(keys ?? {}).map((k) => `${npc}.${k}`)));
+}
+
 /** Add one discovery; keeps the first time it was seen. Returns the same object when nothing changed. */
 export function addDiscovery(j: Journal, npc: string, key: Exclude<Motive, "none">, meta: { at: string; recorded?: boolean }): Journal {
   if (j[npc]?.[key]) return j;

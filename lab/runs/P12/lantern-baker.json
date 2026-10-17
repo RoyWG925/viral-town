@@ -1,0 +1,1597 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "baker",
+   "seedText": "今晚的燈籠是便宜貨，一點就燒起來。",
+   "seed": 7,
+   "policy": "gemma",
+   "variant": "eager",
+   "temperature": 0.7,
+   "maxDecisions": 22,
+   "maxPerNpc": 9
+  },
+  "whispers": [],
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "今晚的燈籠是便宜貨，一點就燒起來。"
+    },
+    "zh": "一個念頭被植入阿德耳中：「今晚的燈籠是便宜貨，一點就燒起來。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "今晚的燈籠是便宜貨，一點就燒起來。",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "阿德聽到一位陌生客人說：「今晚的燈籠是便宜貨，一點就燒起來。」",
+    "target": "baker",
+    "place": "bakery",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "燈籠品質很差，可能會起火，這會影響我的點心銷售。",
+     "thought": "哎唷，這下慘了啦！要是燒起來，我的燈籠酥怎麼賣？",
+     "feeling": "😟 擔心",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "phone"
+     ],
+     "motive": "fear"
+    },
+    "zh": "阿德：哎唷，這下慘了啦！要是燒起來，我的燈籠酥怎麼賣？",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 15239
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "topic": "lanterns_flammable",
+     "from": 0,
+     "to": 0.49,
+     "proposed": 0.6,
+     "verdict": "believe",
+     "why": "雖然是不認識的客人，但安全問題得重視",
+     "limit": {
+      "why": {
+       "kind": "hearsay",
+       "source": "unknown",
+       "trust": 0.3,
+       "sources": 1
+      },
+      "min": 0,
+      "max": 0.49
+     }
+    },
+    "zh": "阿德對「今晚的燈籠是便宜貨，一點就燒起來。」的信心：0.00 → 0.49（believe）",
+    "actor": "baker",
+    "w": 15239
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😟 擔心"
+    },
+    "zh": "阿德 😟 擔心",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 15239
+   },
+   {
+    "id": "e6",
+    "t": 21.2,
+    "type": "phone",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "text": "小雯！我跟你說，這事我只跟你講。剛有個客人在我店裡說今晚的燈籠都是劣質貨，一點就燒起來！這要是燒起來，整個廣場不就完了嗎？",
+     "intent": "inform",
+     "claims": [
+      "c1"
+     ]
+    },
+    "zh": "阿德打電話給小雯：「小雯！我跟你說，這事我只跟你講。剛有個客人在我店裡說今晚的燈籠都是劣質貨，一點就燒起來！這要是燒起來，整個廣場不就完了嗎？」",
+    "actor": "baker",
+    "target": "journalist",
+    "place": "bakery",
+    "w": 15240
+   },
+   {
+    "id": "e7",
+    "t": 23.2,
+    "type": "deliver",
+    "causes": [
+     "e6"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "phone",
+     "intent": "inform",
+     "text": "小雯！我跟你說，這事我只跟你講。剛有個客人在我店裡說今晚的燈籠都是劣質貨，一點就燒起來！這要是燒起來，整個廣場不就完了嗎？",
+     "claims": [
+      "c1"
+     ],
+     "from": "baker"
+    },
+    "zh": "小雯在電話裡聽阿德說：「小雯！我跟你說，這事我只跟你講。剛有個客人在我店裡說今晚的燈籠都是劣質貨，一點就燒起來！這要是燒起來，整個廣場不就完了嗎？」",
+    "target": "journalist",
+    "actor": "baker",
+    "place": "news",
+    "w": 15240
+   },
+   {
+    "id": "e8",
+    "t": 23.4,
+    "type": "decide",
+    "causes": [
+     "e7"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "阿德說有人傳燈籠劣質易燃，這可能是個大獨家！",
+     "thought": "如果這件事是真的，標題我都想好了：『死亡燈籠！慶典竟成火海陷阱？』",
+     "feeling": "🤩 興奮",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "go_look"
+     ],
+     "motive": "want"
+    },
+    "zh": "小雯：如果這件事是真的，標題我都想好了：『死亡燈籠！慶典竟成火海陷阱？』",
+    "actor": "journalist",
+    "place": "news",
+    "w": 25756
+   },
+   {
+    "id": "e9",
+    "t": 23.4,
+    "type": "belief",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "claim": "c2",
+     "topic": "lanterns_flammable",
+     "from": 0,
+     "to": 0.6174999999999999,
+     "proposed": 0.7,
+     "verdict": "believe",
+     "why": "阿德通常很可靠",
+     "limit": {
+      "why": {
+       "kind": "hearsay",
+       "source": "baker",
+       "trust": 0.6,
+       "teller": 0.49,
+       "sources": 1
+      },
+      "min": 0,
+      "max": 0.6174999999999999
+     }
+    },
+    "zh": "小雯對「今晚慶典用的燈籠是劣質貨，容易著火。」的信心：0.00 → 0.62（believe）",
+    "actor": "journalist",
+    "w": 25756
+   },
+   {
+    "id": "e10",
+    "t": 23.5,
+    "type": "react",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "feeling": "🤩 興奮"
+    },
+    "zh": "小雯 🤩 興奮",
+    "actor": "journalist",
+    "place": "news",
+    "w": 25756
+   },
+   {
+    "id": "e11",
+    "t": 24.4,
+    "type": "move",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "from": "news",
+     "to": "stage",
+     "arrive": 24.9,
+     "home": false
+    },
+    "zh": "小雯從霧港新聞社走向慶典舞台",
+    "actor": "journalist",
+    "place": "news",
+    "w": 25756
+   },
+   {
+    "id": "e12",
+    "t": 24.9,
+    "type": "arrive",
+    "causes": [
+     "e11"
+    ],
+    "data": {},
+    "zh": "小雯到了慶典舞台",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 25756
+   },
+   {
+    "id": "e13",
+    "t": 24.9,
+    "type": "look",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "with": []
+    },
+    "zh": "小雯在慶典舞台到處看看",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 25756
+   },
+   {
+    "id": "e14",
+    "t": 27.9,
+    "type": "look",
+    "causes": [
+     "e13"
+    ],
+    "data": {
+     "found": "燈籠上貼著防火材質的合格標籤。 舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。 志明（燈籠節主辦人）在這裡。",
+     "highlight": "燈籠上貼著防火材質的合格標籤。",
+     "learned": [
+      "lanterns_unsafe",
+      "pigeons",
+      "pigeons_sick"
+     ]
+    },
+    "zh": "小雯看到：燈籠上貼著防火材質的合格標籤。 舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。 志明（燈籠節主辦人）在這裡。",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 25756
+   },
+   {
+    "id": "e15",
+    "t": 27.9,
+    "type": "deliver",
+    "causes": [
+     "e14"
+    ],
+    "data": {
+     "message": "m3",
+     "via": "inspection",
+     "intent": "inform",
+     "text": "燈籠上貼著防火材質的合格標籤。 舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。 志明（燈籠節主辦人）在這裡。",
+     "claims": [],
+     "from": "self"
+    },
+    "zh": "小雯親眼看到：燈籠上貼著防火材質的合格標籤。 舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出生病的樣子。 一座台子結不結實，光是看看是看不出來的，要懂行的人仔細檢查才知道。 志明（燈籠節主辦人）在這裡。",
+    "target": "journalist",
+    "place": "stage",
+    "w": 25756
+   },
+   {
+    "id": "e16",
+    "t": 28.099999999999998,
+    "type": "decide",
+    "causes": [
+     "e15"
+    ],
+    "data": {
+     "decision": "d3",
+     "understanding": "親眼看到合格標籤，阿德說的劣質燈籠可能是錯的。",
+     "thought": "標籤在那裡，阿德的消息來源不靠譜，這則不能發。",
+     "feeling": "🤔 疑惑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "ask"
+     ],
+     "motive": "fear"
+    },
+    "zh": "小雯：標籤在那裡，阿德的消息來源不靠譜，這則不能發。",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 42858
+   },
+   {
+    "id": "e17",
+    "t": 28.099999999999998,
+    "type": "belief",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "claim": "c2",
+     "topic": "lanterns_flammable",
+     "from": 0.6174999999999999,
+     "to": 0.1,
+     "proposed": 0.1,
+     "verdict": "disbelieve",
+     "why": "我親眼看到了合格標籤"
+    },
+    "zh": "小雯對「今晚慶典用的燈籠是劣質貨，容易著火。」的信心：0.62 → 0.10（disbelieve）",
+    "actor": "journalist",
+    "w": 42858
+   },
+   {
+    "id": "e18",
+    "t": 28.2,
+    "type": "react",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "feeling": "🤔 疑惑"
+    },
+    "zh": "小雯 🤔 疑惑",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 42858
+   },
+   {
+    "id": "e19",
+    "t": 29.099999999999998,
+    "type": "talk",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "text": "志明，今年的燈籠品質有保證吧？我聽說有些傳聞說品質堪憂，這可是獨家喔，你確定沒問題？",
+     "intent": "ask",
+     "claims": [
+      "c2"
+     ]
+    },
+    "zh": "小雯對志明說：「志明，今年的燈籠品質有保證吧？我聽說有些傳聞說品質堪憂，這可是獨家喔，你確定沒問題？」",
+    "actor": "journalist",
+    "target": "organizer",
+    "place": "stage",
+    "w": 42859
+   },
+   {
+    "id": "e20",
+    "t": 32.099999999999994,
+    "type": "deliver",
+    "causes": [
+     "e19"
+    ],
+    "data": {
+     "message": "m4",
+     "via": "face",
+     "intent": "ask",
+     "text": "志明，今年的燈籠品質有保證吧？我聽說有些傳聞說品質堪憂，這可是獨家喔，你確定沒問題？",
+     "claims": [
+      "c2"
+     ],
+     "from": "journalist"
+    },
+    "zh": "志明聽小雯說：「志明，今年的燈籠品質有保證吧？我聽說有些傳聞說品質堪憂，這可是獨家喔，你確定沒問題？」",
+    "target": "organizer",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 42859
+   },
+   {
+    "id": "e21",
+    "t": 32.3,
+    "type": "decide",
+    "causes": [
+     "e20"
+    ],
+    "data": {
+     "decision": "d4",
+     "understanding": "小雯在試探燈籠品質，可能是想挖新聞。",
+     "thought": "這記者又在亂傳什麼？得趕快堵住她的嘴。",
+     "feeling": "😬 緊張",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "tell"
+     ],
+     "motive": "fear"
+    },
+    "zh": "志明：這記者又在亂傳什麼？得趕快堵住她的嘴。",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 51931
+   },
+   {
+    "id": "e22",
+    "t": 32.3,
+    "type": "belief",
+    "causes": [
+     "e21"
+    ],
+    "data": {
+     "claim": "c3",
+     "topic": "lanterns_flammable",
+     "from": 0,
+     "to": 0,
+     "proposed": 0,
+     "verdict": "disbelieve",
+     "why": "我知道燈籠是合格防火材質"
+    },
+    "zh": "志明對「燈籠品質堪憂」的信心：0.00 → 0.00（disbelieve）",
+    "actor": "organizer",
+    "w": 51931
+   },
+   {
+    "id": "e23",
+    "t": 32.4,
+    "type": "react",
+    "causes": [
+     "e21"
+    ],
+    "data": {
+     "feeling": "😬 緊張"
+    },
+    "zh": "志明 😬 緊張",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 51931
+   },
+   {
+    "id": "e24",
+    "t": 33.3,
+    "type": "talk",
+    "causes": [
+     "e21"
+    ],
+    "data": {
+     "text": "沒事沒事，小問題！燈籠品質絕對沒問題，都是最高等級的防火材質，你放心寫就好！",
+     "intent": "deny",
+     "claims": [
+      "c3"
+     ]
+    },
+    "zh": "志明對小雯說：「沒事沒事，小問題！燈籠品質絕對沒問題，都是最高等級的防火材質，你放心寫就好！」",
+    "actor": "organizer",
+    "target": "journalist",
+    "place": "stage",
+    "w": 51931
+   },
+   {
+    "id": "e25",
+    "t": 36.3,
+    "type": "deliver",
+    "causes": [
+     "e24"
+    ],
+    "data": {
+     "message": "m5",
+     "via": "face",
+     "intent": "deny",
+     "text": "沒事沒事，小問題！燈籠品質絕對沒問題，都是最高等級的防火材質，你放心寫就好！",
+     "claims": [
+      "c3"
+     ],
+     "from": "organizer"
+    },
+    "zh": "小雯聽志明說：「沒事沒事，小問題！燈籠品質絕對沒問題，都是最高等級的防火材質，你放心寫就好！」",
+    "target": "journalist",
+    "actor": "organizer",
+    "place": "stage",
+    "w": 51931
+   },
+   {
+    "id": "e26",
+    "t": 36.5,
+    "type": "decide",
+    "causes": [
+     "e25"
+    ],
+    "data": {
+     "decision": "d5",
+     "understanding": "志明否認燈籠有問題，但他的口氣很奇怪，像在掩飾。",
+     "thought": "他說『小問題』？這才最可疑，絕對有什麼隱瞞！",
+     "feeling": "🧐 懷疑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ],
+     "motive": "bias"
+    },
+    "zh": "小雯：他說『小問題』？這才最可疑，絕對有什麼隱瞞！",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 73558
+   },
+   {
+    "id": "e27",
+    "t": 36.5,
+    "type": "belief",
+    "causes": [
+     "e26"
+    ],
+    "data": {
+     "claim": "c2",
+     "topic": "lanterns_flammable",
+     "from": 0.1,
+     "to": 0.1,
+     "proposed": 0.1,
+     "verdict": "disbelieve",
+     "why": "親眼看到合格標籤且志明否認"
+    },
+    "zh": "小雯對「今晚慶典用的燈籠是劣質貨，容易著火。」的信心：0.10 → 0.10（disbelieve）",
+    "actor": "journalist",
+    "w": 73559
+   },
+   {
+    "id": "e28",
+    "t": 36.6,
+    "type": "react",
+    "causes": [
+     "e26"
+    ],
+    "data": {
+     "feeling": "🧐 懷疑"
+    },
+    "zh": "小雯 🧐 懷疑",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 73559
+   },
+   {
+    "id": "e29",
+    "t": 42.3,
+    "type": "move",
+    "causes": [
+     "e26"
+    ],
+    "data": {
+     "from": "stage",
+     "to": "news",
+     "arrive": 42.8,
+     "home": true
+    },
+    "zh": "小雯從慶典舞台走回霧港新聞社",
+    "actor": "journalist",
+    "place": "stage",
+    "w": 73559
+   },
+   {
+    "id": "e30",
+    "t": 42.8,
+    "type": "arrive",
+    "causes": [
+     "e29"
+    ],
+    "data": {},
+    "zh": "小雯到了霧港新聞社",
+    "actor": "journalist",
+    "place": "news",
+    "w": 73559
+   },
+   {
+    "id": "e31",
+    "t": 90,
+    "type": "move",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "cafe",
+     "arrive": 90.58685915281558,
+     "home": false
+    },
+    "zh": "阿德從阿德麵包店走向咖啡廳",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 73559
+   },
+   {
+    "id": "e32",
+    "t": 90.58685915281558,
+    "type": "arrive",
+    "causes": [
+     "e31"
+    ],
+    "data": {},
+    "zh": "阿德到了咖啡廳",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 73559
+   },
+   {
+    "id": "e33",
+    "t": 90.58685915281558,
+    "type": "meet",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "text": "阿德送麵包到咖啡廳"
+    },
+    "zh": "阿德和美咲在咖啡廳碰面（阿德送麵包到咖啡廳）",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 73559
+   },
+   {
+    "id": "e34",
+    "t": 92.58685915281558,
+    "type": "deliver",
+    "causes": [
+     "e33"
+    ],
+    "data": {
+     "message": "m6",
+     "via": "meet",
+     "intent": "inform",
+     "text": "阿德送麵包到咖啡廳",
+     "claims": [],
+     "from": "cafe"
+    },
+    "zh": "阿德碰到了美咲（阿德送麵包到咖啡廳）",
+    "target": "baker",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 73559
+   },
+   {
+    "id": "e35",
+    "t": 92.78685915281558,
+    "type": "decide",
+    "causes": [
+     "e34"
+    ],
+    "data": {
+     "decision": "d6",
+     "understanding": "剛好送麵包給美咲，目前沒有急事要處理。",
+     "thought": "美咲這孩子總是這麼親切，希望今晚市長能記得感謝我。",
+     "feeling": "😊 愉快",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ],
+     "motive": "none"
+    },
+    "zh": "阿德：美咲這孩子總是這麼親切，希望今晚市長能記得感謝我。",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 78439
+   },
+   {
+    "id": "e36",
+    "t": 92.88685915281557,
+    "type": "react",
+    "causes": [
+     "e35"
+    ],
+    "data": {
+     "feeling": "😊 愉快"
+    },
+    "zh": "阿德 😊 愉快",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 78439
+   },
+   {
+    "id": "e37",
+    "t": 98.58685915281558,
+    "type": "move",
+    "causes": [
+     "e35"
+    ],
+    "data": {
+     "from": "cafe",
+     "to": "bakery",
+     "arrive": 99.17371830563116,
+     "home": true
+    },
+    "zh": "阿德從咖啡廳走回阿德麵包店",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 78440
+   },
+   {
+    "id": "e38",
+    "t": 99.17371830563116,
+    "type": "arrive",
+    "causes": [
+     "e37"
+    ],
+    "data": {},
+    "zh": "阿德到了阿德麵包店",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 78440
+   },
+   {
+    "id": "e39",
+    "t": 100.17371830563116,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 78440
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "燈籠品質很差，可能會起火，這會影響我的點心銷售。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "今晚的燈籠是便宜貨，一點就燒起來。",
+       "topic": "lanterns_flammable",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.6,
+       "why": "雖然是不認識的客人，但安全問題得重視",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😟 擔心",
+     "thought": "哎唷，這下慘了啦！要是燒起來，我的燈籠酥怎麼賣？",
+     "act": "worried",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "phone",
+       "target": "journalist",
+       "intent": "inform",
+       "message": "小雯！我跟你說，這事我只跟你講。剛有個客人在我店裡說今晚的燈籠都是劣質貨，一點就燒起來！這要是燒起來，整個廣場不就完了嗎？",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 15239,
+      "latencyMs": 15239,
+      "attempts": 1,
+      "promptTokens": 2545,
+      "completionTokens": 262,
+      "platformCost": 0.0000569254,
+      "estCost": 0.0020585,
+      "status": 200,
+      "raw": "{\"feeling\": \"😟 擔心\", \"act\": \"worried\", \"understanding\": \"燈籠品質很差，可能會起火，這會影響我的點心銷售。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m1\", \"statement\": \"今晚的燈籠是便宜貨，一點就燒起來。\", \"topic\": \"lanterns_flammable\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"believe\", \"confidence\": \"0.6\", \"why\": \"雖然是不認識的客人，但安全問題得重視\", \"cites\": [\"m1\"]}], \"thought\": \"哎唷，這下慘了啦！要是燒起來，我的燈籠酥怎麼賣？\", \"motive\": \"fear\", \"actions\": [{\"type\": \"phone\", \"target\": \"journalist\", \"intent\": \"inform\", \"message\": \"小雯！我跟你說，這事我只跟你講。剛有個客人在我店裡說今晚的燈籠都是劣質貨，一點就燒起來！這要是燒起來，整個廣場不就完了嗎？\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 4025,
+      "ttftMs": 3944
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "journalist",
+    "t": 23.4,
+    "triggers": [
+     "e7"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "阿德說有人傳燈籠劣質易燃，這可能是個大獨家！",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m2",
+       "statement": "今晚慶典用的燈籠是劣質貨，容易著火。",
+       "topic": "lanterns_flammable",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "believe",
+       "confidence": 0.7,
+       "why": "阿德通常很可靠",
+       "cites": [
+        "m2"
+       ]
+      }
+     ],
+     "feeling": "🤩 興奮",
+     "thought": "如果這件事是真的，標題我都想好了：『死亡燈籠！慶典竟成火海陷阱？』",
+     "act": "excited",
+     "motive": "want",
+     "actions": [
+      {
+       "type": "go_look",
+       "place": "stage",
+       "intent": "inform",
+       "message": "我要親自去看看那些燈籠長什麼樣子。",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d2",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 15240,
+      "wallEndMs": 25756,
+      "latencyMs": 10516,
+      "attempts": 1,
+      "promptTokens": 2564,
+      "completionTokens": 230,
+      "platformCost": 0.0000554533,
+      "estCost": 0.001972,
+      "status": 200,
+      "raw": "{\"feeling\": \"🤩 興奮\", \"act\": \"excited\", \"understanding\": \"阿德說有人傳燈籠劣質易燃，這可能是個大獨家！\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m2\", \"statement\": \"今晚慶典用的燈籠是劣質貨，容易著火。\", \"topic\": \"lanterns_flammable\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"believe\", \"confidence\": \"0.7\", \"why\": \"阿德通常很可靠\", \"cites\": [\"m2\"]}], \"thought\": \"如果這件事是真的，標題我都想好了：『死亡燈籠！慶典竟成火海陷阱？』\", \"motive\": \"want\", \"actions\": [{\"type\": \"go_look\", \"place\": \"stage\", \"intent\": \"inform\", \"message\": \"我要親自去看看那些燈籠長什麼樣子。\", \"cites\": [\"c0\"]}]}",
+      "promptChars": 4081,
+      "ttftMs": 2740
+     }
+    ],
+    "applied": [
+     "e8",
+     "e9",
+     "e10"
+    ]
+   },
+   {
+    "id": "d3",
+    "npc": "journalist",
+    "t": 28.099999999999998,
+    "triggers": [
+     "e15"
+    ],
+    "inbox": [
+     "m3"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "親眼看到合格標籤，阿德說的劣質燈籠可能是錯的。",
+     "claims": [
+      {
+       "ref": "c2",
+       "statement": "今晚慶典用的燈籠是劣質貨，容易著火。",
+       "topic": "lanterns_flammable",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0.1,
+       "why": "我親眼看到了合格標籤",
+       "cites": [
+        "m3"
+       ]
+      }
+     ],
+     "feeling": "🤔 疑惑",
+     "thought": "標籤在那裡，阿德的消息來源不靠譜，這則不能發。",
+     "act": "doubt",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "ask",
+       "target": "organizer",
+       "intent": "ask",
+       "message": "志明，今年的燈籠品質有保證吧？我聽說有些傳聞說品質堪憂，這可是獨家喔，你確定沒問題？",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "inverted confidence 0.9 → 0.10 (disbelieve)",
+       "stance claim c2 → index 0"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d3",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 25756,
+      "wallEndMs": 42858,
+      "latencyMs": 17102,
+      "attempts": 1,
+      "promptTokens": 2766,
+      "completionTokens": 180,
+      "platformCost": 0.0000590233,
+      "estCost": 0.001923,
+      "status": 200,
+      "raw": "{\"feeling\": \"🤔 疑惑\", \"act\": \"doubt\", \"understanding\": \"親眼看到合格標籤，阿德說的劣質燈籠可能是錯的。\", \"claims\": [], \"stances\": [{\"claim\": \"c2\", \"verdict\": \"disbelieve\", \"confidence\": \"0.9\", \"why\": \"我親眼看到了合格標籤\", \"cites\": [\"m3\"]}], \"thought\": \"標籤在那裡，阿德的消息來源不靠譜，這則不能發。\", \"motive\": \"fear\", \"actions\": [{\"type\": \"ask\", \"target\": \"organizer\", \"intent\": \"ask\", \"message\": \"志明，今年的燈籠品質有保證吧？我聽說有些傳聞說品質堪憂，這可是獨家喔，你確定沒問題？\"}]}",
+      "promptChars": 4353,
+      "ttftMs": 4113
+     }
+    ],
+    "applied": [
+     "e16",
+     "e17",
+     "e18"
+    ]
+   },
+   {
+    "id": "d4",
+    "npc": "organizer",
+    "t": 32.3,
+    "triggers": [
+     "e20"
+    ],
+    "inbox": [
+     "m4"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "小雯在試探燈籠品質，可能是想挖新聞。",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m4",
+       "statement": "燈籠品質堪憂",
+       "topic": "lanterns_flammable",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0,
+       "why": "我知道燈籠是合格防火材質",
+       "cites": [
+        "lanterns_unsafe"
+       ]
+      }
+     ],
+     "feeling": "😬 緊張",
+     "thought": "這記者又在亂傳什麼？得趕快堵住她的嘴。",
+     "act": "shrug",
+     "motive": "fear",
+     "actions": [
+      {
+       "type": "tell",
+       "target": "journalist",
+       "intent": "deny",
+       "message": "沒事沒事，小問題！燈籠品質絕對沒問題，都是最高等級的防火材質，你放心寫就好！",
+       "cites": [
+        "#0"
+       ]
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new",
+       "inverted confidence 1 → 0.00 (disbelieve)"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d4",
+      "npc": "organizer",
+      "stage": "single",
+      "wallStartMs": 42859,
+      "wallEndMs": 51931,
+      "latencyMs": 9072,
+      "attempts": 1,
+      "promptTokens": 2643,
+      "completionTokens": 220,
+      "platformCost": 0.0000575183,
+      "estCost": 0.0019815,
+      "status": 200,
+      "raw": "{\"feeling\": \"😬 緊張\", \"act\": \"shrug\", \"understanding\": \"小雯在試探燈籠品質，可能是想挖新聞。\", \"claims\": [{\"ref\": \"c0\", \"source\": \"m4\", \"statement\": \"燈籠品質堪憂\", \"topic\": \"lanterns_flammable\", \"says\": \"yes\", \"category\": \"safety\"}], \"stances\": [{\"claim\": \"c0\", \"verdict\": \"disbelieve\", \"confidence\": \"1\", \"why\": \"我知道燈籠是合格防火材質\", \"cites\": [\"lanterns_unsafe\"]}], \"thought\": \"這記者又在亂傳什麼？得趕快堵住她的嘴。\", \"motive\": \"fear\", \"actions\": [{\"type\": \"tell\", \"target\": \"journalist\", \"intent\": \"deny\", \"message\": \"沒事沒事，小問題！燈籠品質絕對沒問題，都是最高等級的防火材質，你放心寫就好！\", \"cites\": [\"#0\"]}]}",
+      "promptChars": 4209,
+      "ttftMs": 2396
+     }
+    ],
+    "applied": [
+     "e21",
+     "e22",
+     "e23"
+    ]
+   },
+   {
+    "id": "d5",
+    "npc": "journalist",
+    "t": 36.5,
+    "triggers": [
+     "e25"
+    ],
+    "inbox": [
+     "m5"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "志明否認燈籠有問題，但他的口氣很奇怪，像在掩飾。",
+     "claims": [
+      {
+       "ref": "c2",
+       "statement": "今晚慶典用的燈籠是劣質貨，容易著火。",
+       "topic": "lanterns_flammable",
+       "says": "yes",
+       "category": "safety"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "disbelieve",
+       "confidence": 0.1,
+       "why": "親眼看到合格標籤且志明否認",
+       "cites": [
+        "lanterns_unsafe",
+        "m5"
+       ]
+      }
+     ],
+     "feeling": "🧐 懷疑",
+     "thought": "他說『小問題』？這才最可疑，絕對有什麼隱瞞！",
+     "act": "doubt",
+     "motive": "bias",
+     "actions": [
+      {
+       "type": "none",
+       "why": "雖然懷疑，但目前只有志明一句話，沒有實據，不能隨便發文成假新聞。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "stance claim c2 → index 0"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d5",
+      "npc": "journalist",
+      "stage": "single",
+      "wallStartMs": 51931,
+      "wallEndMs": 73558,
+      "latencyMs": 21627,
+      "attempts": 1,
+      "promptTokens": 2820,
+      "completionTokens": 171,
+      "platformCost": 0.0000602833,
+      "estCost": 0.001923,
+      "status": 200,
+      "raw": "{\"feeling\": \"🧐 懷疑\", \"act\": \"doubt\", \"understanding\": \"志明否認燈籠有問題，但他的口氣很奇怪，像在掩飾。\", \"claims\": [], \"stances\": [{\"claim\": \"c2\", \"verdict\": \"disbelieve\", \"confidence\": 0.1, \"why\": \"親眼看到合格標籤且志明否認\", \"cites\": [\"lanterns_unsafe\", \"m5\"]}], \"thought\": \"他說『小問題』？這才最可疑，絕對有什麼隱瞞！\", \"motive\": \"bias\", \"actions\": [{\"type\": \"none\", \"why\": \"雖然懷疑，但目前只有志明一句話，沒有實據，不能隨便發文成假新聞。\"}]}",
+      "promptChars": 4424,
+      "ttftMs": 3689
+     }
+    ],
+    "applied": [
+     "e26",
+     "e27",
+     "e28"
+    ]
+   },
+   {
+    "id": "d6",
+    "npc": "baker",
+    "t": 92.78685915281558,
+    "triggers": [
+     "e34"
+    ],
+    "inbox": [
+     "m6"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "剛好送麵包給美咲，目前沒有急事要處理。",
+     "claims": [],
+     "stances": [],
+     "feeling": "😊 愉快",
+     "thought": "美咲這孩子總是這麼親切，希望今晚市長能記得感謝我。",
+     "act": "shrug",
+     "motive": "none",
+     "actions": [
+      {
+       "type": "none",
+       "why": "只是平常送麵包，沒有理由在咖啡廳大聲嚷嚷或突然關店。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d6",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 73559,
+      "wallEndMs": 78439,
+      "latencyMs": 4880,
+      "attempts": 1,
+      "promptTokens": 2664,
+      "completionTokens": 107,
+      "platformCost": 0.0000495887,
+      "estCost": 0.001653,
+      "status": 200,
+      "raw": "{\"feeling\": \"😊 愉快\", \"act\": \"shrug\", \"understanding\": \"剛好送麵包給美咲，目前沒有急事要處理。\", \"claims\": [], \"stances\": [], \"thought\": \"美咲這孩子總是這麼親切，希望今晚市長能記得感謝我。\", \"motive\": \"none\", \"actions\": [{\"type\": \"none\", \"why\": \"只是平常送麵包，沒有理由在咖啡廳大聲嚷嚷或突然關店。\"}]}",
+      "promptChars": 4183,
+      "ttftMs": 3808
+     }
+    ],
+    "applied": [
+     "e35",
+     "e36"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "今晚的燈籠是便宜貨，一點就燒起來。",
+    "topic": "lanterns_flammable",
+    "says": "yes",
+    "category": "safety",
+    "fact": "lanterns_unsafe",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   },
+   {
+    "id": "c2",
+    "statement": "今晚慶典用的燈籠是劣質貨，容易著火。",
+    "topic": "lanterns_flammable",
+    "says": "yes",
+    "category": "safety",
+    "fact": "lanterns_unsafe",
+    "asserts": true,
+    "origin": "e7",
+    "by": "journalist"
+   },
+   {
+    "id": "c3",
+    "statement": "燈籠品質堪憂",
+    "topic": "lanterns_flammable",
+    "says": "yes",
+    "category": "safety",
+    "fact": "lanterns_unsafe",
+    "asserts": true,
+    "origin": "e20",
+    "by": "organizer"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.49,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "雖然是不認識的客人，但安全問題得重視"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「今晚的燈籠是便宜貨，一點就燒起來。」",
+     "15:20 你決定：打電話給小雯說「小雯！我跟你說，這事我只跟你講。剛有個客人在我店裡說今晚的燈籠都是劣質貨，一點就燒起來！這要是燒起來，整個廣場不就完了嗎？」",
+     "16:33 美咲說：「阿德送麵包到咖啡廳」",
+     "16:33 你決定先不做什麼。"
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [
+     {
+      "claim": "c2",
+      "confidence": 0.1,
+      "sources": [
+       "baker",
+       "self",
+       "organizer"
+      ],
+      "updatedAt": 36.5,
+      "why": "親眼看到合格標籤且志明否認"
+     }
+    ],
+    "learned": [
+     [
+      "lanterns_unsafe",
+      false
+     ],
+     [
+      "pigeons",
+      true
+     ],
+     [
+      "pigeons_sick",
+      false
+     ]
+    ],
+    "memory": [
+     "15:23 阿德打電話說：「小雯！我跟你說，這事我只跟你講。剛有個客人在我店裡說今晚的燈籠都是劣質貨，一點就燒起來！這要是燒起來，整個廣場不就完了嗎」",
+     "15:23 你決定：去慶典舞台看看",
+     "15:28 你親眼看到：「燈籠上貼著防火材質的合格標籤。 舞台旁邊堆著二十個鴿籠，裡面的白鴿看起來很健康。 鴿籠裡的白鴿羽毛乾淨、精神很好，看不出」",
+     "15:28 你決定：去問志明「志明，今年的燈籠品質有保證吧？我聽說有些傳聞說品質堪憂，這可是獨家喔，你確定沒問題？」",
+     "15:36 志明說：「沒事沒事，小問題！燈籠品質絕對沒問題，都是最高等級的防火材質，你放心寫就好！」",
+     "15:37 你決定先不做什麼。"
+    ]
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [
+     {
+      "claim": "c3",
+      "confidence": 0,
+      "sources": [
+       "journalist"
+      ],
+      "updatedAt": 32.3,
+      "why": "我知道燈籠是合格防火材質"
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:32 小雯說：「志明，今年的燈籠品質有保證吧？我聽說有些傳聞說品質堪憂，這可是獨家喔，你確定沒問題？」",
+     "15:32 你決定：去跟小雯說「沒事沒事，小問題！燈籠品質絕對沒問題，都是最高等級的防火材質，你放心寫就好！」"
+    ]
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 100.17371830563116
+  },
+  "wall": {
+   "startedAt": "2026-10-17T07:54:31.990Z",
+   "ms": 78440
+  },
+  "llm": {
+   "calls": 6,
+   "attempts": 6,
+   "promptTokens": 16002,
+   "completionTokens": 1170,
+   "platformCost": 0.0003387923,
+   "estCost": 0.011510999999999999,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 5,
+  "reach": 3,
+  "believers": 0,
+  "decisions": 6,
+  "noneDecisions": 2,
+  "actionsDone": {
+   "phone": 1,
+   "look": 2,
+   "talk": 2
+  },
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "lanterns_flammable"
+  ],
+  "topicDrift": 0,
+  "retellings": [
+   {
+    "from": "baker",
+    "to": "journalist",
+    "text": "小雯！我跟你說，這事我只跟你講。剛有個客人在我店裡說今晚的燈籠都是劣質貨，一點就燒起來！這要是燒起來，整個廣場不就完了嗎？",
+    "similarity": 0.19
+   },
+   {
+    "from": "journalist",
+    "to": "organizer",
+    "text": "志明，今年的燈籠品質有保證吧？我聽說有些傳聞說品質堪憂，這可是獨家喔，你確定沒問題？",
+    "similarity": 0.04
+   },
+   {
+    "from": "organizer",
+    "to": "journalist",
+    "text": "沒事沒事，小問題！燈籠品質絕對沒問題，都是最高等級的防火材質，你放心寫就好！",
+    "similarity": 0.02
+   }
+  ],
+  "meanSimilarity": 0.08,
+  "explained": 1,
+  "visualEvents": 19,
+  "gameMinutes": 80.2,
+  "llmCalls": 6,
+  "llmSeconds": 78.4,
+  "tokens": 17172,
+  "estCost": 0.011511,
+  "platformCost": 0.000339,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0,
+  "refusedWishes": 0
+ },
+ "card": {
+  "festival": {
+   "kind": "on",
+   "missing": [],
+   "text": "今晚的燈籠節：照常舉行。",
+   "short": "照常"
+  },
+  "icon": "🔍",
+  "headline": "小雯親自去查：查無實據",
+  "sub": "「燈籠上貼著防火材質的合格標籤。」",
+  "spine": [
+   {
+    "from": "baker",
+    "to": "journalist",
+    "via": "phone",
+    "text": "小雯！我跟你說，這事我只跟你講。剛有個客人在我店裡說今晚的燈籠都是劣質貨，一點就燒起來！這要是燒起來，整個廣場不就完了嗎？",
+    "heard": "今晚的燈籠是便宜貨，一點就燒起來。",
+    "t": 21.2,
+    "verdict": "believe",
+    "conf": 0.6174999999999999
+   }
+  ],
+  "reached": [
+   "baker",
+   "journalist",
+   "organizer"
+  ],
+  "wildest": {
+   "from": "baker",
+   "to": "journalist",
+   "via": "phone",
+   "text": "小雯！我跟你說，這事我只跟你講。剛有個客人在我店裡說今晚的燈籠都是劣質貨，一點就燒起來！這要是燒起來，整個廣場不就完了嗎？",
+   "heard": "今晚的燈籠是便宜貨，一點就燒起來。",
+   "t": 21.2,
+   "verdict": "believe",
+   "conf": 0.6174999999999999,
+   "similarity": 0.22950819672131148
+  },
+  "whispers": [],
+  "spineRoot": 0,
+  "truth": {
+   "text": "燈籠都是合格的防火材質，不容易著火。",
+   "value": false,
+   "secretOf": []
+  },
+  "reveal": {
+   "npc": "baker",
+   "key": "fear",
+   "label": "怕的事",
+   "text": "被當成笑話",
+   "event": "e3",
+   "t": 20.2
+  }
+ },
+ "early": [
+  {
+   "npc": "baker",
+   "ms": 3944,
+   "feeling": "😟 擔心",
+   "act": "worried"
+  },
+  {
+   "npc": "journalist",
+   "ms": 2740,
+   "feeling": "🤩 興奮",
+   "act": "excited"
+  },
+  {
+   "npc": "journalist",
+   "ms": 4113,
+   "feeling": "🤔 疑惑",
+   "act": "doubt"
+  },
+  {
+   "npc": "organizer",
+   "ms": 2396,
+   "feeling": "😬 緊張",
+   "act": "shrug"
+  },
+  {
+   "npc": "journalist",
+   "ms": 3689,
+   "feeling": "🧐 懷疑",
+   "act": "doubt"
+  },
+  {
+   "npc": "baker",
+   "ms": 3808,
+   "feeling": "😊 愉快",
+   "act": "shrug"
+  }
+ ]
+}

@@ -56,22 +56,27 @@ const MOTIVE_LABEL: Record<string, string> = { price: "價碼", bottom: "底線"
 // the most telling first: what would make them turn, what they will never do, what scares them…
 const MOTIVE_RANK = ["price", "bottom", "fear", "want", "bias", "gossip"];
 
-/** The most telling card line a resident acted on in this log (their own `motive`); nothing for old logs without it. */
-export function revealOf(events: SimEvent[]): StoryCard["reveal"] {
-  let best: (NonNullable<StoryCard["reveal"]> & { rank: number }) | null = null;
+/**
+ * The most telling card line a resident acted on in this log (their own `motive`); nothing for old logs without it.
+ * `known` ("npc.key") are lines the player has already discovered: a new one is preferred, so the journal grows.
+ */
+export function revealOf(events: SimEvent[], known: Set<string> = new Set()): StoryCard["reveal"] {
+  let best: NonNullable<StoryCard["reveal"]> | undefined;
+  let bestScore = Infinity;
   for (const e of events) {
     if (e.type !== "decide" || !e.actor || e.data.fallback || e.data.budget) continue;
     const key = String(e.data.motive ?? "");
     const rank = MOTIVE_RANK.indexOf(key);
     const card = PERSONAS.find((p) => p.id === e.actor)?.card;
     if (rank < 0 || !card) continue;
-    const field = ({ want: "wants", fear: "fears" } as Record<string, string>)[key] ?? key;
-    if (!best || rank < best.rank) best = { rank, npc: e.actor, key: key as Exclude<Motive, "none">, label: MOTIVE_LABEL[key], text: card[field as keyof typeof card] as string, event: e.id, t: e.t };
+    // undiscovered lines first (+10 for ones already in the journal), then the most telling
+    const score = rank + (known.has(`${e.actor}.${key}`) ? 10 : 0);
+    if (score >= bestScore) continue;
+    const field = (({ want: "wants", fear: "fears" }) as Record<string, string>)[key] ?? key;
+    bestScore = score;
+    best = { npc: e.actor, key: key as Exclude<Motive, "none">, label: MOTIVE_LABEL[key], text: String(card[field as keyof typeof card]), event: e.id, t: e.t };
   }
-  if (!best) return undefined;
-  const { rank: _rank, ...reveal } = best;
-  void _rank;
-  return reveal;
+  return best;
 }
 
 const IMPACT: Record<string, string> = {
@@ -288,7 +293,10 @@ export function storyOf(run: RunResult): StoryCard {
     if (!fact && !nothing) continue;
     const before = events.filter((x) => x.type === "belief" && x.actor === e.actor && x.t < e.t).at(-1);
     const after = before && events.find((x) => x.type === "belief" && x.actor === e.actor && x.t >= e.t && x.data.claim === before.data.claim);
-    const dir: "up" | "down" = nothing || (fact && !fact.value) || (before && after && Number(after.data.to) < Number(before.data.to) - 0.1) ? "down" : "up";
+    // a true hidden fact seen with their own eyes is a finding, whichever of their beliefs it lowered (老周 doubting
+    // 志明's "the stage is fine" after seeing the strut is not "nothing found" — P12)
+    const dir: "up" | "down" =
+      fact && fact.value ? "up" : nothing || (fact && !fact.value) || (before && after && Number(after.data.to) < Number(before.data.to) - 0.1) ? "down" : "up";
     if (nothing && !(before && Number(before.data.to) >= 0.3)) continue; // finding nothing only matters if they had something to check
     const coverUp = hops.some((h) => /壓下來|壓住|別說|不要說出去|敷衍|私下處理|低調/.test(h.text));
     checked = { e, text: fact ? fact.check!.zh : found.split(/\s+/)[0], dir, coverUp };

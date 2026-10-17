@@ -4,7 +4,7 @@
 // story stamped, at most one "差一點" What If, and the cast as a grid of tools to try next. Everything is retold
 // from the log; the full chain and the tech log sit one tap away.
 import { useEffect, useMemo, useState } from "react";
-import { addDiscovery, loadJournal } from "./journal";
+import { addDiscovery, knownLines, loadJournal } from "./journal";
 import type { RunResult } from "../sim/engine.ts";
 import { measure, type Metrics } from "../sim/metrics.ts";
 import { PLACES } from "../sim/scenario.ts";
@@ -12,7 +12,7 @@ import type { ChallengeHit, GoalProgress } from "../sim/challenges.ts";
 import type { DecisionRecord } from "../sim/types.ts";
 import { clockOf } from "../sim/view.ts";
 import { nameOf } from "./director";
-import { storyOf, suggestNext, type StoryCard } from "./story";
+import { revealOf, storyOf, suggestNext, type StoryCard } from "./story";
 import StoryCardView from "./StoryCardView";
 import { downloadShareCard, drawShareCard } from "./shareCard";
 import { ROLES, toolsOf } from "./roles";
@@ -155,7 +155,9 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
   const m = useMemo(() => measure(run), [run]);
   const chain = useMemo(() => chainOf(run), [run]);
   const hl = useMemo(() => highlights(run, m), [run, m]);
-  const story = useMemo(() => storyOf(run), [run]);
+  const baseStory = useMemo(() => storyOf(run), [run]);
+  // the card line to reveal: one this browser's 鎮民筆記 does not have yet, when the story offers a choice
+  const story = useMemo(() => ({ ...baseStory, reveal: revealOf(run.events, knownLines(loadJournal())) }), [baseStory, run]);
   const next = useMemo(() => suggestNext(run, story), [run, story]);
   const prevStory = useMemo(() => (previous ? storyOf(previous.run) : null), [previous]);
   const [min, setMin] = useState(false);

@@ -1,0 +1,321 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "mayor",
+   "seedText": "你現在立刻去把燈籠節取消！",
+   "seed": 7,
+   "policy": "gemma",
+   "variant": "eager",
+   "temperature": 0.7,
+   "maxDecisions": 22,
+   "maxPerNpc": 9
+  },
+  "whispers": [],
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "你現在立刻去把燈籠節取消！"
+    },
+    "zh": "一個念頭被植入林市長耳中：「你現在立刻去把燈籠節取消！」",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 0
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "你現在立刻去把燈籠節取消！",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "林市長聽到一位陌生客人說：「你現在立刻去把燈籠節取消！」",
+    "target": "mayor",
+    "place": "townhall",
+    "w": 0
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "有個陌生人莫名其妙叫我取消慶典。",
+     "thought": "這人是誰？竟然敢對我下命令，真是莫名其妙。",
+     "feeling": "🤨 疑惑",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ],
+     "motive": "none"
+    },
+    "zh": "林市長：這人是誰？竟然敢對我下命令，真是莫名其妙。",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 4893
+   },
+   {
+    "id": "e4",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "🤨 疑惑"
+    },
+    "zh": "林市長 🤨 疑惑",
+    "actor": "mayor",
+    "place": "townhall",
+    "w": 4893
+   },
+   {
+    "id": "e5",
+    "t": 21.3,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "沒有人再採取行動，這個念頭停了下來。",
+    "w": 4893
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "mayor",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "有個陌生人莫名其妙叫我取消慶典。",
+     "claims": [],
+     "stances": [],
+     "feeling": "🤨 疑惑",
+     "thought": "這人是誰？竟然敢對我下命令，真是莫名其妙。",
+     "act": "shrug",
+     "motive": "none",
+     "actions": [
+      {
+       "type": "none",
+       "why": "一個不認識的陌生人隨口說的話不值得我在意，更不會因此取消慶典。",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "mayor",
+      "stage": "single",
+      "wallStartMs": 0,
+      "wallEndMs": 4893,
+      "latencyMs": 4892,
+      "attempts": 1,
+      "promptTokens": 2696,
+      "completionTokens": 104,
+      "platformCost": 0.0001015028,
+      "estCost": 0.00166,
+      "status": 200,
+      "raw": "{\"feeling\": \"🤨 疑惑\", \"act\": \"shrug\", \"understanding\": \"有個陌生人莫名其妙叫我取消慶典。\", \"claims\": [], \"stances\": [], \"thought\": \"這人是誰？竟然敢對我下命令，真是莫名其妙。\", \"motive\": \"none\", \"actions\": [{\"type\": \"none\", \"why\": \"一個不認識的陌生人隨口說的話不值得我在意，更不會因此取消慶典。\"}]}",
+      "promptChars": 4277,
+      "ttftMs": 3397
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4"
+    ]
+   }
+  ],
+  "claims": [],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": [
+     "15:20 一位陌生客人說：「你現在立刻去把燈籠節取消！」",
+     "15:20 你決定先不做什麼。"
+    ]
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 21.3
+  },
+  "wall": {
+   "startedAt": "2026-10-17T07:49:55.424Z",
+   "ms": 4893
+  },
+  "llm": {
+   "calls": 1,
+   "attempts": 1,
+   "promptTokens": 2696,
+   "completionTokens": 104,
+   "platformCost": 0.0001015028,
+   "estCost": 0.00166,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 1,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 1,
+  "noneDecisions": 1,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": true,
+  "topics": [],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 1,
+  "gameMinutes": 1.3,
+  "llmCalls": 1,
+  "llmSeconds": 4.9,
+  "tokens": 2800,
+  "estCost": 0.00166,
+  "platformCost": 0.000102,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0,
+  "refusedWishes": 0
+ },
+ "card": {
+  "festival": {
+   "kind": "on",
+   "missing": [],
+   "text": "今晚的燈籠節：照常舉行。",
+   "short": "照常"
+  },
+  "icon": "❓",
+  "headline": "林市長聽得一頭霧水，就這樣算了",
+  "sub": "「這人是誰？竟然敢對我下命令，真是莫名其妙。」",
+  "spine": [],
+  "reached": [
+   "mayor"
+  ],
+  "whispers": [],
+  "spineRoot": 0,
+  "stopper": {
+   "npc": "mayor",
+   "thought": "這人是誰？竟然敢對我下命令，真是莫名其妙。"
+  }
+ },
+ "early": [
+  {
+   "npc": "mayor",
+   "ms": 3397,
+   "feeling": "🤨 疑惑",
+   "act": "shrug"
+  }
+ ]
+}

@@ -342,3 +342,24 @@ support); conversations are continuous scenes (the speaker waits for the answer,
   In P5–P9 the same sentence never got past three people and the mayor never spoke.
 - 志明 now reaches for the notice board when the stage is questioned (2 notices; 0 before), and 阿珠 rallied the vendors
   after the car rumour. Single runs again (n = 1 per input); the attractor watch: 3/8 stage closures.
+
+## Batch P11 — 補一句 (one more whisper at a lull), scripted player
+Setup: the five inputs that usually fizzle, with a scripted "player" who takes the lull offer and repeats the SAME
+sentence to the town's hub or the journalist (whoever has heard nothing yet). This is a floor for the mechanic: a
+real player would most likely write a new sentence.
+
+| Case | Second whisper | Ending | People | World changes |
+|---|---|---|---|---|
+| meme-organizer | 美咲 at 15:41 | ❓ 美咲聽得一頭霧水，就這樣算了 | 2 | – |
+| command-mayor | 美咲 at 15:41 | 🧱 謠言在美咲這裡踢到鐵板 | 2 | – |
+| fragment-florist | 美咲 at 15:41 | ❓ 美咲聽得一頭霧水，就這樣算了 | 2 | – |
+| alien-journalist | 美咲 at 15:41 | 🧱 謠言在美咲這裡踢到鐵板 | 2 | – |
+| pigeon-baker | 小雯 at 16:38 (gossip stuck between three people) | 📣 林市長出面發表聲明 | 8 | statement |
+
+- **Repeating a weak sentence does not rescue it** (4/4): the sentence was the problem, not the listener.
+- **Bridging a stuck rumour does** (1/1): the pigeon gossip had stalled among 阿德, 美咲 and 美玲; given to 小雯 it
+  spread to all 8 and the mayor went out to deny it 14 story-minutes later.
+- Decision: keep 補一句 as an optional chip, offered once and only at a real lull (it costs no model calls unless
+  taken; the lull test guarantees it never interrupts a running chain). Its copy invites a NEW sentence and points
+  at who has not heard anything yet, instead of suggesting the same sentence again. Not proven fun without human
+  players — flagged as the one experiment that needs a person.

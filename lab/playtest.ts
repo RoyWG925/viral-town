@@ -46,6 +46,14 @@ async function one(c: (typeof CASES)[number]) {
     chat: (msgs, opts = {}) => chat(msgs, { ...opts, onDelta: opts.onDelta ?? (() => {}) }),
     maxDecisions: Number(process.env.LAB_MAX ?? 22), maxPerNpc: Number(process.env.LAB_PER_NPC ?? 9),
     onThinking: (npc) => thinkStart.set(npc, Date.now()),
+    // LAB_LULL=1: a scripted "player" takes the 補一句 offer — the same sentence again, to the town's hub or the
+    // journalist (whoever has not heard anything yet). A floor for the mechanic: a real player would write something new.
+    onLull: process.env.LAB_LULL
+      ? async (info) => {
+          const pick = ["cafe", "journalist", "police", "vendor", "mayor"].find((x) => !info.reached.includes(x));
+          return pick ? { npc: pick, text: c.text } : null;
+        }
+      : undefined,
     onEarly: (npc, x) => {
       const ms = Date.now() - (thinkStart.get(npc) ?? t0);
       early.push({ npc, ms, ...x });
@@ -62,7 +70,7 @@ async function one(c: (typeof CASES)[number]) {
     ttftMs: calls.map((l) => l.ttftMs ?? null), latencyMs: calls.map((l) => l.latencyMs),
     calls: calls.length, tokens: m.tokens, estCost: m.estCost, retries: m.validatorRetries, modelErrors: m.modelErrors, fallbacks: m.fallbacks, refusedWishes: m.refusedWishes,
     depth: m.depth, reach: m.reach, believers: m.believers, world: m.worldChanges, worldTypes: m.worldChangeTypes, ended: run.ended.reason,
-    headline: `${card.icon} ${card.headline}`, sub: card.sub,
+    headline: `${card.icon} ${card.headline}`, sub: card.sub, whispers: run.whispers,
     acts: run.decisions.filter((d) => d.output).map((d) => `${d.npc}:${d.output!.act}`),
     early,
   };

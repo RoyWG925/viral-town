@@ -23,7 +23,7 @@ test("the model never answers (outage): no world change, an honest 'interrupted'
   assert.equal(run.events.filter((e) => WORLD.includes(e.type)).length, 0);
   assert.equal(run.events.at(-1)?.type, "end");
   const card = storyOf(run);
-  assert.ok(card.headline.includes("中斷"), card.headline);
+  assert.ok(card.headline.includes("broke off"), card.headline);
   assert.ok(!card.stopper, "a model outage must not be presented as the resident's choice");
 });
 

@@ -4,7 +4,7 @@
 // believe), then the sentence. Docked bottom-left and narrow, so the resident stays visible on the right.
 import { PERSONAS, PUBLIC_BIO } from "../sim/scenario.ts";
 import { nameOf } from "./director";
-import { contactsOf, credulityOf, ROLES, toolsOf } from "./roles";
+import { contactsOf, credulityOf, MAX_WHISPER, ROLES, toolsOf } from "./roles";
 import { useState } from "react";
 import { HIDDEN_FIELDS, loadJournal } from "./journal";
 
@@ -31,18 +31,18 @@ export default function RoleCard({ npc, text, setText, onPlant, onClose, goalToo
           <h2 className="text-lg font-extrabold leading-tight text-slate-800">{p.name}</h2>
           <p className="truncate text-xs text-slate-500">{p.roleZh}</p>
         </div>
-        <button onClick={onClose} aria-label="關閉" className="text-slate-400 hover:text-slate-700">✕</button>
+        <button onClick={onClose} aria-label="Close" className="text-slate-400 hover:text-slate-700">✕</button>
       </div>
       <p className="mt-2 rounded-xl bg-amber-50 px-3 py-1.5 text-sm font-semibold leading-snug text-amber-900">{role.tag}</p>
       {toolsOf(npc).length > 0 && (
         <div className="mt-1.5 flex flex-wrap items-center gap-1">
-          <span className="text-[11px] font-semibold text-slate-400">能：</span>
+          <span className="text-[11px] font-semibold text-slate-400">Can:</span>
           {toolsOf(npc).map((t) => {
             const goal = goalTools?.[t.kind];
             return (
               <span
                 key={t.kind}
-                title={goal ? `有機會完成小目標：${goal}` : undefined}
+                title={goal ? `Could tick off a goal: ${goal}` : undefined}
                 className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${goal ? "bg-orange-100 text-orange-800 ring-1 ring-orange-300" : "bg-slate-100 text-slate-600"}`}
               >
                 {t.label}
@@ -53,39 +53,39 @@ export default function RoleCard({ npc, text, setText, onPlant, onClose, goalToo
         </div>
       )}
       <p className="mt-1.5 text-[11px] leading-relaxed text-slate-500">
-        📞 能打給：{calls.length ? calls.join("、") : "沒有人（只能當面說）"}
+        📞 Can call: {calls.length ? calls.join(", ") : "nobody (face to face only)"}
         <span className="mx-1 text-slate-300">·</span>
-        耳根軟 <span className="tracking-tighter text-orange-500">{"●".repeat(cred.dots)}</span>
-        <span className="tracking-tighter text-slate-300">{"○".repeat(5 - cred.dots)}</span> {cred.zh}
+        Gullibility <span className="tracking-tighter text-orange-500">{"●".repeat(cred.dots)}</span>
+        <span className="tracking-tighter text-slate-300">{"○".repeat(5 - cred.dots)}</span> {cred.label}
       </p>
       <details className="mt-1 text-xs text-slate-500">
-        <summary className="cursor-pointer select-none text-slate-400">關於{p.name}</summary>
+        <summary className="cursor-pointer select-none text-slate-400">About {p.name}</summary>
         <p className="mt-1">{PUBLIC_BIO[npc]?.bio}</p>
       </details>
       <details className="mt-0.5 text-xs text-slate-500">
         <summary className="cursor-pointer select-none text-slate-400">
-          📓 你對{p.name}的了解 {HIDDEN_FIELDS.filter((f) => journal[npc]?.[f.key]).length}/{HIDDEN_FIELDS.length}
+          📓 What you know about {p.name} {HIDDEN_FIELDS.filter((f) => journal[npc]?.[f.key]).length}/{HIDDEN_FIELDS.length}
         </summary>
         <ul className="mt-1 space-y-0.5">
           {HIDDEN_FIELDS.map((f) => (
             <li key={f.key}>
-              <span className="font-semibold text-slate-600">{f.label}：</span>
-              {journal[npc]?.[f.key] && p.card ? p.card[f.field] : <span className="text-slate-300">？？？</span>}
+              <span className="font-semibold text-slate-600">{f.label}: </span>
+              {journal[npc]?.[f.key] && p.card ? p.card[f.field] : <span className="text-slate-300">???</span>}
             </li>
           ))}
         </ul>
-        {!HIDDEN_FIELDS.some((f) => journal[npc]?.[f.key]) && <p className="mt-1 text-slate-400">多看幾次{p.name}的故事，就會慢慢摸清這個人。</p>}
+        {!HIDDEN_FIELDS.some((f) => journal[npc]?.[f.key]) && <p className="mt-1 text-slate-400">Watch a few more of {p.name}&apos;s stories and you&apos;ll start to figure them out.</p>}
       </details>
       <div className="relative mt-2">
         <textarea
           value={text}
-          onChange={(e) => setText(e.target.value.slice(0, 80))}
+          onChange={(e) => setText(e.target.value.slice(0, MAX_WHISPER))}
           // typing an "h" must not hide the interface (the scene listens for H on the window)
           onKeyDown={(e) => e.stopPropagation()}
-          placeholder={`對${p.name}說一句悄悄話……${p.name}會自己判斷信不信`}
+          placeholder={`Whisper something to ${p.name}… ${p.name} decides whether to believe it`}
           className="h-16 w-full resize-none rounded-xl border border-slate-200 bg-white p-2.5 text-[15px] text-slate-800 outline-none focus:border-orange-400"
         />
-        <span className="pointer-events-none absolute bottom-1.5 right-2 text-[10px] tabular-nums text-slate-300">{text.length}/80</span>
+        <span className="pointer-events-none absolute bottom-1.5 right-2 text-[10px] tabular-nums text-slate-300">{text.length}/{MAX_WHISPER}</span>
       </div>
       <div className="mt-1.5 flex flex-wrap gap-1">
         {role.examples.map((ex) => (
@@ -95,7 +95,7 @@ export default function RoleCard({ npc, text, setText, onPlant, onClose, goalToo
         ))}
       </div>
       <button disabled={!text.trim()} onClick={onPlant} className="mt-2.5 w-full rounded-xl bg-orange-500 py-2 text-base font-bold text-white shadow disabled:opacity-40">
-        植入這個念頭
+        Plant the thought
       </button>
     </div>
   );

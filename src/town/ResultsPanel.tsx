@@ -7,15 +7,14 @@ import { useEffect, useMemo, useState } from "react";
 import { addDiscovery, knownLines, loadJournal } from "./journal";
 import type { RunResult } from "../sim/engine.ts";
 import { measure, type Metrics } from "../sim/metrics.ts";
-import { PLACES } from "../sim/scenario.ts";
 import type { ChallengeHit, GoalProgress } from "../sim/challenges.ts";
 import type { DecisionRecord } from "../sim/types.ts";
 import { clockOf } from "../sim/view.ts";
-import { nameOf } from "./director";
+import { nameOf, placeName } from "./director";
 import { revealOf, storyOf, suggestNext, type StoryCard } from "./story";
 import StoryCardView from "./StoryCardView";
 import { downloadShareCard, drawShareCard } from "./shareCard";
-import { ROLES, toolsOf } from "./roles";
+import { canDo, ROLES, toolsOf } from "./roles";
 import { GOAL_BY_TOOL, goalOf, VISIBLE } from "./GoalsNote";
 
 export interface SavedRun {
@@ -29,8 +28,8 @@ export interface SavedRun {
   parent?: string;
 }
 
-const placeZh = (id: string) => PLACES.find((p) => p.id === id)?.zh ?? id;
 const pct = (c?: number) => (c === undefined ? "" : `${Math.round(c * 100)}%`);
+const VERDICT: Record<string, string> = { believe: "believes", doubt: "not sure", disbelieve: "doesn't believe" };
 
 interface ChainStep { t: number; icon: string; text: string; sub?: string }
 
@@ -42,24 +41,24 @@ function chainOf(run: RunResult): ChainStep[] {
     const d = e.data as Record<string, unknown>;
     switch (e.type) {
       case "seed":
-        steps.push({ t: e.t, icon: "💭", text: d.second ? `你又對${nameOf(e.target!)}補了一句：「${String(d.text)}」` : `你對${nameOf(e.target!)}說：「${String(d.text)}」` });
+        steps.push({ t: e.t, icon: "💭", text: d.second ? `You whispered one more line to ${nameOf(e.target!)}: “${String(d.text)}”` : `You told ${nameOf(e.target!)}: “${String(d.text)}”` });
         break;
       case "decide": {
         const o = dec.get(String(d.decision))?.output;
         if (!o || d.budget) break;
-        const st = o.stances.map((s) => `${s.verdict === "believe" ? "相信" : s.verdict === "doubt" ? "半信半疑" : "不相信"}`).join("、");
-        steps.push({ t: e.t, icon: [...o.feeling][0] ?? "🤔", text: `${nameOf(e.actor!)}：${o.thought}`, sub: `${o.understanding}${st ? `（${st}）` : ""}` });
+        const st = o.stances.map((s) => VERDICT[s.verdict] ?? s.verdict).join(", ");
+        steps.push({ t: e.t, icon: [...o.feeling][0] ?? "🤔", text: `${nameOf(e.actor!)}: ${o.thought}`, sub: `${o.understanding}${st ? ` (${st})` : ""}` });
         break;
       }
       case "talk":
-        steps.push({ t: e.t, icon: "💬", text: `${nameOf(e.actor!)} → ${nameOf(e.target!)}：「${String(d.text)}」` });
+        steps.push({ t: e.t, icon: "💬", text: `${nameOf(e.actor!)} → ${nameOf(e.target!)}: “${String(d.text)}”` });
         break;
       case "phone":
-        if (!d.missed) steps.push({ t: e.t, icon: "📞", text: `${nameOf(e.actor!)} 打給 ${nameOf(e.target!)}：「${String(d.text)}」` });
+        if (!d.missed) steps.push({ t: e.t, icon: "📞", text: `${nameOf(e.actor!)} calls ${nameOf(e.target!)}: “${String(d.text)}”` });
         break;
       case "look":
       case "inspect":
-        if (d.found) steps.push({ t: e.t, icon: "🔍", text: `${nameOf(e.actor!)}在${placeZh(e.place!)}看到：${String(d.found)}` });
+        if (d.found) steps.push({ t: e.t, icon: "🔍", text: `At ${placeName(e.place!)}, ${nameOf(e.actor!)} sees: ${String(d.found)}` });
         break;
       case "state":
         if (d.key !== "writing") steps.push({ t: e.t, icon: "✨", text: e.zh });
@@ -78,34 +77,44 @@ function chainOf(run: RunResult): ChainStep[] {
   return steps;
 }
 
+/**
+ * What someone found, minus the routine parts (the dove cages, the lanterns' labels, who else was standing there).
+ * The engine joins its sentences with a space: old Chinese logs split on the space, English ones after a full stop.
+ */
+function foundWithoutClutter(found: string) {
+  const zh = /[\u4E00-\u9FFF]/.test(found);
+  const parts = zh ? found.split(" ") : found.split(/(?<=[.!?])\s+/);
+  const clutter = zh ? /鴿籠|燈籠上|在這裡/ : /\bcages?\b|\blabels?\b|\b(?:is|are) (?:already )?here\b/i;
+  return parts.filter((x) => !clutter.test(x)).join(" ") || found;
+}
+
 function highlights(run: RunResult, m: Metrics): string[] {
   const out: string[] = [];
   const first = run.claims[0];
   const drifted = run.claims.filter((c) => first && c.topic !== first.topic);
-  if (first && drifted.length) out.push(`原本的說法是「${first.statement}」，傳著傳著變成了「${drifted[drifted.length - 1].statement}」。`);
+  if (first && drifted.length) out.push(`It started out as “${first.statement}”, and as it got passed around it turned into “${drifted[drifted.length - 1].statement}”.`);
   // retellings by people who had not checked anything themselves: how far the words drifted
   const checked = new Set(run.events.filter((e) => (e.type === "look" || e.type === "inspect") && e.data.found).map((e) => e.actor));
   const far = m.retellings.filter((r) => !checked.has(r.from)).reduce((acc, r) => (r.similarity < (acc?.similarity ?? 1) ? r : acc), undefined as Metrics["retellings"][number] | undefined);
-  if (far && far.similarity < 0.35) out.push(`${nameOf(far.from)}轉述給${nameOf(far.to)}時，話已經變成：「${far.text}」`);
+  if (far && far.similarity < 0.35) out.push(`By the time ${nameOf(far.from)} passed it on to ${nameOf(far.to)}, it had become: “${far.text}”`);
   // what people found when they went to see: once per person, expert checks first
   const seenBy = new Set<string>();
   for (const e of [...run.events].sort((a, b) => (a.type === "inspect" ? -1 : 0) - (b.type === "inspect" ? -1 : 0))) {
     if ((e.type !== "look" && e.type !== "inspect") || !e.data.found || seenBy.has(e.actor!)) continue;
     seenBy.add(e.actor!);
-    const found = String(e.data.found).split(" ").filter((x) => !/鴿籠|燈籠上|在這裡/.test(x)).join(" ") || String(e.data.found);
-    out.push(`${nameOf(e.actor!)}${e.type === "inspect" ? "仔細檢查後發現" : "跑去親眼看"}：${found}`);
+    out.push(`${nameOf(e.actor!)} ${e.type === "inspect" ? "inspected closely and found" : "went to see firsthand"}: ${foundWithoutClutter(String(e.data.found))}`);
   }
   for (const d of run.decisions) {
     const o = d.output;
     const no = o?.stances.find((s) => s.verdict === "disbelieve");
-    if (o && no) out.push(`${nameOf(d.npc)}不相信：「${no.why}」`);
+    if (o && no) out.push(`${nameOf(d.npc)} doesn't buy it: “${no.why}”`);
   }
-  if (run.world.festival === "cancelled") out.push("最後，燈籠節真的被取消了。");
+  if (run.world.festival === "cancelled") out.push("In the end, the Lantern Festival really was cancelled.");
   if (m.idle) {
     // say who stopped it and in their own (recorded) words why, instead of a generic line
     const last = [...run.decisions].reverse().find((d) => d.output);
     const why = last && !last.fallback ? last.output?.actions.find((a) => a.type === "none")?.why : undefined;
-    out.push(last && why && why !== "fallback" && !why.startsWith("free-form:") ? `念頭停在${nameOf(last.npc)}這裡：「${why}」想讓它傳開，試試告訴一位會在乎這件事的人。` : "這個念頭沒有走得很遠——有時候，小鎮就是不買單。");
+    out.push(last && why && why !== "fallback" && !why.startsWith("free-form:") ? `The thought stopped with ${nameOf(last.npc)}: “${why}” To spread it, try telling someone who would care about it.` : "The thought didn't get very far. Sometimes the town just doesn't buy it.");
   }
   return out.slice(0, 6);
 }
@@ -116,8 +125,8 @@ function TechDecisions({ decisions }: { decisions: DecisionRecord[] }) {
       {decisions.map((d) => (
         <li key={d.id}>
           {d.id} {nameOf(d.npc)} @{clockOf(d.t)} — {d.llm.map((l) => `${(l.latencyMs / 1000).toFixed(1)}s/${l.promptTokens + l.completionTokens}tok`).join(", ") || "rules"}
-          {d.validation.length > 1 ? `，重寫：${d.validation.slice(0, -1).map((v) => v.errors.join("；")).join(" | ").slice(0, 160)}` : ""}
-          {d.fallback ? "（安全預設）" : ""}
+          {d.validation.length > 1 ? `; rewrites: ${d.validation.slice(0, -1).map((v) => v.errors.join("; ")).join(" | ").slice(0, 270)}` : ""}
+          {d.fallback ? " (safe default)" : ""}
         </li>
       ))}
     </ul>
@@ -127,14 +136,14 @@ function TechDecisions({ decisions }: { decisions: DecisionRecord[] }) {
 /** At most one amber nudge: a logged near miss, a logged refusal, or (failing both) a tool for an unfinished goal. */
 function nudgeOf(run: RunResult, story: StoryCard, seedNpc: string, progress: GoalProgress): { npc: string; text: string; tryIt?: boolean } | null {
   const c = story.closest;
-  if (c && c.npc !== seedNpc) return { npc: c.npc, text: `差一點：${nameOf(c.npc)}聽到了${c.conf !== undefined ? `（信 ${pct(c.conf)}）` : ""}，明明可以${c.could}` };
+  if (c && c.npc !== seedNpc) return { npc: c.npc, text: `So close: ${nameOf(c.npc)} heard it${c.conf !== undefined ? ` (${pct(c.conf)} sure)` : ""} and could ${c.could}` };
   const refusal = run.events.filter((e) => e.type === "rejected" && e.data.wanted && e.actor && e.actor !== seedNpc).at(-1);
-  if (refusal?.actor) return { npc: refusal.actor, text: `差一點：${refusal.zh}` };
+  if (refusal?.actor) return { npc: refusal.actor, text: `So close: ${refusal.zh}` };
   for (const g of VISIBLE) {
     if (progress[g.id]) continue;
     const tool = Object.keys(GOAL_BY_TOOL).find((k) => GOAL_BY_TOOL[k] === g.id);
     const who = run.config.active.find((n) => n !== seedNpc && toolsOf(n).some((t) => t.kind === tool));
-    if (tool && who) return { npc: who, text: `試試看：${nameOf(who)}${toolsOf(who).find((t) => t.kind === tool)!.label.replace(/^\S+\s/, "能")}（${g.icon} ${g.zh}）`, tryIt: true };
+    if (tool && who) return { npc: who, text: `Try: ${nameOf(who)} ${canDo(toolsOf(who).find((t) => t.kind === tool)!.label)} (${g.icon} ${g.zh})`, tryIt: true };
   }
   return null;
 }
@@ -173,13 +182,13 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
     (window as unknown as { __shareCard?: () => string }).__shareCard = () => drawShareCard(story, saved.npc, saved.text, stats, stampWords).toDataURL("image/png");
   });
   const shareText = useMemo(() => {
-    const lines = [`我在 VIRAL 霧港鎮對${nameOf(saved.npc)}說了一句：「${saved.text}」`];
-    for (const w of story.whispers) lines.push(`後來又對${nameOf(w.npc)}補了一句：「${w.text}」`);
-    lines.push(`結果：${story.icon} ${story.headline}`);
-    lines.push(`傳到 ${m.reach} 位居民、${m.depth} 層、引發 ${m.worldChanges} 個世界變化。${story.festival.text}`);
-    if (stampWords.length) lines.push(`今日戰績：${stampWords.join("、")}`);
+    const lines = [`In VIRAL, I whispered one line to ${nameOf(saved.npc)} in Mistport: “${saved.text}”`];
+    for (const w of story.whispers) lines.push(`Then one more line to ${nameOf(w.npc)}: “${w.text}”`);
+    lines.push(`What happened: ${story.icon} ${story.headline}`);
+    lines.push(`It reached ${m.reach} ${m.reach === 1 ? "resident" : "residents"}, ${m.depth} ${m.depth === 1 ? "hop" : "hops"} deep, with ${m.worldChanges} ${m.worldChanges === 1 ? "change" : "changes"} to the town. ${story.festival.text}`);
+    if (stampWords.length) lines.push(`Goals stamped: ${stampWords.join(", ")}`);
     if (hl[0]) lines.push(hl[0]);
-    lines.push("（每位居民都由 Gemma 依自己知道的事判斷，世界由遊戲引擎驗證。）");
+    lines.push("(Every resident is played by Gemma, judging only from what they know; the game engine checks every change to the town.)");
     return lines.join(String.fromCharCode(10));
   }, [saved, m, run, hl, story, stampWords]);
   const nudge = nudgeOf(run, story, saved.npc, progress);
@@ -193,10 +202,10 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
     <div className={`pointer-events-auto absolute right-3 top-3 flex w-[min(94vw,400px)] flex-col overflow-hidden rounded-3xl bg-white/95 shadow-2xl backdrop-blur max-sm:inset-x-2 ${min ? "" : "bottom-3 max-sm:top-auto max-sm:max-h-[72vh]"}`}>
       <div className="border-b border-slate-200 px-5 pb-3 pt-4">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-[11px] font-bold tracking-wide text-orange-500">霧港小報 · 今晚的頭條{recorded ? <span title={recorded} className="ml-1.5 font-semibold text-slate-400">📼 錄製的真實推演</span> : null}</p>
+          <p className="text-[11px] font-bold tracking-wide text-orange-500">The Mistport Gazette · Tonight&apos;s headline{recorded ? <span title={recorded} className="ml-1.5 font-semibold text-slate-400">📼 Recorded real run</span> : null}</p>
           <div className="flex shrink-0 items-center gap-2 text-xs">
-            <button onClick={() => setMin((v) => !v)} className="text-slate-400 hover:text-slate-700">{min ? "▴ 展開" : "▾ 收起"}</button>
-            <button onClick={onClose} aria-label="回到小鎮" title="回到小鎮" className="text-base text-slate-400 hover:text-slate-700">✕</button>
+            <button onClick={() => setMin((v) => !v)} className="text-slate-400 hover:text-slate-700">{min ? "▴ Expand" : "▾ Collapse"}</button>
+            <button onClick={onClose} aria-label="Back to town" title="Back to town" className="text-base text-slate-400 hover:text-slate-700">✕</button>
           </div>
         </div>
         <h2 className="mt-1 text-xl font-extrabold leading-snug text-slate-900">
@@ -206,11 +215,11 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
           <>
             {story.sub && <p className="mt-1 text-sm leading-snug text-slate-600">{story.sub}</p>}
             <p className="mt-2 text-sm text-slate-700">
-              你對{nameOf(saved.npc)}說：<b>「{saved.text}」</b>
+              You told {nameOf(saved.npc)}: <b>“{saved.text}”</b>
             </p>
             {story.whispers.map((w, i) => (
               <p key={i} className="text-sm text-slate-700">
-                你又對{nameOf(w.npc)}補了一句：<b>「{w.text}」</b>
+                Then one more line to {nameOf(w.npc)}: <b>“{w.text}”</b>
               </p>
             ))}
             {stamps.length > 0 && (
@@ -220,7 +229,7 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
                   <li key={h.id} className="truncate text-xs" title={h.evidence}>
                     <b className="text-orange-800">
                       ✓ {goalOf(h.id)?.icon} {goalOf(h.id)?.zh}
-                      {recorded ? <span title="在 📼 錄製的實驗裡看到的"> 📼</span> : null}
+                      {recorded ? <span title="Seen in a 📼 recorded run"> 📼</span> : null}
                     </b>
                     <span className="text-slate-500"> · {h.evidence}</span>
                   </li>
@@ -228,33 +237,33 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
               </ul>
             )}
             {story.festival.kind !== "on" && (
-              <p className="mt-2 rounded-xl bg-rose-50 px-3 py-1.5 text-xs leading-snug text-rose-900 ring-1 ring-rose-200" title="根據今晚發生的事推算：舞台、物資、經費、民意……任何一樣撐不住，燈籠節就會受影響">
+              <p className="mt-2 rounded-xl bg-rose-50 px-3 py-1.5 text-xs leading-snug text-rose-900 ring-1 ring-rose-200" title="Worked out from what happened tonight: the stage, supplies, money, the town's mood… if any one of them gives way, the festival suffers">
                 🏮 <b>{story.festival.text}</b>
               </p>
             )}
             {story.reveal && (
-              <p className="mt-2 rounded-xl bg-violet-50 px-3 py-1.5 text-xs leading-snug text-violet-900 ring-1 ring-violet-200" title="從這個故事裡，這位居民自己說出的行動理由">
-                🔓 你發現了：<b>{nameOf(story.reveal.npc)}的{story.reveal.label}</b>——{story.reveal.text}
+              <p className="mt-2 rounded-xl bg-violet-50 px-3 py-1.5 text-xs leading-snug text-violet-900 ring-1 ring-violet-200" title="The reason this resident gave for acting, in this story">
+                🔓 You found out: <b>{nameOf(story.reveal.npc)}&apos;s {story.reveal.label}</b> — {story.reveal.text}
               </p>
             )}
             {onRetry && story.icon === "⚠️" && (
               <button onClick={onRetry} className="mt-2 w-full rounded-xl bg-slate-100 px-3 py-2 text-left text-sm leading-snug text-slate-800 ring-1 ring-slate-300 hover:bg-slate-200">
-                ⟲ 模型剛才沒有回應：<b>同一句話再試一次</b>
+                ⟲ The model didn&apos;t answer just now: <b>try the same line again</b>
               </button>
             )}
             {nudge && (
               <button onClick={() => onWhatIf(nudge.npc, saved.text)} className="mt-2 w-full rounded-xl bg-amber-50 px-3 py-2 text-left text-sm leading-snug text-amber-900 ring-1 ring-amber-300 hover:bg-amber-100">
-                {nudge.tryIt ? "🎯" : "📌"} {nudge.text} → <b>同一句話告訴{nameOf(nudge.npc)}？</b>
+                {nudge.tryIt ? "🎯" : "📌"} {nudge.text} → <b>Tell {nameOf(nudge.npc)} the same line?</b>
               </button>
             )}
             {previous && prevStory && (
-              <div className="mt-2 rounded-xl bg-sky-50 px-3 py-2 text-xs leading-relaxed text-sky-900" title="同一個世界與隨機種子；Gemma 的回答本身仍有隨機性">
-                <p>上次（告訴{nameOf(previous.npc)}）：{prevStory.icon} {prevStory.headline}</p>
-                <p>這次（告訴{nameOf(saved.npc)}）：{story.icon} {story.headline}</p>
+              <div className="mt-2 rounded-xl bg-sky-50 px-3 py-2 text-xs leading-relaxed text-sky-900" title="Same world and same random seed; Gemma's answers still vary">
+                <p>Last time (told {nameOf(previous.npc)}): {prevStory.icon} {prevStory.headline}</p>
+                <p>This time (told {nameOf(saved.npc)}): {story.icon} {story.headline}</p>
               </div>
             )}
             <p className="mt-2 text-xs text-slate-400">
-              傳到 {m.reach} 人 · {m.depth} 層 · {m.worldChanges} 個世界變化 · 燈籠節{festival}
+              Reached {m.reach} {m.reach === 1 ? "person" : "people"} · {m.depth} {m.depth === 1 ? "hop" : "hops"} · {m.worldChanges} {m.worldChanges === 1 ? "change" : "changes"} to the town · festival: {festival}
             </p>
           </>
         )}
@@ -264,7 +273,7 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
           <div className="flex-1 overflow-y-auto px-5 py-3">
             <StoryCardView card={story} seedNpc={saved.npc} seedText={saved.text} hideHeadline hideClosest={!!nudge && !nudge.tryIt} />
             <details>
-              <summary className="mb-2 cursor-pointer text-xs font-semibold text-slate-500">完整事件因果鏈（{chain.length} 步，可追溯每一個原因）</summary>
+              <summary className="mb-2 cursor-pointer text-xs font-semibold text-slate-500">Full chain of events ({chain.length} steps, every cause traceable)</summary>
               {hl.length > 0 && (
                 <div className="mb-3 space-y-1.5">
                   {hl.map((h, i) => (
@@ -286,17 +295,17 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
               </ol>
             </details>
             <details className="mt-3">
-              <summary className="cursor-pointer text-xs text-slate-400">🔬 技術紀錄</summary>
+              <summary className="cursor-pointer text-xs text-slate-400">🔬 Behind the scenes</summary>
               <div className="mt-2 rounded-xl bg-slate-100 p-3 text-xs text-slate-600">
-                <p>Gemma-4-31B-IT（AMD Token Factory）呼叫 {m.llmCalls} 次，累計推論 {m.llmSeconds} 秒，{m.tokens} tokens，平台回報成本 US${m.platformCost}</p>
-                <p>居民判斷 {m.decisions} 次；驗證器要求重寫 {m.validatorRetries} 次；改用安全預設 {m.fallbacks} 次；引擎拒絕的行動 {m.rejected} 個</p>
-                <p>模擬用時 {(run.wall.ms / 1000).toFixed(0)} 秒；遊戲時間 {m.gameMinutes} 分鐘；結束原因：{run.ended.reason}</p>
+                <p>Gemma-4-31B-IT (AMD Token Factory): {m.llmCalls} calls, {m.llmSeconds}s of inference in total, {m.tokens} tokens, platform-reported cost US${m.platformCost}</p>
+                <p>{m.decisions} resident decisions; the validator asked for {m.validatorRetries} rewrites; {m.fallbacks} fell back to the safe default; the engine rejected {m.rejected} actions</p>
+                <p>The simulation took {(run.wall.ms / 1000).toFixed(0)}s; {m.gameMinutes} minutes of game time; ended because: {run.ended.reason}</p>
                 <TechDecisions decisions={run.decisions} />
               </div>
             </details>
           </div>
           <div className="border-t border-slate-200 px-4 pb-3 pt-2.5">
-            <p className="mb-1.5 text-xs font-semibold text-slate-500">同一句話，換一個人聽 →</p>
+            <p className="mb-1.5 text-xs font-semibold text-slate-500">Same line, different listener →</p>
             <div className="grid grid-cols-4 gap-1.5 max-sm:grid-cols-3">
               {run.config.active.filter((n) => ROLES[n]).map((n) => {
                 const why = suggested.get(n);
@@ -305,27 +314,27 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
                   <button
                     key={n}
                     onClick={() => onWhatIf(n, self ? null : saved.text)}
-                    title={self ? "對同一個人換一句話" : why ? `試試看：${why}` : ROLES[n].tag}
+                    title={self ? "A different line for the same person" : why ? `Try: ${why}` : ROLES[n].tag}
                     className={`relative flex flex-col items-center rounded-xl px-1 py-1.5 text-center ${why ? "bg-orange-100 ring-2 ring-orange-400" : "bg-orange-50/70 hover:bg-orange-100"}`}
                   >
-                    {why && <span className="absolute -right-1 -top-1.5 rounded-full bg-orange-500 px-1 text-[9px] font-bold text-white">試試</span>}
+                    {why && <span className="absolute -right-1 -top-1.5 rounded-full bg-orange-500 px-1 text-[9px] font-bold text-white">Try</span>}
                     <span className="text-xl leading-none">{ROLES[n].icon}</span>
-                    <span className="mt-0.5 text-xs font-bold text-orange-900">{self ? "換一句話" : `告訴${nameOf(n)}`}</span>
+                    <span className="mt-0.5 text-xs font-bold leading-tight text-orange-900">{self ? "New line" : `Tell ${nameOf(n)}`}</span>
                     <span className="w-full truncate text-[10px] text-slate-500">{self ? nameOf(n) : ROLES[n].short}</span>
                   </button>
                 );
               })}
             </div>
-            {next.length > 0 && <p className="mt-1.5 text-[11px] leading-snug text-slate-400">試試：{next.map((s) => `${nameOf(s.npc)}（${s.why}）`).join("；")}</p>}
+            {next.length > 0 && <p className="mt-1.5 text-[11px] leading-snug text-slate-400">Try: {next.map((s) => `${nameOf(s.npc)} (${s.why})`).join("; ")}</p>}
             <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-slate-500">
-              <button onClick={onReplay} className="hover:text-slate-800">⟲ 重看一次</button>
+              <button onClick={onReplay} className="hover:text-slate-800">⟲ Watch again</button>
               <button
                 onClick={() => navigator.clipboard?.writeText(shareText).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1800); }).catch(() => {})}
                 className="hover:text-slate-800"
               >
-                {copied ? "✓ 已複製" : "📋 複製分享文字"}
+                {copied ? "✓ Copied" : "📋 Copy share text"}
               </button>
-              <button onClick={() => downloadShareCard(story, saved.npc, saved.text, stats, stampWords)} className="hover:text-slate-800">🗞️ 下載小報</button>
+              <button onClick={() => downloadShareCard(story, saved.npc, saved.text, stats, stampWords)} className="hover:text-slate-800">🗞️ Download the Gazette</button>
             </div>
           </div>
         </>
@@ -340,13 +349,13 @@ export function EndTitle({ run, stamps }: { run: RunResult; stamps: ChallengeHit
   return (
     <div className="pointer-events-none absolute inset-x-0 top-[16%] flex justify-center px-4">
       <div className="max-w-xl animate-[fadein_0.5s_ease-out] rounded-3xl bg-white/92 px-7 py-5 text-center shadow-2xl backdrop-blur">
-        <p className="text-xs font-bold tracking-widest text-orange-500">霧港小報 · 號外</p>
+        <p className="text-xs font-bold tracking-widest text-orange-500">The Mistport Gazette · Special edition</p>
         <p className="mt-1 text-2xl font-extrabold leading-snug text-slate-900">
           {card.icon} {card.headline}
         </p>
         {card.sub && <p className="mt-1 text-sm text-slate-600">{card.sub}</p>}
         {card.festival.kind !== "on" && <p className="mt-2 text-sm font-bold text-rose-700">🏮 {card.festival.text}</p>}
-        {stamps.length > 0 && <p className="mt-2 text-sm font-bold text-orange-600">{stamps.map((h) => goalOf(h.id)?.icon).join(" ")} 蓋了 {stamps.length} 個章</p>}
+        {stamps.length > 0 && <p className="mt-2 text-sm font-bold text-orange-600">{stamps.map((h) => goalOf(h.id)?.icon).join(" ")} {stamps.length} {stamps.length === 1 ? "goal" : "goals"} stamped</p>}
       </div>
     </div>
   );

@@ -41,7 +41,7 @@ function Power({ npc }: { npc: string }) {
   return (
     <Html position={[0, 4.6, 0]} center zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
       <div ref={ref} style={{ opacity: 0 }} className="whitespace-nowrap rounded-full bg-rose-600/90 px-2 py-0.5 text-[11px] font-bold text-white shadow">
-        {POWER[npc]}？
+        {POWER[npc]}?
       </div>
     </Html>
   );
@@ -239,9 +239,10 @@ function WorldChanges() {
   void v;
   const w = show.world;
   const board = SPOTS.plaza;
-  const closedSign = useMemo(() => labelTexture("暫停營業", "#c0392b", "#ffffff"), []);
-  const cancelSign = useMemo(() => labelTexture("🏮 燈籠節取消", "#2c3e50", "#ffffff"), []);
-  const protest = useMemo(() => labelTexture("✊ 給個交代！", "#fff4e3", "#b5462f"), []);
+  // short sign words: the boards are sized by the text, and three protest signs stand 1.3 apart
+  const closedSign = useMemo(() => labelTexture("CLOSED", "#c0392b", "#ffffff"), []);
+  const cancelSign = useMemo(() => labelTexture("🏮 Festival cancelled", "#2c3e50", "#ffffff"), []);
+  const protest = useMemo(() => labelTexture("✊ Answers now!", "#fff4e3", "#b5462f"), []);
   const tapePoints = useMemo(() => {
     const c = [[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]].map(([sx, sz]) => fromLocal(STAGE, sx * (STAGE.w / 2 + 0.9), sz * (STAGE.d / 2 + 0.9)));
     return c.map((p) => new THREE.Vector3(p.x, 0.9, p.z));

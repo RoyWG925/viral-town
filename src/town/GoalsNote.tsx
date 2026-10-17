@@ -86,17 +86,17 @@ export function GoalsNote({ progress, toast }: { progress: GoalProgress; toast: 
         aria-expanded={open}
         className="pointer-events-auto rounded-full bg-[#fffaf0]/95 px-3 py-1 text-sm font-bold text-slate-700 shadow ring-1 ring-amber-200 hover:bg-white"
       >
-        📝 <span className="max-sm:hidden">今晚的小目標 </span>
+        📝 <span className="max-sm:hidden">Tonight&apos;s goals </span>
         {done}/{VISIBLE.length}
       </button>
       {t && (
         <p key={t.id} className="animate-[fadein_0.3s_ease-out] rounded-full bg-orange-500 px-3 py-1 text-sm font-bold text-white shadow-lg">
-          {t.icon} 達成！{t.zh}
+          {t.icon} Done! {t.zh}
         </p>
       )}
       {open && (
         <div className="pointer-events-auto w-[min(88vw,290px)] -rotate-1 rounded-lg bg-[#fffaf0] p-3 text-left text-sm text-slate-700 shadow-lg ring-1 ring-amber-200">
-          <p className="mb-1.5 text-xs font-bold text-amber-700">今晚的小目標（隨意玩，沒有輸贏）</p>
+          <p className="mb-1.5 text-xs font-bold text-amber-700">Tonight&apos;s goals (just for fun, no winning or losing)</p>
           <ul className="space-y-1">
             {VISIBLE.map((g) => {
               const p = progress[g.id];
@@ -105,7 +105,7 @@ export function GoalsNote({ progress, toast }: { progress: GoalProgress; toast: 
                   <span className={p ? "text-slate-400 line-through decoration-orange-400 decoration-2" : ""}>
                     {p ? "✓" : "○"} {g.icon} {g.zh}
                   </span>
-                  {p?.recorded && <span title="在 📼 錄製的實驗裡看到的" className="ml-1 text-xs">📼</span>}
+                  {p?.recorded && <span title="Seen in a 📼 recorded run" className="ml-1 text-xs">📼</span>}
                   {!p && <span className="block pl-5 text-[11px] text-slate-400">{g.hint}</span>}
                 </li>
               );
@@ -120,7 +120,7 @@ export function GoalsNote({ progress, toast }: { progress: GoalProgress; toast: 
               </span>
             ))}
           </p>
-          <p className="mt-1 text-[10px] text-slate-400">只看鎮上真的發生、而且已經演出來的事。</p>
+          <p className="mt-1 text-[10px] text-slate-400">Only counts what really happened in town and has already played out on screen.</p>
         </div>
       )}
     </div>

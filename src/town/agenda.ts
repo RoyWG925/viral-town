@@ -2,16 +2,18 @@
 // A meeting is worth a countdown only if one of the pair carries a played belief (≥0.3) of a kind that belongs in it —
 // the same rule the engine uses to decide whether the meeting happens at all. It never says how it will go.
 import type { RunResult } from "../sim/engine.ts";
-import { ROUTINE, TOPIC_CATEGORY } from "../sim/scenario.ts";
+import { PERSONAS, ROUTINE, TOPIC_CATEGORY } from "../sim/scenario.ts";
 import type { SimEvent } from "../sim/types.ts";
 
-// the plan, in plain words (falls back to the scenario's own line)
-const PLAN: Record<string, string> = {
-  "baker>cafe": "阿德要送麵包去咖啡廳找美咲",
-  "police>organizer": "老周要去舞台找志明巡查",
-  "journalist>mayor": "小雯要去鎮公所採訪市長",
-  "florist>organizer": "美玲要把花飾送去舞台給志明",
-  "vendor>mayor": "阿珠要去鎮公所繳攤位費",
+const nameOf = (npc: string) => PERSONAS.find((p) => p.id === npc)?.name ?? npc;
+
+// the plan, in plain words, with the residents' names from the scenario (falls back to the scenario's own line)
+const PLAN: Record<string, (who: string, other: string) => string> = {
+  "baker>cafe": (who, other) => `${who} is taking bread over to ${other} at the café`,
+  "police>organizer": (who, other) => `${who} is heading to the stage for a walk-through with ${other}`,
+  "journalist>mayor": (who, other) => `${who} is off to the town hall to interview ${other}`,
+  "florist>organizer": (who, other) => `${who} is bringing the flower decorations to ${other} at the stage`,
+  "vendor>mayor": (who) => `${who} is off to the town hall to pay the stall fee`,
 };
 
 const catOfTopic = (topic: string, fallback?: string) => TOPIC_CATEGORY[topic] ?? fallback;
@@ -23,7 +25,8 @@ function beliefCategory(e: SimEvent, run: RunResult): string | undefined {
   const cid = String(e.data.claim);
   const c = run.claims?.find((x) => x.id === cid);
   if (c) return catOfTopic(c.topic, c.category);
-  const stmt = /對「(.+?)」的信心/.exec(e.zh)?.[1];
+  // old (Chinese) logs: 「X對「…」的信心」; English logs quote the statement after "confidence"/"belief"
+  const stmt = (/對「(.+?)」的信心/.exec(e.zh) ?? /(?:confidence|belief)[^“"]*[“"](.+?)[”"]/i.exec(e.zh))?.[1];
   if (!stmt) return undefined;
   for (const d of run.decisions) for (const r of d.output?.claims ?? []) if (r.statement === stmt) return catOfTopic(r.topic, r.category);
   return undefined;
@@ -59,7 +62,7 @@ export function upcomingMeeting(run: RunResult | null, played: SimEvent[], gameT
     if (r.at <= seedAt || left <= 0 || left > window) continue;
     if (!active.has(r.who) || !active.has(r.with) || met(played, r.who, r.with)) continue;
     if (!carries(r.who, r.about, played, run) && !carries(r.with, r.about, played, run)) continue;
-    return { at: r.at, minutes: Math.ceil(left), text: PLAN[`${r.who}>${r.with}`] ?? r.zh };
+    return { at: r.at, minutes: Math.ceil(left), text: PLAN[`${r.who}>${r.with}`]?.(nameOf(r.who), nameOf(r.with)) ?? r.zh };
   }
   return null;
 }

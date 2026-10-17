@@ -114,7 +114,11 @@ export function useShotFade(group: RefObject<THREE.Group | null>, points: { x: n
     group.current?.traverse((o) => {
       const m = (o as THREE.Mesh).material as THREE.Material | undefined;
       if (!m || Array.isArray(m)) return;
-      m.transparent = next < 1;
+      // switching between opaque and transparent recompiles the shader (three drops alpha in opaque programs)
+      if (m.transparent !== next < 1) {
+        m.transparent = next < 1;
+        m.needsUpdate = true;
+      }
       m.opacity = next;
       m.depthWrite = next > 0.95;
     });

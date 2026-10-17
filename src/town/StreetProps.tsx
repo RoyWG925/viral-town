@@ -21,6 +21,9 @@ function Stall({ s }: { s: (typeof STALLS)[number] }) {
     return { roof: new THREE.MeshStandardMaterial({ map: stripeTexture(s.roof[0], s.roof[1], 6), roughness: 0.8 }), sign };
   }, [s]);
   const wood = mat("#b5835a");
+  // the vendor stands under this awning: it fades while the director films them (like the café umbrellas)
+  const canopy = useRef<THREE.Group>(null);
+  useShotFade(canopy, useMemo(() => [{ x: s.x, z: s.z }], [s]), 3);
   return (
     <group position={[s.x, 0, s.z]} rotation={[0, s.rot, 0]}>
       <RoundedBox args={[2.6, 1.0, 0.9]} radius={0.08} position={[0, 0.5, 0.15]} castShadow receiveShadow material={wood} />
@@ -39,12 +42,14 @@ function Stall({ s }: { s: (typeof STALLS)[number] }) {
           </mesh>
         )),
       )}
-      <mesh position={[0, 2.6, -0.05]} rotation={[0.25, 0, 0]} castShadow material={m.roof}>
-        <boxGeometry args={[3.0, 0.07, 1.8]} />
-      </mesh>
-      <mesh position={[0, 2.05, 0.82]} material={m.sign}>
-        <planeGeometry args={[2.2, 0.55]} />
-      </mesh>
+      <group ref={canopy}>
+        <mesh position={[0, 2.6, -0.05]} rotation={[0.25, 0, 0]} castShadow material={m.roof}>
+          <boxGeometry args={[3.0, 0.07, 1.8]} />
+        </mesh>
+        <mesh position={[0, 2.05, 0.82]} material={m.sign}>
+          <planeGeometry args={[2.2, 0.55]} />
+        </mesh>
+      </group>
       {[-1, 0, 1].map((i) => (
         <mesh key={i} position={[i * 0.9, 2.3, 0.86]} material={glow.lanterns[(i + 3) % 4]}>
           <sphereGeometry args={[0.14, 10, 8]} />

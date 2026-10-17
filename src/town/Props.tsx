@@ -173,8 +173,13 @@ function CafeTable({ x, z, colour }: { x: number; z: number; colour: string }) {
     }
     const goal = under ? 0.22 : 1;
     if (Math.abs(canopy.opacity - goal) < 0.005) return;
-    canopy.transparent = true;
     canopy.opacity += (goal - canopy.opacity) * Math.min(1, dt * 6);
+    // opaque <-> transparent needs a shader recompile, or three ignores the opacity
+    const see = canopy.opacity < 0.995;
+    if (canopy.transparent !== see) {
+      canopy.transparent = see;
+      canopy.needsUpdate = true;
+    }
     canopy.depthWrite = canopy.opacity > 0.95;
   });
   return (

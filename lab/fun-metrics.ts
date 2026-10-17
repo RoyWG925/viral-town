@@ -30,7 +30,9 @@ for (const f of files) {
     })
     .filter(Boolean) as string[];
   const card = storyOf(run);
-  const hopsWithChange = card.spine.filter((h) => h.heard && h.heard !== h.text).length;
+  // retellings only (the chain also shows articles, town talk and what people saw on the way)
+  const retold = card.spine.filter((h) => h.via === "talk" || h.via === "phone");
+  const hopsWithChange = retold.filter((h) => h.heard && h.heard !== h.text).length;
   rows.push({
     id: f.replace(".json", ""),
     seed: `${run.config.seedNpc}「${run.config.seedText}」`,
@@ -47,7 +49,7 @@ for (const f of files) {
     people: card.reached.length,
     distinctActs: new Set(acts).size,
     acts: acts.join(","),
-    spineHops: card.spine.length,
+    spineHops: retold.length,
     retoldWithChanges: hopsWithChange,
     closestCall: !!card.closest,
     cost: +calls.reduce((s, l) => s + (l.platformCost ?? 0), 0).toFixed(5),

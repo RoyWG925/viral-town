@@ -1,7 +1,7 @@
 // "霧港小報" front page as a PNG the player can save and share. Drawn from the story card, which is built
 // only from the run's validated events (no extra generation).
 import { nameOf } from "./director";
-import type { StoryCard } from "./story";
+import { stepLine, type StoryCard } from "./story";
 
 const W = 1080;
 const H = 1350;
@@ -86,17 +86,23 @@ export function drawShareCard(card: StoryCard, seedNpc: string, seedText: string
     if (long && k === 1) {
       g.font = `600 26px ${FONT}`;
       g.fillStyle = "#9a8f82";
-      g.fillText(`⋯ 中間還轉述了 ${card.spine.length - room} 次 ⋯`, 100, y);
+      g.fillText(`⋯ 中間還有 ${card.spine.length - room} 步 ⋯`, 100, y);
       y += 44;
     }
     g.font = `700 28px ${FONT}`;
     g.fillStyle = "#b45309";
-    g.fillText(`${h.via === "phone" ? "📞" : "💬"} ${nameOf(h.from)} → ${nameOf(h.to)}`, 70, y);
+    g.fillText(stepLine(h).who, 70, y);
     y += 40;
     g.font = `500 28px ${FONT}`;
     g.fillStyle = "#3b342e";
-    y = block(g, `「${h.text}」`, 100, y, W - 200, 40, 2) + 18;
+    y = block(g, stepLine(h).words, 100, y, W - 200, 40, 2) + 18;
     if (y > floor - 100) break;
+  }
+  // no chain to show: the card says so rather than leave the sentence and the headline looking directly linked
+  if (card.chainGap && y < floor - 50) {
+    g.font = `600 26px ${FONT}`;
+    g.fillStyle = "#9a8f82";
+    y = block(g, card.chainGap, 70, y, W - 140, 38, 2) + 16;
   }
   if (card.truth && y < floor - 50) {
     g.font = `700 28px ${FONT}`;

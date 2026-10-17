@@ -118,5 +118,9 @@ test("補一句: the second seed is a root of the story, printed on the card", a
   assert.ok(seeds[1].data.second, "the second seed is marked");
   // the story's suggestions never name the first listener
   assert.ok(suggestNext(run, card).every((s) => s.npc !== "florist"));
-  for (const h of card.spine) assert.ok(run.events.some((e) => (e.type === "talk" || e.type === "phone") && e.actor === h.from && e.target === h.to && String(e.data.text) === h.text));
+  // conversations on the chain are real; its other steps (public words, town talk, sights) are their own logged events
+  for (const h of card.spine) {
+    if (h.via === "talk" || h.via === "phone") assert.ok(run.events.some((e) => (e.type === "talk" || e.type === "phone") && e.actor === h.from && e.target === h.to && String(e.data.text) === h.text));
+    else assert.ok(run.events.some((e) => e.id === h.event && (h.via === "crowd" ? e.target === h.to : e.type === h.via && e.actor === h.from)), h.event);
+  }
 });

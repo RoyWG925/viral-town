@@ -1,9 +1,9 @@
 // Turns a finished run's log into the story the results card tells: a headline for the biggest thing
-// that really happened, the chain of retellings that led there ("the spine"), who stopped the rumour
-// when it died, and the wildest retelling. Built only from recorded, validated events and fixed
-// templates — no model writes or embellishes it.
+// that really happened (as things stood at the end), the chain of recorded causes that led there ("the
+// spine": retellings, public words, what people saw), who stopped the rumour when it died, and the wildest
+// retelling. Built only from recorded, validated events and fixed templates — no model writes or embellishes it.
 import type { RunResult } from "../sim/engine.ts";
-import { FACTS, PERSONAS, PLACES, TOPIC_CATEGORY } from "../sim/scenario.ts";
+import { FACTS, LOOK_LIMITS, PERSONAS, PLACES, TOPIC_CATEGORY } from "../sim/scenario.ts";
 import { topicFact } from "../sim/view.ts";
 import { readinessOf } from "../sim/readiness.ts";
 import type { Motive, SimEvent } from "../sim/types.ts";
@@ -12,10 +12,17 @@ import { contactsOf, powerOf } from "./roles.ts";
 const nameOf = (id: string) => PERSONAS.find((p) => p.id === id)?.name ?? id;
 const placeZh = (id: string) => PLACES.find((p) => p.id === id)?.zh ?? id;
 
+/**
+ * One step of the chain: a retelling, words made public and the one on the way who took them in, talk of the town
+ * that reached someone, or something seen first-hand.
+ */
 export interface Hop {
+  /** the speaker or author; "crowd" for talk of the town */
   from: string;
+  /** the listener; the reader of a public text; for a look or inspection, the one who looked (= from) */
   to: string;
-  via: "talk" | "phone";
+  via: "talk" | "phone" | "article" | "notice" | "statement" | "crowd" | "look" | "inspect";
+  /** what was said, the article's headline, or what they saw */
   text: string;
   /** the version the speaker had heard before passing it on */
   heard?: string;
@@ -23,14 +30,20 @@ export interface Hop {
   verdict?: string;
   conf?: number;
   t: number;
+  /** the logged event this step is */
+  event: string;
 }
 
 export interface StoryCard {
   icon: string;
   headline: string;
   sub: string;
-  /** the player's sentence → … → the last version on the way to the outcome */
+  /** the player's sentence → … → the last version on the way to the outcome: only its recorded causes, in time order */
   spine: Hop[];
+  /** the logged event the spine leads to (the biggest happening), when there is one */
+  outcome?: string;
+  /** said instead of a chain when the log has no readable one from the planted sentence to the outcome */
+  chainGap?: string;
   /** when the rumour died: who held it last and what they thought */
   stopper?: { npc: string; thought: string; verdict?: string; conf?: number };
   /** someone who could have done something big, and what they actually did */
@@ -50,6 +63,17 @@ export interface StoryCard {
   festival: { kind: "on" | "reduced" | "postponed" | "cancelled"; short: string; text: string; missing: string[] };
   /** one line of someone's card this story showed them acting on (from their own logged motive) */
   reveal?: { npc: string; key: Exclude<Motive, "none">; label: string; text: string; event: string; t: number };
+}
+
+const STEP_ICON: Record<Hop["via"], string> = { talk: "💬", phone: "📞", article: "📰", notice: "📋", statement: "📣", crowd: "🗣️", look: "👀", inspect: "🔍" };
+/** How a step of the chain reads on a card: icon and who (→ whom), then the words, headline or sight, cut to `n`. */
+export function stepLine(h: Hop, n = Infinity): { who: string; words: string } {
+  const text = h.text.length > n ? `${h.text.slice(0, n)}…` : h.text;
+  const from = h.via === "crowd" ? "鎮上傳開" : nameOf(h.from);
+  return {
+    who: `${STEP_ICON[h.via] ?? "💬"} ${from}${h.to !== h.from ? `→${nameOf(h.to)}` : ""}`,
+    words: h.via === "article" ? `〈${text}〉` : h.via === "look" || h.via === "inspect" ? `看到：${text}` : h.via === "crowd" ? text : `「${text}」`,
+  };
 }
 
 const MOTIVE_LABEL: Record<string, string> = { price: "價碼", bottom: "底線", fear: "怕的事", want: "今晚想要的", bias: "看事情的偏誤", gossip: "傳話的習慣" };
@@ -109,7 +133,8 @@ function rank(e: SimEvent): number {
     const key = String(d.key ?? "");
     if (key === "festival") return 9;
     if (key === "police" || key === "stage") return 8;
-    if (key.startsWith("shops.")) return 5;
+    // opening again only undoes a closing: it is no happening of its own
+    if (key.startsWith("shops.")) return d.to === "closed" ? 5 : 0;
     return 0;
   }
   if (e.type === "article" || e.type === "statement" || e.type === "gather") return 7;
@@ -164,23 +189,57 @@ export function storyOf(run: RunResult): StoryCard {
       .map((x) => String(x.data.text))
       .at(-1);
   };
-  // what the listener made of THIS message: the belief formed by the decision whose inbox held it
-  const verdictOf = (hop: SimEvent): { verdict?: string; conf?: number } => {
-    const del = events.find((x) => x.type === "deliver" && x.causes[0] === hop.id);
+  // what the listener made of THIS message: the belief formed by the decision whose inbox held it (`to`: whose
+  // reading, for words that reached many)
+  const verdictOf = (hop: SimEvent, to?: string): { verdict?: string; conf?: number } => {
+    const del = hop.type === "deliver" ? hop : events.find((x) => x.type === "deliver" && x.causes[0] === hop.id && (!to || x.target === to));
     const dec = del && run.decisions.find((d) => d.inbox.includes(String(del.data.message)));
     const dEv = dec && events.find((x) => x.type === "decide" && x.data.decision === dec.id);
     const b = dEv && events.find((x) => x.type === "belief" && x.causes.includes(dEv.id));
     return b ? { verdict: String(b.data.verdict), conf: Number(b.data.to) } : {};
   };
-  const hopOf = (e: SimEvent): Hop => ({ from: e.actor!, to: e.target!, via: e.type as "talk" | "phone", text: String(e.data.text), heard: heardBy(e), t: e.t, ...verdictOf(e) });
+  const hopOf = (e: SimEvent): Hop => ({ from: e.actor!, to: e.target!, via: e.type as "talk" | "phone", text: String(e.data.text), heard: heardBy(e), t: e.t, event: e.id, ...verdictOf(e) });
   const hops = events.filter((e) => (e.type === "talk" || e.type === "phone") && !e.data.missed && e.actor && e.target).map(hopOf);
+  // of all a look showed, the part that matters: a hidden problem only an expert finds; else the sight that was on
+  // their mind (the engine's highlight, when it is one); else what a glance could not show them; else the first
+  const sightOf = (e: SimEvent) => {
+    const found = String(e.data.found);
+    const parts = found.split(/\s+/).filter(Boolean);
+    const expert = parts.find((p) => FACTS.some((f) => f.check?.by === "expert" && p.includes(f.check.zh)));
+    const onMind = parts.find((p) => p === e.data.highlight && FACTS.some((f) => f.check?.zh === p));
+    const limit = parts.find((p) => p === LOOK_LIMITS[String(e.place)] || p.includes("不是你的專業"));
+    return expert ?? onMind ?? limit ?? parts[0] ?? found;
+  };
+  // a step of a causal path a reader can follow (`next`: the event after it on the path): a retelling; words made
+  // public, with the one on the path who took them in; talk of the town that reached someone (a closing noticed,
+  // a rumour many repeat); or what someone saw with their own eyes
+  const stepOf = (e: SimEvent, next?: SimEvent): Hop | null => {
+    const d = e.data as Record<string, unknown>;
+    if ((e.type === "talk" || e.type === "phone") && !d.missed && e.actor && e.target) return hopOf(e);
+    if ((e.type === "article" || e.type === "notice" || e.type === "statement") && e.actor && next?.type === "deliver" && next.target)
+      return { from: e.actor, to: next.target, via: e.type, text: String(e.type === "article" ? d.headline : d.text), heard: heardBy(e), t: e.t, event: e.id, ...verdictOf(e, next.target) };
+    // (a statement passed on by the crowd is the statement's step above)
+    if (e.type === "deliver" && d.via === "crowd" && e.target && byId.get(e.causes[0])?.type !== "statement")
+      return { from: String(d.from ?? "crowd"), to: e.target, via: "crowd", text: String(d.text), t: e.t, event: e.id, ...verdictOf(e) };
+    if ((e.type === "look" || e.type === "inspect") && d.found && e.actor)
+      return { from: e.actor, to: e.actor, via: e.type, text: sightOf(e), t: e.t, event: e.id, ...verdictOf(e, e.actor) };
+    return null;
+  };
 
+  // where each part of the world stood at the end (its last change): a change undone later (a shop closed, then
+  // opened again) did happen, but is never told as where things ended up, and one that held beats it
+  const finalOf = new Map<string, unknown>();
+  for (const e of events) if (e.type === "state") finalOf.set(String(e.data.key), e.data.to);
+  const undone = (e: SimEvent) => e.type === "state" && finalOf.get(String(e.data.key)) !== e.data.to;
+  const weight = (e: SimEvent) => rank(e) - (undone(e) ? 0.5 : 0);
   // the biggest real outcome, and the path of causes from the planted sentence to it
   // the biggest happening; among equals the later one, which is usually the outcome (police sent, then the stage
   // closed; a friend's shop shut, then the bakery itself)
-  const top = events.reduce<SimEvent | null>((best, e) => (rank(e) > 0 && rank(e) >= (best ? rank(best) : 0) ? e : best), null);
+  const top = events.reduce<SimEvent | null>((best, e) => (weight(e) > 0 && weight(e) >= (best ? weight(best) : 0) ? e : best), null);
   let spine: Hop[] = [];
   let root: SimEvent | undefined = seed;
+  // the outcome goes back to a planted sentence through recorded causes
+  let traced = false;
   if (top) {
     const prev = new Map<string, string>();
     const queue = [top.id];
@@ -189,19 +248,27 @@ export function storyOf(run: RunResult): StoryCard {
       const id = queue.shift()!;
       if (seedIds.has(id)) {
         root = byId.get(id);
+        traced = true;
         break;
       }
       for (const c of byId.get(id)?.causes ?? []) if (!seen.has(c)) (seen.add(c), prev.set(c, id), queue.push(c));
     }
     const path: SimEvent[] = [];
-    for (let id: string | undefined = root?.id; id; id = prev.get(id)) path.push(byId.get(id)!);
-    spine = path.filter((e) => (e.type === "talk" || e.type === "phone") && !e.data.missed).map(hopOf);
+    if (traced) for (let id: string | undefined = root?.id; id; id = prev.get(id)) path.push(byId.get(id)!);
+    // that path and nothing else: every step a recorded cause of the outcome, so never later than it (a chain once
+    // borrowed whatever talk there was, a call made after the rally it "led to": P20 budget-journalist). The same
+    // person seeing the same thing again adds nothing.
+    const sights = new Set<string>();
+    for (const [i, e] of path.entries()) {
+      const h = e.t <= top.t ? stepOf(e, path[i + 1]) : null;
+      if (!h) continue;
+      if (h.via === "look" || h.via === "inspect") {
+        if (sights.has(`${h.from}|${h.text}`)) continue;
+        sights.add(`${h.from}|${h.text}`);
+      }
+      spine.push(h);
+    }
     if (top.type === "talk" || top.type === "phone") spine = spine.length ? spine : [hopOf(top)];
-  }
-  if (!spine.length && hops.length) {
-    // no big outcome: follow the longest chain of retellings
-    spine = [hops[0]];
-    for (const h of hops.slice(1)) if (h.from === spine.at(-1)!.to && h.t >= spine.at(-1)!.t) spine.push(h);
   }
 
   const reached = [...new Set(events.filter((e) => e.type === "deliver" && e.target && e.data.via !== "inspection").map((e) => e.target!))];
@@ -218,7 +285,7 @@ export function storyOf(run: RunResult): StoryCard {
   const seedClaims = (run.claims ?? []).filter((c) => firstDecides.some((d) => c.by === d.actor && (c.origin === d.id || d.causes.includes(c.origin))));
   const whispers = seeds.filter((e) => e.data.second && e.target).map((e) => ({ npc: e.target!, text: String(e.data.text) }));
   const card: StoryCard = { festival: { kind: "on", short: "照常", text: "", missing: [] },
-    icon: "💬", headline: "", sub: "", spine, reached, wildest: wildest && wildest.similarity < 0.55 ? wildest : undefined,
+    icon: "💬", headline: "", sub: "", spine, outcome: top?.id, reached, wildest: wildest && wildest.similarity < 0.55 ? wildest : undefined,
     whispers, spineRoot: root ? Math.max(0, seeds.indexOf(root)) : 0,
   };
 
@@ -314,7 +381,8 @@ export function storyOf(run: RunResult): StoryCard {
   }
   const d = (top?.data ?? {}) as Record<string, unknown>;
   const actor = top?.actor ? nameOf(top.actor) : "";
-  const hopsN = spine.length;
+  // retellings only: a look or an article on the way is no 轉述
+  const hopsN = spine.filter((h) => h.via === "talk" || h.via === "phone").length;
   const via = hopsN ? `，經過 ${hopsN} 次轉述` : "";
   // earlier big happenings that led to this one (causal ancestors in the log), so "police at the takoyaki stall"
   // says why: 「先是小雯發文〈…〉，最後老周派出警力」
@@ -342,17 +410,22 @@ export function storyOf(run: RunResult): StoryCard {
     if (e.type === "notice") return `${who}貼出公告`;
     if (e.type === "state" && x.key === "stage") return `${who}封鎖了舞台`;
     if (e.type === "state" && x.key === "police") return `${who}派警力到${placeZh(String(x.to))}`;
-    if (e.type === "state" && String(x.key).startsWith("shops.")) return `${who}關了店`;
+    if (e.type === "state" && String(x.key).startsWith("shops.")) return `${who}${undone(e) ? "一度關了店" : "關了店"}`;
     return "";
   };
   const chainOf = (last: string) => {
     const prev = before.map(happened).filter(Boolean).slice(-2);
     return prev.length ? `先是${prev.join("，接著")}，最後${last}。` : `${last}${via}。`;
   };
+  // nothing on record a reader can follow from what the player said to the outcome (no path of causes at all, or
+  // one that shows nobody passing anything on while someone else did it): say so rather than fill the chain
+  if (top && (!traced || (!spine.length && top.actor !== root?.target && !before.some(happened)))) card.chainGap = "從這句話到這個結果，紀錄裡找不到一條說得清的因果線。";
   if (top && rank(top) >= 5) {
-    if (top.type === "state" && d.key === "festival") Object.assign(card, { icon: "🏮", headline: "燈籠節取消了！", sub: `${actor}宣布取消${via}。${whispers.length ? "一切從你悄悄說的話開始。" : `一切從你對${nameOf(seedNpc)}說的一句話開始。`}` });
+    if (top.type === "state" && d.key === "festival") Object.assign(card, { icon: "🏮", headline: "燈籠節取消了！", sub: `${actor}宣布取消${via}。${!traced ? "" : whispers.length ? "一切從你悄悄說的話開始。" : `一切從你對${nameOf(seedNpc)}說的一句話開始。`}` });
     else if (top.type === "state" && d.key === "stage") Object.assign(card, { icon: "🚧", headline: "慶典舞台被封鎖", sub: chainOf(`${actor}下令封鎖`) });
     else if (top.type === "state" && d.key === "police") Object.assign(card, { icon: "🚓", headline: `警察出動到${placeZh(String(d.to))}`, sub: chainOf(`${actor}派出警力`) });
+    // closed, then opened again: the shop is open at the end, so the headline says both
+    else if (top.type === "state" && undone(top)) Object.assign(card, { icon: "🚪", headline: `${placeZh(String(d.key).slice(6))}關了又開`, sub: chainOf(`${actor}一度關店，後來又開門營業`) });
     else if (top.type === "state") Object.assign(card, { icon: "🔒", headline: `${placeZh(String(d.key).slice(6))}暫停營業`, sub: chainOf(`${actor}決定關店`) });
     else if (top.type === "article") Object.assign(card, { icon: "📰", headline: `〈${String(d.headline)}〉`, sub: `${actor}寫成了新聞${via}。` });
     else if (top.type === "statement") Object.assign(card, { icon: "📣", headline: `${actor}出面發表聲明`, sub: `「${String(d.text).slice(0, 40)}」` });

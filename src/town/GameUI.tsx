@@ -407,9 +407,9 @@ export default function GameUI({ onPhase }: { onPhase?: (p: Phase) => void }) {
             ui.select(null);
             setPhase("explore");
           }}
-          onPlant={() => {
+          onPlant={(sentence) => {
             unlockAudio();
-            start(selected, text.trim());
+            start(selected, sentence);
           }}
         />
       )}

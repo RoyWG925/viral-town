@@ -7,12 +7,14 @@ import { nameOf } from "./director";
 import { contactsOf, credulityOf, ROLES, toolsOf } from "./roles";
 import { useState } from "react";
 import { HIDDEN_FIELDS, loadJournal } from "./journal";
+import { moderateWhisper } from "../sim/moderation";
 
 export default function RoleCard({ npc, text, setText, onPlant, onClose, goalTools }: {
   npc: string;
   text: string;
   setText: (t: string) => void;
-  onPlant: () => void;
+  /** the sentence as it may be heard (swearing masked); refused sentences never get here */
+  onPlant: (text: string) => void;
   onClose: () => void;
   /** abilities that could tick an unfinished small goal (shown with 🎯) */
   goalTools?: Record<string, string>;
@@ -20,6 +22,13 @@ export default function RoleCard({ npc, text, setText, onPlant, onClose, goalToo
   const p = PERSONAS.find((x) => x.id === npc);
   const role = ROLES[npc];
   const [journal] = useState(loadJournal);
+  const [refusal, setRefusal] = useState<string | null>(null);
+  const plant = () => {
+    const m = moderateWhisper(text);
+    if (m.action === "block") return setRefusal(m.message);
+    setRefusal(null);
+    onPlant(m.text);
+  };
   if (!p || !role) return null;
   const cred = credulityOf(npc);
   const calls = contactsOf(npc).map(nameOf);
@@ -79,7 +88,10 @@ export default function RoleCard({ npc, text, setText, onPlant, onClose, goalToo
       <div className="relative mt-2">
         <textarea
           value={text}
-          onChange={(e) => setText(e.target.value.slice(0, 80))}
+          onChange={(e) => {
+            setRefusal(null);
+            setText(e.target.value.slice(0, 80));
+          }}
           // typing an "h" must not hide the interface (the scene listens for H on the window)
           onKeyDown={(e) => e.stopPropagation()}
           placeholder={`對${p.name}說一句悄悄話……${p.name}會自己判斷信不信`}
@@ -94,9 +106,10 @@ export default function RoleCard({ npc, text, setText, onPlant, onClose, goalToo
           </button>
         ))}
       </div>
-      <button disabled={!text.trim()} onClick={onPlant} className="mt-2.5 w-full rounded-xl bg-orange-500 py-2 text-base font-bold text-white shadow disabled:opacity-40">
+      <button disabled={!text.trim()} onClick={plant} className="mt-2.5 w-full rounded-xl bg-orange-500 py-2 text-base font-bold text-white shadow disabled:opacity-40">
         植入這個念頭
       </button>
+      {refusal && <p className="mt-1.5 text-xs leading-snug text-rose-700">{refusal}</p>}
     </div>
   );
 }

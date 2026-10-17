@@ -4,6 +4,7 @@
 import { LOOK_LIMITS, TOPIC_CATEGORY, FACTS, FESTIVAL_AT, PERSONAS, PLACES, PUBLIC_INFO, ROUTINE, TOPICS, initialWorld } from "./scenario.ts";
 import { claimInfoOf, milestoneOf, MILESTONES } from "./festival.ts";
 import { readinessOf } from "./readiness.ts";
+import { cleanSpeech } from "./moderation.ts";
 
 const TOPIC_TEXT = TOPICS.map((t) => t.q).join(" ");
 import { travelMinutes } from "./geo.ts";
@@ -305,6 +306,11 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     rec.llm = res.llm;
     rec.validation = res.validation;
     rec.fallback = res.fallback;
+    // what residents say out loud never carries swearing, sexual content or slurs (a retelling cannot launder them)
+    if (res.output) {
+      const o = res.output;
+      res.output = { ...o, thought: cleanSpeech(o.thought), understanding: cleanSpeech(o.understanding), actions: o.actions.map((a) => (a.message ? { ...a, message: cleanSpeech(a.message) } : a)) };
+    }
     rec.output = res.output;
     apply(n, t, rec, res, inbox);
     cfg.onDecision?.(rec);

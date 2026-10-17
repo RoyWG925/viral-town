@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { nameOf } from "./director";
 import { CAST, ROLES } from "./roles";
 import type { Suggestion } from "./story";
+import { moderateWhisper } from "../sim/moderation";
 
 const WAIT = 20;
 
@@ -19,6 +20,12 @@ export default function WhisperAgain({ suggestions, onAnswer }: { suggestions: S
   const [open, setOpen] = useState(false);
   const [npc, setNpc] = useState(suggestions[0]?.npc ?? CAST[0]);
   const [text, setText] = useState("");
+  const [refusal, setRefusal] = useState<string | null>(null);
+  const send = () => {
+    const m = moderateWhisper(text);
+    if (m.action === "block") return setRefusal(m.message);
+    answer({ npc, text: m.text });
+  };
   const [left, setLeft] = useState(WAIT);
   const answered = useRef(false);
   const answer = (w: { npc: string; text: string } | null) => {
@@ -71,18 +78,22 @@ export default function WhisperAgain({ suggestions, onAnswer }: { suggestions: S
       )}
       <input
         value={text}
-        onChange={(e) => setText(e.target.value.slice(0, 80))}
+        onChange={(e) => {
+          setRefusal(null);
+          setText(e.target.value.slice(0, 80));
+        }}
         onKeyDown={(e) => e.stopPropagation()}
         placeholder={`對${nameOf(npc)}說一句……`}
         className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-[15px] text-slate-800 outline-none focus:border-orange-400"
         autoFocus
       />
       <div className="mt-2 flex items-center gap-2">
-        <button disabled={!text.trim()} onClick={() => answer({ npc, text: text.trim() })} className="flex-1 rounded-xl bg-orange-500 py-1.5 text-sm font-bold text-white disabled:opacity-40">
+        <button disabled={!text.trim()} onClick={send} className="flex-1 rounded-xl bg-orange-500 py-1.5 text-sm font-bold text-white disabled:opacity-40">
           補這一句
         </button>
         <button onClick={() => answer(null)} className="rounded-xl bg-slate-100 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-200">讓它淡去</button>
       </div>
+      {refusal && <p className="mt-1.5 text-xs leading-snug text-rose-700">{refusal}</p>}
     </div>
   );
 }

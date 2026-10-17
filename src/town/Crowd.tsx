@@ -19,10 +19,12 @@ const G = {
   arm: new THREE.CapsuleGeometry(0.06, 0.2, 3, 6).translate(0, -0.15, 0),
   hand: new THREE.SphereGeometry(0.065, 8, 6),
   head: new THREE.SphereGeometry(0.33, 22, 16),
-  eye: new THREE.SphereGeometry(0.048, 10, 8).scale(1, 1.3, 0.6),
-  shine: new THREE.SphereGeometry(0.016, 6, 4),
-  mouth: new THREE.TorusGeometry(0.045, 0.013, 6, 12, Math.PI).rotateZ(Math.PI),
-  blush: new THREE.SphereGeometry(0.05, 8, 6).scale(1, 0.6, 0.35),
+  // cuter faces (2026-10-18 playtest note): bigger, lower eyes with two highlights, a small smile, rosy cheeks on everyone
+  eye: new THREE.SphereGeometry(0.06, 12, 10).scale(1, 1.25, 0.55),
+  shine: new THREE.SphereGeometry(0.022, 6, 4),
+  sparkle: new THREE.SphereGeometry(0.01, 5, 4),
+  mouth: new THREE.TorusGeometry(0.036, 0.012, 6, 12, Math.PI).rotateZ(Math.PI),
+  blush: new THREE.SphereGeometry(0.068, 10, 6).scale(1, 0.55, 0.3),
   hairCap: new THREE.SphereGeometry(0.348, 22, 12, 0, Math.PI * 2, 0, Math.PI * 0.5),
   hairBack: new THREE.SphereGeometry(0.33, 14, 10).scale(1, 1.15, 0.7),
   bun: new THREE.SphereGeometry(0.14, 10, 8),
@@ -271,7 +273,7 @@ function Person({ agent }: { agent: Agent }) {
   const m = useMemo(
     () => ({
       skin: mat(l.skin, 0.6), shirt: mat(l.shirt, 0.8), pants: mat(l.pants, 0.85), hair: mat(l.hair, 0.7), hat: mat(l.hatColor, 0.7),
-      dark: mat("#1d1d1f", 0.3), blush: mat("#ff8fa3", 0.8), white: mat("#ffffff", 0.6), mouth: mat("#7a2e2e", 0.6),
+      dark: mat("#1d1d1f", 0.3), blush: mat("#ff8fa3", 0.8), blushSoft: mat("#ffb3c1", 0.85), white: mat("#ffffff", 0.6), mouth: mat("#7a2e2e", 0.6),
       pack: mat(l.backpack ?? "#888888", 0.7), scarf: mat(l.scarf ?? "#888888", 0.8), apron: mat(l.apron ?? "#ffffff", 0.8),
     }),
     [l],
@@ -392,14 +394,15 @@ function Person({ agent }: { agent: Agent }) {
         </group>
         <group ref={head} position={[0, 1.14, 0.02]} rotation={[-0.22, 0, 0]} scale={l.headScale}>
           <mesh geometry={G.head} material={m.skin} castShadow />
-          {[0.115, -0.115].map((x) => (
-            <group key={x} position={[x, 0.07, 0.292]}>
+          {[0.122, -0.122].map((x) => (
+            <group key={x} position={[x, 0.035, 0.29]}>
               <mesh geometry={G.eye} material={m.dark} />
-              <mesh geometry={G.shine} material={m.white} position={[0.014, 0.022, 0.026]} />
+              <mesh geometry={G.shine} material={m.white} position={[0.02, 0.028, 0.03]} />
+              <mesh geometry={G.sparkle} material={m.white} position={[-0.016, -0.022, 0.031]} />
             </group>
           ))}
-          <mesh geometry={G.mouth} material={m.mouth} position={[0, -0.06, 0.318]} />
-          {l.blush && [0.2, -0.2].map((x) => <mesh key={x} geometry={G.blush} material={m.blush} position={[x, -0.03, 0.26]} rotation={[0, x * 1.6, 0]} />)}
+          <mesh geometry={G.mouth} material={m.mouth} position={[0, -0.085, 0.312]} />
+          {[0.205, -0.205].map((x) => <mesh key={x} geometry={G.blush} material={l.blush ? m.blush : m.blushSoft} position={[x, -0.055, 0.252]} rotation={[0, x * 1.6, 0]} />)}
           {l.glasses && (
             <>
               {[0.115, -0.115].map((x) => (

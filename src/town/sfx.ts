@@ -125,4 +125,13 @@ export const sting = {
     const t = ctx.currentTime;
     for (const [k, f] of [[0, 523], [0.08, 659], [0.16, 784]] as const) tone(f, t + k, 0.9, "sine", 0.18);
   },
+  /** a small goal got ticked: a rubber-stamp thump and a bright two-note pop */
+  stamp() {
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    noise(t, 0.08, 0.5, 1400);
+    tone(160, t, 0.12, "sine", 0.5, 90);
+    tone(784, t + 0.07, 0.14, "triangle", 0.3);
+    tone(1175, t + 0.15, 0.22, "triangle", 0.25);
+  },
 };

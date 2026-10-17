@@ -30,11 +30,15 @@ function block(g: CanvasRenderingContext2D, text: string, x: number, y: number, 
   return y + shown.length * lh;
 }
 
-export function drawShareCard(card: StoryCard, seedNpc: string, seedText: string, stats: { reach: number; depth: number; world: number; festival: string }) {
+/** `stamps`: the small goals this run ticked (icon + words), printed as 今日戰績. */
+export function drawShareCard(card: StoryCard, seedNpc: string, seedText: string, stats: { reach: number; depth: number; world: number; festival: string }, stamps: string[] = []) {
   const c = document.createElement("canvas");
   c.width = W;
   c.height = H;
   const g = c.getContext("2d")!;
+  // the lowest the story text may run: above the stats bar, and above the stamps row when there is one
+  const stampLines = stamps.length > 2 ? 2 : stamps.length ? 1 : 0;
+  const floor = H - 200 - stampLines * 40 - (stampLines ? 20 : 0);
   // paper
   g.fillStyle = "#fbf6ea";
   g.fillRect(0, 0, W, H);
@@ -67,9 +71,15 @@ export function drawShareCard(card: StoryCard, seedNpc: string, seedText: string
   g.font = `800 40px ${FONT}`;
   g.fillStyle = "#2b2622";
   y = block(g, `「${seedText}」`, 70, y, W - 140, 54, 2) + 26;
+  // a 補一句 is part of the cause too: never credit one sentence with a two-sentence outcome
+  for (const w of card.whispers) {
+    g.font = `700 30px ${FONT}`;
+    g.fillStyle = "#6d28d9";
+    y = block(g, `你又對${nameOf(w.npc)}補了一句：「${w.text}」`, 70, y, W - 140, 44, 2) + 22;
+  }
   // the chain (fewer hops when there is a truth to reveal: the reveal matters more). A long chain shows how it
   // started and how it ended — the surprise is usually at the end — with the middle counted, not hidden.
-  const room = card.truth ? 3 : 4;
+  const room = (card.truth ? 3 : 4) - (stamps.length ? 1 : 0);
   const long = card.spine.length > room;
   const hops = long ? [card.spine[0], ...card.spine.slice(-(room - 1))] : card.spine;
   for (const [k, h] of hops.entries()) {
@@ -86,21 +96,27 @@ export function drawShareCard(card: StoryCard, seedNpc: string, seedText: string
     g.font = `500 28px ${FONT}`;
     g.fillStyle = "#3b342e";
     y = block(g, `「${h.text}」`, 100, y, W - 200, 40, 2) + 18;
-    if (y > H - 300) break;
+    if (y > floor - 100) break;
   }
-  if (card.truth && y < H - 250) {
+  if (card.truth && y < floor - 50) {
     g.font = `700 28px ${FONT}`;
     g.fillStyle = "#1f2937";
     // two lines if there is room, else one (the reveal is worth more than the near miss below)
-    y = block(g, `🔎 真相：${card.truth.text}${card.truth.secretOf.length ? `（${card.truth.secretOf.map(nameOf).join("和")}的秘密）` : ""}`, 70, y + 6, W - 140, 40, y < H - 290 ? 2 : 1) + 16;
+    y = block(g, `🔎 真相：${card.truth.text}${card.truth.secretOf.length ? `（${card.truth.secretOf.map(nameOf).join("和")}的秘密）` : ""}`, 70, y + 6, W - 140, 40, y < floor - 90 ? 2 : 1) + 16;
   }
-  if (card.closest && y < H - 290) {
+  if (card.closest && y < floor - 90) {
     g.font = `600 28px ${FONT}`;
     g.fillStyle = "#7a6f62";
     block(g, `📌 差一點：${nameOf(card.closest.npc)}明明可以${card.closest.could}，最後卻選擇${card.closest.did}。`, 70, y + 6, W - 140, 40, 2);
   }
-  // stats bar
+  // today's stamps, right above the stats
   const by = H - 200;
+  if (stamps.length) {
+    g.font = `800 28px ${FONT}`;
+    g.fillStyle = "#c2410c";
+    block(g, `今日戰績　${stamps.join("　")}`, 70, by - 12 - stampLines * 40, W - 140, 38, stampLines);
+  }
+  // stats bar
   g.fillStyle = "#2b2622";
   g.fillRect(70, by, W - 140, 3);
   const cells = [

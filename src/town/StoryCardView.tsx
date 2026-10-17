@@ -15,22 +15,44 @@ function Pill({ verdict, conf }: { verdict?: string; conf?: number }) {
   return <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${tone}`}>{VERDICT[verdict] ?? verdict} {pct(conf)}</span>;
 }
 
-export default function StoryCardView({ card, seedNpc, seedText }: { card: StoryCard; seedNpc: string; seedText: string }) {
+/** One planted sentence: the player's own line in the chain. */
+function You({ npc, text, again }: { npc: string; text: string; again?: boolean }) {
+  return (
+    <div className="flex items-start gap-2 text-xs">
+      <span className="mt-0.5 shrink-0 rounded-full bg-violet-600 px-2 py-0.5 font-bold text-white">你</span>
+      <p className="text-slate-700">
+        {again ? "又" : ""}對{nameOf(npc)}{again ? "補了一句" : "說"}：<span className="font-semibold">「{clip(text, 40)}」</span>
+      </p>
+    </div>
+  );
+}
+
+export default function StoryCardView({ card, seedNpc, seedText, hideHeadline = false, hideClosest = false }: {
+  card: StoryCard;
+  seedNpc: string;
+  seedText: string;
+  /** the results panel prints the headline itself, first and largest */
+  hideHeadline?: boolean;
+  /** the results panel turns the near miss into a What If button */
+  hideClosest?: boolean;
+}) {
+  // the spine starts from the sentence that led to the outcome; a 補一句 that did is printed right before it
+  const second = card.whispers[0];
   return (
     <div className="mb-4 rounded-2xl border border-orange-200 bg-gradient-to-b from-orange-50 to-white p-4">
-      <p className="text-[11px] font-bold tracking-wide text-orange-500">霧港小報 · 今晚的頭條</p>
-      <p className="mt-1 text-xl font-extrabold leading-snug text-slate-900">
-        {card.icon} {card.headline}
-      </p>
-      {card.sub && <p className="mt-1 text-sm leading-snug text-slate-600">{card.sub}</p>}
-
-      <div className="mt-3 space-y-1.5">
-        <div className="flex items-start gap-2 text-xs">
-          <span className="mt-0.5 shrink-0 rounded-full bg-violet-600 px-2 py-0.5 font-bold text-white">你</span>
-          <p className="text-slate-700">
-            對{nameOf(seedNpc)}說：<span className="font-semibold">「{clip(seedText, 40)}」</span>
+      {!hideHeadline && (
+        <>
+          <p className="text-[11px] font-bold tracking-wide text-orange-500">霧港小報 · 今晚的頭條</p>
+          <p className="mt-1 text-xl font-extrabold leading-snug text-slate-900">
+            {card.icon} {card.headline}
           </p>
-        </div>
+          {card.sub && <p className="mt-1 text-sm leading-snug text-slate-600">{card.sub}</p>}
+        </>
+      )}
+
+      <div className={`${hideHeadline ? "" : "mt-3"} space-y-1.5`}>
+        <You npc={seedNpc} text={seedText} />
+        {second && card.spineRoot === 1 && <You npc={second.npc} text={second.text} again />}
         {card.spine.map((h, i) => (
           <div key={i} className="flex items-start gap-2 text-xs">
             <span className="mt-0.5 shrink-0 rounded-full bg-amber-100 px-2 py-0.5 font-bold text-amber-800">
@@ -42,6 +64,7 @@ export default function StoryCardView({ card, seedNpc, seedText }: { card: Story
             </div>
           </div>
         ))}
+        {second && card.spineRoot !== 1 && <You npc={second.npc} text={second.text} again />}
       </div>
 
       {card.drift && !card.headline.startsWith("你說") && (
@@ -50,7 +73,7 @@ export default function StoryCardView({ card, seedNpc, seedText }: { card: Story
           {card.drift.pivot ? `（轉折：${nameOf(card.drift.pivot.from)}對${nameOf(card.drift.pivot.to)}說的話）` : ""}。
         </p>
       )}
-      {card.closest && (
+      {card.closest && !hideClosest && (
         <p className="mt-3 rounded-xl bg-white px-3 py-2 text-xs leading-snug text-slate-600 shadow-sm">
           📌 差一點：{nameOf(card.closest.npc)}聽到了{card.closest.conf !== undefined ? `（信 ${pct(card.closest.conf)}）` : ""}，明明可以{card.closest.could}，最後卻選擇{card.closest.did}。
         </p>

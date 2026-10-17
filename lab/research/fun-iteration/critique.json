@@ -1,0 +1,238 @@
+{
+ "verdict": "Build the game layer first, then make the town alive, then make it readable. Of the five specialists, four found the same two problems. First, players have no aim. Second, the residents look and act the same, so whispering to someone is a blind guess. On top of that, only 老周 and 小雯 ever change the world: 0 statements and 0 cancellations in 38 real stories, and phone calls are about 60% of all actions. So today's order is:\n(1) a Goose-style list of 6 small goals, checked off only by validated events that have already played on screen;\n(2) role cards that show each resident as a tool, built only from engine data;\n(3) authored everyday scenes (鎮上日常) with a hard yield to the director, clearly labelled and never using story topics;\n(4) prompt \"habits\" plus an honest public-pressure trigger, so the mayor, 志明, 美咲 and 阿珠 reach the public moves they already have;\n(5) readable silhouettes, done inside Crowd.tsx only.\nThe UI diet and the results rework come next.\n\n\"補一句\" is the mid-run experiment. It is offered once, only when a story is about to fizzle (45% of runs end quietly with 7 or more decisions unused, so it costs no extra LLM budget). It goes behind a flag with a test gate. Free intervention at any time is rejected because the engine runs ahead of playback.\n\nThe lead's conversation-session rework (CONV_LINGER/startConv landed in engine.ts at 10:53) is item 0. Verify it with lab/test-conversation.ts and one recorded replay before anything here touches engine.ts or director.ts.\n\nAlready done by the lead (TownScene/clock at 10:57): bloom threshold 1.25 at intensity 0.5, vignette 0.3, a fill light, capped glow and lifted night keys. Lighting is therefore reduced to a small finish-and-verify item. Note that stories end at a median of 16:42 story time, so night matters mainly in explore and on the results backdrop.\n\nHard rules for today:\n- No new action verbs.\n- No new obstacles or POIs. Nav changes shift engine travel timing and lab baselines.\n- No new ROUTINE entries. The proposed 19:05 and 19:00 meetings would fire after nearly every story has already ended.\n- Exactly ONE combined lab batch, run when the owner is not playtesting (memory rule).\n- Before relying on the hit rates, re-derive them from lab/runs with a test. The specialists' numbers disagree: 'town-wide' is quoted as 50%, 61% and 0% under different definitions.\n\nParallel tracks:\n- UI: 1, 2, 6, 7, 12\n- Life and characters: 3, 5, 13\n- Sim: 4, 8, 9\n- Set and lighting: 10, 11, 14\nCut line: if the build is behind at 16:00 today, drop 12–14. Freeze code at 2026-10-18 12:00 for the video and submission.",
+ "build_order": [
+  {
+   "title": "今晚的小目標: a Goose-style mischief notepad, stamped live from played, validated events",
+   "area": "goals",
+   "files": [
+    "src/sim/challenges.ts (new, pure)",
+    "lab/test-challenges.ts (new)",
+    "src/town/GameUI.tsx",
+    "src/town/sfx.ts",
+    "src/town/shareCard.ts"
+   ],
+   "acceptance": "(a) `npx tsx lab/test-challenges.ts` runs over lab/runs/P5..P9 (38 runs). It prints per-goal counts and asserts them against the specialists' tallies: police 5, truth 8, stage 8, article 7, strangers 3, shop 2, statement 0, cancel 0. It also asserts that no goal fires on a run lacking the matching event. (b) Explore screenshot at 1280x800: a single chip '📝 今晚的小目標 0/6' no larger than 220x36 px. Opening it shows 6 rows plus '??? 0/4'. (c) Replay recorded P5-lantern-baker: the toast '🔍 達成！讓假消息碰巧挖出真問題' appears on the same beat that 老周's inspect bubble plays, never earlier, and playback does not pause. (d) The results card lists the stamp with its evidence line, e.g. '17:10 老周檢查舞台…'. (e) Reload keeps the progress. A private window renders the chip with no console error (localStorage wrapped in try/catch). (f) Stamps from recorded runs carry a 📼 mark. The __viralRules dev path never stamps.",
+   "effort": "M (~3h)",
+   "why_fun": "Gives the player something to watch FOR and root for ('come on 老周, send them!'). It answers 'what can I play?' and 'why try again?' without adding a strategy layer. This is the single biggest step from 'butterfly demo' to 'game'.",
+   "details": "Visible goals (6), all with observed rates above 0:\n- 🗣️ 讓一句話傳遍全鎮: at least 6 distinct deliver targets with via !== 'inspection'. This is the easy first stamp.\n- 🔍 讓假消息碰巧挖出真問題: the planted claim is false and an inspect finds the check.zh of a true expert-checked FACTS entry that was not planted. Reuse story.ts discovery logic.\n- 🚧 讓舞台被封鎖: state key 'stage'.\n- 📰 讓小雯登上霧港小報: an 'article' event.\n- 🚓 讓警察出動: state key 'police'.\n- 🤝 讓兩個不相識的人當面說上話: a talk event whose actor is not the seed resident and where neither persona's relations names the other.\n\nHidden ??? (4): 🔒 shop closed · ✊ gather · 📣 mayor statement · 🏮 festival cancelled (the legend).\n\nDetection rules:\n- During playback, compute only from show.order.slice(0, show.i) via useStoreVersion in GameUI. Do not touch director.ts.\n- On results, compute from run.events.\n- Near-miss lines ('差一點：林市長把握 0.8，明明可以取消燈籠節') come from story.ts closest/rejected only. 'Almost cancelled' is a near-miss line, not a goal.\n- Persist to localStorage 'viral.goals.v1'.\n\nThe 霧港小報 gets a '今日戰績' row.\n\nNo rewards, timers, unlocks or scores. Copy must invite, never promise. Weak inputs that tick nothing (0/8) must not read as failure."
+  },
+  {
+   "title": "Role card: each resident shown as a tool (tag, verb chips, phone web, credulity, goal icons)",
+   "area": "UI",
+   "files": [
+    "src/sim/scenario.ts (PUBLIC_BIO: add icon + tag, reorder examples, 3→2)",
+    "src/town/roles.ts (new TOOL map)",
+    "src/town/GameUI.tsx (compose card ~L568-610)",
+    "src/town/PlaybackLayer.tsx (ROLE_ICON from PUBLIC_BIO; POWER chips from TOOL; contact lines while composing)"
+   ],
+   "acceptance": "(a) Click each of the 8 residents and screenshot each. Every card shows a one-line tag, verb chips, '📞 會打給：…', credulity as 耳根軟 ●●○○○, and the icons of goals they can directly cause. The card is docked bottom-left, at most 380 px wide, and does not cover the clicked resident. (b) A unit check: for every npc, chips ⊆ persona.actions and contacts == relations with phone:true. (c) A test asserts that no tag contains a FACTS keyword, persona.wants text or secret text. (d) Thin lines run from the selected resident to each phone contact on the map; 美咲 visibly has the most. (e) The power chip over a confident resident during playback uses the same words as the card. (f) lab/e2e.mjs still finds '植入這個念頭'. (g) Each resident's first example chip is an input that produced at least 1 world change in P5–P9. Move '聽說市長很害怕鴿子' out of first place for 阿德 and 美咲.",
+   "effort": "S-M (~2h)",
+   "why_fun": "Makes 'the same sentence to different people' something the player can predict before typing. They start planning routes ('tell 美咲, she phones 老周') instead of guessing. This is the core of critiques 3 and 4.",
+   "details": "Tags:\n- baker '🤡 大聲公：話多又容易信，消息到他嘴裡會變大條'\n- florist '🕊️ 心軟：動物或孩子有危險，她最坐不住'\n- journalist '📰 放大器：會查證，也能發文讓全鎮看到'\n- cafe '☕ 八卦中心：電話簿最滿，警長的老朋友'\n- police '🚓 執法者：能派警力、封鎖舞台、親自檢查；很難被陌生人說服'\n- mayor '🎩 權力與公關：能公開聲明、能取消燈籠節；最難說服、最怕丟臉'\n- organizer '🏮 舞台負責人：能貼公告；出事先撇清'. Do NOT use '心虛時會掩蓋', which hints at his secret.\n- vendor '✊ 帶頭的人：一聲號召，攤商就聚集'\n\nRules:\n- Chips say 能 or 有機會, never 會.\n- Bucket credulity: <0.4 很難說服, <0.6 半信半疑, otherwise 容易相信.\n- Hide the bio under <details>.\n- Move history out of the card to the 📼 popover (item 6).\n- Camera frame-at on select is optional; do it only after item 6 moves camRequest into camera.ts."
+  },
+  {
+   "title": "鎮上日常: a scheduler for authored everyday scenes that yields to the director, plus a first pack of 6–8 scenes",
+   "area": "ambient life",
+   "files": [
+    "src/town/vignettes.ts (new)",
+    "src/town/cast.ts (new: NPC_POST/persona lookups, avoids director⇄crowdSim cycle)",
+    "src/town/crowdSim.ts (a.vig field, vigGoto/vigHold/vigFree; scriptGoto/scriptHold clear vig; exclude vig agents from chats and pet owners; remove core residents' random errands; per-resident door emoji)",
+    "src/town/Crowd.tsx (stepVignettes after stepCrowd; new act poses wave/hawk/offer/yell/scan/photo/trip/clap/bow/speech; distance-scaled ambient bubbles, max 6 in view)",
+    "src/town/Props.tsx (stage left-rear post + banner wobble ref)",
+    "src/town/director.ts (meanwhileSpot prefers running storySafe vignettes; endAllVignettes on load/reset; crowdLooks/borrowCrowd end vignettes near)"
+   ],
+   "acceptance": "(a) Explore, untouched, for 2 minutes at the plaza preset: at least 4 distinct scenes are seen, never more than 3 at once, never the same scene twice in a row. (b) Screenshot of stage-rush: the left-rear post and banner shudder, 志明 shows 😅, and the line reads 「沒事沒事！別碰！」. (c) Full replay of recorded P2-stage-cafe with a logger on window.__vig: no core resident and no agent in show.order is ever cast while playing, and no anchor is within 18 m of show.focus or any thinking resident. (d) At least one meanwhile cutaway reads '同一時間，…' naming a running scene instead of '在打盹'. (e) A unit test scans every scene line against a banned list (舞台安全, 檢查, 預算, 超支, 烤箱, 警力, 鴿子生病, 部落格) and all FACTS keywords, and finds none. (f) LITE runs at most 1 scene; ?calm runs 0; lab/e2e.mjs passes with ?calm. (g) Ambient lines use a beige/grey style with a 「日常」 tag, never violet (the AI colour).",
+   "effort": "L (~6–7h; scheduler 2.5h, ~0.5h per scene)",
+   "why_fun": "The town is fun to watch before any whisper: small dramas, awkwardness and gossip. The core scenes quietly teach each resident's role and the social graph, and mime true weaknesses, Hitman-style: watch, suspect, whisper, see if you were right. They also fill model-wait dead air with real life instead of a dozing cat.",
+   "details": "Must ship:\n- The scheduler: separate rng(4242); 3 scenes at once in explore, 1 in playback (storySafe only); a start every 6–10 s; cooldowns of 60–180 s per scene and 40 s per agent; a per-scene timeout, then release; 'stuck more than 6 s' fails the scene instead of teleporting.\n- 4 core scenes, explore/compose/results only:\n  - stage-rush: 志明 yells at helpers; a helper leans on the left-rear post and it wobbles. Gate on FACTS stage_uninspected.value.\n  - haggle: 阿珠 says the fee doubled (PUBLIC_INFO) and glares at the town hall; 30% chance the neighbouring vendors join with 💸.\n  - samples: 阿德's free samples; he won't stop talking; his last beat is a silent 😬 glance at his door.\n  - patrol: 老周 walks with hands behind his back; a kid runs and gets told off, then bolts with 😜 the moment he turns away.\n- 2 storySafe scenes for playback and meanwhile: a kid chases 麻糬 (export flee() from petSim scare()), and neighbours bicker over a bike.\n\nStretch:\n- café gossip ripple (美咲).\n- the mayor's speech rehearsal (wave only when watched; no pigeons in v1).\n- 小雯 runs to loud scenes and photographs them.\n- 美玲 at the dove cages (needs item 10).\n\nSecrets are only ever mimed (emoji or physics), never spoken.\n\nWhile ui.selected is a resident, end their scene and hold them facing the camera.\n\nDo not change gait speed in stepScript, because playback waits on arrivals."
+  },
+  {
+   "title": "Signature moves: persona habits, a phone de-emphasis line and an honest public-pressure trigger, measured in ONE lab batch",
+   "area": "scenario/prompt",
+   "files": [
+    "src/sim/scenario.ts (habits per persona)",
+    "src/sim/mind.ts (inject 【你的習慣】 after the persona block; ACTION_ZH phone and public_statement wording)",
+    "src/sim/engine.ts (mayor public-pressure delivery, coordinate with lead)",
+    "src/town/PlaybackLayer.tsx (mayor chip '📣 可以發聲明')",
+    "lab/run.ts + lab/fun-metrics.ts (batch)"
+   ],
+   "acceptance": "(a) lab/test-engine.ts, test-validators.ts and test-conversation.ts all pass. (b) One batch, run when the owner is not playtesting, costing about US$0.01–0.02: the 6 dramatic inputs, plus '聽說市長很怕鴿子'→美咲, '舞台好像在晃'→志明 and pigeon→阿德 ×2, one run each. Pass if all of these hold: at least 2 runs contain a statement, notice, rally or close_shop by the mayor, organizer, vendor or cafe; phone share of all actions is below 50% (it is about 60% now); the talk event count rises; no single ending exceeds 40%; decisions stay within the 22 cap. (c) Re-run lab/test-challenges.ts on the new batch and update the goal list if rates moved. (d) If a persona's habit creates an attractor, revert that persona's habit only.",
+   "effort": "S code + batch (~2h incl. analysis)",
+   "why_fun": "Today every road ends at the police or the press, so the resident you choose only changes the route. This makes the choice change the KIND of outcome: a PR denial on the town hall steps, a notice on the board, a vendor rally, a closed shop. It also produces more face-to-face scenes instead of distant phone calls.",
+   "details": "Habits are characterisation, not orders:\n- 林市長: when a rumour about him or the festival is spreading in public, he prefers to clarify it in person.\n- 志明: when something goes wrong, his first reaction is to post a notice or say publicly that everything is safe.\n- 美咲: she tells customers in the café first.\n- 阿德: when nervous, he closes the shop and goes to talk to people face to face.\n- 美玲: anything about animals, she goes to see in person.\n- 阿珠: when she is upset with the town hall, she gathers the vendors.\n\nNew phone description: '打電話（適合急事或對方很遠；重要的事當面說比較容易讓人相信）'.\n\nPublic-pressure trigger (engine, deterministic, honest):\n- Applies to mayor topics (mayor_fears_pigeons, mayor_embezzled, budget_overrun, fee_covers_budget, birds_banned).\n- Fires once per topic, when at least 3 non-mayor residents hold the claim at 0.3 or more, or an article cites it.\n- It delivers to the mayor via 'crowd' with text that states only what the log supports: '鎮上好幾個人在傳：「…」'. Do NOT add '外面有人在等你回應'; no crowd was logged.\n- Mark statement deliveries to people who already hold the claim as 'repeat', to protect the budget.\n\nNo new 'announce' verb. No café overhearing rule."
+  },
+  {
+   "title": "Signature costume kits, stance and gait for the 8 core residents (Crowd.tsx only)",
+   "area": "characters",
+   "files": [
+    "src/town/Crowd.tsx (KIT table via POST_NPC; TorsoGear/HandGear/HeadGear slots; body-width factor; gait multipliers on stride/arm/bounce/cadence/sway/lean; idle stance layered under acts; muted palette and hat hygiene for generic townsfolk)"
+   ],
+   "acceptance": "(a) Hide the UI (H). Screenshots at the plaza preset at 15:30 and 19:45. A fresh viewer can name all 8 roles from one prop each:\n- top hat, red sash and cane (mayor)\n- peaked cap with gold band and badge, broader build (police)\n- beret, chest camera, mustard shirt (journalist)\n- tall toque, belly, rolling pin (baker)\n- sunhat with flower and a dove on the shoulder (florist)\n- long brown apron and tray (café)\n- lime hi-vis vest, headset, clipboard (organizer)\n- hachimaki and takoyaki boat (vendor)\n(b) No generic agent wears a toque, top hat, beret, hi-vis or sunhat; the ramen cook keeps the short chef hat. 老周 is visibly different from the officers. (c) In a close shot, the phone and talk/excited acts still play: held props are in the left hand, the phone in the right. (d) Frame time within 5% of baseline (about +100 meshes). (e) No crowdSim RNG change: the same seed gives the same walker layout.",
+   "effort": "M (~3h)",
+   "why_fun": "The costume tells you what the person can do. Choosing whom to whisper to becomes a visual, Two Point–style choice, and the role card and scenes land because you can find 老周 in a crowd at a glance.",
+   "details": "Take the specs from the visual proposal.\n\nFix the audit bugs:\n- The baker, 阿珠 and the ramen cook share a chef hat.\n- 小雯 inherits the news shop's grey apron.\n- 老周 is a clone of the officers.\n- Core residents get random glasses and scarves.\n\nGait table from the visual proposal: the café owner always holds her tray level; the mayor walks slowly with his chin up.\n\nA stance layer adds periodic idle tells:\n- the mayor's PR wave every 9 s\n- 志明 checks his clipboard and taps his headset\n- 阿珠 hawks takoyaki\n- 小雯 scribbles and looks around\nStance never writes the arms while calling, and blendAct still overrides it.\n\nGeneric crowd colours: lerp 0.2 toward #bfb6a8, done in Crowd.tsx as a display remap so crowdSim stays untouched.\n\nDo not change walking speed (tempo) today."
+  },
+  {
+   "title": "UI diet: a clock/countdown pill with a drawer, a corner speed pill, a hairline progress bar, and ONE 'what is happening now' line",
+   "area": "UI",
+   "files": [
+    "src/town/TownScene.tsx (delete Hud title/stats/slider/views/speed, keep the H toggle; land after the lead's lighting edit)",
+    "src/town/camera.ts (new: VIEWS, camRequest with {view}|{at:{x,z,dist}})",
+    "src/town/GameUI.tsx (TownPill + drawer; corner pill replaces Controls; NowLine replaces CaptionBar, meanwhile pill, stall timer and simulating card; explore NowLine = 日常 feed from running scenes, tap to fly there; 📼 popover merges recorded runs and history)",
+    "src/town/director.ts (drop the found ≤60-char condition so long finds never duplicate in captions)",
+    "lab/e2e.mjs, lab/e2e-prod.mjs (selectors; add data-phase on the GameUI root)"
+   ],
+   "acceptance": "(a) Screenshots at 1280x800 in explore, compose, playing and results. Permanent chrome in explore is at most 5% of the screen. There are no '位鎮民…' or '隻貓、隻狗' lines, and no always-visible slider, view or speed buttons. (b) While playing, exactly one caption line is ever visible (never two stacked). The pill reads e.g. '17:04 · 🏮 燈籠節還有 2:56' and pulses amber in the last 30 minutes. (c) 看結果 appears inside NowLine when the story is done. (d) Forcing an LLM error still shows '⚠️ 模擬中斷了' with 再試一次 and 回到小鎮. (e) H hides and restores the UI. (f) The 12× explore speed is gone (unreadable); ⏸/1×/4× remain in the pill. (g) Both e2e scripts pass, with results detected via data-phase.",
+   "effort": "M (~3–4h)",
+   "why_fun": "The screen belongs to the characters and events, not to a simulator control panel. 'What is happening now' is always one glance away, and the story clock reads as a doom countdown, Plague Inc.–style.",
+   "details": "Model-call counters move to 🔬 技術紀錄.\n\nThe replay note shrinks to '📼 真實 Gemma 推演紀錄（不重新呼叫模型）', with the timestamp in a tooltip. The honesty note stays; only its length goes.\n\nRecorded-run rows show the input, not the outcome headline (no spoilers).\n\nThe first-run hint '👆 點一位有名牌的居民…' disappears after the first whisper (localStorage, try/catch).\n\nThe act title moves to top-[10%] at text-base.\n\nNowLine priority order:\n1. system error\n2. a fresh caption not already shown over a head\n3. stalled → '💭 X 在想…（Gemma 推演中 N 秒）'\n4. meanwhile label\n5. the last played event, dimmed"
+  },
+  {
+   "title": "Results that hand you the next experiment: headline first, stamps, a one-click 差一點 What If, a cast grid, and a 20:00 backdrop",
+   "area": "UI",
+   "files": [
+    "src/town/GameUI.tsx (Results ~L241-361)",
+    "src/town/StoryCardView.tsx (hideHeadline prop)",
+    "src/town/story.ts (suggestNext(run): near-miss resident's top phone contact, else the hub/amplifier not yet reached; never a predicted ending)",
+    "src/town/shareCard.ts (stamps on the newspaper)",
+    "src/town/director.ts or TownScene.tsx (on results: clock to 20:00, plaza overview camera; world-change signs from show.world only)"
+   ],
+   "acceptance": "(a) Results screenshot: the 霧港小報 headline is the first and largest text. Under it come the seed line, the stamps row, and at most one amber button '📌 差一點：… → 同一句話告訴X？', shown only when story.closest exists or a refusal was logged. Clicking it starts What If with the same sentence. (b) A 4×2 cast grid shows icon, 告訴X and a short role label (執法, 權力, 放大器, 八卦中心, 帶頭, 大聲公, 心軟, 舞台). The 2 suggested residents are highlighted. (c) Stats collapse to one muted line. The chain, highlights and tech log sit inside <details>. The panel is at most 400 px wide and has a 收起 button. (d) No CaptionBar overlaps the results. (e) For a weak-input fizzle such as P1-meme-organizer, the suggestion names a resident outside the reached set. (f) Behind the panel the town sits at 20:00 with lanterns lit. Tape and cones appear only if show.world says so, captioned '20:00 · 故事結束時的鎮上'. (g) The downloaded newspaper PNG prints 今日戰績.",
+   "effort": "M (~2.5h)",
+   "why_fun": "A failed or fizzled run becomes a hypothesis to test ('老周 was at 45%, try his old friend 美咲'), not a reroll. The festival, which no story ever reaches, still gets a small payoff shot of the town as the player left it.",
+   "details": "Replace the numeric What-If compare with 'last time: {headline} / this time: {headline}'.\n\nDelete the 4 stat tiles, the '傳到：…最後做出判斷的是X' line and the 7 identical 告訴X pills.\n\nThe 20:00 backdrop is static set dressing from validated world state. No staged festival scene, and nothing like 'performance moved to the plaza'.\n\nWhen the closest near miss is absent, fall back to the resident whose tool matches an unfinished goal, phrased as 試試看."
+  },
+  {
+   "title": "補一句 (one-time lull whisper): offered once, only when the story is about to fizzle, behind a flag",
+   "area": "engine",
+   "files": [
+    "src/sim/engine.ts (SimConfig.onLull; idleIf on routine/goHome tasks, also covering the new conversation-session tasks; second seed emit + deliver)",
+    "src/sim/types.ts (RunResult.whispers)",
+    "src/town/GameUI.tsx (SecondWhisper chip with 8 faces, 80-char box, 2 suggestions from suggestNext, 20 s auto-skip ring, 讓它淡去)",
+    "src/town/story.ts + src/sim/metrics.ts (multiple seed roots)",
+    "src/town/shareCard.ts",
+    "lab/test-engine.ts (rules-policy stub)"
+   ],
+   "acceptance": "(a) Rules-policy test with a pigeon-like fizzle and a stub onLull:\n- the log has 2 seed events and the second chain is delivered;\n- total decisions stay at or below 22;\n- onLull is called at most once;\n- it is never called with fewer than 5 decisions left or after 19:00 story time;\n- reset or abort during the await resolves null with no hang (explicit test).\n(b) The story card and the newspaper print '你又對X補了一句：「…」'.\n(c) Replaying the strong chain P2-stage-cafe never shows the chip.\n(d) Flag ?whisper2=0 restores today's behaviour exactly; the recorded-run hash is unchanged.\n(e) Human check: 3 sessions, record whether the chip was used and whether they retried more. If no one used it, ship with the flag off.",
+   "effort": "M (~3h, timeboxed: if the engine test is not green by 17:00 today, cut it and rely on item 7)",
+   "why_fun": "It turns the deadest moment, the 45% of runs that fade within 2–3 people, into the moment the player has the most control. It needs no extra LLM budget, because those runs leave 7–21 decisions unused. It is also the only route to the two goals that have never happened (gossip bridging out of the 阿德–美玲–美咲 triangle, and reaching the mayor). This is the answer to the owner's mid-run question: watch the strong chains, nudge only the fizzles.",
+   "details": "Lull condition:\n- every queued item is idle;\n- no inbox and no pending decision;\n- at least 5 decisions remain;\n- the last active event is more than 60 minutes before 20:00.\n\nThe engine awaits the UI promise at the frontier. The UI shows the chip only when playback has caught up (show.stalled, or gameT ≥ x.t − 0.5). The first listener keeps their memory of the stranger.\n\nRejected options:\n- Intervention at any moment: the engine runs ahead of playback, so it would contradict computed events and cut into climaxes.\n- Prediction bets: UI cost with no payoff."
+  },
+  {
+   "title": "今晚行程 countdown: a 'bomb under the table' chip before a routine meeting where someone is carrying a belief",
+   "area": "director/playback",
+   "files": [
+    "src/town/director.ts (upcoming routine from show.gameT and played belief events only)",
+    "src/town/GameUI.tsx (chip above NowLine; ROUTINE icons as ticks on the hairline progress bar)",
+    "src/sim/scenario.ts (read-only ROUTINE)"
+   ],
+   "acceptance": "(a) Replay recorded P5-lantern-baker: about 10 story minutes before 17:00, the chip '⏰ 再 10 分鐘：老周要去舞台找志明巡查' appears. It shows only because one of the pair has a played belief of 0.3 or more in a category listed in that meeting's `about`. (b) On a run where neither carries anything, no chip appears for that meeting. (c) The chip text never states or implies the outcome, and it disappears when the meeting plays or passes. (d) Meetings that pass without coming up show grey ticks on the bar.",
+   "effort": "S (~1h)",
+   "why_fun": "Hitman-style schedule anticipation. The player leans in: will 志明 crack when 老周 arrives? Over runs, players learn timing ('get 阿德 worked up before 16:30'). It is cheap suspense from data the engine already owns.",
+   "details": "Mirror the engine's rule exactly: a meeting matters only if carried(a, r.about) ?? carried(b, r.about), computed from played events, never from the engine frontier.\n\nNo new ROUTINE entries."
+  },
+  {
+   "title": "Dramatic stages: the town hall as power centre, the plaza/stage as festival centre, honest chalkboards, dove cages",
+   "area": "props/landmarks",
+   "files": [
+    "src/town/Buildings.tsx (TownHall: taller waving flags, 燈/籠/節 vertical banners, red carpet, press podium on the portico inside the OBB; CHALK text)",
+    "src/town/StreetProps.tsx (stall-2 A-frame '攤位費 漲一倍？！ 章魚燒照舊')",
+    "src/town/Props.tsx (stage truss with sub-bloom bulbs, deep-red backdrop, speaker stacks; dove cages with healthy white doves inside the existing STAGE OBB footprint; tiered fountain lantern; bakery chimney puffs, skipped in LITE)",
+    "src/town/textures.ts (vbannerTexture)"
+   ],
+   "acceptance": "(a) The overview screenshot reads at a glance: the town hall is the tallest flagged landmark with a podium; the stage has a backdrop that makes whoever stands on it pop; dove cages are visible at the stage. (b) `node scripts/check-layout.ts` output and the nav grid are byte-identical to before (no OBSTACLE_*/POIS edits). (c) Close shot of 美咲: the chalkboard reads '今晚 8 點 / 女兒登台！'. The flower shop reads '白鴿照顧中'. (d) The police and news boards contain no text about staffing, recruiting or blog trouble. (e) Draw calls rise by fewer than 40; LITE is unchanged apart from the static meshes.",
+   "effort": "S-M (~2h)",
+   "why_fun": "Space becomes a stage for drama: the town hall is where power defends itself (and where item 4's statements land), and the plaza is where tonight happens. Honest set dressing shows each resident's lever: her daughter performs, the fee doubled, the doves exist. The world itself suggests whom to tell what.",
+   "details": "Show only public or PUBLIC_BIO facts:\n- the fee doubled\n- 100 doves\n- 美咲's daughter performs\n\nDo NOT add:\n- a permanently askew stage brace. LOOK_LIMITS says a look can't tell whether the stage is sound, so 老周's go_look would contradict the screen.\n- '警力招募中' or '今晚加強巡邏' (police_half is 老周's secret).\n- '請訂閱支持' (blog_failing is 小雯's secret).\n\nThe strut hint lives only in the transient stage-rush wobble (item 3)."
+  },
+  {
+   "title": "Night readability finish: moon key from the camera side, lights pulled to the plaza, no lantern shadow noise",
+   "area": "lighting",
+   "files": [
+    "src/town/clock.ts (lerp sunDir toward a high camera-side MOON after 18.8; neon blink capped at 2.2)",
+    "src/town/Props.tsx (castShadow off on instanced lanterns and the fountain lantern; lit-lamp set = plaza/town-hall/shopping-street indices; one festival point light at (0,5.2,-13.4), mounted at load with intensity 0)",
+    "src/town/TownScene.tsx (verify only; the lead already set bloom 1.25/0.5, vignette 0.3 and the fill light)"
+   ],
+   "acceptance": "Before/after screenshots at 18:30, 19:30 and 20:00, at the plaza preset and in a stage close shot, in full and LITE modes, saved in lab/shots/night/. Pass if: every core resident's face colour and kit are readable at 19:45 and 20:00; no lantern halo overlaps a head in close shots; lanterns stay saturated and festive; there is no dotted shadow on faces; the frame cost is at most +1 light.",
+   "effort": "S (~1h)",
+   "why_fun": "The owner's night complaint, finished cheaply. It mostly pays off in explore and on the item-7 20:00 results backdrop, because stories end at a median of 16:42.",
+   "details": "Do it after the lead's TownScene/clock edit lands. Change parameters only.\n\nRim-light shader and blob shadows: cut (medium risk, onBeforeCompile)."
+  },
+  {
+   "title": "Cast strip: 8 tokens, a roster in explore and a live 'who knows now' map in the story",
+   "area": "UI",
+   "files": [
+    "src/town/GameUI.tsx (or new src/town/CastStrip.tsx)",
+    "src/town/PlaybackLayer.tsx (CoreMarker scale cap 3.2→2.4)"
+   ],
+   "acceptance": "(a) Explore: 8 tokens at top-centre. Clicking one flies the camera and opens the role card. (b) Replay P5-budget-journalist: at every beat the number of ringed tokens equals show.infected.size. Fill colour follows show.stance (rose = believes, amber = doubts, grey = rejects). 💭 shows while show.thinking has the resident. Action badges (🚓📰✊🚪📣) appear only after the event has played. 'n/8' is shown at the end. (c) At 375 px wide there is no overflow; hide the strip while playing if needed.",
+   "effort": "S-M (~1.5h)",
+   "why_fun": "The spread becomes the spectacle (Plague Inc.'s infection counter): you watch the tokens light up and see who is still holding out. It replaces the '影響居民' number with something that fills up while you watch.",
+   "details": "Drive it only from apply()-fed show.* state, which is always playback-time.\n\nTokens are colourless during simulating.\n\nBelow the 16:00 cut line."
+  },
+  {
+   "title": "The town notices real beats: pets and kids react to validated public events, and background chats get turn-taking",
+   "area": "ambient life",
+   "files": [
+    "src/town/director.ts (existing 'bystanders react to real public changes' hook)",
+    "src/town/petSim.ts (export flee/follow)",
+    "src/town/crowdSim.ts (CHAT reply pairs and speaker swap; remove ❗😮👀 from ambient pools)"
+   ],
+   "acceptance": "(a) Replay P5-oven-police: on the police 'arrive' beat or a state/gather beat, at least one kid salutes or trails within 12 m and at least one pet flees or follows within 10 m. At most one reaction per beat, and none during a close two-shot. (b) Grepping the CHAT pool finds no ❗, 😮 or 👀. (c) Background chats show A's emoji, then B's reply emoji after about 0.8 s, with talk/listen acts. (d) Nothing in this item emits an event or touches a mind.",
+   "effort": "S (~1.5h)",
+   "why_fun": "Big beats get a laugh and a sense that the whole town noticed (the shiba barking after a stomping 阿珠, kids marching behind officers) without inventing any beliefs. Background chats stop looking like the rumour spreading.",
+   "details": "Presentation only.\n\nThe ambient pools lose the director's story-reaction emoji, so a background chat near the action can never be misread as propagation."
+  },
+  {
+   "title": "Shopping-street bunting and harbour crane/gulls (no nav changes)",
+   "area": "props/landmarks",
+   "files": [
+    "src/town/StreetProps.tsx (Bunting catenaries strung only between existing facades and lamp posts, replacing Pennants; café terrace string lights on facade anchors; Harbour crane on the water side of the quay or the pier end, outside walkable cells; 4 gull groups)",
+    "src/town/Terrain.tsx (only if the crane mounts there)"
+   ],
+   "acceptance": "(a) The overview screenshot shows a coloured zig-zag over the shopping street and a yellow crane slowly swinging a crate at the harbour, with gulls circling. (b) `node scripts/check-layout.ts` and the nav grid are unchanged. (c) Dockworkers' paths are identical over 2 minutes of watching. (d) Gulls and puffs are off in LITE. (e) Draw calls rise by fewer than 25 (instanced flags).",
+   "effort": "M (~2h)",
+   "why_fun": "The last two districts the owner named get their own identity: the social street feels lived-in and the harbour feels like a working port. That breaks the 'even, tidy display model' look.",
+   "details": "Below the 16:00 cut line.\n\nIf an anchor would need a new pole or obstacle, drop that span; no layout.ts edits today.\n\nCut the sailing boat and the festival arch, which needs obstacles."
+  }
+ ],
+ "cut": [
+  "HUD town statistics ('N 位鎮民：x 人在走動…') and the pet-count line (TownScene Hud). Simulator telemetry; the 日常 NowLine feed replaces it.",
+  "The big in-game title card 'VIRAL · 一句話的蝴蝶效應 / 霧港鎮 Mistport'. Becomes a faint wordmark in the clock pill.",
+  "Always-visible time slider, 6 camera-view buttons and the two separate speed rows. Moved into the clock drawer and corner pill. The 12× explore speed is deleted outright, because scenes are unreadable at 12×.",
+  "The 720px playback transport bar. Replaced by the corner pill plus a hairline progress bar; 看結果 moves into NowLine.",
+  "Second stacked caption, CaptionBar during results, long 'found' captions that repeat the bubble, the separate meanwhile pill and the stall timer in the bar. All folded into one NowLine.",
+  "Model-call/decision/second counters in the simulating card. Moved to 🔬 技術紀錄.",
+  "Results: the 4 stat tiles (the 燈籠節 tile read 照常 in 38/38), the numeric What-If compare, the '傳到：…最後做出判斷的是X' line, the highlights block and the default-open chain/tech log. One muted line, with the rest under <details>.",
+  "Seven identical orange '告訴X' pills. Replaced by the cast grid with role labels and 2 suggestions.",
+  "History list inside the whisper card, and recorded-run rows that show outcome headlines (spoilers). Merged into one 📼 popover that shows inputs only.",
+  "The third example chip per resident, and '聽說市長很害怕鴿子' as 阿德's and 美咲's first chip (it fizzled within 2–3 people in 5/5 runs).",
+  "Decimal belief transitions ('0.45 → 0.80') in captions and on the story card. The bar stays in thought clouds; the numbers go to the tech panel.",
+  "Verbose inline honesty disclaimers. Shortened to a 📼 badge or ⓘ tooltip; the honesty stays.",
+  "'同一時間，X 在打盹 / 鎮民在閒聊別的事' as the first-choice meanwhile cutaway. Kept only as a fallback behind running storySafe scenes.",
+  "The generic door-keeper emoji pool ['👋','😊','📣','✨'] for core residents, and ❗😮👀 in the ambient CHAT pool (they are the director's story-reaction emoji).",
+  "Core residents' random errands into other shops (they vanish while their click target stays live).",
+  "Duplicate chef hats (阿珠, ramen cook, 阿德), 小雯's inherited shop apron, 老周's officer-clone look, random glasses/scarves on core residents, and sunhats on generic townsfolk.",
+  "Single flags bolted on lamp posts (Pennants), once bunting lands. castShadow on instanced lanterns. Neon blink above 2.2.",
+  "Permanent first-time instruction pill after the first whisper. Name-tag scale cap 3.2 (lowered to 2.4).",
+  "PROPOSALS CUT TODAY: the new 'announce' action verb (cross-cutting; the unused public verbs already exist); the café overhearing spread rule; the 小道消息 clue notebook as a separate system; the town-radio silly ticker; the new ROUTINE entries at 19:00/19:05 (they fire after nearly every story has ended; attractor risk); the rim-light shader and blob shadows; world-state lighting for a festival cancel or a 20:00 flare (0/38 reach either); the staged 20:00 epilogue scene (replaced by the static results backdrop); the festival arch, prep tables, door pots, new POIs, the notice-board OBB and the stall-OBB fix (all nav changes); the sailing boat; trimming the walker count; the performer, trip-and-drop, lamplighter and friend-visit scenes; attract-mode auto camera; any-time mid-run intervention; prediction bets; goal rewards, unlocks or timers; gait tempo changes in crowdSim; removing 志明's post_notice from the prompt."
+ ],
+ "flagged": [
+  "HONESTY: The mayor public-pressure delivery text '鎮公所外面有人在等你回應' invents a waiting crowd that no logged event contains. Allowed text only states what logged beliefs support ('鎮上好幾個人在傳：「…」').",
+  "HONESTY: The chalkboard texts '警力招募中' / '今晚加強巡邏' (police_half is 老周's secret) and '請訂閱支持' (blog_failing is 小雯's secret) put private facts into the public world and contradict the knowledge model. Boards may show only public or PUBLIC_BIO facts (fee doubled, 100 doves, 美咲's daughter performs).",
+  "HONESTY: A permanently askew stage brace contradicts LOOK_LIMITS ('光是看看是看不出來的'). If 老周's go_look sees nothing while a broken brace is on screen, the world looks dishonest. Hint the strut only through the transient stage-rush wobble, gated on FACTS stage_uninspected.value.",
+  "HONESTY: The 20:00 epilogue as proposed ('performance moved to the plaza', 'people reading the exposé on phones') stages outcomes that are not in the log. Replaced by a static backdrop driven only by show.world.",
+  "HONESTY: Vignettes must never cast core residents or show.order agents during playback, must never use story-topic words or FACTS keywords, must use a beige 「日常」 style and never violet, and must draw no thread lines. Enforce with a unit test and a __vig playback log check.",
+  "HONESTY: Goal stamps, the cast strip, countdown chips and power chips must read show.order.slice(0, show.i) (what has been played), never the engine frontier. Recorded runs stamp with a 📼 mark; the __viralRules dev path never stamps.",
+  "HONESTY: Role-card copy must say 能/有機會, never 會. It must never surface persona.wants or secrets (the mayor's wants text reveals budget_overrun). 志明's tag '心虛時會掩蓋' hints at his secret, so use '出事先撇清'.",
+  "HONESTY: 補一句 must be printed on the story card and the newspaper, and story.ts must treat both seeds as roots. Otherwise the card credits one sentence with a two-sentence outcome.",
+  "HONESTY: The café-overhearing rule is engine-authored propagation from unmodelled 'customers'. It is cut, not just deprioritised.",
+  "HONESTY: 差一點 and next-experiment suggestions come only from story.ts log-derived near misses and refusals. Never show a predicted ending.",
+  "RISK/TIME: The mid-run 補一句 touches the engine main loop the lead just reworked. Keep it behind ?whisper2, with an abort-resolves-null test. If it is not green by 17:00 today, cut it and ship the item-7 suggestions only.",
+  "RISK/TIME: Any OBSTACLE_*/POIS/nav change (off-stage dove cages, arch, prep tables, bunting poles, crane obstacle, pots, notice-board OBB, stall-OBB fix) shifts engine travel minutes and lab/e2e baselines. Today, place everything inside existing OBBs or off walkable cells, and verify that check-layout output is unchanged.",
+  "RISK/TIME: Prompt habits and the pressure trigger need a lab batch. Per the owner's memory rule, there is no lab and no src edits while they playtest, so schedule ONE combined batch and revert any persona habit that creates an ending above 40%.",
+  "RISK/TIME: TownScene.tsx, clock.ts, engine.ts and director.ts were edited by the lead at 10:53–10:57. Moving camRequest/VIEWS into camera.ts, the Hud deletion, the pressure trigger and the lull hook must land after the lead's changes, or in new files, to avoid conflicts.",
+  "RISK/TIME: e2e selectors depend on '植入這個念頭', '📼 錄製的實驗', '📼 對' and the body text '影響居民'. Add data-phase on the GameUI root and update lab/e2e.mjs and e2e-prod.mjs in the same change as the results rework.",
+  "DATA: The specialists' goal rates conflict ('town-wide' quoted as 50%, 61% and 0% harmless under different definitions; mayor statement 0/38 vs 1/66). Lock one detector per goal in src/sim/challenges.ts and regenerate the rates with lab/test-challenges.ts before deciding which goals are visible."
+ ]
+}

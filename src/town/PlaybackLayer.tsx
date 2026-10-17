@@ -2,7 +2,7 @@
 
 // What the butterfly effect looks like in the town: who carries the thought, who told whom, and the
 // world changes the engine confirmed (closed shops, a taped-off stage, notices, protest signs).
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Billboard, Html, Line } from "@react-three/drei";
 import * as THREE from "three";
@@ -15,9 +15,16 @@ import { labelTexture } from "./labels";
 import { ui } from "./ui";
 import { DT_MAX } from "./quality";
 import Says from "./Says";
+import { cam } from "./camera";
+import { contactsOf, powerOf, roleIcon } from "./roles";
 
-// what each resident is able to do that would change the town (shown only as suspense, never as a prediction)
-const POWER: Record<string, string> = { police: "🚧 有權封鎖舞台、派警力", mayor: "🏮 有權取消燈籠節", journalist: "📰 可以發新聞", organizer: "🚧 有權封鎖舞台" };
+// what each resident is able to do that would change the town (shown only as suspense, never as a prediction);
+// the same words as the abilities on the whisper card
+const POWER = Object.fromEntries(Object.keys(NPC_POST).map((n) => [n, powerOf(n).join(" · ")]).filter(([, t]) => t));
+
+// a played event in which this resident already made a big public move (the suspense is over)
+const isBig = (e: { type: string; data: Record<string, unknown> }) =>
+  (e.type === "state" && e.data.key !== "writing") || ["article", "statement", "gather", "notice"].includes(e.type);
 
 /** Hitchcock's bomb under the table: someone with real power now believes it. Will they act? */
 function Power({ npc }: { npc: string }) {
@@ -26,7 +33,7 @@ function Power({ npc }: { npc: string }) {
     const el = ref.current;
     if (!el) return;
     const st = show.stance[npc];
-    const doneBig = show.order.slice(0, show.i).some((e) => e.actor === npc && ((e.type === "state" && ["police", "stage", "festival"].includes(String(e.data.key))) || e.type === "article"));
+    const doneBig = show.order.slice(0, show.i).some((e) => e.actor === npc && isBig(e));
     // suspense belongs to the show: off once the story has ended (results on screen)
     const on = (show.status === "playing" || show.status === "paused") && !!st && st.conf >= 0.6 && !doneBig && !show.says.some((x) => (x.anchor ?? x.npc) === npc);
     el.style.opacity = on ? String(0.75 + Math.sin(performance.now() / 300) * 0.25) : "0";
@@ -40,15 +47,13 @@ function Power({ npc }: { npc: string }) {
   );
 }
 
-const ROLE_ICON: Record<string, string> = { baker: "🥐", florist: "🌷", journalist: "📰", cafe: "☕", police: "🚓", mayor: "🎩", organizer: "🏮", vendor: "🐙" };
-
 function CoreMarker({ npc }: { npc: string }) {
   const group = useRef<THREE.Group>(null);
   const ring = useRef<THREE.Mesh>(null);
   const tag = useRef<THREE.Group>(null);
   const hit = useRef<THREE.Mesh>(null);
   const p = PERSONAS.find((x) => x.id === npc)!;
-  const tex = useMemo(() => labelTexture(`${ROLE_ICON[npc] ?? ""} ${p.name}`), [npc, p.name]);
+  const tex = useMemo(() => labelTexture(`${roleIcon(npc)} ${p.name}`), [npc, p.name]);
   const ringMat = useMemo(() => new THREE.MeshBasicMaterial({ color: "#ffb347", transparent: true, opacity: 0.0, depthWrite: false }), []);
   useFrame((state) => {
     const a = agentFor(npc);
@@ -66,7 +71,7 @@ function CoreMarker({ npc }: { npc: string }) {
       tag.current.visible = active && a.visible > 0.5 && !show.says.some((x) => x.npc === npc);
       // keep name tags readable at any zoom: grow with distance to the camera
       const dist = state.camera.position.distanceTo(g.position);
-      const k = Math.min(3.2, Math.max(1, dist / 22));
+      const k = Math.min(2.4, Math.max(1, dist / 22)); // capped lower now that the cast strip names everyone
       tag.current.scale.setScalar(k * (focus ? 1.15 : 1));
       tag.current.position.y = 3.0 + k * 0.35;
     }
@@ -144,6 +149,81 @@ function Threads() {
       })}
     </group>
   );
+}
+
+/** While composing: thin arcs from the selected resident to everyone they can phone (their reach, at a glance). */
+function ContactArc({ from, to }: { from: string; to: string }) {
+  const ref = useRef<{ geometry: { setPositions: (p: number[]) => void } } | null>(null);
+  const start = useMemo(() => Array.from({ length: 9 }, (_, k) => new THREE.Vector3(k * 0.01, 0.3, 0)), []);
+  useFrame(() => {
+    const a = agentFor(from);
+    const b = agentFor(to);
+    const l = ref.current;
+    if (!a || !b || !l) return;
+    const lift = Math.min(6, 1.2 + Math.hypot(a.x - b.x, a.z - b.z) * 0.12);
+    const pts: number[] = [];
+    for (let k = 0; k <= 8; k++) {
+      const u = k / 8;
+      pts.push(a.x + (b.x - a.x) * u, 0.4 + Math.sin(u * Math.PI) * lift, a.z + (b.z - a.z) * u);
+    }
+    l.geometry.setPositions(pts);
+  });
+  return <Line ref={ref as never} points={start} color="#38bdf8" lineWidth={1.6} transparent opacity={0.75} depthTest={false} renderOrder={8} />;
+}
+
+function ContactArcs() {
+  const [npc, setNpc] = useState<string | null>(null);
+  useFrame(() => {
+    // only in the quiet town, never over a story's who-told-whom threads
+    const want = show.status === "idle" && ui.selected && ui.active.has(ui.selected) ? ui.selected : null;
+    if (want !== npc) setNpc(want);
+  });
+  if (!npc) return null;
+  return (
+    <group>
+      {contactsOf(npc).filter((c) => ui.active.has(c)).map((c) => (
+        <ContactArc key={`${npc}>${c}`} from={npc} to={c} />
+      ))}
+    </group>
+  );
+}
+
+/** Glides the camera to a spot the overlay asked for (cast strip, ticker, compose card); the player's drag cancels it. */
+function CamGlide() {
+  const { camera, controls } = useThree() as unknown as {
+    camera: THREE.PerspectiveCamera;
+    controls: (THREE.EventDispatcher<{ start: object }> & { target: THREE.Vector3; update: () => void }) | null;
+  };
+  const goalT = useRef<THREE.Vector3 | null>(null);
+  const goalP = useRef(new THREE.Vector3());
+  useEffect(() => {
+    if (!controls) return;
+    const cancel = () => (goalT.current = null);
+    controls.addEventListener("start", cancel);
+    return () => controls.removeEventListener("start", cancel);
+  }, [controls]);
+  useFrame((_, dt) => {
+    if (!controls) return;
+    if (cam.ask) {
+      const { x, z, dist, right = 0 } = cam.ask;
+      cam.ask = null;
+      // keep the viewing angle; shift the look-at point left so the subject lands right of centre
+      const off = camera.position.clone().sub(controls.target);
+      const left = new THREE.Vector3(-off.z, 0, off.x).normalize(); // the camera's screen-left, on the ground
+      const t = new THREE.Vector3(x, 0, z).addScaledVector(left, right);
+      goalT.current = t;
+      goalP.current.copy(t).add(off.normalize().multiplyScalar(dist));
+    }
+    // a story with the auto director on owns the camera (and a glide it interrupted is dropped, not resumed later)
+    if (ui.follow && show.status !== "idle") goalT.current = null;
+    if (!goalT.current) return;
+    const k = 1 - Math.exp(-dt * 3);
+    controls.target.lerp(goalT.current, k);
+    camera.position.lerp(goalP.current, k);
+    controls.update();
+    if (camera.position.distanceTo(goalP.current) < 0.05) goalT.current = null;
+  });
+  return null;
 }
 
 /** World changes the engine confirmed. */
@@ -244,8 +324,10 @@ export default function PlaybackLayer() {
         <CoreMarker key={npc} npc={npc} />
       ))}
       <Threads />
+      <ContactArcs />
       <WorldChanges />
       <Says />
+      <CamGlide />
     </group>
   );
 }

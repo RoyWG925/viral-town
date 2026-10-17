@@ -6,6 +6,7 @@ import type { RunResult } from "../sim/engine.ts";
 import { FACTS, PERSONAS, PLACES, TOPIC_CATEGORY } from "../sim/scenario.ts";
 import { topicFact } from "../sim/view.ts";
 import type { SimEvent } from "../sim/types.ts";
+import { contactsOf, powerOf } from "./roles.ts";
 
 const nameOf = (id: string) => PERSONAS.find((p) => p.id === id)?.name ?? id;
 const placeZh = (id: string) => PLACES.find((p) => p.id === id)?.zh ?? id;
@@ -40,6 +41,10 @@ export interface StoryCard {
   /** the town ended up talking about something else than the planted sentence: from what, to what, and where it turned */
   drift?: { from: string; to: string; pivot?: Hop };
   reached: string[];
+  /** the extra sentence(s) the player added at a lull (補一句): a second root of the story */
+  whispers: { npc: string; text: string }[];
+  /** which planted sentence the spine starts from (0 = the first, 1 = the 補一句) */
+  spineRoot: number;
 }
 
 const IMPACT: Record<string, string> = {
@@ -47,6 +52,15 @@ const IMPACT: Record<string, string> = {
   police: "派警力",
   journalist: "在新聞部落格發文",
   organizer: "封鎖舞台",
+};
+// the big move a near miss could have made: the officer seals the stage over a stage rumour, else dispatches
+const couldOf = (npc: string, topic: string) => (npc === "police" && topic === "stage_unsafe" ? "封鎖舞台" : IMPACT[npc]);
+// the logged event of each big move (to tell whether somebody already made it)
+const MOVE: Record<string, { type: string; key?: string }> = {
+  宣布取消燈籠節: { type: "state", key: "festival" },
+  派警力: { type: "state", key: "police" },
+  在新聞部落格發文: { type: "article" },
+  封鎖舞台: { type: "state", key: "stage" },
 };
 // the kinds of belief that would justify that big move (a budget scandal is no reason to cancel a festival)
 const IMPACT_ON: Record<string, string[]> = {
@@ -87,7 +101,10 @@ export function storyOf(run: RunResult): StoryCard {
   const events = [...run.events].sort((a, b) => a.t - b.t || Number(a.id.slice(1)) - Number(b.id.slice(1)));
   const byId = new Map(events.map((e) => [e.id, e]));
   const decisionOf = (id: unknown) => run.decisions.find((d) => d.id === id);
-  const seed = events.find((e) => e.type === "seed");
+  // the planted sentence, and any 補一句 after it: every seed is a root of the story
+  const seeds = events.filter((e) => e.type === "seed");
+  const seedIds = new Set(seeds.map((e) => e.id));
+  const seed = seeds[0];
   const seedNpc = run.config.seedNpc;
   const seedText = run.config.seedText;
 
@@ -131,17 +148,21 @@ export function storyOf(run: RunResult): StoryCard {
   // closed; a friend's shop shut, then the bakery itself)
   const top = events.reduce<SimEvent | null>((best, e) => (rank(e) > 0 && rank(e) >= (best ? rank(best) : 0) ? e : best), null);
   let spine: Hop[] = [];
+  let root: SimEvent | undefined = seed;
   if (top) {
     const prev = new Map<string, string>();
     const queue = [top.id];
     const seen = new Set(queue);
     while (queue.length) {
       const id = queue.shift()!;
-      if (seed && id === seed.id) break;
+      if (seedIds.has(id)) {
+        root = byId.get(id);
+        break;
+      }
       for (const c of byId.get(id)?.causes ?? []) if (!seen.has(c)) (seen.add(c), prev.set(c, id), queue.push(c));
     }
     const path: SimEvent[] = [];
-    for (let id: string | undefined = seed?.id; id; id = prev.get(id)) path.push(byId.get(id)!);
+    for (let id: string | undefined = root?.id; id; id = prev.get(id)) path.push(byId.get(id)!);
     spine = path.filter((e) => (e.type === "talk" || e.type === "phone") && !e.data.missed).map(hopOf);
     if (top.type === "talk" || top.type === "phone") spine = spine.length ? spine : [hopOf(top)];
   }
@@ -157,10 +178,17 @@ export function storyOf(run: RunResult): StoryCard {
     .map((h) => ({ ...h, similarity: similarity(h.heard!, h.text) }))
     .sort((a, b) => a.similarity - b.similarity)[0];
 
-  const firstDecide = events.find((e) => e.type === "decide" && e.actor === seedNpc && !e.data.budget);
+  // what each listener first made of a planted sentence (the first one, and any 補一句)
   // claims record the message that triggered the decision as their origin
-  const seedClaims = (run.claims ?? []).filter((c) => firstDecide && c.by === seedNpc && (c.origin === firstDecide.id || firstDecide.causes.includes(c.origin)));
-  const card: StoryCard = { icon: "💬", headline: "", sub: "", spine, reached, wildest: wildest && wildest.similarity < 0.55 ? wildest : undefined };
+  const firstDecides = seeds
+    .map((s) => events.find((e) => e.type === "decide" && e.actor === s.target && e.t >= s.t && !e.data.budget))
+    .filter((e): e is SimEvent => !!e);
+  const seedClaims = (run.claims ?? []).filter((c) => firstDecides.some((d) => c.by === d.actor && (c.origin === d.id || d.causes.includes(c.origin))));
+  const whispers = seeds.filter((e) => e.data.second && e.target).map((e) => ({ npc: e.target!, text: String(e.data.text) }));
+  const card: StoryCard = {
+    icon: "💬", headline: "", sub: "", spine, reached, wildest: wildest && wildest.similarity < 0.55 ? wildest : undefined,
+    whispers, spineRoot: root ? Math.max(0, seeds.indexOf(root)) : 0,
+  };
 
   // topic drift: what the seed listener made of the sentence vs. what most people ended up holding beliefs about
   const claims = run.claims ?? [];
@@ -174,7 +202,7 @@ export function storyOf(run: RunResult): StoryCard {
   // a different topic id is not drift if the player's own sentence already said it ("預算超支，漲價是為了補洞"
   // has two topics): most of the claim's two-character pieces are in what the player said
   const saidByPlayer = (statement: string) => {
-    const said = String(run.config.seedText ?? "");
+    const said = [run.config.seedText ?? "", ...whispers.map((w) => w.text)].join(" ");
     const grams = [...statement.replace(/[，。！？、「」\s]/g, "")].map((ch, i, a) => ch + (a[i + 1] ?? "")).slice(0, -1);
     return grams.length > 0 && grams.filter((g) => said.includes(g)).length / grams.length >= 0.5;
   };
@@ -188,12 +216,16 @@ export function storyOf(run: RunResult): StoryCard {
       const prev = new Map<string, string>();
       const queue = [origin.id];
       const seen = new Set(queue);
+      let from = seed.id;
       while (queue.length) {
         const id = queue.shift()!;
-        if (id === seed.id) break;
+        if (seedIds.has(id)) {
+          from = id;
+          break;
+        }
         for (const c of byId.get(id)?.causes ?? []) if (!seen.has(c)) (seen.add(c), prev.set(c, id), queue.push(c));
       }
-      for (let id: string | undefined = seed.id; id; id = prev.get(id)) {
+      for (let id: string | undefined = from; id; id = prev.get(id)) {
         const e = byId.get(id);
         // keep the last one: the retelling the new topic's first holder heard right before deciding
         if (e && (e.type === "talk" || e.type === "phone") && !e.data.missed) pivot = hopOf(e);
@@ -283,7 +315,7 @@ export function storyOf(run: RunResult): StoryCard {
     return prev.length ? `先是${prev.join("，接著")}，最後${last}。` : `${last}${via}。`;
   };
   if (top && rank(top) >= 5) {
-    if (top.type === "state" && d.key === "festival") Object.assign(card, { icon: "🏮", headline: "燈籠節取消了！", sub: `${actor}宣布取消${via}。一切從你對${nameOf(seedNpc)}說的一句話開始。` });
+    if (top.type === "state" && d.key === "festival") Object.assign(card, { icon: "🏮", headline: "燈籠節取消了！", sub: `${actor}宣布取消${via}。${whispers.length ? "一切從你悄悄說的話開始。" : `一切從你對${nameOf(seedNpc)}說的一句話開始。`}` });
     else if (top.type === "state" && d.key === "stage") Object.assign(card, { icon: "🚧", headline: "慶典舞台被封鎖", sub: chainOf(`${actor}下令封鎖`) });
     else if (top.type === "state" && d.key === "police") Object.assign(card, { icon: "🚓", headline: `警察出動到${placeZh(String(d.to))}`, sub: chainOf(`${actor}派出警力`) });
     else if (top.type === "state") Object.assign(card, { icon: "🔒", headline: `${placeZh(String(d.key).slice(6))}暫停營業`, sub: chainOf(`${actor}決定關店`) });
@@ -382,13 +414,49 @@ export function storyOf(run: RunResult): StoryCard {
     for (const x of events) if (x.type === "belief" && x.actor === npc) finalB.set(String(x.data.claim), Number(x.data.to));
     const strong = [...finalB].filter(([cid, conf]) => conf >= 0.6 && IMPACT_ON[npc].includes(String(catOf(cid)))).sort((x, y) => y[1] - x[1]);
     if (!strong.length || (near && near.conf >= strong[0][1])) continue;
+    // a move somebody else already made is no near miss ("明明可以封鎖舞台" while the stage is taped off)
+    const topic = claims.find((y) => y.id === strong[0][0])?.topic ?? "";
+    const move = MOVE[couldOf(npc, topic)];
+    if (move && events.some((e) => e.type === move.type && (!move.key || e.data.key === move.key))) continue;
     const last = decs.flatMap((x) => x.output!.actions).filter((a) => a.type !== "none").at(-1);
     const did = last ? ({ phone: "打電話給別人", tell: "跑去跟別人說", ask: "去問別人", go_look: "自己跑去看", inspect: "親自去檢查", post_notice: "貼了公告", public_statement: "發表聲明" } as Record<string, string>)[last.type] ?? "做了別的事" : "什麼也沒做";
-    near = { npc, conf: strong[0][1], topic: claims.find((y) => y.id === strong[0][0])?.topic ?? "", did };
+    near = { npc, conf: strong[0][1], topic, did };
   }
-  if (near) {
-    const could = near.npc === "police" && near.topic === "stage_unsafe" ? "封鎖舞台" : IMPACT[near.npc];
-    card.closest = { npc: near.npc, could, did: near.did, conf: near.conf };
-  }
+  if (near) card.closest = { npc: near.npc, could: couldOf(near.npc, near.topic), did: near.did, conf: near.conf };
   return card;
+}
+
+export interface Suggestion {
+  npc: string;
+  /** why this person, in terms of what they are able to do (never a predicted outcome) */
+  why: string;
+}
+
+/**
+ * Two people worth telling next, from this run's log only: the near miss's closest phone contact (one call from
+ * someone who almost acted), else whoever could amplify it and has not heard it yet. Never predicts an ending.
+ */
+export function suggestNext(run: RunResult, card: StoryCard = storyOf(run)): Suggestion[] {
+  const seedNpc = run.config.seedNpc;
+  const active = new Set(run.config.active);
+  const heard = new Set([...card.reached, seedNpc, ...card.whispers.map((w) => w.npc)]);
+  const out: Suggestion[] = [];
+  const add = (npc: string | undefined, why: string) => {
+    if (npc && active.has(npc) && npc !== seedNpc && !out.some((o) => o.npc === npc)) out.push({ npc, why });
+  };
+  if (card.closest) {
+    const near = card.closest.npc;
+    add(contactsOf(near).find((c) => c !== seedNpc && active.has(c)), `跟${nameOf(near)}最親，一通電話就到`);
+  }
+  // amplifiers (public moves) and hubs (many phone contacts) who have not heard it yet, most reach first
+  // a public move (news, police, stage, rally…) reaches more people than closing one's own shop
+  const reach = (npc: string) => contactsOf(npc).length + (!powerOf(npc).length ? 0 : powerOf(npc)[0].includes("關店") ? 1 : 3);
+  const fresh = [...active].filter((n) => !heard.has(n)).sort((a, b) => reach(b) - reach(a));
+  for (const n of fresh) {
+    const power = powerOf(n)[0];
+    add(n, power ? `還沒聽說這件事；能${power.replace(/^\S+\s/, "")}` : `還沒聽說這件事；能打給 ${contactsOf(n).length} 個人`);
+  }
+  // everyone has heard it: someone with a public move, then anyone
+  for (const n of [...active].sort((a, b) => reach(b) - reach(a))) add(n, powerOf(n)[0] ? `能${powerOf(n)[0].replace(/^\S+\s/, "")}` : "換個人聽聽看");
+  return out.slice(0, 2);
 }

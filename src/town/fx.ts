@@ -3,7 +3,7 @@
 
 export interface RunningScene {
   id: string;
-  /** one short line for the "happening now" ticker, e.g. 「🐙 阿珠又在抱怨攤位費」 */
+  /** one short line for the "happening now" ticker, e.g. "🐙 Azhu is griping about the stall fee" */
   label: string;
   at: { x: number; z: number };
   /** safe to show while a story plays (no core residents, no story agents involved) */

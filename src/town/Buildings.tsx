@@ -14,19 +14,19 @@ import { Flag, Instances, Puffs, UNIT_BOX, type Inst } from "./SetPieces";
 const ICONS: Record<ShopKind, string> = {
   police: "🚓", bakery: "🥐", flower: "🌷", townhall: "🏛️", cafe: "☕", news: "📰", books: "📚", ramen: "🍜", mart: "🏪", seafood: "🐟",
 };
-// Chalkboards may only show public facts (the festival, the doves, the fee, 美咲's daughter performing):
-// never a resident's secret such as police staffing or the blog's trouble.
+// Chalkboards may only show public facts (the festival, the doves, the fee, Misaki's daughter performing):
+// never a resident's secret such as police staffing or the blog's trouble. Short lines: long ones shrink to fit.
 const CHALK: Record<ShopKind, string[]> = {
-  bakery: ["今日推薦", "菠蘿麵包", "燈籠麵包"],
-  flower: ["燈籠節花飾", "今日花束", "花束 9 折"],
-  cafe: ["今晚 8 點", "女兒登台！", "本日咖啡"],
-  news: ["號外！", "燈籠節", "今晚 8 點"],
-  books: ["新書上架", "推理小說", "繪本特價"],
-  police: ["失物招領", "請洽櫃台", ""],
-  townhall: ["燈籠節", "今晚 20:00", "中央廣場"],
-  ramen: ["本日限定", "豚骨拉麵", "大碗不加價"],
-  mart: ["24 小時", "飲料特價", "熱便當"],
-  seafood: ["今日漁獲", "烤魚定食", "生蠔"],
+  bakery: ["Today's picks", "Pineapple buns", "Lantern rolls"],
+  flower: ["Festival flowers", "Fresh bouquets", "10% off bouquets"],
+  cafe: ["Tonight 8 PM", "My girl's on stage!", "Coffee of the day"],
+  news: ["Special edition!", "Lantern Festival", "Tonight 8 PM"],
+  books: ["New arrivals", "Mysteries", "Picture book sale"],
+  police: ["Lost & found", "Ask at the desk", ""],
+  townhall: ["Lantern Festival", "Tonight 8 PM", "On the plaza"],
+  ramen: ["Today only", "Tonkotsu ramen", "Free upsize!"],
+  mart: ["Open 24 hours", "Drinks on sale", "Hot bento"],
+  seafood: ["Today's catch", "Grilled fish set", "Oysters"],
 };
 const BRICK = new Set(["bakery", "police", "books", "house2"]);
 
@@ -704,7 +704,7 @@ interface ShopMats {
 function useShopMats(b: BuildingDef, w: number): ShopMats | null {
   return useMemo(() => {
     if (b.kind === "house" || b.kind === "warehouse" || !b.sign) return null;
-    const sign = new THREE.MeshStandardMaterial({ map: signTexture(b.sign.zh, b.sign.en, b.sign.bg, b.sign.fg), roughness: 0.5, emissive: "#ffffff", emissiveIntensity: 0.12 });
+    const sign = new THREE.MeshStandardMaterial({ map: signTexture(b.sign.name, b.sign.sub, b.sign.bg, b.sign.fg), roughness: 0.5, emissive: "#ffffff", emissiveIntensity: 0.12 });
     sign.emissiveMap = sign.map;
     const side = mat(b.sign.bg);
     const icon = new THREE.MeshStandardMaterial({ map: iconTexture(ICONS[b.kind], b.sign.bg), transparent: true, side: THREE.DoubleSide, roughness: 0.5, emissive: "#ffffff", emissiveIntensity: 0.1 });
@@ -787,7 +787,7 @@ function TownHall({ b }: { b: BuildingDef }) {
   const H = f.height;
   const bodyD = f.d - 2.2;
   const sign = useMemo(() => {
-    const m = new THREE.MeshStandardMaterial({ map: signTexture(b.sign!.zh, b.sign!.en, b.sign!.bg, b.sign!.fg), roughness: 0.5, emissive: "#ffffff", emissiveIntensity: 0.15 });
+    const m = new THREE.MeshStandardMaterial({ map: signTexture(b.sign!.name, b.sign!.sub, b.sign!.bg, b.sign!.fg), roughness: 0.5, emissive: "#ffffff", emissiveIntensity: 0.15 });
     m.emissiveMap = m.map;
     return m;
   }, [b]);
@@ -872,10 +872,15 @@ const CARPET: Inst[] = [
 function SeatOfPower({ w, H, front }: { w: number; H: number; front: number }) {
   const m = useMemo(() => {
     const flag = (bg: string, glyph: string, ink?: string) => new THREE.MeshStandardMaterial({ map: flagTexture(bg, glyph, ink), side: THREE.DoubleSide, roughness: 0.8 });
-    const banner = new THREE.MeshStandardMaterial({ map: vbannerTexture(["燈", "籠", "節"]), roughness: 0.7, emissive: "#ffffff", emissiveIntensity: 0.1 });
-    banner.emissiveMap = banner.map;
-    // the town flag is cream with a green seal: a dark green one vanished against the trees behind it
-    return { town: flag("#f6f1d5", "霧", "#2f5a37"), festival: flag("#c2332f", "燈"), banner };
+    // the two colonnade banners read across the door, LANTERN | FESTIVAL, letters the same size on both
+    // (gold stars, not a lantern emoji: a red lantern vanishes on the red cloth)
+    const banner = (word: string) => {
+      const cloth = new THREE.MeshStandardMaterial({ map: vbannerTexture(["★", ...word], 9), roughness: 0.7, emissive: "#ffffff", emissiveIntensity: 0.1 });
+      cloth.emissiveMap = cloth.map;
+      return cloth;
+    };
+    // the town flag is cream with a green seal (M for Mistport): a dark green one vanished against the trees behind it
+    return { town: flag("#f6f1d5", "M", "#2f5a37"), festival: flag("#c2332f", "★"), banners: [banner("LANTERN"), banner("FESTIVAL")] };
   }, []);
   const at = useMemo(() => {
     const sides = [-1, 1].map((side) => side * w * 0.42);
@@ -896,7 +901,9 @@ function SeatOfPower({ w, H, front }: { w: number; H: number; front: number }) {
           <Flag w={1.8} h={1.1} dir={side} material={side < 0 ? m.town : m.festival} phase={side} />
         </group>
       ))}
-      <Instances geo={VBANNER} material={m.banner} items={at.banners} />
+      {at.banners.map((b, i) => (
+        <mesh key={i} geometry={VBANNER} material={m.banners[i]} position={b.p} receiveShadow />
+      ))}
       <Instances geo={UNIT_BOX} material={mat("#b5262b", 0.9)} items={CARPET} />
       <Podium z={front - 0.8} gold={gold} />
     </group>

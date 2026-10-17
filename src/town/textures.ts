@@ -39,6 +39,22 @@ function roundRect(g: CanvasRenderingContext2D, x: number, y: number, w: number,
   g.closePath();
 }
 
+// Type for painted English, with the colour-emoji faces ahead of the generic fallback (signs and banners mix both).
+const LATIN = '"Arial Rounded MT Bold","Segoe UI","Helvetica Neue",Arial';
+const EMOJI = '"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji"';
+const SANS = `${LATIN},${EMOJI},sans-serif`;
+
+/** Set `g.font` to `${weight} ${px}px ${family}`, shrinking px until `text` is at most `maxW` wide. */
+function fitFont(g: CanvasRenderingContext2D, text: string, weight: string, px: number, family: string, maxW: number) {
+  let size = px;
+  g.font = `${weight} ${size}px ${family}`;
+  while (size > 10 && g.measureText(text).width > maxW) {
+    size -= 2;
+    g.font = `${weight} ${size}px ${family}`;
+  }
+  return size;
+}
+
 export function cobbleTexture(repeat: [number, number]) {
   const [c, g] = canvas(512, 512);
   const r = rng(7);
@@ -115,7 +131,8 @@ export function stripeTexture(a: string, b: string, stripes = 8) {
   return toTexture(c);
 }
 
-export function signTexture(zh: string, en: string, bg: string, fg: string) {
+/** A shop sign: the name large, a short line under it (both shrink to fit the board). */
+export function signTexture(name: string, sub: string, bg: string, fg: string) {
   const [c, g] = canvas(768, 192);
   g.fillStyle = bg;
   roundRect(g, 6, 6, 756, 180, 36);
@@ -127,10 +144,10 @@ export function signTexture(zh: string, en: string, bg: string, fg: string) {
   g.fillStyle = fg;
   g.textAlign = "center";
   g.textBaseline = "middle";
-  g.font = 'bold 84px "Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif';
-  g.fillText(zh, 384, 82);
-  g.font = 'bold 34px "Arial Rounded MT Bold","Segoe UI",sans-serif';
-  g.fillText(en, 384, 150);
+  fitFont(g, name, "bold", 84, SANS, 690);
+  g.fillText(name, 384, 82);
+  fitFont(g, sub, "bold", 34, SANS, 640);
+  g.fillText(sub, 384, 150);
   return toTexture(c);
 }
 
@@ -145,15 +162,16 @@ export function bannerTexture() {
   g.fillStyle = "#ffe08a";
   g.textAlign = "center";
   g.textBaseline = "middle";
-  g.font = 'bold 110px "Noto Sans TC","Microsoft JhengHei",sans-serif';
-  g.fillText("霧港燈籠節", 512, 110);
-  g.font = 'bold 44px "Segoe UI",sans-serif';
-  g.fillText("LANTERN FESTIVAL · TONIGHT 20:00", 512, 205);
+  fitFont(g, "LANTERN FESTIVAL", "bold", 110, SANS, 940);
+  g.fillText("LANTERN FESTIVAL", 512, 110);
+  fitFont(g, "MISTPORT · TONIGHT 8 PM", "bold", 44, SANS, 900);
+  g.fillText("MISTPORT · TONIGHT 8 PM", 512, 205);
   return toTexture(c);
 }
 
-// A tall festival banner for the town hall colonnade: one gold character per tier on deep red.
-export function vbannerTexture(chars: string[]) {
+// A tall festival banner for the town hall colonnade: one gold letter (or symbol) per tier on deep red, read
+// top to bottom. `tiers` keeps letters the same size and on the same rows on banners with words of different lengths.
+export function vbannerTexture(chars: string[], tiers = chars.length) {
   const [c, g] = canvas(160, 480);
   g.fillStyle = "#b5262b";
   g.fillRect(0, 0, 160, 480);
@@ -163,12 +181,17 @@ export function vbannerTexture(chars: string[]) {
   g.fillStyle = "#ffe08a";
   g.textAlign = "center";
   g.textBaseline = "middle";
-  g.font = 'bold 96px "Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif';
-  chars.forEach((ch, i) => g.fillText(ch, 80, 88 + i * 152));
+  const step = 440 / Math.max(1, tiers);
+  const top = 20 + step / 2;
+  const px = Math.min(96, Math.floor(step * 0.86));
+  chars.forEach((ch, i) => {
+    fitFont(g, ch, "bold", px, SANS, 128);
+    g.fillText(ch, 80, top + i * step + 2);
+  });
   return toTexture(c);
 }
 
-// A flag: plain field with an emblem character in a ring (gold unless another ink is given).
+// A flag: plain field with an emblem (a letter or a symbol) in a ring (gold unless another ink is given).
 export function flagTexture(bg: string, glyph: string, ink = "#ffe08a") {
   const [c, g] = canvas(256, 160);
   g.fillStyle = bg;
@@ -184,7 +207,7 @@ export function flagTexture(bg: string, glyph: string, ink = "#ffe08a") {
   g.fillStyle = ink;
   g.textAlign = "center";
   g.textBaseline = "middle";
-  g.font = 'bold 64px "Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif';
+  fitFont(g, glyph, "bold", 64, `Georgia,"Times New Roman",${EMOJI},serif`, 80);
   g.fillText(glyph, 128, 84);
   return toTexture(c);
 }
@@ -225,7 +248,8 @@ export function bubbleTexture(text: string) {
   g.fill();
   g.textAlign = "center";
   g.textBaseline = "middle";
-  g.font = '48px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+  // an emoji fills the bubble; a word ("Meow~") shrinks to fit inside it
+  fitFont(g, text, "normal", 48, `${EMOJI},${LATIN},sans-serif`, 100);
   g.fillStyle = "#333";
   g.fillText(text, 64, 46);
   return toTexture(c);
@@ -305,7 +329,7 @@ export function interiorTexture(kind: string, accent: string) {
       g.font = "bold 26px sans-serif";
       g.fillText("MENU", 345, 105);
       g.font = "18px sans-serif";
-      ["拿鐵  80", "美式  60", "可可  70"].forEach((t, i) => g.fillText(t, 325, 135 + i * 22));
+      ["Latte  80", "Americano  60", "Cocoa  70"].forEach((t, i) => g.fillText(t, 325, 135 + i * 22));
       g.fillStyle = "#8a5a3a";
       g.fillRect(20, 220, 472, 100);
       g.fillStyle = "#c0c6cc";
@@ -388,6 +412,7 @@ export function iconTexture(icon: string, bg: string) {
   return toTexture(c);
 }
 
+/** A chalkboard: up to four short lines, the first underlined as a heading; long lines shrink to fit. */
 export function chalkTexture(lines: string[]) {
   const [c, g] = canvas(256, 320);
   g.fillStyle = "#8a5a3a";
@@ -396,8 +421,10 @@ export function chalkTexture(lines: string[]) {
   g.fillRect(14, 14, 228, 292);
   g.fillStyle = "#f6f1e3";
   g.textAlign = "center";
-  g.font = 'bold 38px "Noto Sans TC","Microsoft JhengHei",sans-serif';
-  lines.forEach((t, i) => g.fillText(t, 128, 80 + i * 66));
+  lines.forEach((t, i) => {
+    fitFont(g, t, "bold", 38, `"Chalkboard SE","Comic Sans MS","Segoe Print",${SANS}`, 214);
+    g.fillText(t, 128, 80 + i * 66);
+  });
   g.strokeStyle = "rgba(246,241,227,0.6)";
   g.lineWidth = 4;
   g.beginPath();

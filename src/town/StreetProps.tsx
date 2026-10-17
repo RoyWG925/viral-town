@@ -16,7 +16,7 @@ import { BULB, Gulls, HarbourCrane, Instances, UNIT_BOX, catenary, useBulbMateri
 
 function Stall({ s }: { s: (typeof STALLS)[number] }) {
   const m = useMemo(() => {
-    const sign = new THREE.MeshStandardMaterial({ map: signTexture(s.zh, s.en, s.roof[0], "#ffffff"), roughness: 0.5, emissive: "#ffffff", emissiveIntensity: 0.15 });
+    const sign = new THREE.MeshStandardMaterial({ map: signTexture(s.name, s.sub, s.roof[0], "#ffffff"), roughness: 0.5, emissive: "#ffffff", emissiveIntensity: 0.15 });
     sign.emissiveMap = sign.map;
     return { roof: new THREE.MeshStandardMaterial({ map: stripeTexture(s.roof[0], s.roof[1], 6), roughness: 0.8 }), sign };
   }, [s]);
@@ -55,7 +55,7 @@ function Stall({ s }: { s: (typeof STALLS)[number] }) {
           <sphereGeometry args={[0.14, 10, 8]} />
         </mesh>
       ))}
-      {s === STALLS[2] && <AFrame x={-1.6} z={0.3} rot={0.45} lines={["攤位費", "漲一倍？！", "章魚燒照舊"]} />}
+      {s === STALLS[2] && <AFrame x={-1.6} z={0.3} rot={0.45} lines={["Stall fee", "DOUBLED?!", "Same takoyaki"]} />}
     </group>
   );
 }

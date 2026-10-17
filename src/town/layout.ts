@@ -167,7 +167,8 @@ export interface BuildingDef extends Obb {
   roofColor: string;
   trim: string;
   awning?: [string, string];
-  sign?: { zh: string; en: string; bg: string; fg: string };
+  /** shop sign: the name painted large, a short line under it */
+  sign?: { name: string; sub: string; bg: string; fg: string };
   yard?: { front?: number; back?: number }; // fenced garden depth in front of / behind a house
 }
 
@@ -184,46 +185,46 @@ export const BUILDINGS: BuildingDef[] = [
   // central plaza
   {
     id: "townhall", kind: "townhall", x: 0, z: -30.6, w: 14, d: 9, rot: S, floors: 2, roof: "flat",
-    wall: "#a9d6a2", roofColor: "#55875a", trim: "#f3f8ef", sign: { zh: "霧港鎮公所", en: "TOWN HALL", bg: "#2f5a37", fg: "#f6f1d5" },
+    wall: "#a9d6a2", roofColor: "#55875a", trim: "#f3f8ef", sign: { name: "Town Hall", sub: "MISTPORT", bg: "#2f5a37", fg: "#f6f1d5" },
   },
   {
     id: "police", kind: "police", x: -16.2, z: -15, w: 7, d: 6.4, rot: E, floors: 2, roof: "stepped", annex: "left",
-    wall: "#7fa9dc", roofColor: "#3c5a86", trim: "#e8eef7", awning: ["#3c5a86", "#e8eef7"], sign: { zh: "霧港警察局", en: "POLICE", bg: "#1f3b66", fg: "#ffffff" },
+    wall: "#7fa9dc", roofColor: "#3c5a86", trim: "#e8eef7", awning: ["#3c5a86", "#e8eef7"], sign: { name: "Police", sub: "MISTPORT POLICE STATION", bg: "#1f3b66", fg: "#ffffff" },
   },
   {
     id: "books", kind: "books", x: 15.8, z: -6.6, w: 6.4, d: 6, rot: W, floors: 2, roof: "pitched", balcony: true,
-    wall: "#c9b5e8", roofColor: "#5b4a8c", trim: "#f6f1ff", awning: ["#5b4a8c", "#f6f1ff"], sign: { zh: "老街書店", en: "OLD STREET BOOKS", bg: "#f6f1ff", fg: "#4a3a7a" },
+    wall: "#c9b5e8", roofColor: "#5b4a8c", trim: "#f6f1ff", awning: ["#5b4a8c", "#f6f1ff"], sign: { name: "Old Street Books", sub: "NEW & SECONDHAND", bg: "#f6f1ff", fg: "#4a3a7a" },
   },
   // shopping street (fronts follow the street, facing east-south-east)
   {
     id: "ramen", kind: "ramen", x: -16.8, z: -8, w: 5.6, d: 5.4, rot: E, floors: 1, roof: "hip",
-    wall: "#f6d6a8", roofColor: "#b5462f", trim: "#fff4e3", awning: ["#b5462f", "#fff4e3"], sign: { zh: "老周拉麵", en: "RAMEN", bg: "#b5462f", fg: "#fff4e3" },
+    wall: "#f6d6a8", roofColor: "#b5462f", trim: "#fff4e3", awning: ["#b5462f", "#fff4e3"], sign: { name: "Ramen", sub: "NOODLE HOUSE", bg: "#b5462f", fg: "#fff4e3" },
   },
   {
     id: "flower", kind: "flower", x: -18.8, z: -1, w: 5.6, d: 5, rot: 1.15, floors: 1, roof: "hip",
-    wall: "#f5a9c5", roofColor: "#7b4ba0", trim: "#fff0f6", awning: ["#8fd18b", "#fff0f6"], sign: { zh: "美玲花店", en: "MEILING FLOWERS", bg: "#ffffff", fg: "#b03a78" },
+    wall: "#f5a9c5", roofColor: "#7b4ba0", trim: "#fff0f6", awning: ["#8fd18b", "#fff0f6"], sign: { name: "Meiling's Flowers", sub: "FLORIST", bg: "#ffffff", fg: "#b03a78" },
   },
   {
     id: "bakery", kind: "bakery", x: -23.9, z: 6.4, w: 6.2, d: 6, rot: 1.3, floors: 2, roof: "pitched", balcony: true,
-    wall: "#f7c48e", roofColor: "#c4643e", trim: "#fff4e3", awning: ["#e2574c", "#fff4e3"], sign: { zh: "阿德麵包坊", en: "ADE'S BAKERY", bg: "#7a3b1d", fg: "#ffe9c2" },
+    wall: "#f7c48e", roofColor: "#c4643e", trim: "#fff4e3", awning: ["#e2574c", "#fff4e3"], sign: { name: "Ade's Bakery", sub: "FRESH BREAD DAILY", bg: "#7a3b1d", fg: "#ffe9c2" },
   },
   // south-east block between the plaza and the main road
   {
     id: "cafe", kind: "cafe", x: 17.4, z: 3.8, w: 6.2, d: 6.4, rot: S, floors: 1, roof: "barrel", annex: "right",
-    wall: "#97d3d6", roofColor: "#2e6f74", trim: "#effafa", awning: ["#2e6f74", "#f4efe2"], sign: { zh: "轉角咖啡", en: "CORNER CAFE", bg: "#3a2a22", fg: "#ffd9a8" },
+    wall: "#97d3d6", roofColor: "#2e6f74", trim: "#effafa", awning: ["#2e6f74", "#f4efe2"], sign: { name: "Corner Café", sub: "COFFEE & CAKE", bg: "#3a2a22", fg: "#ffd9a8" },
   },
   {
     id: "mart", kind: "mart", x: 25.8, z: -1.5, w: 6, d: 5, rot: S, floors: 1, roof: "flat",
-    wall: "#ffffff", roofColor: "#e2574c", trim: "#f2f2f2", awning: ["#3a86ff", "#ffffff"], sign: { zh: "霧港便利店", en: "MART 24", bg: "#3a86ff", fg: "#ffffff" },
+    wall: "#ffffff", roofColor: "#e2574c", trim: "#f2f2f2", awning: ["#3a86ff", "#ffffff"], sign: { name: "Mart 24", sub: "SNACKS & DRINKS", bg: "#3a86ff", fg: "#ffffff" },
   },
   // harbour side
   {
     id: "news", kind: "news", x: 18.6, z: -21.2, w: 7, d: 6, rot: S, floors: 3, roof: "flat",
-    wall: "#f2e497", roofColor: "#8b6c3a", trim: "#fffbe6", awning: ["#3d3d3d", "#f2e497"], sign: { zh: "霧港日報", en: "MISTPORT DAILY", bg: "#222222", fg: "#ffe45c" },
+    wall: "#f2e497", roofColor: "#8b6c3a", trim: "#fffbe6", awning: ["#3d3d3d", "#f2e497"], sign: { name: "Mistport News", sub: "YOUR TOWN, YOUR NEWS", bg: "#222222", fg: "#ffe45c" },
   },
   {
     id: "seafood", kind: "seafood", x: 29.5, z: -7.6, w: 6, d: 5, rot: E, floors: 2, roof: "pitched",
-    wall: "#9fd3f0", roofColor: "#2f6f9f", trim: "#f4fbff", awning: ["#2f6f9f", "#ffffff"], sign: { zh: "港口海鮮", en: "HARBOUR GRILL", bg: "#1d4e74", fg: "#ffffff" },
+    wall: "#9fd3f0", roofColor: "#2f6f9f", trim: "#f4fbff", awning: ["#2f6f9f", "#ffffff"], sign: { name: "Harbor Grill", sub: "SEAFOOD", bg: "#1d4e74", fg: "#ffffff" },
   },
   { id: "warehouse", kind: "warehouse", x: 28.2, z: -24.6, w: 9, d: 7.6, rot: E, floors: 2, roof: "barrel", wall: "#c98f5a", roofColor: "#7a4f32", trim: "#f1e3d0" },
   // residential lane (north-west), fronts face the lane
@@ -302,11 +303,11 @@ export const LAMPS: Circle[] = [
   { x: -24, z: -26.6, r: 0.35 }, { x: -46, z: -14, r: 0.35 },
 ];
 export const STALLS = [
-  { x: -4.6, z: -7.8, rot: 0, zh: "烤玉米", en: "GRILLED CORN", roof: ["#e2574c", "#fff4e3"] as [string, string], goods: "#f4c542" },
-  { x: 5, z: -7.6, rot: 0, zh: "棉花糖", en: "COTTON CANDY", roof: ["#ff8fab", "#ffffff"] as [string, string], goods: "#ffb3d1" },
-  { x: 7.4, z: -20.4, rot: -0.5, zh: "章魚燒", en: "TAKOYAKI", roof: ["#3a86ff", "#ffffff"] as [string, string], goods: "#c9874b" },
-  { x: 43.8, z: -21.4, rot: W, zh: "鮮魚", en: "FRESH FISH", roof: ["#2f6f9f", "#ffffff"] as [string, string], goods: "#9ec9e6" },
-  { x: 43.8, z: -27.4, rot: W, zh: "水果", en: "FRUIT", roof: ["#6bcb77", "#ffffff"] as [string, string], goods: "#ff9f43" },
+  { x: -4.6, z: -7.8, rot: 0, name: "Grilled Corn", sub: "HOT & BUTTERY", roof: ["#e2574c", "#fff4e3"] as [string, string], goods: "#f4c542" },
+  { x: 5, z: -7.6, rot: 0, name: "Cotton Candy", sub: "SWEET AS CAN BE", roof: ["#ff8fab", "#ffffff"] as [string, string], goods: "#ffb3d1" },
+  { x: 7.4, z: -20.4, rot: -0.5, name: "Takoyaki", sub: "OCTOPUS BALLS", roof: ["#3a86ff", "#ffffff"] as [string, string], goods: "#c9874b" },
+  { x: 43.8, z: -21.4, rot: W, name: "Fresh Fish", sub: "TODAY'S CATCH", roof: ["#2f6f9f", "#ffffff"] as [string, string], goods: "#9ec9e6" },
+  { x: 43.8, z: -27.4, rot: W, name: "Fruit", sub: "SWEET & JUICY", roof: ["#6bcb77", "#ffffff"] as [string, string], goods: "#ff9f43" },
 ];
 export const BALLOON_SELLER = { x: 2.4, z: -9.4 };
 export const BIG_TREE = { x: 1.6, z: 3.8, r: 1.4 }; // the old tree on the green

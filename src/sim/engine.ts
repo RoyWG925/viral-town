@@ -65,6 +65,9 @@ const WRITE = 20;
 const STATEMENT = 8;
 const RALLY = 15;
 const WAIT_MAX = 10;
+// After a face-to-face line both stay "in conversation" this long (minutes after the line ends): long enough for the
+// listener to take it in, decide and answer on the spot. Nobody walks home between a line and its reply any more.
+const CONV_LINGER = 6;
 
 const placeZh = (id: PlaceId) => PLACES.find((p) => p.id === id)?.zh ?? id;
 const fact = (id: FactId) => FACTS.find((f) => f.id === id)!;
@@ -94,6 +97,8 @@ interface Npc {
   lastBelief: string | null; // event id of the latest belief this resident formed (what they "carry")
   /** claim id → event id of the belief they formed about it (to find what they carry on a given kind of topic) */
   beliefEvents: Map<string, string>;
+  /** a face-to-face exchange in progress: who with, and until when they wait for each other */
+  conv: { with: NpcId; until: Minutes } | null;
 }
 
 type Item = { t: Minutes; seq: number } & ({ kind: "task"; run: () => void } | { kind: "decide"; npc: NpcId });
@@ -126,7 +131,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     const p = PERSONAS.find((x) => x.id === id);
     if (!p) throw new Error(`unknown npc ${id}`);
     npcs.set(id, {
-      p, place: p.home, dest: null, busyUntil: 0, decisionAt: null, triggers: [], publicEvents: [], heard: [], planId: 0, lastBelief: null, beliefEvents: new Map(),
+      p, place: p.home, dest: null, busyUntil: 0, decisionAt: null, triggers: [], publicEvents: [], heard: [], planId: 0, lastBelief: null, beliefEvents: new Map(), conv: null,
       mind: { knows: new Set(p.knows), learned: new Map(), beliefs: new Map(), inbox: [], memory: [], decisions: 0, lastDecisionAt: -99, told: new Map(), heardKeys: new Map() },
     });
   }
@@ -326,7 +331,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       if (n.busyUntil > ts + 1e-6) return at(n.busyUntil, () => runStep(k, n.busyUntil));
       // done: head home — unless their next decision is already coming (what they just saw or heard), which will
       // say where to go; walking home and straight back looked like a glitch (P6: the look, then the inspect)
-      if (k >= plan.length) return n.decisionAt !== null ? undefined : goHome(n, ts, dEv);
+      if (k >= plan.length) return settle(n, ts, dEv);
       const a = plan[k];
       exec(n, a, ts, dEv, claimsFor(a), (te) => runStep(k + 1, te));
     };
@@ -338,7 +343,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       n.mind.memory.push(`${clockOf(t)} 你決定先不做什麼。`);
       // nothing more to do here: back to their own place (if they were left standing somewhere)
       at(t + REACT, () => {
-        if (planId === n.planId && n.decisionAt === null && !n.dest && n.busyUntil <= t + REACT + 1e-6) goHome(n, t + REACT, dEv);
+        if (planId === n.planId && n.decisionAt === null && !n.dest && n.busyUntil <= t + REACT + 1e-6) settle(n, t + REACT, dEv);
       });
     }
   }
@@ -364,13 +369,14 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     }
   };
 
-  function walk(n: Npc, to: PlaceId, t: Minutes, cause: string, then: (t: Minutes) => void, home = false) {
+  function walk(n: Npc, to: PlaceId, t: Minutes, cause: string, then: (t: Minutes) => void, home = false, follow?: Npc) {
     if (n.place === to) return then(t);
     const dt = travelMinutes(n.place, to);
     const from = n.place;
     n.dest = to;
     n.busyUntil = t + dt;
-    const ev = emit("move", t, `${n.p.name}從${placeZh(from)}${home ? "走回" : "走向"}${placeZh(to)}`, [cause], { actor: n.p.id, place: from, data: { from, to, arrive: t + dt, home } });
+    const zh = follow ? `${n.p.name}跟著${follow.p.name}一起走向${placeZh(to)}` : `${n.p.name}從${placeZh(from)}${home ? "走回" : "走向"}${placeZh(to)}`;
+    const ev = emit("move", t, zh, [cause], { actor: n.p.id, place: from, data: { from, to, arrive: t + dt, home, follow: follow?.p.id } });
     at(t + dt, () => {
       n.place = to;
       n.dest = null;
@@ -382,6 +388,40 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
   function goHome(n: Npc, t: Minutes, cause: string) {
     if (n.place === n.p.home) return;
     walk(n, n.p.home, t, cause, () => {}, true);
+  }
+
+  // ---- conversations: approach, talk, answer on the spot, maybe go and look together, then part ------------
+  function startConv(a: Npc, b: Npc, until: Minutes) {
+    const u = Math.max(until, a.conv?.with === b.p.id ? a.conv.until : 0);
+    a.conv = { with: b.p.id, until: u };
+    b.conv = { with: a.p.id, until: u };
+  }
+  /** still in an exchange with someone standing right here */
+  function inConv(n: Npc, t: Minutes) {
+    const o = n.conv ? npcs.get(n.conv.with) : undefined;
+    return !!(n.conv && o && n.conv.until > t + 1e-6 && o.place === n.place && !o.dest);
+  }
+  /**
+   * Done with what they set out to do: stay if their next decision is already coming (it will say where to go),
+   * wait for the other person while a conversation is open, otherwise head back to their own place.
+   */
+  function settle(n: Npc, t: Minutes, cause: string) {
+    if (n.decisionAt !== null) return;
+    const plan = n.planId;
+    if (inConv(n, t)) {
+      const until = n.conv!.until;
+      at(until, () => {
+        if (plan === n.planId && !n.dest && n.busyUntil <= until + 1e-6) settle(n, until, cause);
+      });
+      return;
+    }
+    goHome(n, t, cause);
+  }
+  /** people in an open conversation with `n`, standing idle next to them: they come along when `n` goes to look */
+  function companionsOf(n: Npc, t: Minutes) {
+    return [...npcs.values()].filter(
+      (c) => c !== n && c.conv?.with === n.p.id && c.conv.until > t + 1e-6 && c.place === n.place && !c.dest && c.busyUntil <= t + 1e-6 && c.decisionAt === null,
+    );
   }
 
   /**
@@ -423,6 +463,37 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     return emit("rejected", t, `${n.p.name}沒能${describe(a)}：${why}`, [cause], { actor: n.p.id, data: { action: a.type, why } });
   }
 
+  /** What someone sees at a place: checkable facts (an expert's eye only for an inspection in their trade), the state of
+   *  the world there, who is around, and honestly what a glance or someone outside their trade could not tell. */
+  function lookAround(n: Npc, place: PlaceId, expert: boolean, t: Minutes) {
+    const seen: string[] = [];
+    // what they were wondering about (their beliefs' topics) is what they notice first
+    const onMind = new Set([...n.mind.beliefs.values()].map((b) => topicFact(claims.get(b.claim)?.topic ?? "")).filter(Boolean));
+    const checks = FACTS.filter((f) => f.check && f.check.place === place && !(f.check.by === "expert" && !(expert && f.check.roles?.includes(n.p.role))));
+    checks.sort((x, y) => Number(onMind.has(y.id)) - Number(onMind.has(x.id)));
+    for (const f of checks) {
+      n.mind.learned.set(f.id, f.value);
+      seen.push(f.check!.zh);
+    }
+    const highlight = checks.find((f) => onMind.has(f.id))?.check?.zh;
+    if (place === "plaza" && world.notices.length) seen.push(`布告欄上貼著：${world.notices.map((x) => `「${x.text}」`).join("、")}`);
+    if (world.gatherings[place]) seen.push(`這裡聚集了 ${world.gatherings[place].people.length + world.gatherings[place].extras} 個人在${world.gatherings[place].cause}`);
+    if (world.police.deployed && world.police.place === place && (world.police.arriveAt ?? 0) <= t) seen.push("警察已經在這裡了。");
+    if (place === "stage" && world.stage === "closed") seen.push("舞台已經被封鎖了。");
+    if (world.shops[place] === "closed") seen.push(`${placeZh(place)}今天暫停營業。`);
+    // who is around is part of what you see (and someone you could go and ask)
+    const here = [...npcs.values()].filter((o) => o !== n && o.place === place && !o.dest).map((o) => `${o.p.name}（${o.p.roleZh}）`);
+    // what this look could not have shown them (a glance is not an inspection; not their trade)
+    const missed = FACTS.filter((f) => f.check?.place === place && f.check.by === "expert" && !checks.includes(f));
+    // a careful look by someone for whom it is not their trade: say so, and who could tell (public roles)
+    const whoCan = [...new Set(missed.flatMap((f) => f.check!.roles ?? []))].map((r) => PERSONAS.find((p) => p.role === r)?.roleZh).filter(Boolean);
+    const limit = !missed.length ? undefined : expert && whoCan.length ? `你仔細看了，但這不是你的專業，看不出所以然；這種事得找${whoCan.join("或")}這類懂行的人來檢查。` : LOOK_LIMITS[place];
+    if (!seen.length) seen.push(limit ? `${placeZh(place)}表面上看起來一切如常。` : `${placeZh(place)}看起來一切如常，沒看到什麼特別的。`);
+    if (limit) seen.push(limit);
+    if (here.length) seen.push(`${here.join("、")}在這裡。`);
+    return { text: seen.join(" "), highlight: highlight ?? (limit ? `${seen[0]}${limit}` : seen[0]) };
+  }
+
   function exec(n: Npc, a: ActionIntent, t: Minutes, cause: string, claimIds: string[], next: (t: Minutes) => void) {
     const target = a.target ? npcs.get(a.target) : undefined;
     // a newer decision replaces this plan: continuations of the old one must not act any more
@@ -459,6 +530,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
               actor: n.p.id, target: target.p.id, place: n.place, data: { text: a.message, intent: a.intent ?? (a.type === "ask" ? "ask" : "inform"), claims: claimIds },
             });
             markTold(n, target, claimIds, true);
+            startConv(n, target, tb + TALK + CONV_LINGER);
             at(tb + TALK, () => {
               deliver(target, n.p.id, "face", a.intent ?? (a.type === "ask" ? "ask" : "inform"), a.message ?? "", claimIds, tb + TALK, ev);
               next(tb + TALK);
@@ -493,43 +565,40 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       case "go_look":
       case "inspect": {
         const place = a.place!;
-        return walk(n, place, t, cause, (ta) => {
+        // whoever is in a conversation with them comes along (going to look together, not a separate errand)
+        const along = companionsOf(n, t);
+        const leader = walk(n, place, t, cause, (ta) => {
           const expert = a.type === "inspect";
           const dur = expert ? INSPECT : LOOK;
           n.busyUntil = ta + dur;
-          const ev = emit(expert ? "inspect" : "look", ta, `${n.p.name}在${placeZh(place)}${expert ? "仔細檢查" : "到處看看"}`, [cause], { actor: n.p.id, place, data: {} });
+          for (const c of along) if (c.place === place || c.dest === place) c.busyUntil = Math.max(c.busyUntil, ta + dur);
+          const ev = emit(expert ? "inspect" : "look", ta, `${n.p.name}在${placeZh(place)}${expert ? "仔細檢查" : "到處看看"}`, [cause], { actor: n.p.id, place, data: { with: along.map((c) => c.p.id) } });
           at(ta + dur, () => {
-            const seen: string[] = [];
-            // what they were wondering about (their beliefs' topics) is what they notice first
-            const onMind = new Set([...n.mind.beliefs.values()].map((b) => topicFact(claims.get(b.claim)?.topic ?? "")).filter(Boolean));
-            const checks = FACTS.filter((f) => f.check && f.check.place === place && !(f.check.by === "expert" && !(expert && f.check.roles?.includes(n.p.role))));
-            checks.sort((x, y) => Number(onMind.has(y.id)) - Number(onMind.has(x.id)));
-            for (const f of checks) {
-              n.mind.learned.set(f.id, f.value);
-              seen.push(f.check!.zh);
+            const seenBy = (who: Npc, careful: boolean, cause2: string, prefix = "") => {
+              const r = lookAround(who, place, careful, ta + dur);
+              const done = emit(careful ? "inspect" : "look", ta + dur, `${who.p.name}${prefix}看到：${r.text}`, [cause2], {
+                actor: who.p.id, place, data: { found: r.text, highlight: r.highlight, learned: [...who.mind.learned.keys()], with: prefix ? n.p.id : undefined },
+              });
+              deliver(who, "self", "inspection", "inform", r.text, [], ta + dur, done);
+              return done;
+            };
+            const done = seenBy(n, expert, ev);
+            // the companion saw it too, with their own eyes (a careful inspection is still the expert's)
+            for (const c of along) {
+              if (c.place !== place || c.dest) continue;
+              seenBy(c, false, done, `跟著${n.p.name}一起`);
+              startConv(n, c, ta + dur + CONV_LINGER);
             }
-            const highlight = checks.find((f) => onMind.has(f.id))?.check?.zh;
-            if (place === "plaza" && world.notices.length) seen.push(`布告欄上貼著：${world.notices.map((x) => `「${x.text}」`).join("、")}`);
-            if (world.gatherings[place]) seen.push(`這裡聚集了 ${world.gatherings[place].people.length + world.gatherings[place].extras} 個人在${world.gatherings[place].cause}`);
-            if (world.police.deployed && world.police.place === place && (world.police.arriveAt ?? 0) <= ta + dur) seen.push("警察已經在這裡了。");
-            if (place === "stage" && world.stage === "closed") seen.push("舞台已經被封鎖了。");
-            if (world.shops[place] === "closed") seen.push(`${placeZh(place)}今天暫停營業。`);
-            // who is around is part of what you see (and someone you could go and ask)
-            const here = [...npcs.values()].filter((o) => o !== n && o.place === place && !o.dest).map((o) => `${o.p.name}（${o.p.roleZh}）`);
-            // what this look could not have shown them (a glance is not an inspection; not their trade)
-            const missed = FACTS.filter((f) => f.check?.place === place && f.check.by === "expert" && !checks.includes(f));
-            // a careful look by someone for whom it is not their trade: say so, and who could tell (public roles)
-            const whoCan = [...new Set(missed.flatMap((f) => f.check!.roles ?? []))].map((r) => PERSONAS.find((p) => p.role === r)?.roleZh).filter(Boolean);
-            const limit = !missed.length ? undefined : expert && whoCan.length ? `你仔細看了，但這不是你的專業，看不出所以然；這種事得找${whoCan.join("或")}這類懂行的人來檢查。` : LOOK_LIMITS[place];
-            if (!seen.length) seen.push(limit ? `${placeZh(place)}表面上看起來一切如常。` : `${placeZh(place)}看起來一切如常，沒看到什麼特別的。`);
-            if (limit) seen.push(limit);
-            if (here.length) seen.push(`${here.join("、")}在這裡。`);
-            const text = seen.join(" ");
-            const done = emit(expert ? "inspect" : "look", ta + dur, `${n.p.name}看到：${text}`, [ev], { actor: n.p.id, place, data: { found: text, highlight: highlight ?? (limit ? `${seen[0]}${limit}` : seen[0]), learned: [...n.mind.learned.keys()] } });
-            deliver(n, "self", "inspection", "inform", text, [], ta + dur, done);
             next(ta + dur);
           });
         });
+        // the leader sets off first; the companion walks along beside them
+        for (const c of along) {
+          if (c.place === place) continue;
+          c.planId++;
+          walk(c, place, t, cause, () => {}, false, n);
+        }
+        return leader;
       }
       case "close_shop":
       case "open_shop": {
@@ -661,12 +730,14 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           const free = Math.max(ta, b.busyUntil);
           at(free, () => {
             a.busyUntil = b.busyUntil = free + 2;
+            startConv(a, b, free + 2 + CONV_LINGER);
             const meet = emit("meet", free, `${a.p.name}和${b.p.name}在${placeZh(r.place)}碰面（${r.zh}）`, [go], { actor: a.p.id, target: b.p.id, place: r.place, data: { text: r.zh } });
             at(free + 2, () => {
               for (const [x, y] of [[a, b], [b, a]] as const) if (carrying(x)) deliver(x, y.p.id, "meet", "inform", r.zh, [], free + 2, meet);
-              // the visitor heads home afterwards unless a decision gives them something else to do
-              at(free + 4, () => {
-                if (a.busyUntil <= free + 4 && a.place !== a.p.home && !a.dest) goHome(a, free + 4, meet);
+              // the visitor heads home once the conversation is over, unless a decision gives them something else to do
+              const plan = a.planId;
+              at(free + 2 + REACT, () => {
+                if (plan === a.planId && a.busyUntil <= free + 2 + REACT + 1e-6 && !a.dest) settle(a, free + 2 + REACT, meet);
               });
             });
           });

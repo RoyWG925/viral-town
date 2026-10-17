@@ -440,6 +440,18 @@ function apply(e: SimEvent) {
         if (a.home) scriptGoto(a, a.home.x, a.home.z, a.home.face);
         break;
       }
+      // walking along with the person they were talking to: side by side, at the same pace; the camera stays on the leader
+      if (d.follow) {
+        const lead = agentFor(String(d.follow));
+        const spot = SPOTS[String(d.to)];
+        if (lead?.script?.kind === "goto") {
+          const g = lead.script;
+          scriptGoto(a, g.x + 1.1, g.z + 0.8, null, g.speed ?? 3.2);
+        } else scriptGoto(a, spot.x + 1.1, spot.z + 0.8, null, 3.2);
+        caption({ who: actor!, icon: "👫", tone: "world", text: `${nameOf(actor!)}跟著${nameOf(String(d.follow))}一起往${placeZh(String(d.to))}走去` });
+        hold = 0.4;
+        break;
+      }
       // where exactly: in front of whoever they are going to talk to, else the place's spot
       const nextTalk = show.order.slice(show.i + 1).find((x) => x.actor === actor && ["talk", "look", "inspect", "notice", "article", "statement", "gather", "state"].includes(x.type));
       const host = nextTalk?.type === "talk" && nextTalk.target ? agentFor(nextTalk.target) : null;

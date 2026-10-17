@@ -47,3 +47,18 @@ before the deadline; their roles live in the secret web), any-time intervention,
   readable cause chain afterwards.
 - **The Sims** → visible relationship lines, needs/wants per person, idle personality.
 - **Two Point** → readable silhouettes by role, a town that is a stage for small comic incidents.
+
+## Measured (real Gemma on AMD, see PLAYTEST_REPORT.md P10–P16)
+- Phone calls fell from 45% of all actions (P5–P9) to 10–19% (P12–P16): people walk over and talk.
+- The mayor makes public statements (0 in 38 runs before habits/pressure; 2 in 8 in P10).
+- Residents name a line of their own card behind ~93% of decisions (motive); reveals prefer undiscovered lines.
+- 20:00 festival over P5–P11 logs: on 20, reduced 18, postponed 1 (dramatic inputs); weak inputs always on.
+- With all v2 settings live, ≈33% of dramatic stories reach a world change (P12–P16), down from ≈60–85% — richer,
+  more hesitant characters; a tuning choice left to the owner.
+- Tests: 96 unit/engine tests across 11 suites, all passing; production build and UI smoke test pass.
+
+## Still not satisfied with
+- No human playtest yet; every "is it fun" judgement here comes from logs, screenshots and the owner's own play.
+- The trade-off above: deeper characters, fewer public climaxes.
+- Provider latency swings (first visible 3–18 s this afternoon); the v2 prompt is longer.
+- Everyday scenes and kits were verified in screenshots and the browser pane, not in a long human session.

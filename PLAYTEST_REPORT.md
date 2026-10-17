@@ -398,3 +398,37 @@ real player would most likely write a new sentence.
   "the stage is fine" had dropped. A true fact seen first hand is now always a finding (regression test from this log).
 - **20:00 outcomes**: P12 on 8, reduced 2; P13 on 5, reduced 3. Every reduced festival was 「舞台不能用，改在廣場空地舉行」
   or, for the vendors' protest, money and mood.
+
+## Batches P14–P16 — tuning v2: a journalist who fears being scooped, deadlines on wants, talk counts, "it sinks in"
+
+| Batch | Change measured | Dramatic stories changing the world | 20:00 festival | First visible / first thought (means) |
+|---|---|---|---|---|
+| P14 | 小雯 fears being scooped; 「八點前…」 wants | 2/8 | on 7, reduced 1 | 6.4 s / 21.2 s |
+| P15 | + "you have already talked N times tonight" + a rule line, numbers read leniently | 3/8 | on 5, reduced 3 | 9.7 s / 19.9 s |
+| P16 | + a blocked repeat sinks in and they decide again | 3/8 | on 5, reduced 3 | 7.2 s / 33.3 s |
+
+- **Found and fixed on the way**:
+  - **P14 car-vendor ended at the first step.** A confidence written 「0.5（不確定）」 was sent back as malformed;
+    numbers are now read out of such text.
+  - **P14 budget-journalist: 小雯 kept questioning people (6 of 8 decisions) instead of publishing.** A side effect
+    of the continuous conversations. Each person in the prompt now carries 「你們今晚已經說過 N 次話了」, plus one
+    rule line: after two or three rounds on the same thing people decide what to do.
+  - **P15 stage-cafe: confrontations dead-ended.** After seeing the strut, 老周's repeated line to 志明 was blocked
+    twice and nothing followed. Now the blocked repeat sinks in (「這件事我已經跟志明說過了，再說一次也一樣。接下來我該怎麼做？」)
+    and they decide again, once per pair.
+- **Best new beats**:
+  - P15 lantern-baker: a false lantern rumour went to the journalist, who read the accounts and published
+    〈慶典預算離奇消失三成！…〉. Now a demo recording.
+  - P15/P16: the vendors' protest after the budget or car rumour (3–4 world changes, festival reduced).
+  - P16 pigeon-baker: the gossip reached 5 people (P12–P15: 1–2).
+- **Honest summary of v2's cost**: across P12–P16, 13 of 40 dramatic stories changed the world (≈33%), against
+  7/8 in P10 and ≈60% in P5–P9. Residents with fears, bottom lines and debts hesitate, bargain and cover up more,
+  and that is visible in their words. Still, fewer stories reach a public climax. The levers if the owner wants more
+  climaxes:
+  - softer fears;
+  - raising the per-resident budget for the protagonist;
+  - letting routine meetings fire more often.
+
+  None of these has been changed yet.
+- **Latency**: P15–P16 coincided with a slow provider hour (first decisions up to 45–63 s on single calls). The
+  longer v2 prompt adds roughly 300 characters per call.

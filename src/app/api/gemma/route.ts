@@ -26,9 +26,9 @@ export async function POST(req: Request) {
   } catch {
     return Response.json({ error: "bad json" }, { status: 400 });
   }
-  const bad = checkGameMessages(body.messages);
+  const bad = checkGameMessages(body?.messages); // a JSON null body is a bad request, not a crash
   if (bad) return Response.json({ error: bad }, { status: 400 });
-  const messages = body.messages!.map(({ role, content }) => ({ role, content }));
+  const messages = body!.messages!.map(({ role, content }) => ({ role, content }));
 
   // one call never runs past one decision's budget, well inside maxDuration, whatever the caller does
   const chat = makeChat({ key, baseUrl: process.env.GEMMA_BASE_URL || undefined, model: process.env.GEMMA_MODEL || undefined, timeoutMs: 60_000, maxAttempts: 8, budgetMs: DECISION_BUDGET_MS }, limit);

@@ -301,7 +301,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     const v = view(n, t, inbox);
     if (policy === "gemma") cfg.onThinking?.(n.p.id, t);
     const res: MindResult =
-      policy === "rules" ? decideWithRules(v) : await decideWithGemma(v, cfg.chat!, { variant, temperature, clock0, onEarly: cfg.onEarly ? (x) => cfg.onEarly!(n.p.id, x) : undefined });
+      policy === "rules" ? decideWithRules(v) : await decideWithGemma(v, cfg.chat!, { variant, temperature, clock0, shouldStop: cfg.shouldStop, onEarly: cfg.onEarly ? (x) => cfg.onEarly!(n.p.id, x) : undefined });
     for (const l of res.llm) l.decision = id;
     rec.llm = res.llm;
     rec.validation = res.validation;

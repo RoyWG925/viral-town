@@ -27,8 +27,10 @@ The Mistport Gazette, with the chain of who told whom, what was really true, and
 
 Different sentences, and different listeners, lead to different evenings: a false lantern rumour can send the
 reporter to the town hall's accounts and expose a real budget hole; the same worry told to the café owner gets the
-stage closed. A harmless joke can fill the square with curious visitors. Some sentences go nowhere — the town does
-not have to care.
+stage closed. A harmless joke can fill the square with curious visitors. And the town has its own slapstick lying
+around — a banana peel by the notice board, a dove cage held shut with tape, a generator on empty — that only the
+residents' own movements can set off: lure the mayor to the plaza and he goes down. Some sentences go nowhere — the
+town does not have to care.
 
 ## Technology tags
 Gemma, AMD Token Factory, AMD Instinct (via Token Factory), Next.js, React Three Fiber, WebAudio, TypeScript
@@ -79,7 +81,8 @@ US$0.03–0.05 per story. A replayed recording costs nothing.
 7. 4:20 Who it's for. End.
 
 ## Must be true before submitting (checklist)
-- [ ] Public GitHub repository (Roy flips it after the secret scan) and README in English.
+- [x] Secret scan: neither model key appears in any commit of the history (checked 2026-10-18); MIT LICENSE added.
+- [ ] Public GitHub repository (Roy flips it) and README in English.
 - [ ] Application URL works without login: https://viral-town.vercel.app
 - [ ] Video (MP4/MOV) and slide deck (PDF) uploaded.
 - [ ] Cover image.

@@ -1,0 +1,764 @@
+{
+ "run": {
+  "config": {
+   "active": [
+    "baker",
+    "florist",
+    "journalist",
+    "cafe",
+    "police",
+    "mayor",
+    "organizer",
+    "vendor"
+   ],
+   "seedNpc": "baker",
+   "seedText": "I heard the mayor is terrified of pigeons.",
+   "seed": 7,
+   "policy": "gemma",
+   "variant": "eager",
+   "temperature": 0.7,
+   "maxDecisions": 22,
+   "maxPerNpc": 7,
+   "maxPerNpcFinding": 11,
+   "findingReserve": 3
+  },
+  "whispers": [],
+  "events": [
+   {
+    "id": "e1",
+    "t": 20,
+    "type": "seed",
+    "causes": [],
+    "data": {
+     "text": "I heard the mayor is terrified of pigeons."
+    },
+    "zh": "A thought was planted in Barney's ear: “I heard the mayor is terrified of pigeons.”",
+    "target": "baker",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e2",
+    "t": 20,
+    "type": "deliver",
+    "causes": [
+     "e1"
+    ],
+    "data": {
+     "message": "m1",
+     "via": "seed",
+     "intent": "inform",
+     "text": "I heard the mayor is terrified of pigeons.",
+     "claims": [],
+     "from": "unknown"
+    },
+    "zh": "Barney overheard a stranger say: “I heard the mayor is terrified of pigeons.”",
+    "target": "baker",
+    "place": "bakery",
+    "w": 1
+   },
+   {
+    "id": "e3",
+    "t": 20.2,
+    "type": "decide",
+    "causes": [
+     "e2"
+    ],
+    "data": {
+     "decision": "d1",
+     "understanding": "A stranger claims the mayor is scared of pigeons, which is odd given the doves.",
+     "thought": "If the mayor is scared of birds, why on earth is he releasing a hundred doves?",
+     "feeling": "😮 surprised",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ],
+     "motive": "gossip"
+    },
+    "zh": "Barney: If the mayor is scared of birds, why on earth is he releasing a hundred doves?",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 40238
+   },
+   {
+    "id": "e4",
+    "t": 20.2,
+    "type": "belief",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "claim": "c1",
+     "topic": "mayor_fears_pigeons",
+     "says": "yes",
+     "from": 0,
+     "to": 0.49,
+     "proposed": 0.5,
+     "verdict": "doubt",
+     "why": "It's just a stranger's word, but it sounds like juicy gossip.",
+     "limit": {
+      "why": {
+       "kind": "hearsay",
+       "source": "unknown",
+       "trust": 0.3,
+       "sources": 1
+      },
+      "min": 0,
+      "max": 0.49
+     }
+    },
+    "zh": "Barney's confidence in “The mayor is terrified of pigeons.”: 0.00 → 0.49 (doubt)",
+    "actor": "baker",
+    "w": 40238
+   },
+   {
+    "id": "e5",
+    "t": 20.3,
+    "type": "react",
+    "causes": [
+     "e3"
+    ],
+    "data": {
+     "feeling": "😮 surprised"
+    },
+    "zh": "Barney 😮 surprised",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 40238
+   },
+   {
+    "id": "e6",
+    "t": 90,
+    "type": "move",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "from": "bakery",
+     "to": "cafe",
+     "arrive": 90.58685915281558,
+     "home": false
+    },
+    "zh": "Barney walked from Barney's Bakery to the café",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 40245
+   },
+   {
+    "id": "e7",
+    "t": 90.58685915281558,
+    "type": "arrive",
+    "causes": [
+     "e6"
+    ],
+    "data": {},
+    "zh": "Barney arrived at the café",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 40245
+   },
+   {
+    "id": "e8",
+    "t": 90.58685915281558,
+    "type": "meet",
+    "causes": [
+     "e4"
+    ],
+    "data": {
+     "text": "Barney drops off bread at the café"
+    },
+    "zh": "Barney and Molly met at the café (Barney drops off bread at the café)",
+    "actor": "baker",
+    "target": "cafe",
+    "place": "cafe",
+    "w": 40246
+   },
+   {
+    "id": "e9",
+    "t": 92.58685915281558,
+    "type": "deliver",
+    "causes": [
+     "e8"
+    ],
+    "data": {
+     "message": "m2",
+     "via": "meet",
+     "intent": "inform",
+     "text": "Barney drops off bread at the café",
+     "claims": [],
+     "from": "cafe"
+    },
+    "zh": "Barney ran into Molly (Barney drops off bread at the café)",
+    "target": "baker",
+    "actor": "cafe",
+    "place": "cafe",
+    "w": 40246
+   },
+   {
+    "id": "e10",
+    "t": 92.78685915281558,
+    "type": "decide",
+    "causes": [
+     "e9"
+    ],
+    "data": {
+     "decision": "d2",
+     "understanding": "I'm just dropping off bread to Molly as part of my daily routine.",
+     "thought": "Just a normal delivery. I hope the Mayor remembers to thank me publicly tonight.",
+     "feeling": "😊 happy",
+     "policy": "gemma",
+     "fallback": false,
+     "actions": [
+      "none"
+     ],
+     "motive": "none"
+    },
+    "zh": "Barney: Just a normal delivery. I hope the Mayor remembers to thank me publicly tonight.",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 66672
+   },
+   {
+    "id": "e11",
+    "t": 92.88685915281557,
+    "type": "react",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "feeling": "😊 happy"
+    },
+    "zh": "Barney 😊 happy",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 66672
+   },
+   {
+    "id": "e12",
+    "t": 98.58685915281558,
+    "type": "move",
+    "causes": [
+     "e10"
+    ],
+    "data": {
+     "from": "cafe",
+     "to": "bakery",
+     "arrive": 99.17371830563116,
+     "home": true
+    },
+    "zh": "Barney walked back from the café to Barney's Bakery",
+    "actor": "baker",
+    "place": "cafe",
+    "w": 66672
+   },
+   {
+    "id": "e13",
+    "t": 99.17371830563116,
+    "type": "arrive",
+    "causes": [
+     "e12"
+    ],
+    "data": {},
+    "zh": "Barney arrived at Barney's Bakery",
+    "actor": "baker",
+    "place": "bakery",
+    "w": 66672
+   },
+   {
+    "id": "e14",
+    "t": 120,
+    "type": "milestone",
+    "causes": [],
+    "data": {
+     "id": "stage_check",
+     "at": 120,
+     "zh": "17:00 Stage walk-through",
+     "status": "ok",
+     "text": "Walk-through done; the stage is good to go",
+     "causes": [],
+     "delta": {}
+    },
+    "zh": "17:00 Stage walk-through: Walk-through done; the stage is good to go",
+    "place": "stage",
+    "w": 66673
+   },
+   {
+    "id": "e15",
+    "t": 180,
+    "type": "milestone",
+    "causes": [],
+    "data": {
+     "id": "pigeons",
+     "at": 180,
+     "zh": "18:00 Doves delivered to the stage",
+     "status": "ok",
+     "text": "A hundred white doves arrived beside the stage",
+     "causes": [],
+     "delta": {}
+    },
+    "zh": "18:00 Doves delivered to the stage: A hundred white doves arrived beside the stage",
+    "place": "stage",
+    "w": 66673
+   },
+   {
+    "id": "e16",
+    "t": 210,
+    "type": "milestone",
+    "causes": [],
+    "data": {
+     "id": "vendors",
+     "at": 210,
+     "zh": "18:30 Stall owners set up",
+     "status": "ok",
+     "text": "The stall owners are setting up one by one",
+     "causes": [],
+     "delta": {}
+    },
+    "zh": "18:30 Stall owners set up: The stall owners are setting up one by one",
+    "place": "plaza",
+    "w": 66673
+   },
+   {
+    "id": "e17",
+    "t": 210,
+    "type": "mishap",
+    "causes": [
+     "e16"
+    ],
+    "data": {
+     "kind": "sweep"
+    },
+    "zh": "Rosa swept a banana peel off the plaza while setting up her stall",
+    "actor": "vendor",
+    "place": "plaza",
+    "w": 66673
+   },
+   {
+    "id": "e18",
+    "t": 240,
+    "type": "milestone",
+    "causes": [],
+    "data": {
+     "id": "police",
+     "at": 240,
+     "zh": "19:00 Police take their posts",
+     "status": "ok",
+     "text": "The police are in position on the plaza, as planned",
+     "causes": [],
+     "delta": {}
+    },
+    "zh": "19:00 Police take their posts: The police are in position on the plaza, as planned",
+    "place": "plaza",
+    "w": 66673
+   },
+   {
+    "id": "e19",
+    "t": 270,
+    "type": "milestone",
+    "causes": [],
+    "data": {
+     "id": "rehearsal",
+     "at": 270,
+     "zh": "19:30 Opening rehearsal",
+     "status": "ok",
+     "text": "The rehearsal goes smoothly",
+     "causes": [],
+     "delta": {}
+    },
+    "zh": "19:30 Opening rehearsal: The rehearsal goes smoothly",
+    "place": "stage",
+    "w": 66673
+   },
+   {
+    "id": "e20",
+    "t": 280,
+    "type": "milestone",
+    "causes": [],
+    "data": {
+     "id": "generator",
+     "at": 280,
+     "zh": "19:40 Lantern generator",
+     "status": "ok",
+     "text": "Gus tops up the lantern generator",
+     "causes": [],
+     "delta": {}
+    },
+    "zh": "19:40 Lantern generator: Gus tops up the lantern generator",
+    "place": "stage",
+    "w": 66673
+   },
+   {
+    "id": "e21",
+    "t": 300,
+    "type": "festival",
+    "causes": [],
+    "data": {
+     "kind": "on",
+     "short": "on",
+     "tags": [],
+     "missing": [],
+     "text": "Tonight's Lantern Festival: on as planned."
+    },
+    "zh": "Tonight's Lantern Festival: on as planned.",
+    "place": "plaza",
+    "w": 66673
+   },
+   {
+    "id": "e22",
+    "t": 300,
+    "type": "end",
+    "causes": [],
+    "data": {
+     "reason": "quiet",
+     "festival": "scheduled"
+    },
+    "zh": "Nobody acted on it any further, and the thought faded away.",
+    "w": 66673
+   }
+  ],
+  "decisions": [
+   {
+    "id": "d1",
+    "npc": "baker",
+    "t": 20.2,
+    "triggers": [
+     "e2"
+    ],
+    "inbox": [
+     "m1"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "A stranger claims the mayor is scared of pigeons, which is odd given the doves.",
+     "claims": [
+      {
+       "ref": "new",
+       "source": "m1",
+       "statement": "The mayor is terrified of pigeons.",
+       "topic": "mayor_fears_pigeons",
+       "says": "yes",
+       "category": "personal"
+      }
+     ],
+     "stances": [
+      {
+       "claim": 0,
+       "verdict": "doubt",
+       "confidence": 0.5,
+       "why": "It's just a stranger's word, but it sounds like juicy gossip.",
+       "cites": [
+        "m1"
+       ]
+      }
+     ],
+     "feeling": "😮 surprised",
+     "thought": "If the mayor is scared of birds, why on earth is he releasing a hundred doves?",
+     "act": "ponder",
+     "motive": "gossip",
+     "actions": [
+      {
+       "type": "none",
+       "why": "I'll wait to see if Penny drops by or if I hear more before making a fuss.",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": [],
+      "notes": [
+       "claim ref c0 → new",
+       "stance claim c0 → index 0"
+      ]
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d1",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 3,
+      "wallEndMs": 40236,
+      "latencyMs": 40232,
+      "attempts": 1,
+      "promptTokens": 2845,
+      "completionTokens": 279,
+      "platformCost": 0.0000411411,
+      "estCost": 0.0022595,
+      "status": 200,
+      "raw": "{\n  \"feeling\": \"😮 surprised\",\n  \"act\": \"ponder\",\n  \"understanding\": \"A stranger claims the mayor is scared of pigeons, which is odd given the doves.\",\n  \"claims\": [\n    {\n      \"ref\": \"c0\",\n      \"source\": \"m1\",\n      \"statement\": \"The mayor is terrified of pigeons.\",\n      \"topic\": \"mayor_fears_pigeons\",\n      \"says\": \"yes\",\n      \"category\": \"personal\"\n    }\n  ],\n  \"stances\": [\n    {\n      \"claim\": \"c0\",\n      \"verdict\": \"doubt\",\n      \"confidence\": 0.5,\n      \"why\": \"It's just a stranger's word, but it sounds like juicy gossip.\",\n      \"cites\": [\"m1\"]\n    }\n  ],\n  \"thought\": \"If the mayor is scared of birds, why on earth is he releasing a hundred doves?\",\n  \"motive\": \"gossip\",\n  \"actions\": [\n    {\n      \"type\": \"none\",\n      \"why\": \"I'll wait to see if Penny drops by or if I hear more before making a fuss.\"\n    }\n  ]\n}",
+      "promptChars": 10883,
+      "ttftMs": 25077
+     }
+    ],
+    "applied": [
+     "e3",
+     "e4",
+     "e5"
+    ]
+   },
+   {
+    "id": "d2",
+    "npc": "baker",
+    "t": 92.78685915281558,
+    "triggers": [
+     "e9"
+    ],
+    "inbox": [
+     "m2"
+    ],
+    "policy": "gemma",
+    "output": {
+     "understanding": "I'm just dropping off bread to Molly as part of my daily routine.",
+     "claims": [],
+     "stances": [],
+     "feeling": "😊 happy",
+     "thought": "Just a normal delivery. I hope the Mayor remembers to thank me publicly tonight.",
+     "act": "shrug",
+     "motive": "none",
+     "actions": [
+      {
+       "type": "none",
+       "why": "I'm just doing my deliveries and there's no urgent news to share right now.",
+       "cites": []
+      }
+     ]
+    },
+    "validation": [
+     {
+      "attempt": 1,
+      "stage": "single",
+      "kind": "ok",
+      "errors": []
+     }
+    ],
+    "fallback": false,
+    "llm": [
+     {
+      "provider": "amd",
+      "decision": "d2",
+      "npc": "baker",
+      "stage": "single",
+      "wallStartMs": 40246,
+      "wallEndMs": 66671,
+      "latencyMs": 26425,
+      "attempts": 1,
+      "promptTokens": 2909,
+      "completionTokens": 135,
+      "platformCost": 0.0000353248,
+      "estCost": 0.0018595,
+      "status": 200,
+      "raw": "{\n  \"feeling\": \"😊 happy\",\n  \"act\": \"shrug\",\n  \"understanding\": \"I'm just dropping off bread to Molly as part of my daily routine.\",\n  \"claims\": [],\n  \"stances\": [],\n  \"thought\": \"Just a normal delivery. I hope the Mayor remembers to thank me publicly tonight.\",\n  \"motive\": \"none\",\n  \"actions\": [\n    {\n      \"type\": \"none\",\n      \"why\": \"I'm just doing my deliveries and there's no urgent news to share right now.\"\n    }\n  ]\n}",
+      "promptChars": 11114,
+      "ttftMs": 5360
+     }
+    ],
+    "applied": [
+     "e10",
+     "e11"
+    ]
+   }
+  ],
+  "claims": [
+   {
+    "id": "c1",
+    "statement": "The mayor is terrified of pigeons.",
+    "topic": "mayor_fears_pigeons",
+    "says": "yes",
+    "category": "personal",
+    "fact": "mayor_pigeons",
+    "asserts": true,
+    "origin": "e2",
+    "by": "baker"
+   }
+  ],
+  "world": {
+   "festival": "scheduled",
+   "shops": {
+    "bakery": "open",
+    "flower": "open",
+    "cafe": "open",
+    "stall": "open"
+   },
+   "stage": "open",
+   "police": {
+    "deployed": false,
+    "place": null
+   },
+   "notices": [],
+   "articles": [],
+   "gatherings": {},
+   "statements": []
+  },
+  "minds": {
+   "baker": {
+    "place": "bakery",
+    "beliefs": [
+     {
+      "claim": "c1",
+      "confidence": 0.49,
+      "sources": [
+       "unknown"
+      ],
+      "updatedAt": 20.2,
+      "why": "It's just a stranger's word, but it sounds like juicy gossip."
+     }
+    ],
+    "learned": [],
+    "memory": [
+     "15:20 A stranger said: “I heard the mayor is terrified of pigeons.”",
+     "15:20 You decided not to do anything for now.",
+     "16:33 Molly said: “Barney drops off bread at the café”",
+     "16:33 You decided not to do anything for now."
+    ]
+   },
+   "florist": {
+    "place": "flower",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "journalist": {
+    "place": "news",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "cafe": {
+    "place": "cafe",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "police": {
+    "place": "police",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "mayor": {
+    "place": "townhall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "organizer": {
+    "place": "stage",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   },
+   "vendor": {
+    "place": "stall",
+    "beliefs": [],
+    "learned": [],
+    "memory": []
+   }
+  },
+  "ended": {
+   "reason": "quiet",
+   "t": 300
+  },
+  "wall": {
+   "startedAt": "2026-10-18T02:55:12.517Z",
+   "ms": 66673
+  },
+  "llm": {
+   "calls": 2,
+   "attempts": 2,
+   "promptTokens": 5754,
+   "completionTokens": 414,
+   "platformCost": 0.00007646589999999999,
+   "estCost": 0.004118999999999999,
+   "errors": 0,
+   "fallbacks": 0
+  }
+ },
+ "metrics": {
+  "depth": 2,
+  "reach": 1,
+  "believers": 0,
+  "decisions": 2,
+  "noneDecisions": 2,
+  "actionsDone": {},
+  "worldChanges": 0,
+  "worldChangeTypes": [],
+  "rejected": 0,
+  "idle": false,
+  "topics": [
+   "mayor_fears_pigeons"
+  ],
+  "topicDrift": 0,
+  "retellings": [],
+  "meanSimilarity": null,
+  "explained": 1,
+  "visualEvents": 6,
+  "gameMinutes": 280,
+  "llmCalls": 2,
+  "llmSeconds": 66.7,
+  "tokens": 6168,
+  "estCost": 0.004119,
+  "platformCost": 0.000076,
+  "validatorRetries": 0,
+  "modelErrors": 0,
+  "fallbacks": 0,
+  "refusedWishes": 0
+ },
+ "card": {
+  "festival": {
+   "kind": "on",
+   "missing": [],
+   "tags": [],
+   "text": "Tonight's Lantern Festival: on as planned.",
+   "short": "on"
+  },
+  "icon": "🤐",
+  "headline": "Barney took it in, but didn't tell a soul",
+  "sub": "“Just a normal delivery. I hope the Mayor remembers to thank me publicly tonight.”",
+  "spine": [],
+  "reached": [
+   "baker"
+  ],
+  "whispers": [],
+  "spineRoot": 0,
+  "stopper": {
+   "npc": "baker",
+   "thought": "Just a normal delivery. I hope the Mayor remembers to thank me publicly tonight.",
+   "verdict": "doubt",
+   "conf": 0.49
+  },
+  "truth": {
+   "text": "The mayor actually isn't scared of pigeons at all.",
+   "value": false,
+   "secretOf": []
+  },
+  "reveal": {
+   "npc": "baker",
+   "key": "gossip",
+   "label": "gossip habit",
+   "text": "doubles every number in the retelling; never takes a worry straight to Daisy",
+   "event": "e3",
+   "t": 20.2
+  }
+ },
+ "early": [
+  {
+   "npc": "baker",
+   "ms": 25079,
+   "feeling": "😮 surprised",
+   "act": "ponder"
+  },
+  {
+   "npc": "baker",
+   "ms": 5360,
+   "feeling": "😊 happy",
+   "act": "shrug"
+  }
+ ]
+}

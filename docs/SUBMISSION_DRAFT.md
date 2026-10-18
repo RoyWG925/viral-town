@@ -32,6 +32,27 @@ around — a banana peel by the notice board, a dove cage held shut with tape, a
 residents' own movements can set off: lure the mayor to the plaza and he goes down. Some sentences go nowhere — the
 town does not have to care.
 
+## The problem, and who it is for
+**The problem: stories either ignore your words or ignore consequences.**
+- *Scripted stories* are branching trees authored by hand: expensive, finite, and they only react to the choices the
+  writer predicted.
+- *Chatbot stories* take any text in and give text out — but nothing in the world changes, nothing is checked, and the
+  story forgets what is true.
+- *What players want* is to say anything and watch a living world take it seriously: believable people, real
+  consequences, and a clear "this happened because you said that".
+
+**How VIRAL answers it.** Your sentence is free text, and the world is not: the town's truth, rules and festival
+schedule are authored and enforced by the game, Gemma decides what each resident believes and intends, and every
+consequence is logged with its cause — so at 20:00 the front page can show exactly how your sentence became that
+evening.
+
+**Who it is for.**
+- *Players* who like social sandboxes and short, replayable story games: one sentence, one evening, a front page to
+  share — and often a different evening when they try another sentence or another listener.
+- *Streamers and audience-driven shows:* the audience writes the sentence, and everyone watches the town react.
+- *Media-literacy classrooms:* students watch a rumour mutate through motives and retellings, with the full traceable
+  chain as the lesson.
+
 ## Technology tags
 Gemma, AMD Token Factory, AMD Instinct (via Token Factory), Next.js, React Three Fiber, WebAudio, TypeScript
 
@@ -90,4 +111,5 @@ nothing.
 - [ ] Video (MP4/MOV) and slide deck (PDF) uploaded.
 - [ ] Cover image.
 - [x] Final numbers updated from the English batch (P23).
+- [x] The problem and the intended user stated (section "The problem, and who it is for", same as slide 2).
 - [x] Business lines signed off by the team (2026-10-18).

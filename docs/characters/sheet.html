@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>VIRAL cast</title>
+<style>
+  /* transparent page, dark text (for light backgrounds): node lab/render-page.mjs docs/characters/sheet.html docs/characters/cast-sheet.png 1920 1080 2 1
+     the white-text copy for dark backgrounds is the same page with :root { --ink: #fff; --soft: #d6dbe2; } */
+  :root { --ink: #1f2933; --soft: #3c4653; }
+  html, body { margin: 0; width: 1920px; height: 1080px; background: transparent; font-family: "Segoe UI", system-ui, sans-serif; color: var(--ink); }
+  header { text-align: center; padding-top: 46px; }
+  h1 { font-family: Georgia, serif; font-size: 64px; margin: 0; line-height: 1.05; }
+  .sub { font-size: 26px; margin-top: 8px; color: var(--soft); }
+  .grid { display: grid; grid-template-columns: repeat(4, 440px); justify-content: center; column-gap: 20px; margin-top: 18px; }
+  .cell { height: 440px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+  .fig { height: 352px; display: flex; align-items: flex-end; justify-content: center; }
+  .fig img { display: block; }
+  .name { font-size: 34px; font-weight: 800; margin-top: 6px; }
+  .role { font-size: 21px; color: var(--soft); margin-top: 2px; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>The people of Mistport</h1>
+    <div class="sub">Eight residents, each played by Gemma on AMD</div>
+  </header>
+  <div class="grid">
+    <div class="cell"><div class="fig"><img src="baker.png" alt="Barney" /></div><div class="name">Barney</div><div class="role">the baker</div></div>
+    <div class="cell"><div class="fig"><img src="florist.png" alt="Daisy" /></div><div class="name">Daisy</div><div class="role">the florist</div></div>
+    <div class="cell"><div class="fig"><img src="journalist.png" alt="Penny" /></div><div class="name">Penny</div><div class="role">the reporter</div></div>
+    <div class="cell"><div class="fig"><img src="cafe.png" alt="Molly" /></div><div class="name">Molly</div><div class="role">the café owner</div></div>
+    <div class="cell"><div class="fig"><img src="police.png" alt="Chief Harlow" /></div><div class="name">Chief Harlow</div><div class="role">the police chief</div></div>
+    <div class="cell"><div class="fig"><img src="mayor.png" alt="Mayor Higgins" /></div><div class="name">Mayor Higgins</div><div class="role">the mayor</div></div>
+    <div class="cell"><div class="fig"><img src="organizer.png" alt="Gus" /></div><div class="name">Gus</div><div class="role">the festival organizer</div></div>
+    <div class="cell"><div class="fig"><img src="vendor.png" alt="Rosa" /></div><div class="name">Rosa</div><div class="role">the takoyaki stall owner</div></div>
+  </div>
+  <script>
+    // every cut-out was taken from the same camera distance: one scale for all keeps their real heights
+    const imgs = [...document.querySelectorAll(".fig img")];
+    const fit = () => {
+      const tallest = Math.max(...imgs.map((i) => i.naturalHeight));
+      const k = 352 / tallest;
+      for (const i of imgs) { i.style.width = `${i.naturalWidth * k}px`; i.style.height = `${i.naturalHeight * k}px`; }
+    };
+    if (imgs.every((i) => i.complete)) fit(); else window.addEventListener("load", fit);
+  </script>
+</body>
+</html>

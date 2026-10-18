@@ -5,6 +5,7 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { simulate, type RunResult } from "../src/sim/engine.ts";
 import { FACTS, PERSONAS } from "../src/sim/scenario.ts";
 import { storyOf } from "../src/town/story.ts";
+import { articleOf } from "../src/sim/article.ts";
 
 const ALL8 = ["baker", "florist", "journalist", "cafe", "police", "mayor", "organizer", "vendor"];
 const runs: { name: string; run: RunResult }[] = [];
@@ -32,7 +33,7 @@ test("every hop on the card is a real conversation in the log", () => {
       if (h.via !== "talk" && h.via !== "phone") {
         const x = run.events.find((y) => y.id === h.event);
         const said = x && (h.via === "crowd" ? x.type === "deliver" && x.target === h.to : x.type === h.via && x.actor === h.from);
-        const words = x && (h.via === "look" || h.via === "inspect" ? String(x.data.found).includes(h.text) : String(h.via === "article" ? x.data.headline : x.data.text) === h.text);
+        const words = x && (h.via === "look" || h.via === "inspect" ? String(x.data.found).includes(h.text) : (h.via === "article" ? articleOf(x.data).headline : String(x.data.text)) === h.text);
         assert.ok(said && words, `${name}: ${h.via} step ${h.event} not in log`);
         continue;
       }

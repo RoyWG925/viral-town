@@ -10,11 +10,13 @@ const RATE_OUT = 3.0;
 
 /**
  * One resident decision's whole time budget: every attempt in mind.ts and every retry inside the chat client,
- * waits included. Half the server route's 300 s maxDuration, so one route call (which never gets more than this)
- * always finishes inside it. Two 60 s timeouts and a normal answer still fit; in P20 (lab, three stories at once)
- * 9 of 144 decisions took longer, each after repeated 60 s stalled streams.
+ * waits included. Under the server route's 300 s maxDuration, so one route call (which never gets more than this)
+ * always finishes inside it. Three 60 s timeouts and a normal answer still fit: at 150 s a slow provider hour
+ * (P22, 2026-10-18) cut a story off after two stalled streams.
  */
-export const DECISION_BUDGET_MS = 150_000;
+export const DECISION_BUDGET_MS = 240_000;
+/** one server route call (a single attempt with its inner retries) stays well inside the route's 300 s maxDuration */
+export const ROUTE_CALL_BUDGET_MS = 150_000;
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";

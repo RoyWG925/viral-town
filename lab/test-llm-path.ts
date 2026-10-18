@@ -182,9 +182,10 @@ test("the client's own budget ends a call that hangs, and its retries", { timeou
   assert.ok(since(t0) < 1500, `took ${since(t0)} ms`);
 });
 
-test("the decision budget fits well inside the route's maxDuration", () => {
-  assert.equal(typeof llm.DECISION_BUDGET_MS, "number");
-  assert.ok(llm.DECISION_BUDGET_MS * 2 <= maxDuration * 1000, `${llm.DECISION_BUDGET_MS} ms vs ${maxDuration} s`);
+test("one route call's budget fits well inside the route's maxDuration; a whole decision may span several calls", () => {
+  assert.equal(typeof llm.ROUTE_CALL_BUDGET_MS, "number");
+  assert.ok(llm.ROUTE_CALL_BUDGET_MS * 2 <= maxDuration * 1000, `${llm.ROUTE_CALL_BUDGET_MS} ms vs ${maxDuration} s`);
+  assert.ok(llm.DECISION_BUDGET_MS >= llm.ROUTE_CALL_BUDGET_MS);
 });
 
 // ---- F05c: a streamed answer holds its concurrency slot until its body is read or aborted ----

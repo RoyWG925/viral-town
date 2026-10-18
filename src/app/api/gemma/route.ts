@@ -1,6 +1,6 @@
 // Server-side proxy for resident decisions. The Token Factory key never leaves the server.
 // Only the game's own decision requests (apiGuard.ts), only Gemma, only JSON, rate-limited, so it cannot be used as an open relay.
-import { DECISION_BUDGET_MS, makeChat, rateLimiter, type ChatMessage } from "../../../sim/llm.ts";
+import { ROUTE_CALL_BUDGET_MS, makeChat, rateLimiter, type ChatMessage } from "../../../sim/llm.ts";
 import { checkGameMessages } from "../../../sim/apiGuard.ts";
 
 export const maxDuration = 300;
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   const messages = body!.messages!.map(({ role, content }) => ({ role, content }));
 
   // one call never runs past one decision's budget, well inside maxDuration, whatever the caller does
-  const chat = makeChat({ key, baseUrl: process.env.GEMMA_BASE_URL || undefined, model: process.env.GEMMA_MODEL || undefined, timeoutMs: 60_000, maxAttempts: 8, budgetMs: DECISION_BUDGET_MS }, limit);
+  const chat = makeChat({ key, baseUrl: process.env.GEMMA_BASE_URL || undefined, model: process.env.GEMMA_MODEL || undefined, timeoutMs: 60_000, maxAttempts: 8, budgetMs: ROUTE_CALL_BUDGET_MS }, limit);
   const params = {
     temperature: Math.min(1.2, Math.max(0, Number(body.temperature ?? 0.7))),
     maxTokens: Math.min(1200, Math.max(64, Number(body.maxTokens ?? 900))),

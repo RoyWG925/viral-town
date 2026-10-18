@@ -8,6 +8,7 @@ import { Html } from "@react-three/drei";
 import type * as THREE from "three";
 import { PERSONAS } from "../sim/scenario.ts";
 import { agentFor, clip, nameOf, show, type Say } from "./director";
+import { CLASSIC } from "./figure";
 
 // The units a retelling is compared in: a whole English word (so a changed word lights up whole, never a few of its
 // letters), or a single other character (one Chinese character in the old recorded runs, a space, a mark).
@@ -190,7 +191,8 @@ function Slot({ index }: { index: number }) {
   });
   return (
     <group ref={group}>
-      <Html position={[0, 2.6, 0]} zIndexRange={[40, 10]} style={{ pointerEvents: "none" }}>
+      {/* the new figures are drawn 1.1× for core residents: lift the card clear of the mayor's top hat */}
+      <Html position={[0, CLASSIC ? 2.6 : 2.9, 0]} zIndexRange={[40, 10]} style={{ pointerEvents: "none" }}>
         {s && (
           <div style={{ transform: "translate(-50%, -100%)" }} className="select-none">
             <Card s={s} />

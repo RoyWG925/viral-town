@@ -9,6 +9,7 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 import type { Look } from "./crowdSim";
 import type { Pose } from "./Crowd";
 import { POST_NPC } from "./director";
+import { CLASSIC, FIG, HAT_FIT, chest, faceZ, torsoR } from "./figure";
 import { mat } from "./materials";
 
 type V3 = [number, number, number];
@@ -94,6 +95,10 @@ const K = {
   boat: box(0.32, 0.04, 0.18),
   balls: merge(...[-0.1, 0, 0.1].flatMap((x) => [-0.045, 0.045].map((z) => part(sphere(0.045, 8, 6), [x, 0.04, z])))),
 };
+// the refined figure's hi-vis stripes follow its tapered torso (built only when that figure is in use)
+const STRIPES2 = CLASSIC ? null : merge(...[0.62, 0.76].map((y) => part(new THREE.TorusGeometry(torsoR(y) + 0.006, 0.02, 4, 22), [0, y, 0], [Math.PI / 2, 0, 0])));
+/** Under the nose on the refined face. */
+const MOUSTACHE2: V3 = [0, -0.078, faceZ(0, -0.078) + 0.004];
 
 // Shared kit materials (mat() caches by colour, so nothing here is ever mutated).
 const M = {
@@ -157,6 +162,11 @@ export interface Kit {
   hold?: (t: number) => Partial<Pose>;
   /** idle tells while standing at their post with nothing else going on */
   idle?: (t: number) => Partial<Pose>;
+  /** refined figure only: collar colour, belt colour, sleeve length, resting brow tilt (+ stern, - soft) */
+  trim?: string;
+  belt?: string;
+  sleeves?: "short" | "long";
+  brow?: number;
 }
 
 const smooth = (x: number) => {
@@ -166,6 +176,12 @@ const smooth = (x: number) => {
 /** 0 → 1 → 0 across [a, b] of a looping cycle, with soft ramps so a tell eases in and out. */
 const pulse = (c: number, a: number, b: number, ramp = 0.3) => Math.min(smooth((c - a) / ramp), smooth((b - c) / ramp));
 const front = (bw: number) => 0.205 * bw * 0.95; // the torso's front surface, chest height
+
+/**
+ * Kit hats were made for the classic round head (radius 0.33); on the refined figure they are fitted to its smaller,
+ * oval head. The classic figure gets them exactly as before.
+ */
+const Fit = ({ children }: { children: ReactNode }) => (CLASSIC ? <>{children}</> : <group position={[0, HAT_FIT.y, 0]} scale={HAT_FIT.s}>{children}</group>);
 
 // ---- gear ----------------------------------------------------------------------------------------
 
@@ -212,22 +228,37 @@ const KIT = {
     top: 0.75,
     level: true,
     gait: { stride: 0.38, arm: 0.12, bounce: 0.02, cadence: 0.8, sway: 0.07, lean: -0.08 },
+    trim: "#f7f4ee",
+    belt: "#141418",
+    sleeves: "long",
+    brow: 0.12,
     Head: () => (
-      <group rotation={[0.04, 0, -0.07]}>
-        <mesh geometry={K.topBrim} material={M.silk} position={[0, 0.27, 0]} castShadow />
-        <mesh geometry={K.topCrown} material={M.silk} position={[0, 0.52, 0]} castShadow />
-        <mesh geometry={K.topBand} material={M.red} position={[0, 0.33, 0]} />
-      </group>
+      <Fit>
+        <group rotation={[0.04, 0, -0.07]}>
+          <mesh geometry={K.topBrim} material={M.silk} position={[0, 0.27, 0]} castShadow />
+          <mesh geometry={K.topCrown} material={M.silk} position={[0, 0.52, 0]} castShadow />
+          <mesh geometry={K.topBand} material={M.red} position={[0, 0.33, 0]} />
+        </group>
+      </Fit>
     ),
-    Torso: ({ bw }) => (
-      <>
-        <Wide bw={bw}>
-          <mesh geometry={K.sash} material={M.red} position={[0, 0.7, 0.02]} rotation={[0, 0, 0.65]} />
-        </Wide>
-        <mesh geometry={K.medal} material={M.gold} position={[0, 0.7, front(bw) + 0.075]} />
-        <mesh geometry={K.lapel} material={M.pink} position={[0.12, 0.86, front(bw) + 0.01]} />
-      </>
-    ),
+    Torso: ({ bw }) =>
+      CLASSIC ? (
+        <>
+          <Wide bw={bw}>
+            <mesh geometry={K.sash} material={M.red} position={[0, 0.7, 0.02]} rotation={[0, 0, 0.65]} />
+          </Wide>
+          <mesh geometry={K.medal} material={M.gold} position={[0, 0.7, front(bw) + 0.075]} />
+          <mesh geometry={K.lapel} material={M.pink} position={[0.12, 0.86, front(bw) + 0.01]} />
+        </>
+      ) : (
+        <>
+          <group scale={[bw, 1, bw * FIG.depth]}>
+            <mesh geometry={K.sash} material={M.red} position={[0, 0.71, 0]} rotation={[0, 0, 0.65]} scale={0.93} />
+          </group>
+          <mesh geometry={K.medal} material={M.gold} position={[0, 0.69, chest(0.69, bw) + 0.085]} scale={0.85} />
+          <mesh geometry={K.lapel} material={M.pink} position={[0.11, 0.83, chest(0.83, bw)]} scale={0.85} />
+        </>
+      ),
     Hand: () => <mesh geometry={K.cane} material={M.silk} position={[0, 0, 0.02]} />,
     hold: () => ({ headX: -0.1 }), // chin up, always
     idle: (t) => {
@@ -242,24 +273,46 @@ const KIT = {
     belly: 0,
     top: 0.2,
     gait: { stride: 0.5, arm: 0.3, bounce: 0.03, cadence: 1, sway: 0.02, lean: -0.05 },
-    Head: () => (
-      <>
-        <PeakedCap band={M.gold} badge={M.gold} />
-        <mesh geometry={K.moustache} material={M.greyHair} position={[0, -0.015, 0.32]} />
-      </>
-    ),
-    Torso: ({ bw }) => (
-      <>
-        <Wide bw={bw}>
-          <mesh geometry={K.belt} material={M.black} position={[0, 0.5, 0]} />
-        </Wide>
-        <mesh geometry={K.buckle} material={M.gold} position={[0, 0.5, 0.21 * bw * 0.95 + 0.035]} />
-        <mesh geometry={K.star} material={M.gold} position={[0.11, 0.78, front(bw) + 0.02]} />
-        <mesh geometry={K.epaulette} material={M.gold} position={[0.18 * bw, 0.88, 0]} rotation={[0, 0, -0.45]} />
-        <mesh geometry={K.epaulette} material={M.gold} position={[-0.18 * bw, 0.88, 0]} rotation={[0, 0, 0.45]} />
-        <mesh geometry={K.baton} material={M.black} position={[-0.16 * bw, 0.42, 0.17 * bw]} rotation={[0.2, 0, 0.15]} />
-      </>
-    ),
+    trim: "#172c58",
+    belt: "#1d1d1f",
+    sleeves: "long",
+    brow: 0.24,
+    Head: () =>
+      CLASSIC ? (
+        <>
+          <PeakedCap band={M.gold} badge={M.gold} />
+          <mesh geometry={K.moustache} material={M.greyHair} position={[0, -0.015, 0.32]} />
+        </>
+      ) : (
+        <>
+          <Fit>
+            <PeakedCap band={M.gold} badge={M.gold} />
+          </Fit>
+          <mesh geometry={K.moustache} material={M.greyHair} position={MOUSTACHE2} rotation={[0.3, 0, 0]} scale={0.9} />
+        </>
+      ),
+    Torso: ({ bw }) =>
+      CLASSIC ? (
+        <>
+          <Wide bw={bw}>
+            <mesh geometry={K.belt} material={M.black} position={[0, 0.5, 0]} />
+          </Wide>
+          <mesh geometry={K.buckle} material={M.gold} position={[0, 0.5, 0.21 * bw * 0.95 + 0.035]} />
+          <mesh geometry={K.star} material={M.gold} position={[0.11, 0.78, front(bw) + 0.02]} />
+          <mesh geometry={K.epaulette} material={M.gold} position={[0.18 * bw, 0.88, 0]} rotation={[0, 0, -0.45]} />
+          <mesh geometry={K.epaulette} material={M.gold} position={[-0.18 * bw, 0.88, 0]} rotation={[0, 0, 0.45]} />
+          <mesh geometry={K.baton} material={M.black} position={[-0.16 * bw, 0.42, 0.17 * bw]} rotation={[0.2, 0, 0.15]} />
+        </>
+      ) : (
+        // the belt itself is the figure's own (black, from `belt`)
+        <>
+          <mesh geometry={K.buckle} material={M.gold} position={[0, FIG.waistY, 0.152 * bw * FIG.hipDepth + 0.03]} scale={0.85} />
+          <mesh geometry={K.star} material={M.gold} position={[0.1, 0.76, chest(0.76, bw) + 0.012]} scale={0.85} />
+          <mesh geometry={K.epaulette} material={M.gold} position={[0.165 * bw, 0.9, 0]} rotation={[0, 0, -0.42]} scale={0.9} />
+          <mesh geometry={K.epaulette} material={M.gold} position={[-0.165 * bw, 0.9, 0]} rotation={[0, 0, 0.42]} scale={0.9} />
+          <mesh geometry={K.baton} material={M.black} position={[-0.15 * bw, 0.43, 0.135 * bw]} rotation={[0.2, 0, 0.15]} scale={0.9} />
+        </>
+      ),
     // hands clasped behind his back, slowly scanning the square
     idle: (t) => ({ armLx: 0.42, armRx: 0.42, armLz: -0.14, armRz: 0.14, lean: -0.06, squash: 1.015, headY: Math.sin(t * 0.5) * 0.55 }),
   },
@@ -270,7 +323,14 @@ const KIT = {
     belly: 0,
     top: 0.2,
     gait: BASE_GAIT,
-    Head: () => <PeakedCap band={M.officerBand} badge={M.silver} />,
+    belt: "#1d1d1f",
+    sleeves: "short",
+    brow: 0.1,
+    Head: () => (
+      <Fit>
+        <PeakedCap band={M.officerBand} badge={M.silver} />
+      </Fit>
+    ),
   },
   // 小雯: the amplifier. Beret, a camera on her chest, a mustard shirt and a notebook; a quick, bouncy walk.
   journalist: {
@@ -279,14 +339,28 @@ const KIT = {
     belly: 0,
     top: 0.1,
     gait: { stride: 0.6, arm: 0.45, bounce: 0.09, cadence: 1.35, sway: 0.04, lean: 0.12 },
-    Head: () => <mesh geometry={K.beret} material={M.beret} position={[0.04, 0.2, -0.03]} rotation={[-0.1, 0, -0.2]} castShadow />,
-    Torso: ({ bw }) => (
-      <>
-        <mesh geometry={K.strap} material={M.camera} position={[0, 0.84, 0.06]} rotation={[0.62, 0, 0]} />
-        <mesh geometry={K.camera} material={M.camera} position={[0, 0.66, front(bw) + 0.05]} />
-        <mesh geometry={K.lens} material={M.silver} position={[0, 0.66, front(bw) + 0.13]} />
-      </>
+    trim: "#f7f4ee",
+    sleeves: "short",
+    brow: -0.04,
+    Head: () => (
+      <Fit>
+        <mesh geometry={K.beret} material={M.beret} position={[0.04, 0.2, -0.03]} rotation={[-0.1, 0, -0.2]} castShadow />
+      </Fit>
     ),
+    Torso: ({ bw }) =>
+      CLASSIC ? (
+        <>
+          <mesh geometry={K.strap} material={M.camera} position={[0, 0.84, 0.06]} rotation={[0.62, 0, 0]} />
+          <mesh geometry={K.camera} material={M.camera} position={[0, 0.66, front(bw) + 0.05]} />
+          <mesh geometry={K.lens} material={M.silver} position={[0, 0.66, front(bw) + 0.13]} />
+        </>
+      ) : (
+        <>
+          <mesh geometry={K.strap} material={M.camera} position={[0, 0.83, 0.035]} rotation={[0.62, 0, 0]} scale={[0.85, 0.85, 0.85]} />
+          <mesh geometry={K.camera} material={M.camera} position={[0, 0.66, chest(0.66, bw) + 0.045]} scale={0.85} />
+          <mesh geometry={K.lens} material={M.silver} position={[0, 0.66, chest(0.66, bw) + 0.115]} scale={0.85} />
+        </>
+      ),
     Hand: () => <mesh geometry={K.notebook} material={M.cream} position={[0, -0.06, 0.07]} rotation={[-0.35, 0, 0]} />,
     // scribbles in her notebook, then looks around for the next story
     idle: (t) => {
@@ -303,12 +377,25 @@ const KIT = {
     top: 0.85,
     apron: { sx: 0.8, sy: 0.55, y: 0.8 }, // a bib: the belly below it wears the apron colour
     gait: { stride: 0.42, arm: 0.5, bounce: 0.05, cadence: 1.15, sway: 0.13, lean: -0.04 },
-    Head: () => (
-      <>
-        <mesh geometry={K.toque} material={M.white} position={[0, 0.5, -0.02]} rotation={[-0.06, 0, 0]} castShadow />
-        <mesh geometry={K.moustache} material={M.brownHair} position={[0, -0.015, 0.32]} />
-      </>
-    ),
+    trim: "#ffffff",
+    belt: "#7b4b2a",
+    sleeves: "short",
+    brow: -0.12,
+    Head: () =>
+      CLASSIC ? (
+        <>
+          <mesh geometry={K.toque} material={M.white} position={[0, 0.5, -0.02]} rotation={[-0.06, 0, 0]} castShadow />
+          <mesh geometry={K.moustache} material={M.brownHair} position={[0, -0.015, 0.32]} />
+        </>
+      ) : (
+        <>
+          {/* a touch shorter than the classic toque, so it stays under the name tag on the larger figure */}
+          <Fit>
+            <mesh geometry={K.toque} material={M.white} position={[0, 0.47, -0.02]} rotation={[-0.06, 0, 0]} scale={[1, 0.9, 1]} castShadow />
+          </Fit>
+          <mesh geometry={K.moustache} material={M.brownHair} position={MOUSTACHE2} rotation={[0.3, 0, 0]} scale={0.95} />
+        </>
+      ),
     Hand: () => <mesh geometry={K.baguette} material={M.crust} position={[0, 0.12, 0.07]} rotation={[0.35, 0, -0.45]} castShadow />,
     // content swaying; every few seconds he dusts the flour off his apron
     idle: (t) => {
@@ -327,8 +414,11 @@ const KIT = {
     belly: 0,
     top: 0.25,
     gait: { stride: 0.45, arm: 0.3, bounce: 0.07, cadence: 1, sway: 0.06, lean: 0.02 },
+    trim: "#f7f4ee",
+    sleeves: "short",
+    brow: -0.08,
     Head: () => (
-      <>
+      <Fit>
         <mesh geometry={K.sunBrim} material={M.straw} position={[0, 0.22, 0]} castShadow />
         <mesh geometry={K.sunCrown} material={M.straw} position={[0, 0.34, 0]} />
         <mesh geometry={K.ribbon} material={M.pink} position={[0, 0.27, 0]} />
@@ -337,7 +427,7 @@ const KIT = {
           <mesh geometry={K.flowerHeart} material={M.yellow} position={[0, 0, 0.03]} />
         </group>
         <Dove />
-      </>
+      </Fit>
     ),
     Hand: () => (
       <group position={[0, 0.06, 0.07]} rotation={[0.25, 0, -0.2]}>
@@ -362,7 +452,14 @@ const KIT = {
     level: true,
     apron: { sx: 1.05, sy: 1.55, y: 0.47 },
     gait: { stride: 0.4, arm: 0.35, bounce: 0.025, cadence: 1.4, sway: 0.03, lean: 0.05 },
-    Head: () => <mesh geometry={K.bandana} material={M.bandana} rotation={[-0.35, 0, 0]} />,
+    trim: "#f7f4ee",
+    sleeves: "short",
+    brow: -0.04,
+    Head: () => (
+      <Fit>
+        <mesh geometry={K.bandana} material={M.bandana} rotation={[-0.35, 0, 0]} />
+      </Fit>
+    ),
     Hand: () => (
       <group position={[0, 0.04, 0.08]}>
         <mesh geometry={K.tray} material={M.tray} />
@@ -383,15 +480,30 @@ const KIT = {
     belly: 0,
     top: 0.15,
     gait: { stride: 0.6, arm: 0.4, bounce: 0.06, cadence: 1.3, sway: 0.03, lean: 0.1 },
-    Head: () => <mesh geometry={K.headset} material={M.black} position={[0, 0.02, 0]} />,
-    Torso: ({ bw }) => (
-      <>
-        <Wide bw={bw}>
-          <mesh geometry={K.stripes} material={M.reflect} />
-        </Wide>
-        <mesh geometry={K.pass} material={M.white} position={[0.09, 0.66, front(bw) + 0.02]} />
-      </>
+    trim: "#264653",
+    sleeves: "short",
+    brow: 0.06,
+    Head: () => (
+      <Fit>
+        <mesh geometry={K.headset} material={M.black} position={[0, 0.02, 0]} />
+      </Fit>
     ),
+    Torso: ({ bw }) =>
+      CLASSIC ? (
+        <>
+          <Wide bw={bw}>
+            <mesh geometry={K.stripes} material={M.reflect} />
+          </Wide>
+          <mesh geometry={K.pass} material={M.white} position={[0.09, 0.66, front(bw) + 0.02]} />
+        </>
+      ) : (
+        <>
+          <group scale={[bw, 1, bw * FIG.depth]}>
+            <mesh geometry={STRIPES2!} material={M.reflect} />
+          </group>
+          <mesh geometry={K.pass} material={M.white} position={[0.09, 0.69, chest(0.69, bw) + 0.012]} scale={0.85} />
+        </>
+      ),
     Hand: () => (
       <group position={[0, -0.05, 0.07]} rotation={[-0.45, 0, 0]}>
         <mesh geometry={K.board} material={M.clipboard} />
@@ -419,11 +531,15 @@ const KIT = {
     level: true,
     apron: { sx: 1, sy: 0.6, y: 0.5 }, // a short waist apron: the full bib read as a board held in front
     gait: { stride: 0.62, arm: 0.75, bounce: 0.08, cadence: 1.05, sway: 0.08, lean: 0.06 },
+    trim: "#f7f4ee",
+    sleeves: "short",
     Head: () => (
-      <group position={[0, 0.12, 0]} rotation={[-0.12, 0, 0]}>
-        <mesh geometry={K.hachimaki} material={M.white} />
-        <mesh geometry={K.sun} material={M.red} position={[0, 0.01, 0.37]} />
-      </group>
+      <Fit>
+        <group position={[0, 0.12, 0]} rotation={[-0.12, 0, 0]}>
+          <mesh geometry={K.hachimaki} material={M.white} />
+          <mesh geometry={K.sun} material={M.red} position={[0, 0.01, 0.37]} />
+        </group>
+      </Fit>
     ),
     Hand: () => (
       <group position={[0, 0.04, 0.09]}>

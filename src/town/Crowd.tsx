@@ -4,14 +4,17 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
+import { isCorePost } from "./cast";
 import { crowd, spawnCrowd, stepCrowd, type Agent } from "./crowdSim";
 import { agentFor, show } from "./director";
+import { BROW, CLASSIC, FIG, G2, HEAD, MOUTH, armX, browFor, chest, openMouth } from "./figure";
 import { BASE_GAIT, dress, kitFor, mixPose } from "./kits";
-import { mat } from "./materials";
+import { mat, shade } from "./materials";
 import { DT_MAX } from "./quality";
 import { bubbleTexture } from "./textures";
 
-// Shared geometry for every townsperson (chibi proportions: big head, short legs).
+// Shared geometry for the classic townsperson (?style=classic: chibi proportions, big head, short legs).
+// The refined figure's geometry lives in figure.ts.
 const G = {
   leg: new THREE.CylinderGeometry(0.075, 0.068, 0.36, 8).translate(0, -0.18, 0),
   shoe: new THREE.SphereGeometry(0.085, 8, 6).scale(1, 0.6, 1.5),
@@ -54,6 +57,10 @@ const G = {
   phone: new THREE.BoxGeometry(0.09, 0.2, 0.03),
 };
 const BALLOON_COLORS = ["#ff4d6d", "#ffd23f", "#3a86ff", "#06d6a0", "#b983ff", "#ff9f1c"];
+// refined figure: a white shirt collar, and shoes (dark, brown, white sneakers, navy)
+const TRIM_WHITE = "#f7f4ee";
+const SHOES = ["#2a2522", "#6b4428", "#f1eee8", "#2b3550"];
+const BROW_BROWN = new THREE.Color("#2e1f17");
 
 const bubbleMats = new Map<string, THREE.MeshBasicMaterial>();
 function bubbleMat(text: string) {
@@ -261,6 +268,9 @@ function Person({ agent }: { agent: Agent }) {
   const phone = useRef<THREE.Mesh>(null);
   const head = useRef<THREE.Group>(null);
   const level = useRef<THREE.Group>(null);
+  const browL = useRef<THREE.Mesh>(null);
+  const browR = useRef<THREE.Mesh>(null);
+  const mouth = useRef<THREE.Mesh>(null);
   const idleW = useRef(0);
   // core residents wear their signature kit; everyone else gets a softened palette (display only)
   const kit = useMemo(() => kitFor(agent.post), [agent.post]);
@@ -278,6 +288,30 @@ function Person({ agent }: { agent: Agent }) {
     }),
     [l],
   );
+  // the refined figure: the core residents stand a little larger than the background townsfolk, so they read first
+  const big = !CLASSIC && isCorePost(agent.post) ? 1.1 : 1;
+  const v = useMemo(() => {
+    if (CLASSIC) return null;
+    // small, stable per-person choices (display only): collar colour, sleeve length, shoes
+    const h = Math.imul(agent.id + 7, 2654435761) >>> 0;
+    const trim = kit?.trim ?? [TRIM_WHITE, shade(l.shirt, 0.16), l.pants][h % 3];
+    const short = kit?.sleeves ? kit.sleeves === "short" : l.who !== "elder" && ((h >>> 4) & 1) === 0;
+    const shoe = kit ? "#2a2522" : SHOES[(h >>> 7) % SHOES.length];
+    const y = 0.4 + (apron.y - 0.32) * 0.76;
+    const sy = apron.sy * 0.76;
+    return {
+      short,
+      brow: kit?.brow ?? 0,
+      trim: mat(trim, 0.8),
+      belt: mat(kit?.belt ?? shade(l.pants, -0.2), 0.55),
+      shoe: mat(shoe, 0.5),
+      // brows: the hair colour, darkened and pulled toward brown so bright dyed hair keeps natural brows
+      browM: mat(`#${new THREE.Color(shade(l.hair, -0.15)).lerp(BROW_BROWN, 0.45).getHexString()}`, 0.75),
+      brim: mat(shade(l.hatColor, -0.14), 0.7),
+      // the classic apron numbers mapped onto the refined torso (and stood just off its front)
+      apron: { y, sy, z: Math.max(chest(Math.min(y + 0.21 * sy, 0.82), bw), 0.167 * bw * FIG.hipDepth) + 0.014 },
+    };
+  }, [agent.id, kit, l, apron.y, apron.sy, bw]);
 
   useFrame((_, dt) => {
     const r = root.current;
@@ -291,6 +325,8 @@ function Person({ agent }: { agent: Agent }) {
     const s = Math.sin(step);
     let y = Math.abs(Math.cos(step)) * gait.bounce * moving;
     if (sitting) y = ground ? -0.27 : 0.1;
+    // the refined figure's seat (the bottom of its hips) sits a little higher than the classic body's
+    if (sitting && v) y -= 0.06;
     if (playing) y = Math.abs(Math.sin(agent.phase * 0.6)) * 0.35;
     const now = performance.now() / 1000;
     const talk = agent.mode === "chat" ? Math.sin(now * 6 + agent.id) * 0.25 : 0;
@@ -330,7 +366,7 @@ function Person({ agent }: { agent: Agent }) {
     const bz = Math.cos(agent.heading) * pose.back;
     r.position.set(agent.x + bx, y + pose.lift, agent.z + bz);
     r.rotation.y = agent.heading;
-    r.scale.setScalar(1.3 * l.scale * (0.15 + 0.85 * agent.visible));
+    r.scale.setScalar(1.3 * l.scale * big * (0.15 + 0.85 * agent.visible));
     r.visible = agent.visible > 0.02;
     if (legL.current) legL.current.rotation.x = pose.legL;
     if (legR.current) legR.current.rotation.x = pose.legR;
@@ -356,7 +392,93 @@ function Person({ agent }: { agent: Agent }) {
       bubble.current.visible = !!agent.bubble && agent.visible > 0.5 && !(agent.post && show.says.some((x) => agentFor(x.anchor ?? x.npc) === agent));
       if (agent.bubble) bubble.current.material = bubbleMat(agent.bubble);
     }
+    // refined faces act too: brows follow the acting pose, the mouth opens while talking
+    if (v && browL.current && browR.current) {
+      let raise = 0;
+      let tilt = v.brow;
+      if (agent.act && !sitting) {
+        const k = Math.max(0, Math.min(1, agent.act.t / 0.18, (agent.act.dur - agent.act.t) / 0.25));
+        const [r0, t0] = browFor(agent.act.kind);
+        raise = r0 * k;
+        tilt += (t0 - v.brow) * k;
+      }
+      browL.current.rotation.z = tilt;
+      browR.current.rotation.z = -tilt;
+      browL.current.position.y = BROW.y + raise;
+      browR.current.position.y = BROW.y + raise;
+    }
+    if (mouth.current) {
+      const talking = agent.mode === "chat" || (!!agent.act && !sitting && openMouth(agent.act.kind));
+      mouth.current.scale.y = talking ? 1 + 0.9 * Math.abs(Math.sin(now * 11 + agent.id)) : 1;
+    }
   });
+
+  if (v) {
+    const ax = armX(bw);
+    const hair = l.hat === "none" ? G2.hair[l.hairStyle] : G2.hatHair;
+    return (
+      <group ref={root}>
+        <group position={[FIG.legX, FIG.hipY, 0]} ref={legL}>
+          <mesh geometry={G2.leg} material={m.pants} castShadow />
+          <mesh geometry={G2.shoe} material={v.shoe} position={[0, -FIG.legLen, 0]} />
+        </group>
+        <group position={[-FIG.legX, FIG.hipY, 0]} ref={legR}>
+          <mesh geometry={G2.leg} material={m.pants} castShadow />
+          <mesh geometry={G2.shoe} material={v.shoe} position={[0, -FIG.legLen, 0]} />
+        </group>
+        <group ref={torso}>
+          <mesh geometry={G2.hips} material={m.pants} scale={[bw, 1, bw * FIG.hipDepth]} />
+          <mesh geometry={G2.torso} material={m.shirt} scale={[bw, 1, bw * FIG.depth]} castShadow />
+          <mesh geometry={G2.belt} material={v.belt} position={[0, FIG.waistY, 0]} scale={[bw, 1, bw * FIG.hipDepth]} />
+          <mesh geometry={G2.neck} material={m.skin} position={[0, 0.965, 0.008]} />
+          <mesh geometry={G2.collar} material={v.trim} scale={[bw, 1, bw]} />
+          {/* a belly under an apron is the apron's colour, so the apron reads as wrapping round it */}
+          {belly > 0 && <mesh geometry={G2.belly} material={l.apron ? m.apron : m.shirt} position={[0, 0.64, 0.07 * bw]} scale={belly * 0.9} />}
+          {l.skirt && <mesh geometry={G2.skirt} material={m.shirt} position={[0, 0.42, 0]} scale={[bw, 1, bw * 0.9]} castShadow />}
+          {l.apron && <mesh geometry={G2.apron} material={m.apron} position={[0, v.apron.y, v.apron.z]} scale={[apron.sx * bw * 0.95, v.apron.sy, 1]} />}
+          {l.backpack && <mesh geometry={G2.backpack} material={m.pack} position={[0, 0.7, -(chest(0.7, bw) + 0.06)]} castShadow />}
+          {l.scarf && <mesh geometry={G2.scarf} material={m.scarf} position={[0, 0.925, 0]} scale={[bw, 1, bw]} />}
+          {kit?.Torso && <kit.Torso bw={bw} />}
+          <group ref={armL} position={[ax, FIG.shoulderY, 0]}>
+            <mesh geometry={v.short ? G2.sleeveShort : G2.sleeveLong} material={m.shirt} castShadow />
+            <mesh geometry={v.short ? G2.forearmL : G2.handL} material={m.skin} />
+            {/* held props live in the left hand, so the phone (right hand) and talking gestures still read */}
+            {kit?.Hand && (
+              <group ref={kit.level ? level : undefined} position={[0, -FIG.hand, 0]}>
+                <kit.Hand bw={bw} />
+              </group>
+            )}
+          </group>
+          <group ref={armR} position={[-ax, FIG.shoulderY, 0]}>
+            <mesh geometry={v.short ? G2.sleeveShort : G2.sleeveLong} material={m.shirt} castShadow />
+            <mesh geometry={v.short ? G2.forearmR : G2.handR} material={m.skin} />
+            <mesh ref={phone} geometry={G2.phone} material={m.dark} position={[0, -FIG.hand - 0.02, 0.05]} visible={false} />
+          </group>
+          <group ref={head} position={[0, HEAD.y, HEAD.z]} rotation={[-0.22, 0, 0]} scale={l.headScale}>
+            <mesh geometry={G2.head} material={m.skin} castShadow />
+            <mesh geometry={G2.eyes} material={m.dark} />
+            <mesh geometry={G2.shine} material={m.white} />
+            <mesh ref={browL} geometry={G2.brow} material={v.browM} position={[BROW.x, BROW.y, BROW.z]} rotation={[-0.3, BROW.yaw, v.brow]} />
+            <mesh ref={browR} geometry={G2.brow} material={v.browM} position={[-BROW.x, BROW.y, BROW.z]} rotation={[-0.3, -BROW.yaw, -v.brow]} />
+            <mesh ref={mouth} geometry={G2.mouth} material={m.mouth} position={[0, MOUTH.y, MOUTH.z]} rotation={[0.3, 0, 0]} />
+            <mesh geometry={G2.blush} material={l.blush ? m.blush : m.blushSoft} />
+            {l.glasses && <mesh geometry={G2.glasses} material={m.dark} />}
+            {hair && <mesh geometry={hair} material={m.hair} />}
+            {l.hat !== "none" && <mesh geometry={G2.hats[l.hat]} material={l.hat === "chef" ? m.white : m.hat} castShadow />}
+            {l.hat === "cap" && <mesh geometry={G2.capBrim} material={v.brim} />}
+            {l.hat === "beanie" && <mesh geometry={G2.pom} material={m.white} position={[0, 0.43, -0.08]} />}
+            {kit?.Head && <kit.Head bw={bw} />}
+          </group>
+        </group>
+        {agent.prop === "balloons" && <Balloons />}
+        {agent.job && <mesh ref={crate} geometry={G.crate} material={mat("#b07a45", 0.8)} position={[0, 0.95, 0.42]} castShadow visible={false} />}
+        {/* the emoji bubble keeps its world height and size on the larger core residents (tags and lines are placed around it) */}
+        <Billboard position={[0, (2.0 + (kit?.top ?? 0)) / big, 0]} scale={1 / big}>
+          <mesh ref={bubble} geometry={G.bubble} visible={false} renderOrder={10} />
+        </Billboard>
+      </group>
+    );
+  }
 
   return (
     <group ref={root}>

@@ -25,9 +25,10 @@ check at 17:00, doves at 18:00, stalls at 18:30, police at 19:00, rehearsal at 1
 your sentence produced — lanterns, doves, crowds, a booed mayor, a stage taped off — and then read the front page of
 The Mistport Gazette, with the chain of who told whom, what was really true, and one hidden motive you uncovered.
 
-Different sentences, and different listeners, lead to different evenings: a false lantern rumour can send the
-reporter to the town hall's accounts and expose a real budget hole; the same worry told to the café owner gets the
-stage closed. A harmless joke can fill the square with curious visitors. And the town has its own slapstick lying
+Different sentences, and different listeners, lead to different evenings: a made-up story about the mayor's new car
+sends the reporter to the town hall's accounts, where she finds a real budget hole; a worry about the stage, told to
+the café owner, gets the stage sealed off; a joke that the mayor is afraid of pigeons ends with him denying it in a
+public statement. And the town has its own slapstick lying
 around — a banana peel by the notice board, a dove cage held shut with tape, a generator on empty — that only the
 residents' own movements can set off: lure the mayor to the plaza and he goes down. Some sentences go nowhere — the
 town does not have to care.
@@ -54,7 +55,7 @@ evening.
   chain as the lesson.
 
 ## Technology tags
-Gemma, AMD Token Factory, AMD Instinct (via Token Factory), Next.js, React Three Fiber, WebAudio, TypeScript
+Gemma, AMD Token Factory, Next.js, React Three Fiber, TypeScript, WebAudio, Remotion
 
 ## Track 4 — the five questions
 
@@ -88,7 +89,7 @@ discount) our own estimate is about US$0.03–0.07 per full story. A replayed re
 nothing.
 
 **Who would pay, and why.**
-- *Players:* a short, replayable story game — free to try, small one-time price or paid "new town" packs.
+- *Players:* a short, replayable story game — free to try, with paid new-town packs.
 - *Media-literacy education:* schools and libraries, to let students see how a rumour mutates through motives and
   retellings, with the full traceable chain as the lesson. Pay per classroom licence.
 - *Streamers / audience-driven entertainment:* the audience submits the sentence, the stream watches the town react.

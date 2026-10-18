@@ -21,7 +21,7 @@ stage. They doubt it, retell it in their own words, phone a friend, go and check
 
 A deterministic engine owns the truth and the rules. The model proposes beliefs and actions; the engine validates
 every answer, decides what anyone can actually see or do, and logs every cause. The town has its own clock: stage
-check at 17:00, doves at 18:00, stalls at 18:30, police at 19:00, rehearsal at 19:30. At 20:00 you watch the festival
+check at 17:00, doves at 18:00, stalls at 18:30, police at 19:00, rehearsal at 19:30, generator at 19:40. At 20:00 you watch the festival
 your sentence produced — lanterns, doves, crowds, a booed mayor, a stage taped off — and then read the front page of
 The Mistport Gazette, with the chain of who told whom, what was really true, and one hidden motive you uncovered.
 
@@ -57,11 +57,14 @@ decides what is true, what someone sees, or whether an action is allowed.
 - The ending is a pure function of the validated log: same log, same ending, every line traceable to its cause.
 - Player input is moderated: commands and jailbreaks are just something a stranger said (residents react in
   character); swearing is masked; sexual content, hate speech and self-harm are refused before any model call.
-- Measured on real runs: PLAYTEST_REPORT.md (20+ batches, every run's full log in lab/runs).
+- Measured on real runs: 302 real-model stories in 42 batches, every run's full log in lab/runs; 157
+  automated tests (no model calls) for the validators, engine rules, endings and moderation.
 
-**How much each experience costs.** A full story is 20–36 Gemma calls. During the event the platform reported about
-**US$0.001 per story** (US$0.008–0.009 per batch of 8 stories). **[confirm]** At list rates our own estimate is about
-US$0.03–0.05 per story. A replayed recording costs nothing.
+**How much each experience costs.** A full story is 15–38 Gemma calls. Across 92 full stories the AMD Token Factory
+platform reported **US$0.0013 per story** (median; US$0.0020 at most) during the event. A sentence that fizzles costs
+1–4 calls. **[confirm]** At an assumed list rate (US$0.50 per million input tokens, US$3 per million output, no cache
+discount) our own estimate is about US$0.03–0.07 per full story. A replayed recording costs
+nothing.
 
 **Who would pay, and why. [confirm — pick one or two]**
 - *Players:* a short, replayable story game — free to try, small one-time price or paid "new town" packs.
@@ -69,16 +72,16 @@ US$0.03–0.05 per story. A replayed recording costs nothing.
   retellings, with the full traceable chain as the lesson. Pay per classroom licence.
 - *Streamers / audience-driven entertainment:* the audience submits the sentence, the stream watches the town react.
 
-## Demo (video ≤ 5 min) — outline
-1. 0:00 Hook (recording, sped up): one false lantern rumour → the reporter finds a real budget hole → exposé →
-   stage closed → vendors march → 20:00 festival postponed.
-2. 0:30 The premise: the opening (you are a thought that spreads; 20:00; the clues).
-3. 1:00 Live: whisper to the café owner; thinking beats, retellings, the police chief inspects.
-4. 2:00 The 20:00 finale scene, then the front page; Details: truth, chain, Behind the scenes (calls, cost).
-5. 3:00 Two inputs, two evenings (Track 4 requirement): same sentence to someone else / a harmless joke that packs
-   the square.
-6. 3:40 How it works: model vs engine split, validation, moderation, cost per story.
-7. 4:20 Who it's for. End.
+## Demo (video ≈ 3 min) — see docs/video/VIDEO_KIT.md for the shot list, narration and subtitles
+1. 0:00 Hook (recorded run, 3×): one sentence to Molly → the chief tapes off the stage → Gus slips on the banana peel
+   → "Everything is perfectly safe!" → the reporter smells a scoop.
+2. 0:18 The premise: the opening (you are a thought that spreads; 20:00; the opportunities lying around).
+3. 0:33 Live: a sentence to Chief Harlow; thinking, the walk to the bakery, the inspection.
+4. 1:12 Two inputs, two evenings (Track 4 requirement): the stall-fee rumour → a real budget exposé; the lantern
+   rumour to Barney → nothing at all.
+5. 1:46 How it works: Gemma decides beliefs and intentions, the engine decides what happens; cost per story.
+6. 2:16 The 20:00 finale and the front page.
+7. 2:40 Cost, who it's for, end.
 
 ## Must be true before submitting (checklist)
 - [x] Secret scan: neither model key appears in any commit of the history (checked 2026-10-18); MIT LICENSE added.
@@ -86,4 +89,5 @@ US$0.03–0.05 per story. A replayed recording costs nothing.
 - [ ] Application URL works without login: https://viral-town.vercel.app
 - [ ] Video (MP4/MOV) and slide deck (PDF) uploaded.
 - [ ] Cover image.
-- [ ] Final numbers updated from the English batch.
+- [x] Final numbers updated from the English batch (P23).
+- [ ] Business lines marked [confirm] signed off by the team.

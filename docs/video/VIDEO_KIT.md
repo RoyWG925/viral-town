@@ -4,6 +4,11 @@ Official limits (lablab): a video link, **under 5 minutes and under 300 MB**; Tr
 experience **changing for at least two different inputs** and to explain what we made, what the model decides,
 how quality is controlled, the cost per experience, and who pays.
 
+**Rendered (2026-10-18):** both versions were made from real screen recordings of the game and edited in code — see
+`docs/video/remotion/README.md`. Files (outside the repo, too large for git): `../viral-video/out/VIRAL-demo-narrated.mp4`
+(3:00, 1080p30, 212 MB) and `../viral-video/out/VIRAL-demo-captions.mp4` (3:00, 183 MB). The shot list below is what
+they follow; it also works as a guide for recording by hand.
+
 Two versions, same picture:
 - **A — with narration**: the WAV files in `docs/video/vo/` (offline AI voice, Microsoft David) + `subtitles-A.srt`
   (short on-screen captions, the narration is spoken).

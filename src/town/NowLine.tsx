@@ -4,6 +4,7 @@
 // meanwhile pill, the stall timer and the simulating card. In explore it is the town's everyday ticker instead.
 import { useEffect, useState, type ReactNode } from "react";
 import type { SimEvent } from "../sim/types.ts";
+import { articleOf } from "../sim/article.ts";
 import { clip, listOf, nameOf, placeName, show, type Caption } from "./director";
 import { fx } from "./fx";
 import { ui } from "./ui";
@@ -56,8 +57,9 @@ function lineOf(e: SimEvent): { icon: string; text: string } | null {
       return { icon: "🔍", text: `${a} ${e.type === "inspect" ? "is inspecting" : "is looking around"} ${e.place ? placeName(e.place) : ""}`.trimEnd() };
     case "state":
       return d.key === "writing" ? { icon: "✍️", text: `${a} is writing it up` } : { icon: "✨", text: clip(e.zh, 68) };
-    case "notice":
     case "article":
+      return { icon: "📰", text: clip(`${a} published “${articleOf(d).headline}”`, 68) };
+    case "notice":
     case "statement":
     case "gather":
       return { icon: { notice: "📋", article: "📰", statement: "📣", gather: "✊" }[e.type], text: clip(e.zh, 68) };

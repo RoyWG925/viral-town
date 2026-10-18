@@ -3,6 +3,7 @@
 import type { RunResult } from "../sim/engine.ts";
 import { SPOTS } from "../sim/geo.ts";
 import { PERSONAS, PLACES } from "../sim/scenario.ts";
+import { articleOf } from "../sim/article.ts";
 import { gapSeconds } from "../sim/timing.ts";
 import type { SimEvent } from "../sim/types.ts";
 import { clockOf } from "../sim/view.ts";
@@ -641,14 +642,15 @@ function apply(e: SimEvent) {
       hold = readTime(String(d.text), 2.6, 1 / 14, 6);
       break;
     case "article": {
-      show.world.articles.push(String(d.headline));
+      const { headline } = articleOf(d);
+      show.world.articles.push(headline);
       bubble(actor, "📰", 3);
       // a few passers-by look at their phones
       crowd.agents.filter((a) => !a.script && !a.home && a.visible > 0.5).slice(0, 40).filter((_, k) => k % 6 === 0).forEach((a) => {
         a.bubble = "📱";
         a.bubbleTimer = 3;
       });
-      caption({ who: actor!, icon: "📰", tone: "world", text: `“${String(d.headline)}”`, sub: `${nameOf(actor!)} posts on the news blog` });
+      caption({ who: actor!, icon: "📰", tone: "world", text: `“${headline}”`, sub: `${nameOf(actor!)} posts on the news blog` });
       setShot("wide", { a: actor, prio: 3 });
       hold = 3.6;
       break;

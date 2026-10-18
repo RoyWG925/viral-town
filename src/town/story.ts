@@ -6,6 +6,7 @@
 // what this file reads out of a log (what a look showed, who was there, what was said) is matched in both.
 import type { RunResult } from "../sim/engine.ts";
 import { FACTS, LOOK_LIMITS, PERSONAS, PLACES, TOPIC_CATEGORY } from "../sim/scenario.ts";
+import { articleOf } from "../sim/article.ts";
 import { topicFact } from "../sim/view.ts";
 import { readinessOf } from "../sim/readiness.ts";
 import type { Motive, SimEvent } from "../sim/types.ts";
@@ -320,7 +321,7 @@ export function storyOf(run: RunResult): StoryCard {
     const d = e.data as Record<string, unknown>;
     if ((e.type === "talk" || e.type === "phone") && !d.missed && e.actor && e.target) return hopOf(e);
     if ((e.type === "article" || e.type === "notice" || e.type === "statement") && e.actor && next?.type === "deliver" && next.target)
-      return { from: e.actor, to: next.target, via: e.type, text: String(e.type === "article" ? d.headline : d.text), heard: heardBy(e), t: e.t, event: e.id, ...verdictOf(e, next.target) };
+      return { from: e.actor, to: next.target, via: e.type, text: e.type === "article" ? articleOf(d).headline : String(d.text), heard: heardBy(e), t: e.t, event: e.id, ...verdictOf(e, next.target) };
     // (a statement passed on by the crowd is the statement's step above)
     if (e.type === "deliver" && d.via === "crowd" && e.target && byId.get(e.causes[0])?.type !== "statement")
       return { from: String(d.from ?? "crowd"), to: e.target, via: "crowd", text: String(d.text), t: e.t, event: e.id, ...verdictOf(e) };
@@ -510,7 +511,7 @@ export function storyOf(run: RunResult): StoryCard {
   const happened = (e: SimEvent) => {
     const x = e.data as Record<string, unknown>;
     const who = e.actor ? nameOf(e.actor) : "";
-    if (e.type === "article") return `${who} posted “${clipS(String(x.headline ?? ""), 40)}”`;
+    if (e.type === "article") return `${who} posted “${clipS(articleOf(x).headline, 40)}”`;
     if (e.type === "statement") return `${who} made a statement`;
     if (e.type === "gather") return `${who} rallied the stall owners`;
     if (e.type === "notice") return `${who} put up a notice`;
@@ -538,7 +539,7 @@ export function storyOf(run: RunResult): StoryCard {
     // closed, then opened again: the shop is open at the end, so the headline says both
     else if (top.type === "state" && undone(top)) Object.assign(card, { icon: "🚪", headline: `${shop} closed, then opened again`, sub: chainOf(`${actor} closed up for a while, then opened again`) });
     else if (top.type === "state") Object.assign(card, { icon: "🔒", headline: `${shop} shuts its doors`, sub: chainOf(`${actor} decided to close up`) });
-    else if (top.type === "article") Object.assign(card, { icon: "📰", headline: `“${String(d.headline)}”`, sub: `${actor} wrote it up as news${via}.` });
+    else if (top.type === "article") Object.assign(card, { icon: "📰", headline: `“${articleOf(d).headline}”`, sub: `${actor} wrote it up as news${via}.` });
     else if (top.type === "statement") Object.assign(card, { icon: "📣", headline: `${actor} goes public with a statement`, sub: `“${clipS(String(d.text), 100)}”` });
     else if (top.type === "gather") Object.assign(card, { icon: "✊", headline: "Stall owners rally for a fair deal", sub: chainOf(`${actor} called everyone together`) });
     else if (top.type === "notice") Object.assign(card, { icon: "📋", headline: "A notice goes up on the plaza board", sub: `“${clipS(String(d.text), 100)}”` });

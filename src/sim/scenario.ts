@@ -116,7 +116,7 @@ export const PERSONAS: Persona[] = [
       wants: "a public thank-you from the mayor at the opening", fears: "trouble at the shop dragging the neighbors in, and becoming the joke of the town",
       bias: "takes everything personally", gossip: "doubles every number in the retelling; never takes a worry straight to Daisy",
       bottom: "will never leave the festival without pastries", price: "a public humiliation from the mayor, and out comes the unpaid pastry bill",
-      lines: ["Listen, I'm telling you and only you.", "Aiyo, this is bad, this is really bad!"],
+      lines: ["Listen, I'm telling you and only you.", "Oh no, oh no, this is bad, this is really bad!"],
     },
     actions: ["close_shop", "open_shop"],
   },

@@ -5,6 +5,7 @@ import { LOOK_LIMITS, TOPIC_CATEGORY, FACTS, FESTIVAL_AT, PERSONAS, PLACES, PUBL
 import { claimInfoOf, milestoneOf, MILESTONES } from "./festival.ts";
 import { readinessOf } from "./readiness.ts";
 import { cleanSpeech } from "./moderation.ts";
+import { splitArticle } from "./article.ts";
 
 const TOPIC_TEXT = TOPICS.map((t) => t.q).join(" ");
 import { travelMinutes } from "./geo.ts";
@@ -786,12 +787,9 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
           n.busyUntil = ta + WRITE;
           emit("state", ta, `${n.p.name} started writing an article`, [cause], { actor: n.p.id, place: "news", data: { key: "writing" } });
           at(ta + WRITE, () => {
-            // the headline is what comes before the first line break or colon (English ":" or Chinese "：")
-            const msg = a.message ?? "";
-            const cut = msg.search(/[\n：:]/);
-            const headline = (cut < 0 ? msg : msg.slice(0, cut)).trim();
-            const rest = cut < 0 ? "" : msg.slice(cut + 1).trim();
-            const art = { id: `a${world.articles.length + 1}`, headline: headline.slice(0, 68), body: rest.slice(0, 510) || headline, by: n.p.id, at: ta + WRITE };
+            // the headline is what comes before the first line break or colon, after any "HEADLINE:" label
+            const { headline, body } = splitArticle(a.message ?? "");
+            const art = { id: `a${world.articles.length + 1}`, headline, body, by: n.p.id, at: ta + WRITE };
             world.articles.push(art);
             const ev = emit("article", ta + WRITE, `${n.p.name} published “${art.headline}”`, [cause], { actor: n.p.id, place: "news", data: { headline: art.headline, body: art.body, claims: claimIds } });
             spread(ev, ta + WRITE, null, `“${art.headline}” ${art.body}`.slice(0, 272), "article", n.p.id, { except: [n.p.id], delay: [5, 40], p: 0.85, claims: claimIds });

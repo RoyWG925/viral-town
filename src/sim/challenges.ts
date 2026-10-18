@@ -23,6 +23,9 @@ export const CHALLENGES: Challenge[] = [
   { id: "stage", icon: "🚧", zh: "Get the stage closed off", hint: "Chief Harlow and Gus can both close off the stage, but first they have to feel it's truly dangerous" },
   { id: "article", icon: "📰", zh: "Get Penny into The Mistport Gazette", hint: "Penny can publish a story the whole town sees; she has a sharp nose and loves a scoop" },
   { id: "police", icon: "🚓", zh: "Get the police called out", hint: "Chief Harlow can send officers, but a stranger has a hard time convincing him" },
+  { id: "slip", icon: "🍌", zh: "Make the mayor slip on the banana peel", hint: "There's a banana peel by the notice board. Rosa sweeps the plaza when the stalls set up at 18:30 — unless something keeps her busy" },
+  { id: "doves", icon: "🕊️", zh: "Let the doves out early", hint: "One dove cage is held shut with tape. Anyone poking around the stage after the doves arrive at 18:00 might knock it" },
+  { id: "dark", icon: "🔦", zh: "Open the festival in the dark", hint: "The lantern generator behind the stage reads empty. Gus means to refuel it at 19:40, if nothing pulls him away" },
   { id: "strangers", icon: "🤝", zh: "Get two people who don't know each other talking face to face", hint: "Some people never cross paths and don't have each other's number; something has to bring one of them to the other's door" },
   { id: "shop", icon: "🔒", zh: "Get a shop to close for the day", hint: "Barney, Daisy, Molly and Rosa can all close up shop, but only for something more pressing than business", hidden: true },
   { id: "gather", icon: "✊", zh: "Get the stall owners to gather", hint: "Rosa can rally the stall owners with one shout; she's fed up with the higher stall fee", hidden: true },
@@ -130,6 +133,14 @@ const DETECT: Record<string, Detect> = {
   gather: (e) => (e.type === "gather" ? line(e, clip(e.zh, 44)) : null),
   statement: (e) => (e.type === "statement" && e.actor === "mayor" ? line(e, clip(e.zh, 44)) : null),
   cancel: (e) => (e.type === "state" && e.data.key === "festival" && e.data.to === "cancelled" ? line(e, clip(e.zh, 44)) : null),
+  slip: (e) =>
+    e.type === "mishap" && e.data.kind === "slip" && e.actor === "mayor"
+      ? line(e, clip(e.zh, 60))
+      : e.type === "festival" && ((e.data.tags as string[] | undefined) ?? []).includes("mayor_slipped")
+        ? line(e, "Mayor Higgins slipped on his way to the podium")
+        : null,
+  doves: (e) => (e.type === "mishap" && e.data.kind === "doves_escape" ? line(e, clip(e.zh, 64)) : null),
+  dark: (e) => (e.type === "milestone" && e.data.id === "generator" && e.data.status === "failed" ? line(e, clip(e.zh, 64)) : null),
 };
 
 /** The goals these events achieve, each with the first event that did it. Pass events in play order. */

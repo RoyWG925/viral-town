@@ -71,12 +71,13 @@ const BUDGET_CHECK = FACTS.find((f) => f.id === "budget_overrun")!.check!.zh;
 const STAMPED_BY: Record<string, string[]> = {
   town: ["deliver"], truth: ["inspect", "look"], stage: ["state"], article: ["article"], police: ["state"], strangers: ["talk"],
   shop: ["state"], gather: ["gather"], statement: ["statement"], cancel: ["state"],
+  slip: ["mishap", "festival"], doves: ["mishap"], dark: ["milestone"],
 };
 
-test("the goal list keeps the shared contract: 6 visible, then 4 hidden", () => {
+test("the goal list keeps the shared contract: 9 visible (incl. the three opportunities), then 4 hidden", () => {
   assert.equal(GOALS_STORAGE_KEY, "viral.goals.v1");
-  assert.deepEqual(CHALLENGES.map((c) => c.id), ["town", "truth", "stage", "article", "police", "strangers", "shop", "gather", "statement", "cancel"]);
-  assert.deepEqual(CHALLENGES.map((c) => !!c.hidden), [false, false, false, false, false, false, true, true, true, true]);
+  assert.deepEqual(CHALLENGES.map((c) => c.id), ["town", "truth", "stage", "article", "police", "slip", "doves", "dark", "strangers", "shop", "gather", "statement", "cancel"]);
+  assert.deepEqual(CHALLENGES.map((c) => !!c.hidden), [false, false, false, false, false, false, false, false, false, true, true, true, true]);
   assert.deepEqual(Object.keys(STAMPED_BY).sort(), CHALLENGES.map((c) => c.id).sort());
 });
 

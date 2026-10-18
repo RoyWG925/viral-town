@@ -2,21 +2,21 @@
 
 // The first visit opens with half a minute of the town before anyone is told what to do: who you are (a thought
 // that spreads), what is at stake (20:00, the lantern festival), and four things the camera happens to linger on —
-// the stage, the bakery's sticker, the dove cages, the stalls. Questions, never answers: what a player might want to
+// the stage, the empty generator, the taped dove cage, a banana peel, the stalls. Questions, never answers: what a player might want to
 // test with one sentence. Skippable at once; shown once (the 🎬 button brings it back).
 import { useEffect, useRef, useState } from "react";
 import { SPOTS } from "../sim/geo.ts";
-import { STAGE, fromLocal } from "./layout";
+import { OPP_SPOTS } from "./Opportunities";
 import { flyTo } from "./camera";
 
-const cages = fromLocal(STAGE, -STAGE.w / 2 + 1, 0);
 const BEATS: { at: { x: number; z: number }; dist: number; kicker: string; line: string; sub: string; secs: number; dark?: boolean }[] = [
   { at: SPOTS.plaza, dist: 80, kicker: "VIRAL", line: "You are not a character.", sub: "You are a thought that spreads.", secs: 4.5, dark: true },
   { at: SPOTS.plaza, dist: 50, kicker: "Mistport · 15:20", line: "Tonight at 20:00: the Lantern Festival.", sub: "Four hours and forty minutes to go.", secs: 4.5 },
-  { at: SPOTS.stage, dist: 20, kicker: "The festival stage", line: "Put up in a hurry this week.", sub: "Did anyone ever check it?", secs: 4.5 },
-  { at: SPOTS.bakery, dist: 18, kicker: "The bakery", line: "The oven's safety sticker…", sub: "…what date is on it?", secs: 4 },
-  { at: cages, dist: 18, kicker: "The dove cages", line: "A hundred white doves fly at the opening.", sub: "Right over the mayor's head.", secs: 4.5 },
-  { at: SPOTS.stall, dist: 22, kicker: "The stalls", line: "Stall fees doubled this year.", sub: "Nobody at the town hall will say why.", secs: 4.5 },
+  { at: SPOTS.stage, dist: 20, kicker: "The festival stage", line: "Put up in a hurry this week.", sub: "Did anyone ever check it?", secs: 4 },
+  { at: OPP_SPOTS.generator, dist: 14, kicker: "Behind the stage", line: "The lantern generator reads empty.", sub: "Gus means to top it up at 19:40.", secs: 4 },
+  { at: OPP_SPOTS.cage, dist: 15, kicker: "The dove cages", line: "A hundred white doves fly at the opening.", sub: "One cage is held shut with a strip of tape.", secs: 4 },
+  { at: OPP_SPOTS.peel, dist: 13, kicker: "The notice board", line: "Someone dropped a banana peel.", sub: "Nobody has picked it up. Yet.", secs: 4 },
+  { at: SPOTS.stall, dist: 22, kicker: "The stalls", line: "Stall fees doubled this year.", sub: "Nobody at the town hall will say why.", secs: 4 },
   { at: SPOTS.plaza, dist: 58, kicker: "Your move", line: "Pick someone. Whisper one sentence.", sub: "Then watch what the town does with it.", secs: 4.5 },
 ];
 

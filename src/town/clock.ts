@@ -120,7 +120,11 @@ export function interiorMaterial(map: THREE.Texture) {
 
 // Night glow is atmosphere, not the subject: lanterns and lamps glow warmly but stay under the bloom threshold
 // mostly, so people, faces and gestures remain the brightest readable things on screen.
+/** set while the 20:00 scene plays with nobody having refueled the lantern generator: string lights and lamps stay off */
+export const lightsOff = { on: false };
+
 export function updateGlow(lightsOn: number, t: number) {
+  if (lightsOff.on) lightsOn *= 0.04;
   glow.window.emissiveIntensity = 0.05 + lightsOn * 1.25;
   glow.interiors.forEach((m) => (m.emissiveIntensity = 0.38 + lightsOn * 0.9));
   glow.lamp.emissiveIntensity = 0.2 + lightsOn * 2.6;

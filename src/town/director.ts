@@ -145,6 +145,9 @@ export const show = {
   lastAct: {} as Record<string, Act>,
   /** 20:00: how the festival turned out (from the log), and when its scene started on the playback clock */
   finale: null as null | { kind: string; tags: string[]; text: string; start: number },
+  /** the banana peel by the notice board (gone once someone slips on it or it is swept), and when the doves got loose */
+  peel: "down" as "down" | "gone",
+  dovesEscapedAt: null as number | null,
   /** counts load() calls, so the camera can tell a new story (or a replay) from a streamed update */
   loads: 0,
   version: 0,
@@ -207,7 +210,7 @@ export function reset() {
   Object.assign(show, {
     status: "idle", run: null, growing: false, order: [], i: 0, clock: 0, gameT: 0, gapUntil: null, stepUntil: 0, waitFor: null, stepStarted: 0,
     captions: [], world: freshWorld(), focus: null, infected: new Set(), links: [], extras: new Set(), stalled: false, frontier: Infinity, props: [], focusLater: null,
-    thinking: new Set(), thinkingShown: "", shot: null, says: [], lastAct: {}, stance: {}, thinkingSince: {}, early: {}, stallSince: 0, meanwhile: null, title: null, titlesShown: new Set(), finale: null,
+    thinking: new Set(), thinkingShown: "", shot: null, says: [], lastAct: {}, stance: {}, thinkingSince: {}, early: {}, stallSince: 0, meanwhile: null, title: null, titlesShown: new Set(), finale: null, peel: "down", dovesEscapedAt: null,
   });
   show.version++;
 }
@@ -704,6 +707,30 @@ function apply(e: SimEvent) {
       hold = d.wanted ? 2.4 : 1.6;
       break;
     }
+    case "mishap": {
+      // the opportunities going off: a slip on the banana peel, the plaza swept, the doves knocked loose
+      const kind = String(d.kind);
+      if (kind === "slip") {
+        show.peel = "gone";
+        bubble(actor, "💫", 3);
+        const a = agentFor(actor!);
+        if (a) perform(a, "startled", 2.6);
+        caption({ who: actor!, icon: "🍌", tone: "world", text: e.zh });
+        setShot("two", { a: actor, prio: 3 });
+        hold = 3;
+      } else if (kind === "sweep") {
+        show.peel = "gone";
+        caption({ who: actor ?? "", icon: "🧹", tone: "system", text: e.zh });
+        hold = 1.4;
+      } else if (kind === "doves_escape") {
+        show.dovesEscapedAt = show.clock;
+        bubble(actor, "😱", 3);
+        caption({ who: actor ?? "", icon: "🕊️", tone: "world", text: e.zh });
+        setShot("wide", { at: SPOTS.stage, prio: 3 });
+        hold = 3.4;
+      }
+      break;
+    }
     case "milestone": {
       // the festival's own clock: a quiet tick when it goes to plan, a beat on the place when it does not
       const status = String(d.status);
@@ -725,7 +752,13 @@ function apply(e: SimEvent) {
       const mayor = agentFor("mayor");
       if (mayor && kind !== "cancelled" && !tags.includes("mayor_absent")) {
         scriptGoto(mayor, SPOTS.stage.x, SPOTS.stage.z - 0.6, faceToward(mayor, square.x, square.z), 3);
-        say("mayor", "speech", tags.includes("mayor_booed") || tags.includes("protest_rally") ? "Everyone, please — please, just hear me out!" : "Good evening, Mistport! Let the Lantern Festival begin!", 7);
+        if (tags.includes("mayor_slipped")) {
+          // the peel nobody picked up: down he goes, on the way to the podium
+          show.peel = "gone";
+          bubble("mayor", "💫", 4);
+          perform(mayor, "startled", 3);
+        }
+        say("mayor", "speech", tags.includes("mayor_slipped") ? "Whoa— who left a banana here?!" : tags.includes("mayor_booed") || tags.includes("protest_rally") ? "Everyone, please — please, just hear me out!" : "Good evening, Mistport! Let the Lantern Festival begin!", 7);
       }
       if (tags.includes("early_exit")) for (const a of show.extras) a.bubble = "🏃";
       caption({ who: "", icon: "🏮", tone: "world", text: e.zh, sub: "20:00" });

@@ -16,6 +16,7 @@ import { ui } from "./ui";
 import { DT_MAX } from "./quality";
 import Says from "./Says";
 import Finale from "./Finale";
+import Opportunities from "./Opportunities";
 import { cam } from "./camera";
 import { contactsOf, powerOf, roleIcon } from "./roles";
 
@@ -329,6 +330,7 @@ export default function PlaybackLayer() {
       <ContactArcs />
       <WorldChanges />
       <Finale />
+      <Opportunities />
       <Says />
       <CamGlide />
     </group>

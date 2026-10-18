@@ -4,7 +4,7 @@
 import { PLACES } from "./scenario.ts";
 import type { SimEvent } from "./types.ts";
 
-export type MilestoneId = "stage_check" | "pigeons" | "vendors" | "police" | "rehearsal";
+export type MilestoneId = "stage_check" | "pigeons" | "vendors" | "police" | "rehearsal" | "generator";
 export type Meter = "people" | "supplies" | "money" | "site" | "mayor" | "mood" | "crowd" | "time";
 
 export const MILESTONES: { id: MilestoneId; at: number; zh: string }[] = [
@@ -13,7 +13,31 @@ export const MILESTONES: { id: MilestoneId; at: number; zh: string }[] = [
   { id: "vendors", at: 210, zh: "18:30 Stall owners set up" },
   { id: "police", at: 240, zh: "19:00 Police take their posts" },
   { id: "rehearsal", at: 270, zh: "19:30 Opening rehearsal" },
+  { id: "generator", at: 280, zh: "19:40 Lantern generator" },
 ];
+
+/**
+ * Three things lying around Mistport that a story can trip over — Hitman-style opportunities. They are set dressing
+ * the player can see (the opening shows them), and only residents' own logged movements set them off:
+ * - a banana peel by the plaza notice board: the first resident who walks to the plaza slips on it; Rosa sweeps it
+ *   up when the stalls set up at 18:30, unless the stall owners are out protesting; still there at 20:00, the mayor
+ *   steps on it on his way to the podium;
+ * - one dove cage is held shut with tape: once the doves are in it (18:00), anyone who looks around or inspects the
+ *   stage knocks it open and the doves fly off to the town hall roof;
+ * - the lantern generator behind the stage reads empty: Gus refuels it at 19:40 if he is at the stage and not caught
+ *   up in a conversation; otherwise the festival opens in the dark.
+ */
+export const OPPORTUNITIES = [
+  { id: "peel", icon: "🍌", where: "plaza", hint: "There's a banana peel by the notice board, and nobody has picked it up." },
+  { id: "latch", icon: "🕊️", where: "stage", hint: "One of the dove cages is held shut with a strip of tape." },
+  { id: "generator", icon: "🔦", where: "stage", hint: "The generator behind the stage reads empty. Gus means to refuel it at 19:40." },
+] as const;
+
+/** The banana peel as the log stands: still down, or gone (with the event that took it: a slip or a sweep). */
+export function peelOf(events: SimEvent[], t = Infinity): { down: boolean; ev?: SimEvent } {
+  const gone = events.find((e) => e.type === "mishap" && e.t <= t + 1e-9 && (e.data.kind === "slip" || e.data.kind === "sweep"));
+  return gone ? { down: false, ev: gone } : { down: true };
+}
 
 /**
  * What a look or an inspection found, in the words the older Chinese logs (lab/runs, public/recorded) used for each
@@ -58,6 +82,9 @@ interface Snapshot {
   /** resident → claim → latest belief */
   beliefs: Map<string, Map<string, { conf: number; ev: string }>>;
   info: Map<string, ClaimInfo>;
+  /** where Gus (the organizer) last arrived, and his talks and calls (as speaker or listener), for the generator */
+  gusAt: { place: string; ev?: string };
+  gusTalks: { t: number; ev: string }[];
 }
 
 /** Topic and direction of every claim: from belief events (live logs carry them) and from run.claims (older logs). */
@@ -75,7 +102,7 @@ export function claimInfoOf(events: SimEvent[], claims: { id: string; topic: str
 
 /** The world as the log stands at minute t (inclusive). */
 export function snapshotAt(events: SimEvent[], info: Map<string, ClaimInfo>, t: number): Snapshot {
-  const s: Snapshot = { festivalCancelled: null, stageClosed: null, closed: new Map(), police: null, gathers: [], beliefs: new Map(), info };
+  const s: Snapshot = { festivalCancelled: null, stageClosed: null, closed: new Map(), police: null, gathers: [], beliefs: new Map(), info, gusAt: { place: "stage" }, gusTalks: [] };
   for (const e of events) {
     // the log is in processing order, not strictly by time (a reaction is stamped a beat later): skip, don't stop
     if (e.t > t + 1e-9) continue;
@@ -90,6 +117,8 @@ export function snapshotAt(events: SimEvent[], info: Map<string, ClaimInfo>, t: 
         else s.closed.delete(key.slice(6));
       }
     } else if (e.type === "gather") s.gathers.push({ place: String(e.place ?? ""), ev: e.id, actor: e.actor });
+    else if (e.type === "arrive" && e.actor === "organizer") s.gusAt = { place: String(e.place ?? ""), ev: e.id };
+    else if ((e.type === "talk" || (e.type === "phone" && !d.missed)) && (e.actor === "organizer" || e.target === "organizer")) s.gusTalks.push({ t: e.t, ev: e.id });
     else if (e.type === "belief" && e.actor) {
       if (!s.beliefs.has(e.actor)) s.beliefs.set(e.actor, new Map());
       s.beliefs.get(e.actor)!.set(String(d.claim), { conf: Number(d.to), ev: e.id });
@@ -148,6 +177,15 @@ export function milestoneOf(id: MilestoneId, events: SimEvent[], info: Map<strin
       if (worry) return r("failed", "Molly won't let her daughter on stage, so the opening is one act short", [worry.ev], { people: -10 }, "no_daughter");
       if (s.stageClosed) return r("moved", "The rehearsal moves to the open plaza", [s.stageClosed], {}, "on_square");
       return r("ok", "The rehearsal goes smoothly");
+    }
+    case "generator": {
+      if (s.stageClosed) return r("moved", "No stage show tonight, so the generator stays off", [s.stageClosed]);
+      // Gus refuels it on his own round; he only misses it when the story has pulled him away or tied him up
+      if (s.gusAt.place !== "stage")
+        return r("failed", `Gus is off at ${placeZh(s.gusAt.place)}, and nobody refuels the lantern generator`, s.gusAt.ev ? [s.gusAt.ev] : [], { mood: -5 }, "lights_out");
+      const busy = s.gusTalks.filter((x) => x.t >= m.at - 15).at(-1);
+      if (busy) return r("failed", "Gus is caught up in a conversation, and nobody refuels the lantern generator", [busy.ev], { mood: -5 }, "lights_out");
+      return r("ok", "Gus tops up the lantern generator");
     }
   }
 }

@@ -423,6 +423,22 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
     }
   };
 
+  // ---- opportunities (festival.ts): things lying around that residents' own movements can set off -------------
+  let peelDown = true;
+  let doves: "none" | "caged" | "escaped" = "none";
+  function slip(n: Npc, t: Minutes, cause: string) {
+    peelDown = false;
+    n.busyUntil = Math.max(n.busyUntil, t + 1.5);
+    const ev = emit("mishap", t, `${n.p.name} slipped on a banana peel by the notice board!`, [cause], { actor: n.p.id, place: "plaza", data: { kind: "slip" } });
+    // the mayor on his backside in the plaza is news; anyone else is just a bad moment
+    if (n.p.id === "mayor") spread(ev, t, "plaza", "Mayor Higgins slipped on a banana peel in the plaza", "crowd", "crowd", { except: [n.p.id], delay: [5, 30], p: 0.5 });
+  }
+  function knockCage(n: Npc, t: Minutes, cause: string) {
+    doves = "escaped";
+    const ev = emit("mishap", t, `${n.p.name} bumped the taped-up dove cage; the doves burst out and settled on the town hall roof!`, [cause], { actor: n.p.id, place: "stage", data: { kind: "doves_escape" } });
+    spread(ev, t, "stage", "The festival doves got loose and are sitting on the town hall roof", "crowd", "crowd", { except: [n.p.id], delay: [5, 25], p: 0.6 });
+  }
+
   function walk(n: Npc, to: PlaceId, t: Minutes, cause: string, then: (t: Minutes) => void, home = false, follow?: Npc) {
     if (n.place === to) return then(t);
     const dt = travelMinutes(n.place, to);
@@ -436,7 +452,8 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
       () => {
         n.place = to;
         n.dest = null;
-        emit("arrive", t + dt, `${n.p.name} arrived at ${placeZh(to)}`, [ev], { actor: n.p.id, place: to, data: {} });
+        const arrived = emit("arrive", t + dt, `${n.p.name} arrived at ${placeZh(to)}`, [ev], { actor: n.p.id, place: to, data: {} });
+        if (to === "plaza" && peelDown && (cfg.festival ?? true)) slip(n, t + dt, arrived);
         then(t + dt);
       },
       home ? IDLE : undefined,
@@ -710,6 +727,7 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
                 actor: who.p.id, place, data: { found: r.text, highlight: r.highlight, learned: [...who.mind.learned.keys()], with: prefix ? n.p.id : undefined },
               });
               deliver(who, "self", "inspection", "inform", r.text, [], ta + dur, done);
+              if (place === "stage" && doves === "caged") knockCage(who, ta + dur, done);
               if (careful) for (const f of FACTS) if (f.check?.by === "expert" && f.check.place === place && who.mind.learned.has(f.id)) mullOver(who, f, ta + dur, done);
               return done;
             };
@@ -892,10 +910,23 @@ export async function simulate(cfg: SimConfig): Promise<RunResult> {
   if (cfg.festival ?? true) {
     const infoNow = () => claimInfoOf(events, [...claims.values()]);
     for (const m of MILESTONES) {
-      if (m.at <= seedAt || m.at > endAt) continue;
+      // a story that starts later finds earlier preparations already done (doves in their cages, the plaza swept)
+      if (m.at <= seedAt) {
+        const r = milestoneOf(m.id, events, infoNow());
+        if (m.id === "pigeons" && r.status === "ok") doves = "caged";
+        if (m.id === "vendors" && r.status === "ok") peelDown = false;
+        continue;
+      }
+      if (m.at > endAt) continue;
       at(m.at, () => {
         const r = milestoneOf(m.id, events, infoNow());
-        emit("milestone", m.at, `${m.zh}: ${r.text}`, r.causes, { place: m.id === "vendors" || m.id === "police" ? "plaza" : "stage", data: { ...r } });
+        const mEv = emit("milestone", m.at, `${m.zh}: ${r.text}`, r.causes, { place: m.id === "vendors" || m.id === "police" ? "plaza" : "stage", data: { ...r } });
+        // the doves are in their cages from 18:00; setting up the stalls at 18:30 sweeps the plaza
+        if (m.id === "pigeons" && r.status === "ok") doves = "caged";
+        if (m.id === "vendors" && r.status === "ok" && peelDown) {
+          peelDown = false;
+          emit("mishap", m.at, "Rosa swept a banana peel off the plaza while setting up her stall", [mEv], { actor: "vendor", place: "plaza", data: { kind: "sweep" } });
+        }
       }, IDLE);
     }
     if (endAt >= FESTIVAL_AT)

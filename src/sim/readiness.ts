@@ -13,7 +13,7 @@
 // - direction matters: a denial is not a scandal, believing "the lanterns are safe" is not a panic, a shop that
 //   reopened is open.
 import { FACTS, FESTIVAL_AT } from "./scenario.ts";
-import { checkTexts, claimInfoOf, milestonesUpTo, snapshotAt, type Meter, type MilestoneResult } from "./festival.ts";
+import { checkTexts, claimInfoOf, milestonesUpTo, peelOf, snapshotAt, type Meter, type MilestoneResult } from "./festival.ts";
 import type { SimEvent } from "./types.ts";
 
 export type { Meter } from "./festival.ts";
@@ -34,6 +34,9 @@ export const THRESHOLD = 35;
 export const TAGS: Record<string, { zh: string; prio: number; good?: boolean }> = {
   protest_rally: { zh: "The festival turned into a protest rally", prio: 1 },
   mayor_absent: { zh: "The mayor didn't show up for the opening", prio: 2 },
+  mayor_slipped: { zh: "The mayor slipped on a banana peel on his way to the podium", prio: 2.5 },
+  lights_out: { zh: "The stage lights stayed dark: nobody refueled the generator", prio: 4.5 },
+  doves_escaped: { zh: "The doves had already escaped and were watching from the town hall roof", prio: 5.5 },
   mayor_booed: { zh: "Protest signs went up while the mayor gave his speech", prio: 3 },
   early_exit: { zh: "The crowd left early", prio: 4 },
   on_square: { zh: "The stage was closed off, so it moved to the open plaza", prio: 5 },
@@ -104,6 +107,7 @@ export function readinessOf(events: SimEvent[], claims: { id: string; topic: str
   let alarmRaised = false;
   let cancelled = false;
   let gathered = false;
+  let dovesGone = false;
   let lastT = 0;
 
   for (const e of events) {
@@ -156,6 +160,11 @@ export function readinessOf(events: SimEvent[], claims: { id: string; topic: str
       gathered = true;
       add(e, "Stall owners gathered in protest", { mood: -15, supplies: -15, time: -10, ...(e.place === "townhall" ? { mayor: -10 } : {}) });
     } else if (e.type === "notice" && e.actor === "organizer") add(e, "Gus put up a reassuring notice", { mood: 10, crowd: 10 });
+    else if (e.type === "mishap" && e.data.kind === "slip" && e.actor === "mayor") add(e, "Mayor Higgins slipped on a banana peel in front of the plaza", { mayor: -10, mood: 5 });
+    else if (e.type === "mishap" && e.data.kind === "doves_escape") {
+      dovesGone = true;
+      add(e, "The festival doves got loose", { supplies: -10 });
+    }
   }
 
   // shops count as they stand now: one that closed and reopened is open
@@ -187,6 +196,7 @@ export function readinessOf(events: SimEvent[], claims: { id: string; topic: str
 
   // what the 20:00 scene shows
   const tags = new Set<string>(milestones.map((m) => m.tag).filter(Boolean) as string[]);
+  if (dovesGone) tags.add("no_pigeons").add("doves_escaped");
   for (const m of broken) if (IMPLIED[m.id]) tags.add(IMPLIED[m.id]!);
   const atFestival = !Number.isFinite(upTo) || upTo >= FESTIVAL_AT;
   if (atFestival && kind !== "cancelled") {
@@ -197,6 +207,10 @@ export function readinessOf(events: SimEvent[], claims: { id: string; topic: str
     if (meters.crowd >= THRESHOLD && meters.crowd < 60) tags.add("thin_crowd");
     if (meters.mood >= THRESHOLD && meters.mood < 52) tags.add("uneasy");
     if (meters.crowd >= 76 && kind === "on") tags.add("packed");
+    // the banana peel nobody slipped on or swept up is still there when the mayor walks to the podium
+    // (setting up the stalls at 18:30 sweeps it, so a log that predates the sweep event reads the same)
+    const swept = milestones.find((m) => m.id === "vendors")?.status === "ok";
+    if (peelOf(events).down && !swept && !tags.has("mayor_absent") && meters.mayor >= THRESHOLD) tags.add("mayor_slipped");
   }
   const ordered = [...tags].sort((a, b) => TAGS[a].prio - TAGS[b].prio);
   const said = new Set(broken.map((m) => IMPLIED[m.id]).filter(Boolean));

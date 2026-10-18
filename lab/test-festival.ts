@@ -20,7 +20,7 @@ test("an untouched evening: every milestone goes to plan and the festival is on,
   assert.equal(r.outcome.kind, "on");
   assert.deepEqual(r.outcome.tags, []);
   assert.equal(r.outcome.text, "Tonight's Lantern Festival: on as planned.");
-  assert.deepEqual(r.milestones.map((m) => m.status), ["ok", "ok", "ok", "ok", "ok"]);
+  assert.deepEqual(r.milestones.map((m) => m.status), ["ok", "ok", "ok", "ok", "ok", "ok"]);
 });
 
 test("a shop that closed and reopened is open: no penalty, the pigeons still arrive", () => {
@@ -103,7 +103,7 @@ test("every story reaches 20:00: after the decision budget, the milestones and t
   const run = await simulate({ active: ALL8, seedNpc: "baker", seedText: "The stage seems a bit shaky", seed: 41, policy: "gemma", chat, maxDecisions: 3, maxPerNpc: 3 });
   assert.equal(run.ended.reason, "budget");
   assert.equal(run.ended.t, 300, "the evening is played to the festival");
-  assert.equal(run.events.filter((e) => e.type === "milestone").length, 5);
+  assert.equal(run.events.filter((e) => e.type === "milestone").length, 6);
   const fest = run.events.find((e) => e.type === "festival")!;
   assert.ok(fest && fest.t === 300 && String(fest.zh).startsWith("Tonight's Lantern Festival"));
   assert.ok(calls <= 3 * 2 + 3, "no model calls after the budget (retries aside)");
@@ -119,4 +119,54 @@ test("the festival event says the same as the results would", async () => {
   const fest = run.events.find((e) => e.type === "festival")!;
   assert.equal(fest.zh, readinessOf(run.events, run.claims).outcome.text);
   assert.equal(fest.zh, "Tonight's Lantern Festival: on as planned.");
+});
+
+// ---- opportunities: a banana peel, a taped dove cage, an empty generator ----------------------------------------
+
+test("the banana peel: whoever walks to the plaza first slips; the mayor slipping costs him, and the peel is gone", () => {
+  const slip = ev("mishap", 60, { kind: "slip" }, { actor: "mayor", place: "plaza" });
+  const r = readinessOf([slip]);
+  const c = r.changes.find((x) => x.event === slip.id)!;
+  assert.equal(c.delta.mayor, -10);
+  assert.ok(!r.outcome.tags.includes("mayor_slipped"), "the peel is gone, so nobody slips at the podium");
+});
+
+test("swept at 18:30 when the stalls set up; left on the plaza by a strike, it gets the mayor at the podium", () => {
+  assert.ok(!readinessOf([]).outcome.tags.includes("mayor_slipped"), "an ordinary evening: Rosa sweeps it up");
+  const strike = readinessOf([ev("gather", 150, {}, { actor: "vendor", place: "townhall" })]);
+  assert.ok(strike.outcome.tags.includes("mayor_slipped"), strike.outcome.text);
+  assert.ok(/banana peel/.test(strike.outcome.text), strike.outcome.text);
+});
+
+test("doves knocked loose: no doves at the opening, and they are on the town hall roof", () => {
+  const r = readinessOf([ev("mishap", 200, { kind: "doves_escape" }, { actor: "police", place: "stage" })]);
+  assert.ok(r.outcome.tags.includes("no_pigeons") && r.outcome.tags.includes("doves_escaped"));
+});
+
+test("the generator: Gus refuels it unless the story has pulled him away or tied him up at 19:40", () => {
+  const gen = (log: SimEvent[]) => readinessOf(log).milestones.find((m) => m.id === "generator")!;
+  assert.equal(gen([]).status, "ok");
+  const away = ev("arrive", 250, {}, { actor: "organizer", place: "townhall" });
+  assert.equal(gen([away]).status, "failed");
+  assert.deepEqual(gen([away]).causes, [away.id]);
+  assert.equal(gen([ev("talk", 272, { claims: [] }, { actor: "police", target: "organizer" })]).status, "failed", "talking at 19:32");
+  assert.equal(gen([ev("talk", 240, { claims: [] }, { actor: "police", target: "organizer" })]).status, "ok", "an old talk does not count");
+  assert.ok(readinessOf([away]).outcome.tags.includes("lights_out"));
+  assert.equal(gen([ev("state", 100, { key: "stage", to: "closed" })]).status, "moved", "no stage, no generator");
+});
+
+const LOOK_STAGE = { feeling: "🤔 curious", act: "ponder", understanding: "x", thought: "let me check", claims: [], stances: [], actions: [{ type: "go_look", place: "stage", why: "check" }] };
+const LOOK_PLAZA = { ...LOOK_STAGE, actions: [{ type: "go_look", place: "plaza", why: "check the notice board" }] };
+
+test("in the engine: the mayor walks to the plaza and slips; a look at the stage after 18:00 lets the doves out", async () => {
+  const toPlaza = await simulate({ active: ALL8, seedNpc: "mayor", seedText: "There's a notice about you on the board", seed: 43, policy: "gemma", chat: async () => call(JSON.stringify(LOOK_PLAZA)), maxDecisions: 1 });
+  const slip = toPlaza.events.find((e) => e.type === "mishap" && e.data.kind === "slip");
+  assert.ok(slip && slip.actor === "mayor", "the mayor slipped");
+  assert.ok(!toPlaza.events.some((e) => e.type === "mishap" && e.data.kind === "sweep"), "nothing left to sweep");
+
+  // a look at the stage before the doves arrive does nothing; after 18:00 it knocks the cage
+  const early = await simulate({ active: ALL8, seedNpc: "police", seedText: "Check the stage", seed: 44, policy: "gemma", chat: async () => call(JSON.stringify(LOOK_STAGE)), maxDecisions: 1 });
+  assert.ok(!early.events.some((e) => e.type === "mishap" && e.data.kind === "doves_escape"));
+  const late = await simulate({ active: ALL8, seedNpc: "police", seedText: "Check the stage", seed: 45, seedAt: 190, policy: "gemma", chat: async () => call(JSON.stringify(LOOK_STAGE)), maxDecisions: 1 });
+  assert.ok(late.events.some((e) => e.type === "mishap" && e.data.kind === "doves_escape"), late.events.map((e) => e.type).join(","));
 });

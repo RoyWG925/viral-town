@@ -235,6 +235,7 @@ export type EventType =
   | "rejected" // engine refused an intent
   | "milestone" // a festival preparation checkpoint (17:00–19:30), read from the world as it stands
   | "festival" // 20:00: how the lantern festival turned out
+  | "mishap" // a slip on the banana peel, a sweep, doves knocked loose: set off by residents' own movements
   | "end";
 
 export interface SimEvent {

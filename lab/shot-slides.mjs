@@ -1,6 +1,7 @@
 // Screenshots for the pitch deck, headless, from the running dev server. No model calls.
 //   node lab/shot-slides.mjs town [hour=18.6]          → docs/slides/shots/town.png (UI hidden)
 //   node lab/shot-slides.mjs replay "<words of the sentence>" → docs/slides/shots/finale.png and frontpage.png
+//   node lab/shot-slides.mjs front "<words of the sentence>"  → frontpage.png only
 import { chromium } from "playwright-core";
 import { politeHeadless, LIGHT_ARGS } from "./headless.mjs";
 import { mkdirSync, existsSync } from "node:fs";
@@ -26,7 +27,7 @@ if (mode === "town") {
   await page.keyboard.press("h");
   await page.waitForTimeout(4000);
   await page.screenshot({ path: join(out, "town.png") });
-} else if (mode === "replay") {
+} else if (mode === "replay" || mode === "front") {
   // play a published recording at 3x until the festival scene, then the front page
   await page.evaluate(async (id) => {
     const btn = [...document.querySelectorAll("button")].find((b) => /Recorded runs/.test(b.textContent ?? ""));
@@ -44,12 +45,15 @@ if (mode === "town") {
   await page.evaluate(() => window.__setSpeed(40));
   const probe = setInterval(() => page.evaluate(() => ({ clock: Math.round(window.__show.clock), status: window.__show.status, speed: window.__show.speed, until: Math.round(window.__show.stepUntil ?? 0), phase: document.querySelector("[data-phase]")?.getAttribute("data-phase") })).then((x) => console.log("probe", JSON.stringify(x))).catch(() => {}), 15000);
   await page.waitForFunction(() => !!window.__show.finale, null, { timeout: 900_000, polling: 500 });
-  await page.evaluate(() => window.__setSpeed(1));
-  await page.keyboard.press("h");
-  await page.waitForFunction(() => window.__show.clock - window.__show.finale.start >= 4.5, null, { timeout: 300_000, polling: 250 });
-  await page.screenshot({ path: join(out, "finale.png") });
-  await page.keyboard.press("h");
-  await page.waitForFunction(() => document.querySelector("[data-phase]")?.getAttribute("data-phase") === "results", null, { timeout: 120_000 });
+  if (mode === "replay") {
+    await page.evaluate(() => window.__setSpeed(1));
+    await page.keyboard.press("h");
+    await page.waitForFunction(() => window.__show.clock - window.__show.finale.start >= 4.5, null, { timeout: 300_000, polling: 250 });
+    await page.screenshot({ path: join(out, "finale.png") });
+    await page.keyboard.press("h");
+    await page.evaluate(() => window.__setSpeed(40));
+  }
+  await page.waitForFunction(() => document.querySelector("[data-phase]")?.getAttribute("data-phase") === "results", null, { timeout: 600_000 });
   await page.waitForTimeout(1500);
   await page.screenshot({ path: join(out, "frontpage.png") });
   clearInterval(probe);

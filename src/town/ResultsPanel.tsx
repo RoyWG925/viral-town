@@ -257,7 +257,7 @@ export function Results({ saved, previous, stamps, recorded, progress, onWhatIf,
           </div>
 
           {/* headline and the festival stamp */}
-          <div className="relative mt-3 pr-24 max-sm:pr-0">
+          <div className="relative mt-3 min-h-[92px] pr-24 max-sm:min-h-0 max-sm:pr-0">
             <h2 className="font-serif text-[28px] font-black leading-[1.15] text-slate-900 max-sm:text-2xl">
               {story.icon} {story.headline}
             </h2>

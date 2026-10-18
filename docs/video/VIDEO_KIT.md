@@ -44,8 +44,8 @@ Regenerate after changing a line: `powershell -ExecutionPolicy Bypass -File docs
 
 ## Narration script (A)
 See `docs/video/narration.txt`; each line is rendered to `docs/video/vo/vo-NN.wav`.
-**[confirm]** vo-10 names who it is for ("players who love social sandboxes, and streamers whose audience writes the
-sentence") — a business claim the team signs off before publishing.
+vo-10 names who it is for ("players who love social sandboxes, and streamers whose audience writes the sentence");
+the team signed off this business line on 2026-10-18.
 
 ## Chosen runs (P23, English, real Gemma-4-31B-IT on AMD Token Factory)
 - **Hook / payoff:** `P23-stage-cafe` — reach 8, 31 calls, platform-reported US$0.0016. Stage sealed, Gus slips on the

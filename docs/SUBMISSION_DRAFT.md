@@ -1,8 +1,8 @@
 # VIRAL — submission draft (AMD Developer Hackathon ACT III · Track 4: Create a New Kind of Experience)
 
-> Draft for Roy to review before anything is submitted. Lines marked **[confirm]** are claims or choices only the
-> team can sign off (business model, prices). Numbers come from lab/runs and PLAYTEST_REPORT.md; update them after
-> the final English batch.
+> Draft for Roy to review before anything is submitted. The business lines (who pays, prices, the list-rate
+> estimate) were signed off by the team on 2026-10-18. Numbers come from lab/runs and PLAYTEST_REPORT.md (final
+> English batch: P23).
 
 ## Title (5–50 chars)
 VIRAL — one whisper, a whole town reacts
@@ -62,11 +62,11 @@ decides what is true, what someone sees, or whether an action is allowed.
 
 **How much each experience costs.** A full story is 15–38 Gemma calls. Across 92 full stories the AMD Token Factory
 platform reported **US$0.0013 per story** (median; US$0.0020 at most) during the event. A sentence that fizzles costs
-1–4 calls. **[confirm]** At an assumed list rate (US$0.50 per million input tokens, US$3 per million output, no cache
+1–4 calls. At an assumed list rate (US$0.50 per million input tokens, US$3 per million output, no cache
 discount) our own estimate is about US$0.03–0.07 per full story. A replayed recording costs
 nothing.
 
-**Who would pay, and why. [confirm — pick one or two]**
+**Who would pay, and why.**
 - *Players:* a short, replayable story game — free to try, small one-time price or paid "new town" packs.
 - *Media-literacy education:* schools and libraries, to let students see how a rumour mutates through motives and
   retellings, with the full traceable chain as the lesson. Pay per classroom licence.
@@ -90,4 +90,4 @@ nothing.
 - [ ] Video (MP4/MOV) and slide deck (PDF) uploaded.
 - [ ] Cover image.
 - [x] Final numbers updated from the English batch (P23).
-- [ ] Business lines marked [confirm] signed off by the team.
+- [x] Business lines signed off by the team (2026-10-18).

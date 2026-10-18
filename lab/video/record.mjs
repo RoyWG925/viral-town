@@ -177,6 +177,11 @@ const CLIPS = {
     await load();
     await record("bed", async () => { await page.waitForTimeout(1500); await replay("old planks"); });
   },
+  // a command is just something a stranger said: the mayor's reaction, at 2x so his thought is readable
+  command: async () => {
+    await load();
+    await record("command", async () => { await page.waitForTimeout(1500); await replay("Cancel the Lantern", 2); });
+  },
   contrast: async () => {
     await load();
     await record("contrast", async () => { await page.waitForTimeout(1500); await replay("new car"); });

@@ -1,5 +1,11 @@
 # The demo video, as code
 
+**Final promo (2026-10-18): `Promo` in `src/Promo.tsx`** — 2:46, 1080p30, `../viral-video/out/VIRAL-promo.mp4`. It follows
+the revision notes in 「VIRAL 宣傳片：腳本與修改說明」: real recordings only; big dialogue cards quoting the runs' logs
+word for word; counters read from the runs (`promo-data.mjs`); no slide images; music and sound effects synthesized
+in code (`synth-audio.mjs`, original, 120 BPM); narration by Gemini TTS (`tts.mjs`, key read from `.env.local`),
+captioned word for word. The earlier narrated demo (`Demo.tsx`) is kept for reference.
+
 Every game shot in the video is a real screen recording of the game; this folder only cuts, labels and captions them.
 
 1. **Record** (from the repo root, dev server on :3002): `node lab/video/record.mjs opening,hook,finale,bed,contrast,fizzle,town,live ../viral-video/public/clips`

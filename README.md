@@ -115,3 +115,16 @@ reported an impostor; commands and swearing went nowhere. The 📼 recordings in
 
 ## License
 MIT — see `LICENSE`.
+
+
+## Team
+
+VIRAL is a team project by [Roy (@RoyWG925)](https://github.com/RoyWG925) and [Jielle (@jielle2453)](https://github.com/jielle2453).
+
+| Responsibility | Team member |
+|---|---|
+| AI Agent testing and iteration | Roy |
+| Competition materials, interface and visual design | Jielle |
+| Concept and gameplay | Roy and Jielle together |
+
+Division of work confirmed by Roy on 2026-10-19; the original statement is recorded in the [Identity OS contribution proposal](https://github.com/RoyWG925/builder-context/pull/4).
